@@ -1,0 +1,1 @@
+// BFF endpoint for logout

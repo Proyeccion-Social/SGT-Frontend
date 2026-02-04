@@ -11,6 +11,9 @@ importers:
       astro:
         specifier: ^5.16.15
         version: 5.17.1(rollup@4.57.1)(typescript@5.9.3)
+      shiki:
+        specifier: ^3.22.0
+        version: 3.22.0
 
 packages:
 

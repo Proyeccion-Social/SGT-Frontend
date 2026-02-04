@@ -1,0 +1,27 @@
+---
+import { Image } from "astro:assets";
+import Cards from "./Cards.astro";
+import ButtonCta from "./ButtonCta.astro";
+import Marked from "../assets/imgs/Marked.png";
+import CardTuto1 from "../assets/imgs/CardTuto1.png";
+import CardTuto2 from "../assets/imgs/CardTuto2.png";
+---
+
+<header>
+  <div class='headerText'>
+    <h1>Aprende con quienes ya pasaron por lo mismo</h1>
+    <p>
+      Conecta con tutores, agenda sesiones presenciales o virtuales, y forma
+      parte de la comunidad
+    </p>
+    <Image src={Marked} alt='Marked' />
+  </div>
+  <section class='cards'>
+    <Cards imgSrc={CardTuto1} title='Tutorías Personalizadas' rotation={-10} />
+    <Cards imgSrc={CardTuto2} title='Sesiones Grupales' rotation={10} />
+  </section>
+  <div>
+    <ButtonCta />
+    <a>O regístrate</a>
+  </div>
+</header>

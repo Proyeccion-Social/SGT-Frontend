@@ -1,0 +1,53 @@
+---
+import FullLogo from "./FullLogo.astro"
+---
+
+<nav class="navBar">
+    <FullLogo />
+    <ul class="navLinks">
+        <li><a href="#features">Cómo funciona</a></li>
+        <li><a href="#pricing">Comunidad</a></li>
+        <li><a href="#contact">Impacto</a></li>
+    </ul>
+    <button>¡Comienza!</button>
+</nav>
+
+<style>
+    .navBar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 660px;
+        height: 54px;
+        padding: 12px;
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 24px;
+
+        font-family: "Cabinet Grotesk Variable";
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 32px;
+        letter-spacing: -0.02em;
+    }
+
+    .navLinks {
+        display: flex;
+        gap: 8px;
+        color: #1A1A1A;
+    }
+
+    button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px 12px;
+        width: 97px;
+        height: 32px;
+        background: #CDFF8E;
+        border-radius: 16px;
+        font-weight: 500;
+        color: #1A1A1A;
+    }
+</style>

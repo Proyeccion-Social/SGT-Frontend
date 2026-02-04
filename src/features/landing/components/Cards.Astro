@@ -1,0 +1,24 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  imgSrc: ImageMetadata;
+  title: string;
+  rotation?: number;
+}
+
+const { imgSrc, title, rotation = 0 } = Astro.props;
+---
+
+<Image src={imgSrc} alt={title} style={`transform: rotate(${rotation}deg);`} />
+
+<style>
+  img { 
+    width: 170px;
+    height: 170px;
+
+    border: 6px solid #ffffff;
+    border-radius: 24px;
+  }
+</style>

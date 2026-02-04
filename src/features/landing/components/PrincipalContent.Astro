@@ -12,16 +12,17 @@ import PrincipalBg from "../assets/imgs/PrincipalBg.png";
     class='principalPage'
     style={`background-image: url(${PrincipalBg.src});`}
   >
-    <Nav />
-    <div class='arrow'>
-      <Image src={Arrow} alt='Arrow' />
-      <p>By: Proyección Social</p>
-    </div>
+    <article class="navContent">
+      <Nav />
+      <div class='arrow'>
+        <Image src={Arrow} alt='Arrow' />
+        <p>By: Proyección Social</p>
+      </div>
+    </article>
     <Header />
     <Video />
   </div>
 </section>
-
 <style>
   .principalPage {
     display: flex;
@@ -35,12 +36,13 @@ import PrincipalBg from "../assets/imgs/PrincipalBg.png";
     background-repeat: no-repeat;
     border-radius: 24px;
     position: relative;
+    overflow: hidden;
   }
 
   .arrow {
-    position: absolute;
-    top: 12vh;
-    left: 20vw;
+    position: relative; 
+    top: 90px;
+    left: -320px;
     font-family: "Caveat";
     display: flex;
     flex-direction: column;
@@ -55,4 +57,14 @@ import PrincipalBg from "../assets/imgs/PrincipalBg.png";
     justify-content: center;
     align-items: center;
   }
+
+  .navContent {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+
 </style>

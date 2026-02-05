@@ -14,14 +14,104 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       Conecta con tutores, agenda sesiones presenciales o virtuales, y forma
       parte de la comunidad
     </p>
-    <Image src={Marked} alt='Marked' />
+    <Image
+      style={`position: absolute; left: 115px; top: 75px;`}
+      src={Marked}
+      alt='Marked'
+    />
   </div>
   <section class='cards'>
-    <Cards imgSrc={CardTuto1} title='Tutorías Personalizadas' rotation={-10} />
-    <Cards imgSrc={CardTuto2} title='Sesiones Grupales' rotation={10} />
+    <Cards
+      position='left'
+      imgSrc={CardTuto1}
+      title='Tutorías Personalizadas'
+      rotation={-10}
+    />
+    <Cards
+      position='right'
+      imgSrc={CardTuto2}
+      title='Sesiones Grupales'
+      rotation={10}
+    />
   </section>
-  <div>
+  <div class="ctaButtons">
     <ButtonCta />
     <a>O regístrate</a>
   </div>
 </header>
+
+<style>
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    position: relative;
+    height: 100%;
+    justify-content: center;
+    margin-bottom: 50px;
+    font-family: "Open Sauce Two";
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+  }
+
+  .headerText {
+    width: 905px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .headerText h1 {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 60px;
+    line-height: 72px;
+    z-index: 1;
+  }
+
+  .headerText p {
+    text-wrap: balance;
+    width: 500px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+
+    color: #3c3c3c;
+
+
+  }
+
+  .cards {
+    position: absolute;
+    width: 100%;
+    height: 300px;
+    /* top: 0;
+    left: 0; */
+  }
+
+  .cards:first-child {
+    left: -220px;
+  }
+
+  .ctaButtons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ctaButtons a {
+    font-family: 'Cabinet Grotesk Variable';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    text-decoration-line: underline;
+    color: #1A1A1A;
+  }
+</style>

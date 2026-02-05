@@ -12,6 +12,18 @@ import FullLogo from "./FullLogo.astro"
     <button>¡Comienza!</button>
 </nav>
 
+<script>
+    const nav = document.querySelector('.navBar');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 30) {
+            nav?.classList.add('scrolled');
+        } else {
+            nav?.classList.remove('scrolled');
+        }
+    });
+</script>
+
 <style>
     .navBar {
         display: flex;
@@ -20,8 +32,11 @@ import FullLogo from "./FullLogo.astro"
         width: 660px;
         height: 54px;
         padding: 12px 12px;
-        margin-top: 20px;
         background: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(12.4px);
+        -webkit-backdrop-filter: blur(12.4px);
+        border: 1px solid rgba(255, 255, 255, 0.19);
         border-radius: 24px;
 
         font-family: "Cabinet Grotesk Variable";
@@ -31,8 +46,14 @@ import FullLogo from "./FullLogo.astro"
         line-height: 32px;
         letter-spacing: -0.02em;
         position: fixed;
-
+        top: 40px;
+        transition: top 0.3s ease;
+        
         z-index: 10000;
+    }
+
+    .navBar.scrolled {
+        top: 20px;
     }
 
     .navLinks {
@@ -68,4 +89,4 @@ import FullLogo from "./FullLogo.astro"
         color: #1A1A1A;
         border: none;  
     }
-</style>
+</script>

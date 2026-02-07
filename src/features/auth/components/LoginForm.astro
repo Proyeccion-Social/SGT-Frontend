@@ -1,15 +1,38 @@
 ---
 // Login form component
+/*
+Componente de formulario de login en dos pasos
+Step 1: Email Validation (Default)
+Step 2: PAssword input (if user exists)
+*/
+
+import LoginCard from "./LoginCard.astro"
+import LoginHeader from "./LoginHeader.astro"
 ---
 
-<div class='login-form'>
-  <h1>Login</h1>
-  <form>
-    <input type='email' placeholder='Email' required />
-    <input type='password' placeholder='Password' required />
-    <button type='submit'>Login</button>
-  </form>
-</div>
+<LoginCard>
+  <div class='login-form'>
+    <LoginHeader />
+    <form id="loginForm">
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="nombre@udistrital.edu.co"
+        required
+      />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Contraseña"
+        style="display: none;"
+      />
+      <p class="error" id="error" style="display: none;"></p>
+      <button type="submit">Continuar</button>
+    </form>
+  </div>
+</LoginCard>
 
 <style>
   .login-form {

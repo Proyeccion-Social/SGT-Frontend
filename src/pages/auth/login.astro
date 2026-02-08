@@ -1,13 +1,13 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import LoginForm from "@/features/auth/components/LoginForm.tsx";
+import LoginForm from "@/features/auth/components/LoginForm.astro";
 import LoginCard from "@/features/auth/components/LoginCard.astro";
 import LoginHeader from "@/features/auth/components/LoginHeader.astro";
 ---
 
-<Layout title="Login Page">
+<Layout title='Login Page'>
   <LoginCard>
     <LoginHeader />
-    <LoginForm client:load />
+    <LoginForm />
   </LoginCard>
 </Layout>

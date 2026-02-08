@@ -11,6 +11,10 @@
   gap: 6px;
 }
 
+.field[hidden] {
+  display: none;
+}
+
 .field label {
   font-family: "Open Sauce Two", system-ui, sans-serif;
   font-size: 14px;

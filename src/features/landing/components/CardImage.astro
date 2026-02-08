@@ -1,13 +1,31 @@
 ---
-// CardImage component
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  imgSrc: ImageMetadata;
+  title: string;
+  rotation?: number;
+  position: string;
+}
+
+const { imgSrc, title, rotation = 0, position } = Astro.props;
 ---
 
-<div class='card-image'>
-  <img src='' alt='Card' />
-</div>
+<Image
+  src={imgSrc}
+  alt={title}
+  style={`transform: rotate(${rotation}deg); ${position === "left" ? "left: -120px; bottom: 0px;" : "right: -150px; top: -50px;"}`}
+/>
 
 <style>
-  .card-image {
-    /* Styles here */
+  img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    position: absolute;
+
+    border: 6px solid #ffffff;
+    border-radius: 24px;
   }
 </style>

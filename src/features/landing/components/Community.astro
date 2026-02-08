@@ -1,13 +1,110 @@
 ---
-// Community component
+import { Image } from "astro:assets";
+import CardsCommunity from "./CardsCommunity.astro";
+import { COMMUNITY_CONSTS } from "../utils/CommunityConsts";
+import GridBg from "../assets/imgs/GridBg.png";
 ---
 
-<section class='community'>
-  <h2>Community</h2>
+<section class='communityContainer'>
+  <div class='gridBgWrapper'>
+    <Image src={GridBg} alt='' class='gridBg' />
+  </div>
+  <h2>!Estamos construyendo <span> comunidad</span>!</h2>
+  <p>
+    Únete y descubre cómo el aprendizaje colaborativo puede cambiar tu semestre
+  </p>
+  <div class='cardsWrapper'>
+    {
+      Object.values(COMMUNITY_CONSTS).map((community) => (
+        <CardsCommunity
+          iconSrc={community.iconSrc}
+          bgSrc={community.bgSrc}
+          url={community.url}
+          account={community.account}
+          font={community.font}
+        />
+      ))
+    }
+  </div>
 </section>
 
 <style>
-  .community {
-    /* Styles here */
+  .communityContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 80px;
+    margin-bottom: 200px;
+    position: relative;
+  }
+
+  .gridBgWrapper {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .gridBg {
+    width: 130%;
+    height: 110%;
+    object-fit: contain;
+    opacity: 0.8;
+  }
+
+  .cardsWrapper {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 50px;
+  }
+
+  h2 {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+  }
+
+  h2 span {
+    color: #8751ff;
+    font-family: "Instrument Serif";
+    font-style: italic;
+    position: relative;
+  }
+
+  h2 span::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 150%;
+    background: rgba(135, 81, 255, 0.2);
+    filter: blur(20px);
+    border-radius: 50%;
+    z-index: -1;
+  }
+
+  p {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+
+    color: #1a1a1a;
   }
 </style>

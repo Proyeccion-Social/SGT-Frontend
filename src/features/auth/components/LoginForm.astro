@@ -11,31 +11,84 @@ import LoginHeader from "./LoginHeader.astro"
 ---
 
 <LoginCard>
-  <div class='login-form'>
-    <LoginHeader />
-    <form id="loginForm">
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="nombre@udistrital.edu.co"
-        required
-      />
-      <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="Contraseña"
-        style="display: none;"
-      />
-      <p class="error" id="error" style="display: none;"></p>
-      <button type="submit">Continuar</button>
+  <LoginHeader />
+    <form class="login-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input 
+          type="email"
+          id="email"
+          placeholder="nombre@usitrital.edu.co"
+        />
+      </div>
+
+      <button type="submit">
+        Continuar
+      </button>
     </form>
-  </div>
 </LoginCard>
 
 <style>
   .login-form {
-    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    color: #1a1a1a;
+  }
+
+  .field input {
+    width: 100%;
+    max-width: 370px;
+    height: 48px;
+    padding: 0 16px;
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1;
+    border-radius: 12px;
+    border: none;
+    background-color: #e8e8e8;
+    color: #5f5f5f;
+  }
+
+  .field input::placeholder {
+    color: #8a8a8a;
+  }
+
+  .fiel input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rbga(135, 81, 255, 0.25);
+  }
+
+  button {
+    width: 100%;
+    max-width: 370px;
+    height: 56px;
+    border: none;
+    border-radius: 8px;
+    background-color: #8751ff;
+    color: #ffffff;
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    cursor:pointer;
+  }
+
+  button:hover {
+    background-color: #6C41CC;
   }
 </style>

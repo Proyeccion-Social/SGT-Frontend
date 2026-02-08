@@ -1,22 +1,23 @@
 ---
 import { Image } from "astro:assets"
-import icon from "../assets/imgs/favicon.svg"
+import icon from "../assets/imgs/icon.svg"
 ---
 
 <div class="login-header">
     <article class="logo">
         <Image src={icon} alt="Logo Atlas"/>
     </article>
-    <h3 class="title">Inicia Sesión</h3>
+    <h3 class="title">Inicia sesión</h3>
     <h6 class="subtitle">Es hora de construir tu futuro</h6>
 </div>
 
 <style>
     .login-header {
         display: flex;
+        font-family: 'Open Sauce Two';
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        gap: 8px;
         margin-bottom: 24px;
     }
 
@@ -27,7 +28,9 @@ import icon from "../assets/imgs/favicon.svg"
 
     /* Título */
     .title {
-        font-size: 24px;
+        font-size: 40px;
+        font-style: bold;
+        line-height: 28px;
         font-weight: 700;
         letter-spacing: -0.02em;
         color: #1a1a1a;
@@ -37,9 +40,10 @@ import icon from "../assets/imgs/favicon.svg"
 
     /* Subtítulo */
     .subtitle {
-        font-size: 14px;
-        font-weight: 400;
+        font-size: 16px;
         line-height: 24px;
+        font-weight: 400;
+        letter-spacing: -0.02em;
         color: #1a1a1a;
         text-align: center;
         margin: 0;

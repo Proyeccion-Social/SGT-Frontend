@@ -1,31 +1,74 @@
 ---
-import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
+import Card from "./SingleCard.astro"
 
-interface Props {
-  imgSrc: ImageMetadata;
-  title: string;
-  rotation?: number;
-  position: string;
-}
+import bgCardBuscar from "../assets/imgs/BuscarCardBg.png";
+import imgCardBuscar from "../assets/imgs/ImageBuscar.png";
 
-const { imgSrc, title, rotation = 0, position } = Astro.props;
+import bgCardAgendar from "../assets/imgs/AgendarCardBg.png";
+import imgCardAgendar from "../assets/imgs/ImageAgendar.png";
+
+import bgCardSesiones from "../assets/imgs/SesionesCardBg.png";
+import imgCardSesiones from "../assets/imgs/ImageAgendar.png";
 ---
 
-<Image
-  src={imgSrc}
-  alt={title}
-  style={`transform: rotate(${rotation}deg); ${position === "left" ? "left: -120px; bottom: 0px;" : "right: -150px; top: -50px;"}`}
-/>
+<section class="cardSection">
+  <h2><span>Atlas</span> centraliza las tutorías de Proyección Social en un solo lugar</h2>
+  <div>
+    <Card
+      imgSrc={imgCardAgendar}
+      title="Agendar"
+      header="Agendar"
+      headerSubtitle="Elige tu modalidad y horario. Tú decides cómo aprender"
+      bg={bgCardAgendar}
+    />
+    <Card
+      imgSrc={imgCardBuscar}
+      title="Buscar"
+      header="Buscar"
+      headerSubtitle="Encuentra expertos en las materias que necesitas"
+      bg={bgCardBuscar}
+    />
+
+    <Card
+      imgSrc={imgCardSesiones}
+      title="Sesiones"
+      header="Sesiones"
+      headerSubtitle="Aprende en grupo y resuelve dudas junto a otros estudiantes"
+      bg={bgCardSesiones}
+    />
+  </div>
+</section>
 
 <style>
-  img {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    position: absolute;
+  .cardSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    justify-content: center;
+    margin-bottom: 50px;
+    margin-top: 160px;
+  }
 
-    border: 6px solid #ffffff;
-    border-radius: 24px;
+  .cardSection h2 {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 56px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    width: 798px;
+
+  }
+
+  .cardSection h2 span {
+    color: #8751FF;
+  }
+
+  .cardSection div {
+    display: flex;
+    gap: 42px;
   }
 </style>

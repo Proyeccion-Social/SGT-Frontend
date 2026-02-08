@@ -1,13 +1,77 @@
 ---
-// CardsCommunity component
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  iconSrc: ImageMetadata;
+  bgSrc?: ImageMetadata | null;
+  url: string;
+  account: string;
+  font: string;
+}
+
+const { iconSrc, bgSrc, url, account, font } = Astro.props;
+
+const bgStyle = bgSrc 
+  ? `background-image: url(${bgSrc.src}); background-size: cover; background-position: center; background-repeat: no-repeat;`
+  : `background-color: white;`;
 ---
 
-<div class='cards-community'>
-  <h3>Community Cards</h3>
-</div>
+<article class="cardCommunity" style={bgStyle}>
+  <div class="content">
+    <div class="imageContainer">
+      <Image
+        src={iconSrc}
+        alt={account}
+        class="icon"
+      />
+    </div>
+    <h4 style={`font-family: ${font}; ${font === "Open Sauce Two" ? "color: #1a1a1a; font-size: 23px;" : ""}`}>{account}</h4>
+  </div>
+</article>
 
 <style>
-  .cards-community {
-    /* Styles here */
+  .cardCommunity {
+    width: 268px;
+    height: 250px;
+    box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    text-align: center;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #FFFFFF;
+  }
+
+  .imageContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(9.4px);
+    -webkit-backdrop-filter: blur(9.4px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .content img {
+    width: 80px;
+    hight: 80px;
   }
 </style>

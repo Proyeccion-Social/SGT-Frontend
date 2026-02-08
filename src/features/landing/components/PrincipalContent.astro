@@ -2,12 +2,18 @@
 import Nav from "./Nav.astro";
 import Header from "./Header.astro";
 import Video from "./Video.astro";
-import { Image } from "astro:assets";
+import Cards from "./Cards.astro"
+import InteractComponent from "./InteractComponent.astro";
+import Footer from "./Footer.astro";
+import Community from "./Community.astro";
+
 import Arrow from "../assets/imgs/Arrow1.png";
 import PrincipalBg from "../assets/imgs/PrincipalBg.png";
+
+import { Image } from "astro:assets";
 ---
 
-<section>
+<section id="app">
   <div
     class='principalPage'
     style={`background-image: url(${PrincipalBg.src});`}
@@ -15,14 +21,24 @@ import PrincipalBg from "../assets/imgs/PrincipalBg.png";
     <article class="navContent">
       <Nav />
       <div class='arrow'>
-        <Image  src={Arrow} alt='Arrow' />
+        <Image  
+          src={Arrow} 
+          alt='Arrow' 
+        />
         <p>By: Proyección Social</p>
       </div>
     </article>
+    
     <Header />
     <Video />
   </div>
 </section>
+
+<Cards />
+<InteractComponent />
+<Community />
+<Footer/>
+
 <style>
   .principalPage {
     display: flex;

@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import Cards from "./Cards.astro";
+import CardImage from "./CardImage.astro";
 import ButtonCta from "./ButtonCta.astro";
 import Marked from "../assets/imgs/Marked.png";
 import CardTuto1 from "../assets/imgs/CardTuto1.png";
@@ -21,13 +21,13 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     />
   </div>
   <section class='cards'>
-    <Cards
+    <CardImage
       position='left'
       imgSrc={CardTuto1}
       title='Tutorías Personalizadas'
       rotation={-10}
     />
-    <Cards
+    <CardImage
       position='right'
       imgSrc={CardTuto2}
       title='Sesiones Grupales'

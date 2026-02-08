@@ -13,10 +13,12 @@ import "../styles/auth.css";
     />
   </div>
 
-  <div id='password-field' class='field' hidden>
-    <label for='password'>Contraseña</label>
+  <div id='password-field' class='field'>
+    <article>
+        <label for='password'>Contraseña</label>
+        <a href='#' class='forgot-password'>¿Olvidaste tu contraseña?</a>
+    </article>
     <input id='password' type='password' placeholder='Ingresa tu contraseña' />
-    <a href='#' class='forgot-password'>¿Olvidaste tu contraseña?</a>
   </div>
 
   <button type='submit'>Continuar</button>
@@ -27,12 +29,14 @@ import "../styles/auth.css";
   const passwordField = document.getElementById("password-field");
   const emailInput = document.getElementById("email") as HTMLInputElement;
   const passwordInput = document.getElementById("password") as HTMLInputElement;
+  const loginCard = document.querySelector(".login-card") as HTMLElement;
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    if (passwordField?.hidden) {
-      passwordField.hidden = false;
+    if (!passwordField?.classList.contains("visible")) {
+      passwordField?.classList.add("visible");
+      if (loginCard) loginCard.style.height = "655px";
       passwordInput?.focus();
       return;
     }
@@ -43,3 +47,20 @@ import "../styles/auth.css";
     console.log("Login:", email, password);
   });
 </script>
+
+<style>
+    .field article {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .field article a {
+        font-family: 'Open Sauce Two';
+        font-style: normal;
+        font-weight: 300;
+        font-size: 12px;
+        line-height: 15px;
+        color: #3C3C3C;
+    }
+</style>

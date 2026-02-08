@@ -2,7 +2,8 @@
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
+  width: 370px;
 }
 
 .field {
@@ -11,8 +12,19 @@
   gap: 6px;
 }
 
-.field[hidden] {
-  display: none;
+#password-field {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+  max-height 0.3s ease-in-out,
+  opacity 0.3s ease-in-out;
+}
+
+#password-field.visible {
+  margin-bottom: 10px;
+  max-height: 150px;
+  opacity: 1;
 }
 
 .field label {
@@ -40,7 +52,7 @@
   box-shadow: 0 0 0 2px rgba(135, 81, 255, 0.25);
 }
 
-button {
+.login-form button {
   width: 100%;
   max-width: 370px;
   height: 56px;
@@ -56,6 +68,6 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.login-form button:hover {
   background-color: #6c41cc;
 }

@@ -1,3 +1,7 @@
 import { defineConfig } from 'astro/config';
 
-export default defineConfig({});
+import react from '@astrojs/react';
+
+export default defineConfig({
+  integrations: [react()]
+});

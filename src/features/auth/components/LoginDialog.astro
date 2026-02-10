@@ -22,7 +22,7 @@ import LoginForm from "./LoginForm.astro";
     <LoginCard>
       <LoginHeader />
       <LoginForm />
-    </LoginCard>
+    </LoginCard>  
   </div>
 </dialog>
 
@@ -131,6 +131,7 @@ import LoginForm from "./LoginForm.astro";
   const dialog = document.getElementById("loginDialog") as HTMLDialogElement;
   const closeButtons = document.querySelectorAll("[data-close-dialog]");
   const openButtons = document.querySelectorAll("[data-open-login]");
+  const textRecuperar = document.querySelector('.forgot-password') as HTMLElement;
 
   function resetForm() {
     const form = dialog?.querySelector("#loginForm") as HTMLFormElement;
@@ -161,6 +162,11 @@ import LoginForm from "./LoginForm.astro";
   openButtons.forEach((btn) => {
     btn.addEventListener("click", openDialog);
   });
+
+  textRecuperar.addEventListener("click", () => {
+    closeDialog();
+  });
+
 
   closeButtons.forEach((btn) => {
     btn.addEventListener("click", closeDialog);

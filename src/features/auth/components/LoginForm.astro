@@ -98,6 +98,37 @@
     font-size: 12px;
     line-height: 15px;
     color: #3C3C3C;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+
+  .field article a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background-color: #8751ff;
+    transition: width 0.25s ease;
+  }
+
+  .field article a:hover {
+    color: #8751ff;
+  }
+
+  .field article a:hover::after {
+    width: 100%;
+  }
+
+  .field article a:active {
+    color: #6c41cc;
+  }
+
+  .field article a:active::after {
+    background-color: #6c41cc;
+    width: 100%;
   }
 
   #password-field {

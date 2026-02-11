@@ -1,0 +1,54 @@
+---
+import { Image } from "astro:assets";
+import Icon from "../assets/imgs/icon.svg";
+---
+
+<div class='containerHeader'>
+  <Image src={Icon} alt='Logo Atlas' />
+  <div>
+    <h1>Crea tu cuenta</h1>
+    <p>Es hora de construir tu futuro</p>
+  </div>
+</div>
+
+<style>
+  .containerHeader {
+    display: flex;
+    font-family: "Open Sauce Two";
+    flex-direction: column;
+    gap: 21px;
+    margin-bottom: 40px;
+    color: #1a1a1a;
+    font-style: normal;
+    width: 77%;
+    position: relative;
+  }
+
+  .containerHeader img {
+    height: 80.62px;
+    width: 100px;
+    transform: rotate(-20deg);
+    position: relative;
+    left: -22px;
+  }
+
+  .containerHeader div {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .containerHeader h1 {
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .containerHeader p {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+  }
+</style>

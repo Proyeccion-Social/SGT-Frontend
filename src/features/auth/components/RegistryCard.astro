@@ -1,0 +1,89 @@
+---
+import { Image } from "astro:assets";
+import Arrow from "../assets/imgs/Arrow2.svg"
+import SideImage from "../assets/imgs/SideImage.png"
+---
+
+<section class="registrySection">
+    <article class="arrowText">
+        <Image src={Arrow} alt="Flecha derecha" />
+        <p>¡Bienvenido!</p>
+    </article>
+    <Image src={SideImage} alt="Imagen lateral" />
+    <div class="registryCard">
+        <slot/>
+    </div>
+</section>
+
+<style>
+
+    .registrySection {
+        display: grid;
+        grid-template-columns: repeat(2, 484px);
+        grid-template-rows: 655px;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        height: 100%;
+        font-family: "Open Sauce Two";
+    }
+    
+    .registrySection img,
+    .registryCard {
+        width: 100%;
+        height: 100%;
+    }
+
+    .registrySection img {
+        border-radius: 24px 0px 0px 24px;
+    }
+
+    .registryCard {
+        border-radius: 0px 24px 24px 0px;
+    }
+
+    .registryCard {
+        background: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0px 4px 37px 4px rgba(0, 0, 0, 0.1);
+      
+        transition: height 0.3s ease-in-out;
+        position: relative;
+    }
+    .arrowText {
+        display: flex;
+        position: absolute;
+        right: -70px;
+        top: -40px;
+        width: 87px;
+        height: 41px;
+
+        opacity: 1;
+        transition: opacity .3s ease,
+            display .3s ease allow-discrete;
+
+        @starting-style {
+            opacity: 0;
+        }
+    }
+
+    .arrowText.hidden {
+        display: none;
+        opacity: 0;
+    }
+
+    .arrowText p {
+        position: absolute;
+        right: -95px;
+        top: -20px;
+        font-family: 'Caveat';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 30px;
+        color: #FFFFFF;
+    }
+</style>

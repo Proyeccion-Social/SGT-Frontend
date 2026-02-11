@@ -69,6 +69,19 @@ const defaultKey = "Modalidades";
     margin: 200px auto;
   }
 
+  @media (width <= 1343px) {
+    .interactContainer {
+      width: 100%;
+      aspect-ratio: 12 / 10; /* Mantiene proporción */
+      margin: 100px auto;
+      padding: 0 20px;
+    }
+
+    .interact-bg {
+      object-fit: none;
+    }
+  }
+
   .interact-bg {
     position: absolute;
     inset: 0;
@@ -84,29 +97,29 @@ const defaultKey = "Modalidades";
 
   .interactContent {
     position: relative;
-    width: 100%;  
+    width: 100%;
     margin-bottom: 150px;
   }
 
-  .interactContent h2{
-    font-family: 'Open Sauce Two';
+  .interactContent h2 {
+    font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 700;
     font-size: 60px;
     line-height: 72px;
     letter-spacing: -0.02em;
-    color: #1A1A1A;
-    margin-bottom: 24px
+    color: #1a1a1a;
+    margin-bottom: 24px;
   }
 
   .interactContent p {
-    font-family: 'Open Sauce Two';
+    font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 400;
     font-size: 20px;
     line-height: 24px;
     letter-spacing: -0.02em;
-    color: #1A1A1A;
+    color: #1a1a1a;
   }
 
   .interact-text {
@@ -133,13 +146,13 @@ const defaultKey = "Modalidades";
     border-radius: 8px;
     justify-content: center;
 
-    font-family: 'Cabinet Grotesk Variable';
+    font-family: "Cabinet Grotesk Variable";
     font-style: normal;
     font-weight: 700;
     font-size: 20px;
     line-height: 24px;
     letter-spacing: -0.02em;
-    color: #1A1A1A;
+    color: #1a1a1a;
     background-color: transparent;
     border: 0px solid transparent;
   }

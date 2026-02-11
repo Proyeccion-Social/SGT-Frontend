@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import PrincipalContent from "@/features/landing/components/PrincipalContent.astro";
+import AuthDialogsContainer from "@/layouts/auth/AuthDialogsContainer.astro";
 import LoginDialog from "@/features/auth/components/LoginDialog.astro";
 import ForgotPasswordDialog from "@/features/auth/components/ForgotPasswordDialog.astro";
 import RegistryDialog from "@/features/auth/components/RegistryDialog.astro";
@@ -11,4 +12,8 @@ import RegistryDialog from "@/features/auth/components/RegistryDialog.astro";
   <LoginDialog />
   <ForgotPasswordDialog />
   <RegistryDialog />
+  <AuthDialogsContainer>
+    <LoginDialog />
+    <ForgotPasswordDialog />
+  </AuthDialogsContainer>
 </Layout>

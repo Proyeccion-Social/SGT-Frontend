@@ -1,137 +1,23 @@
 ---
-import LoginCard from "./LoginCard.astro";
-import LoginHeader from "./LoginHeader.astro";
-import LoginForm from "./LoginForm.astro";
+import AuthDialogLayout from "@/layouts/auth/AuthDialogLayout.astro";
+import LoginCard from "../components/LoginCard.astro";
+import LoginHeader from "../components/LoginHeader.astro";
+import LoginForm from "../components/LoginForm.astro";
 ---
 
-<dialog id='loginDialog' class='loginDialog'>
-  <div class='dialogBackdrop' data-close-dialog></div>
-  <div class='dialogContent'>
-    <button class='closeBtn' data-close-dialog aria-label='Cerrar'>
-      <svg
-        width='24'
-        height='24'
-        viewBox='0 0 24 24'
-        fill='none'
-        stroke='currentColor'
-        stroke-width='2'
-      >
-        <path d='M18 6L6 18M6 6l12 12'></path>
-      </svg>
-    </button>
-    <LoginCard>
-      <LoginHeader />
-      <LoginForm />
-    </LoginCard>  
-  </div>
-</dialog>
-
-<style>
-  .loginDialog {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    border: none;
-    background: transparent;
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 0.2s ease-out,
-      visibility 0.2s ease-out;
-  }
-
-  .loginDialog[open] {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .loginDialog::backdrop {
-    display: none;
-  }
-
-  .dialogBackdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(207, 185, 255, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(4px);
-    opacity: 0;
-    transition: opacity 0.3s ease-out;
-  }
-
-  .loginDialog[open] .dialogBackdrop {
-    opacity: 1;
-  }
-
-  .dialogContent {
-    position: relative;
-    z-index: 1;
-    transform: scale(0.95) translateY(10px);
-    opacity: 0;
-    transition:
-      transform 0.25s cubic-bezier(0.32, 0.72, 0, 1),
-      opacity 0.2s ease-out;
-  }
-
-  .loginDialog[open] .dialogContent {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-
-  .closeBtn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 10;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #666;
-    transition:
-      background 0.15s ease,
-      color 0.15s ease;
-  }
-
-  .closeBtn:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: #1a1a1a;
-  }
-
-  /* Animación de salida */
-  .loginDialog.closing {
-    opacity: 0;
-  }
-
-  .loginDialog.closing .dialogBackdrop {
-    opacity: 0;
-  }
-
-  .loginDialog.closing .dialogContent {
-    transform: scale(0.95) translateY(10px);
-    opacity: 0;
-  }
-</style>
+<AuthDialogLayout dialogId="loginDialog" dialogClass="loginDialog">
+  <LoginCard>
+    <LoginHeader />
+    <LoginForm />
+  </LoginCard>
+</AuthDialogLayout>
 
 <script>
   const dialog = document.getElementById("loginDialog") as HTMLDialogElement;
-  const closeButtons = document.querySelectorAll("[data-close-dialog]");
+  const closeButtons = dialog?.querySelectorAll("[data-close-dialog]");
   const openButtons = document.querySelectorAll("[data-open-login]");
   const textRecuperar = document.querySelector('.forgot-password') as HTMLElement;
+  const forgotPasswordDialog = document.getElementById("forgotPasswordDialog") as HTMLDialogElement;
 
   function resetForm() {
     const form = dialog?.querySelector("#loginForm") as HTMLFormElement;
@@ -149,34 +35,52 @@ import LoginForm from "./LoginForm.astro";
     document.body.style.overflow = "hidden";
   }
 
-  function closeDialog() {
+  function closeDialog(keepBodyOverflow = false) {
     dialog?.classList.add("closing");
     setTimeout(() => {
       dialog?.close();
       dialog?.classList.remove("closing");
-      document.body.style.overflow = "";
+      if (!keepBodyOverflow) {
+        document.body.style.overflow = "";
+      }
       resetForm();
     }, 200);
+  }
+
+  function switchToDialog(targetDialog: HTMLDialogElement) {
+    dialog?.classList.add("switching");
+    targetDialog?.classList.add("entering-from-switch");
+    setTimeout(() => {
+      dialog?.close();
+      dialog?.classList.remove("switching");
+      resetForm();
+      targetDialog?.showModal();
+      setTimeout(() => {
+        targetDialog?.classList.remove("entering-from-switch");
+      }, 50);
+    }, 180);
   }
 
   openButtons.forEach((btn) => {
     btn.addEventListener("click", openDialog);
   });
 
-  textRecuperar.addEventListener("click", () => {
-    closeDialog();
+  textRecuperar?.addEventListener("click", () => {
+    switchToDialog(forgotPasswordDialog);
   });
 
-
-  closeButtons.forEach((btn) => {
-    btn.addEventListener("click", closeDialog);
+  closeButtons?.forEach((btn) => {
+    btn.addEventListener("click", () => closeDialog());
   });
 
-  // Cerrar con Escape
   dialog?.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
       closeDialog();
     }
+  });
+
+  dialog?.addEventListener("close-request", () => {
+    closeDialog();
   });
 </script>

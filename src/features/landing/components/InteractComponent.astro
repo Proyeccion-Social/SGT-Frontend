@@ -69,19 +69,6 @@ const defaultKey = "Modalidades";
     margin: 200px auto;
   }
 
-  @media (width <= 1343px) {
-    .interactContainer {
-      width: 100%;
-      aspect-ratio: 12 / 10; /* Mantiene proporción */
-      margin: 100px auto;
-      padding: 0 20px;
-    }
-
-    .interact-bg {
-      object-fit: none;
-    }
-  }
-
   .interact-bg {
     position: absolute;
     inset: 0;
@@ -174,6 +161,20 @@ const defaultKey = "Modalidades";
     gap: 20px;
     height: 40px;
   }
+
+  @media (width <= 1343px) {
+    .interactContainer {
+      width: 90%;
+      aspect-ratio: 12 / 10;
+      padding: 0 20px;
+      
+    }
+    .interact-bg {
+      object-fit: none;
+    }
+  }
+
+
 </style>
 
 <script>

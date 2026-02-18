@@ -94,10 +94,21 @@ import { Image } from "astro:assets";
     top: 0;
   }
   
-  @media (width <= 1292px){
-    .principalPage {
-      
-    }
+@media (width <= 1264px){
+  .arrow {
+    top: 115px;
+    left: -395px;
   }
+}
+@media (width <= 1085px){
+  .arrow {
+    display: none;
+  }
+}
 
+@media (width <= 1264px){
+  .principalPage {
+    min-height: 110vh;
+  }
+}
 </style>

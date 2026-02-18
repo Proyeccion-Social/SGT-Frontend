@@ -61,6 +61,8 @@ const defaultKey = "Modalidades";
     position: relative;
     width: 1340px;
     height: 800px;
+    aspect-ratio: 1340 / 800;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,15 +167,47 @@ const defaultKey = "Modalidades";
   @media (width <= 1343px) {
     .interactContainer {
       width: 90%;
-      aspect-ratio: 12 / 10;
       padding: 0 20px;
-      
+      min-height: 500px;
+      margin: 100px auto;
+      height: auto;  
     }
     .interact-bg {
-      object-fit: none;
+      object-fit: contain;
     }
   }
 
+  @media (width <= 768px) {
+    .interactContainer {
+      min-height: 400px;
+      aspect-ratio: auto;
+      margin: 60px auto;
+      gap: 16px;
+    }
+    .interactContent {
+      margin-bottom: 100px;
+    }
+    .interactContent h2 {
+      font-size: 36px;
+      line-height: 44px;
+    }
+    .interactContent p {
+      font-size: 16px;
+      line-height: 20px;
+    }
+    .interactMenu {
+      bottom: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      height: auto;
+    }
+    .interact-option {
+      width: auto;
+      font-size: 16px;
+      padding: 6px 12px;
+    }
+  }
 
 </style>
 

@@ -103,14 +103,22 @@ import FullLogo from "./FullLogo.astro"
         }
     }
 
-    @media (width <= 460px) {
+    @media (width <= 581px) {
         .navBar {
             width: 90%;
         }
-
-        .navLinks {
-            font-size: 14px;
-        }
     }
 
+    @media (width <= 563px){
+        .navLinks {
+            display: none;
+        }
+
+        .navBar {
+            width: fit-content;
+            justify-content: center;
+            gap: 40px;
+            padding: 12px 62px;
+        }
+    }
 </style>

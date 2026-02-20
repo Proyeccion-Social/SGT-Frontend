@@ -2,7 +2,7 @@
   <div class='field'>
     <label for='email'>Email</label>
     <input
-      id='email'
+      id='emailRegister'
       type='email'
       placeholder='nombre@udistrital.edu.co'
       required
@@ -16,15 +16,51 @@
   <div class='field'>
     <label for='password'>Contraseña</label>
     <input
-      id='password'
+      id='passwordRegister'
       type='password'
       placeholder='Ingresa tu contraseña'
       required
     />
   </div>
-
   <button type='submit'>Continuar</button>
 </form>
+
+<script>
+  const form = document.getElementById("registryForm");
+  const emailInput = document.getElementById("emailRegister");
+  const nameInput = document.getElementById("fullName");
+  const passwordInput = document.getElementById("passwordRegister");
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    try {
+      console.log(emailInput.value, nameInput.value, passwordInput.value);
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: nameInput.value,
+          email: emailInput.value,
+          password: passwordInput.value,
+          confirmPassword: passwordInput.value, // Duplicar password
+        }),
+      });
+
+      const data = await res.json();
+      console.log("Respuesta registro:", data);
+
+      if (!res.ok) {
+        alert(data.message || "Error en el registro");
+        return;
+      }
+    } catch (err) {
+      console.error("Error en el registro:", err);
+      alert("Error en el registro");
+    }
+  });
+</script>
 
 <style>
   .registryForm {

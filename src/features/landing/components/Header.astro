@@ -9,20 +9,30 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
 
 <header>
   <div class='headerText'>
-    <h1>Aprende con quienes ya pasaron por lo mismo</h1>
+    <div class='headerTitle'>
+      <h1>Aprende con quienes ya </h1>
+      <article class="mainText">
+        <article class="markedText">
+            <h1>pasaron</h1>
+            <Image
+              src={Marked}
+              alt='Marked'
+            />
+        </article>
+        <h1>por lo mismo</h1>
+      </article>
+    </div>
     <p>
       Conecta con tutores, agenda sesiones presenciales o virtuales, y forma
       parte de la comunidad
     </p>
-    <Image
-      src={Marked}
-      alt='Marked'
-    />
   </div>
+  
   <div class='ctaButtons'>
     <ButtonCta />
     <a data-open-registry>O regístrate</a>
   </div>
+  
   <section class='cards'>
     <CardImage
       position='left'
@@ -64,12 +74,35 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     align-items: center;
   }
 
+  .mainText {
+    display: flex;
+    justify-content: center;
+    
+    position: relative;
+  }
+
+  .markedText {
+    position: relative;
+    display: inline-block;
+    width: 263px;
+  }
+
+  .markedText img {
+    position: absolute;
+    bottom: -8px;
+    width: 100%;
+    left: -4px;
+    z-index: 0;
+  }
+
   .headerText h1 {
     font-style: normal;
     font-weight: 700;
     font-size: 60px;
     line-height: 72px;
     z-index: 1;
+    position: relative;
+    justify-content: center;
   }
 
   .headerText p {
@@ -83,16 +116,6 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
 
     color: #3c3c3c;
   }
-
-  .headerText :global(img) {
-    width: 269px;
-    height: auto;
-    aspect-ratio: 269 / 73;
-    position: absolute; 
-    left: 115px; 
-    top: 75px;
-  }
-
   .cards {
     position: absolute;
     width: 100%;
@@ -150,101 +173,27 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     }
   }
 
-  @media (width <= 750px) {
-    .headerText {
-      width: 90%;
-      padding: 0 16px;
+  @media (width <= 750px){
+    .headerText{
+        width: 100%;
+        padding: 0 20px;
     }
-
     .headerText h1 {
-      font-size: 56px;
+      font-size: 52px;
       line-height: 56px;
     }
-
-    .headerText p {
-      width: 100%;
-      font-size: 16px;
-      line-height: 20px;
+    
+    .markedText  {
+      width: auto;
     }
 
-    .headerText :global(img) {
-      width: 240px;
-      left: 150px; 
-      top: 60px;
+    .markedText img {
+      aspect-ratio: 263 / 70;
+      width: 120%;
+      
     }
+
   }
 
-  @media (width <= 730px) {
-    .headerText {
-      width: 90%;
-      padding: 0 12px;
-    }
 
-    .headerText h1 {
-      font-size: 48px;
-      line-height: 48px;
-    }
-
-    .headerText p {
-      width: 100%;
-      font-size: 16px;
-      line-height: 20px;
-    }
-
-    .headerText :global(img) {
-      width: 210px;
-      left: 8%; 
-      top: 50px;
-    }
-  }
-
-  @media (width <= 682px) {
-    .headerText {
-      width: 90%;
-      padding: 0 12px;
-    }
-
-    .headerText h1 {
-      font-size: 40px;
-      line-height: 42px;
-    }
-
-    .headerText p {
-      width: 100%;
-      font-size: 16px;
-      line-height: 20px;
-    }
-
-    .headerText :global(img) {
-      width: 180px;
-      left: 70px; 
-      top: 45px;
-    }
-  }
-
-  @media (width <= 669px) {
-    .headerText :global(img) {
-      width: 180px;
-      left: 6% 
-      top: 50px;
-    }
-  }
-
-  @media (width <= 465px){
-    .headerText{
-      width: 100%;
-      padding: 0 16px;
-    }
-
-    .headerText h1 {
-      font-size: 32px;
-      line-height: 32px;
-    }
-
-    .headerText p {
-      font-size: 14px;
-      line-height: 18px;
-      margin-top: -10px;
-    }
-  }
 </style>

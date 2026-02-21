@@ -21,6 +21,8 @@
 </form>
 
 <script>
+  import { sileo } from "sileo";
+
   const form = document.getElementById("login-form");
   const passwordField = document.getElementById("password-field");
   const emailInput = document.getElementById("email");
@@ -34,70 +36,82 @@
     e.preventDefault();
 
     if (!passwordVisible) {
-      try {
-        console.log("Validating email:", emailInput.value);
-        const res = await fetch("api/auth/validate-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      await sileo
+        .promise(
+          async () => {
+            console.log("Validating email:", emailInput.value);
+            const res = await fetch("api/auth/validate-email", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: emailInput.value,
+              }),
+            });
+
+            if (!res.ok) {
+              const errorData = await res.json().catch(() => ({}));
+              throw new Error(errorData.error || "Error validando email");
+            }
+
+            const data = await res.json();
+            console.log(data);
+
+            if (data.isValid) {
+              passwordField?.classList.add("visible");
+              arrowText?.classList.add("hidden");
+
+              if (loginCard) loginCard.style.height = "655px";
+
+              passwordInput?.focus();
+              passwordVisible = true;
+            } else {
+              throw new Error("Email no válido");
+            }
           },
-          body: JSON.stringify({
-            email: emailInput.value,
-          }),
+          {
+            loading: { title: "Validando email...", fill: "#8751ff"},
+            success: { title: "Email válido", fill: "#58d68d"},
+            error: { title: "Error validando email", description: "El email no está registrado, crea una cuenta", fill: "#f35761"},
+          },
+        )
+        .catch((err) => {
         });
-
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          alert(errorData.error || "Error validando email");
-          return;
-        }
-
-        const data = await res.json();
-        console.log(data);
-
-        if (data.isValid) {
-          passwordField?.classList.add("visible");
-          arrowText?.classList.add("hidden");
-
-          if (loginCard) loginCard.style.height = "655px";
-
-          passwordInput?.focus();
-          passwordVisible = true;
-        } else {
-          alert("Email no válido");
-        }
-      } catch (err) {
-        console.error("Error validating email:", err);
-        alert("Error validando email");
-      }
-
       return;
     }
 
-    try {
-      console.log("Password: ", passwordInput.value);
-      const res = await fetch("api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    await sileo
+      .promise(
+        async () => {
+          console.log("Password: ", passwordInput.value);
+          const res = await fetch("api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: emailInput.value,
+              password: passwordInput.value,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.message || "Login failed");
+          }
+          // Redirigir al dashboard
+          window.location.href = "/dashboard";
         },
-        body: JSON.stringify({
-          email: emailInput.value,
-          password: passwordInput.value,
-        }),
+        {
+          loading: { title: "Iniciando sesión...", fill: "#8751ff"},
+          success: { title: "Sesión iniciada", fill: "#58d68d"},
+          error: { title: "Credenciales incorrectas", description: `Verifica tus credenciales e intenta nuevamente`, fill: "#f35761" },
+        },
+      )
+      .catch((err) => {
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-      // Redirigir al dashboard
-      window.location.href = "/dashboard";
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("Credenciales incorrectas");
-    }
   });
 </script>
 

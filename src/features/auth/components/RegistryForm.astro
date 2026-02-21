@@ -26,6 +26,7 @@
 </form>
 
 <script>
+  import { sileo } from "sileo";
   const form = document.getElementById("registryForm");
   const emailInput = document.getElementById("emailRegister");
   const nameInput = document.getElementById("fullName");
@@ -33,32 +34,36 @@
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    try {
-      console.log(emailInput.value, nameInput.value, passwordInput.value);
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    await sileo
+      .promise(
+        async () => {
+          const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: nameInput.value,
+              email: emailInput.value,
+              password: passwordInput.value,
+              confirmPassword: passwordInput.value,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.message || "Error en el registro");
+          }
+          // Puedes redirigir o limpiar el formulario aquí si quieres
         },
-        body: JSON.stringify({
-          name: nameInput.value,
-          email: emailInput.value,
-          password: passwordInput.value,
-          confirmPassword: passwordInput.value, // Duplicar password
-        }),
+        {
+          loading: { title: "Registrando usuario...", fill: "#8751ff" },
+          success: { title: "Registro exitoso", description: "Revisa la bandeja de tu correo y sigue las instrucciones para activar tu cuenta.", fill: "#58d68d" },
+          error: { title: "Error en el registro", fill: "#f35761" },
+        },
+      )
+      .catch((err) => {
+        // El error ya se muestra por sileo, pero puedes hacer algo extra aquí si quieres
       });
-
-      const data = await res.json();
-      console.log("Respuesta registro:", data);
-
-      if (!res.ok) {
-        alert(data.message || "Error en el registro");
-        return;
-      }
-    } catch (err) {
-      console.error("Error en el registro:", err);
-      alert("Error en el registro");
-    }
   });
 </script>
 

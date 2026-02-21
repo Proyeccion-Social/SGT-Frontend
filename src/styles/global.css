@@ -1,3 +1,4 @@
+@import "sileo/styles.css"
 /* Font Faces */
 @font-face {
   font-family: "Cabinet Grotesk Variable";
@@ -5,6 +6,28 @@
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+}
+
+:root {
+  font-family: "Open Sauce Two", "Cabinet Grotesk Variable", system-ui, -apple-system, sans-serif;
+}
+
+[data-sileo-title] {
+    color: #ffffff !important;
+}
+
+[data-sileo-description] {
+    color: #ffffff !important;
+}
+
+[data-sileo-badge] {
+    color: #ffffff !important;
+    background-color: #ffffff15 !important;
+}
+
+[data-sileo-button] {
+    color: #ffffff !important;
+    background-color: #ffffff20 !important;
 }
 
 @font-face {

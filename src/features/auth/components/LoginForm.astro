@@ -32,6 +32,10 @@
 
   let passwordVisible = false;
 
+  document.addEventListener("reset-login-form", () => {
+    passwordVisible = false;
+  });
+
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 

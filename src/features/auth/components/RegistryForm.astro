@@ -53,7 +53,6 @@
           if (!res.ok) {
             throw new Error(data.message || "Error en el registro");
           }
-          // Puedes redirigir o limpiar el formulario aquí si quieres
         },
         {
           loading: { title: "Registrando usuario...", fill: "#8751ff" },
@@ -61,8 +60,21 @@
           error: { title: "Error en el registro", fill: "#f35761" },
         },
       )
+      .then(() => {
+        sileo.action({
+          title: "Registro exitoso",
+          description: "Revisa la bandeja de tu correo y sigue las instrucciones para activar tu cuenta.",
+          button: {
+            title: "Ir a Outlook",
+            onClick: () => window.open("https://outlook.office.com/mail/", "_blank"),
+          },
+          fill: "#58d68d",
+          styles: {
+            badge: { fill: "#ffffff" },
+          },
+        });
+      })
       .catch((err) => {
-        // El error ya se muestra por sileo, pero puedes hacer algo extra aquí si quieres
       });
   });
 </script>

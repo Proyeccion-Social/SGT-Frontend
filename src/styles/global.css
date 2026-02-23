@@ -1,5 +1,5 @@
-@import "sileo/styles.css"
-/* Font Faces */
+@import "sileo/styles.css";
+
 @font-face {
   font-family: "Cabinet Grotesk Variable";
   src: url("/src/assets/fonts/CabinetGrotesk-Variable.ttf") format("truetype");

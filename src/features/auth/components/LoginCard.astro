@@ -35,19 +35,14 @@ import Arrow from "../assets/imgs/Arrow.svg"
         top: -100px;
 
         opacity: 1;
-        transition: opacity .3s ease,
-            display .3s ease allow-discrete;
-
-        @starting-style {
-            opacity: 0;
-        }
+        visibility: visible;
+        transition: opacity .3s ease, visibility .3s ease;
     }
 
     .arrowText.hidden {
-        display: none;
         opacity: 0;
+        visibility: hidden;
     }
-
     .arrowText p {
         position: absolute;
         left: 30px;

@@ -20,13 +20,15 @@ import LoginForm from "../components/LoginForm.astro";
   const forgotPasswordDialog = document.getElementById("forgotPasswordDialog") as HTMLDialogElement;
 
   function resetForm() {
-    const form = dialog?.querySelector("#loginForm") as HTMLFormElement;
-    const passwordField = dialog?.querySelector("#passwordField");
-    const loginCard = dialog?.querySelector(".loginCard") as HTMLElement;
+    const form = dialog?.querySelector("#login-form") as HTMLFormElement;
+    const passwordField = dialog?.querySelector("#password-field");
+    const loginCard = dialog?.querySelector(".login-card") as HTMLElement;
 
     form?.reset();
     passwordField?.classList.remove("visible");
     if (loginCard) loginCard.style.height = "";
+
+    document.dispatchEvent(new CustomEvent("reset-login-form"));
   }
 
   function openDialog() {
@@ -82,5 +84,12 @@ import LoginForm from "../components/LoginForm.astro";
 
   dialog?.addEventListener("close-request", () => {
     closeDialog();
+  });
+
+  dialog?.addEventListener("click", (e) => {
+    const content = dialog.querySelector(".dialogContent");
+    if (content && !content.contains(e.target as Node)) {
+      closeDialog();
+    }
   });
 </script>

@@ -89,3 +89,28 @@ import FullLogo from "./FullLogo.astro"
         color: #1A1A1A;
         border: none;  
     }
+
+    @media (width <= 692px) {
+        .navBar {
+            width: 560px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .button {
+            width: 80px;
+            font-size: small;
+        }
+    }
+
+    @media (width <= 460px) {
+        .navBar {
+            width: 90%;
+        }
+
+        .navLinks {
+            font-size: 14px;
+        }
+    }
+
+</style>

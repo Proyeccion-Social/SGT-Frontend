@@ -4,12 +4,18 @@ import FullLogo from "./FullLogo.astro"
 
 <nav class="navBar">
     <FullLogo />
-    <ul class="navLinks">
-        <li><a href="#features">Cómo funciona</a></li>
-        <li><a href="#pricing">Comunidad</a></li>
-        <li><a href="#contact">Impacto</a></li>
-    </ul>
-    <button data-open-login>¡Comienza!</button>
+
+    <button class="hamburger" id="menuToggle">
+        ☰
+    </button>
+    <div class="navMenu">
+        <ul class="navLinks">
+            <li><a href="#features">Cómo funciona</a></li>
+            <li><a href="#pricing">Comunidad</a></li>
+            <li><a href="#contact">Impacto</a></li>
+        </ul>
+        <button data-open-login class="data-open-login">¡Comienza!</button>
+    </div>
 </nav>
 
 <script>
@@ -21,6 +27,15 @@ import FullLogo from "./FullLogo.astro"
         } else {
             nav?.classList.remove('scrolled');
         }
+    });
+
+
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.navLinks');
+    const navMenu = document.querySelector('.navMenu');
+
+    hamburger?.addEventListener('click', () => {
+        navMenu?.classList.toggle('active');
     });
 </script>
 
@@ -56,6 +71,18 @@ import FullLogo from "./FullLogo.astro"
         top: 20px;
     }
 
+    .hamburger{
+        display: none;
+    }
+    .navMenu {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 80px;
+        
+    }
+    
     .navLinks {
         display: flex;
         gap: 8px;
@@ -64,6 +91,15 @@ import FullLogo from "./FullLogo.astro"
         justify-content: center;
         align-items: center;
         margin-top: 1px;
+    }
+
+    .menu-toggle {
+        display: none;
+        font-size: 50px;
+        cursor: pointer;
+        color: #1A1A1A;
+        background: none;
+        border: none;
     }
 
     li {
@@ -90,35 +126,74 @@ import FullLogo from "./FullLogo.astro"
         border: none;  
     }
 
-    @media (width <= 692px) {
+    @media (width <= 768px) {
         .navBar {
             width: 560px;
             left: 50%;
             transform: translateX(-50%);
         }
 
-        .button {
+        .navBar button {
             width: 80px;
             font-size: small;
         }
     }
 
-    @media (width <= 581px) {
+    @media (width <= 640px) {
         .navBar {
             width: 90%;
         }
-    }
 
-    @media (width <= 563px){
+        .hamburger {
+            display: block;
+        }
+
+        .navMenu {
+            font-size: 14px;
+            gap: 70px;
+
+            position: absolute;
+            top: 110%;
+            right: 0;
+            width: 100%;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(12.4px);
+            -webkit-backdrop-filter: blur(12.4px);
+            border: 1px solid rgba(255, 255, 255, 0.19);
+            border-radius: 24px;
+            padding: 12px 4px;
+            opacity: 0;
+            transition: all 0.3s ease-out;
+            pointer-events: none;
+        }
+
         .navLinks {
-            display: none;
+                display: flex;
+                flex-direction: row;
+                margin: 0;
         }
 
-        .navBar {
-            width: fit-content;
-            justify-content: center;
-            gap: 40px;
-            padding: 12px 62px;
+        .data-open-login {
+                display: block;
+                padding: 0;
+                
+            }
+
+        .navMenu.active {
+            
+            
+            opacity: 1;
+            transition: all 0.3s ease-out;
+
+            pointer-events: auto;
+
+            
+            
+            
         }
+
     }
+
 </style>

@@ -1,0 +1,79 @@
+---
+const { userRole } = Astro.props;
+import { Image } from "astro:assets";
+import DashboardIcon from "./icons/DashboardIcon.svg";
+import ConfigIcon from "./icons/ConfigIcon.svg";
+import NotificationIcon from "./icons/NotificationIcon.svg";
+import LogoutIcon from "./icons/LogoutIcon.svg";
+import WindowIcon from "./icons/WindowIcon.svg";
+---
+
+<aside class="sidebar">
+    <div class="logo">
+        <a href="/"><img src="/favicon.svg" alt="Logo" /></a>
+    </div>
+
+    <div class="navbar-items">
+        <a href="#"><Image src={DashboardIcon} alt="Dashboard" class="icon"/></a>
+        <a href="#"><Image src={WindowIcon} alt="Window" class="icon"/></a>
+        <a href="#"><Image src={ConfigIcon} alt="Config" class="icon"/></a>
+    </div>
+
+    <div class="footer-items">
+        <div class="notification-container"><a href="#"><Image src={NotificationIcon} alt="Notification" class="icon" /></a></div>
+        <a href="#"><Image src={LogoutIcon} alt="Logout" class="icon" /></a>
+    </div>
+</aside>
+
+<style>
+    .sidebar {
+        width: 100px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 0;
+    }
+
+    .logo Logo {
+        width: 80px;
+        height: 64px;
+    }
+
+    .logo {
+        margin-bottom: auto;
+    }
+
+    .navbar-items {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        margin-top: auto;
+        margin-bottom: auto;
+    }
+
+    .notification-container {
+        background-color: #E6FFC7;
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .footer-items {
+        margin-top: auto;
+        margin-bottom: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        align-items: center;
+    }
+</style>

@@ -1,0 +1,69 @@
+---
+import MainLayout from '../Layout.astro';
+import Sidebar from '../../features/dashboards/components/Sidebar.astro';
+import OptionButton from '../../features/dashboards/components/OptionButton.astro';
+const userName = "Johan"; // Mock user name, replace with actual data in a real application
+---
+<MainLayout title="Dashboard">
+    <div class="dashboard-container">
+        <Sidebar userRole="admin" />
+
+        <main class="content-wrapper">
+            <div class="dashboard-content">
+                <p>¡Bienvenid@ <span class="userName">{userName}</span>!</p>
+
+                <div class="buttons">
+                    <OptionButton backgroundColor="#B797FF" titleColor="#513199" title="Crear tutor" />
+                    <OptionButton backgroundColor="#CDFF8E" titleColor="#4D662E" title="Analíticas" />
+                    <OptionButton backgroundColor="#F7DF94" titleColor="#91792E" title="Materias" />
+                    <OptionButton backgroundColor="#A3A3A3" titleColor="#1A1A1A" title="Configuración" />
+                    <OptionButton backgroundColor="#58D68D" titleColor="#12522D" title="Gestionar tutores" />
+                </div>
+            </div>
+        </main>
+        
+    </div>
+</MainLayout>
+
+<style>
+    .dashboard-container {
+        display: flex;
+        width: 100%;
+        background-color: #F5F1FF;
+    }
+
+    .content-wrapper {
+        flex: 1;
+        display: flex;
+        padding: 18px 20px 20px 0;
+        
+    }
+
+    
+    .dashboard-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        border-radius: 16px;
+        overflow-y: auto;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    p {
+        font-size: 60px;
+        font-weight: bold;
+        color: #3C3C3C;
+    }
+
+    .userName {
+        color: #8751FF;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 24px;
+        margin-top: 40px;
+    }
+</style>

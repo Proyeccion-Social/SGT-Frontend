@@ -5,13 +5,50 @@ import Sidebar from '../../features/dashboards/components/Sidebar.astro';
 import ColorChangeIcon from "../../features/dashboards/components/icons/ColorChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
+import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
+import StatCard from "../../features/dashboards/components/StatCard.astro";
 
 const userName = "Johan"; // Mock user name, replace with actual data in a real application
 const userRole = "tutor";
+
+const mockSessions = [
+  {
+    id: "1",
+    title: "Introducción a derivadas y definición por límite",
+    description: "En esta tutoría quiero que me expliquen la regla de la cadena",
+    subject: "Cálculo Diferencial",
+    status: "Cerrada",
+    time: "Hoy 3:00 PM",
+    timeLeft: "En 2h"
+  },
+  {
+    id: "2",
+    title: "Límites infinitos",
+    description: "Revisión de asíntotas verticales y horizontales",
+    subject: "Cálculo Diferencial",
+    status: "Pendiente",
+    time: "Mañana 10:00 AM",
+    timeLeft: "En 1d"
+  }
+];
+
+const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
+// TODO: Replace with API call 
+const mockWorkload = {
+  scheduledHours: 6,
+  weeklyLimit: 8,
+};
+const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
+const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100, 100);
 ---
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
         <Sidebar userRole={userRole} />
+
+        <div class="user-header">
+            <button class="color-change-button"><Image src={ColorChangeIcon} alt="Change Color" class="color-change-img"/></button>
+            <button class="avatar"><Image src={UserIcon} alt="User" /></button>
+        </div>
 
         <main class="content-wrapper">
             <div class="dashboard-content">
@@ -19,10 +56,25 @@ const userRole = "tutor";
                     <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
                 </div>
 
-                <div class="user-header">
-                    <button class="color-change-button"><Image src={ColorChangeIcon} alt="Change Color" class="color-change-img"/></button>
-                    <button class="avatar"><Image src={UserIcon} alt="User" /></button>
+                <div class="hours-bar">
+                    <div class="hours-segment hours-scheduled" style={`width: ${usedPercent}%; background-color: #DAFFAA;`}>
+                            <span class="scheduled-hours-text">{mockWorkload.scheduledHours} hora{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span>
+                        </div>
+                        <div class="hours-segment hours-remaining" style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}>
+                            <span class="remaining-hours-text">{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span>
+                    </div>
                 </div>
+
+                <div class="cards-container">
+                    <div class="incoming-sessions-container">
+                        <IncomingSessionsCard sessions={mockSessions} role={userRole} />
+                    </div>
+
+                    <div class="stats-container">
+                        <StatCard value={tutorStats.value} description={tutorStats.text} role={userRole} />
+                    </div>
+                </div>
+                
             </div>
         </main>
         
@@ -33,16 +85,12 @@ const userRole = "tutor";
     .dashboard-container {
         display: flex;
         width: 100%;
+        height: 100%;
         background-color: #F5F1FF;
+        padding: 18px 20px 20px 0;
     }
 
     .content-wrapper {
-        flex: 1;
-        display: flex;
-        padding: 18px 20px 20px 0;
-    }
-    
-    .dashboard-content {
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -53,15 +101,20 @@ const userRole = "tutor";
         justify-content: center;
     }
     
+    .dashboard-content {
+        width: 100%;
+        height: 100%;
+        padding: 0 142px;
+        box-sizing: border-box;
+    }
+    
     .welcome-container {
         display: flex;
         flex-direction: row;
         font-size: 60px;
         font-weight: bold;
         color: #3C3C3C;
-        position: absolute;
-        left: 242px;
-        top: 164px;
+        margin-top: 146px;
     }
 
     p {
@@ -100,9 +153,56 @@ const userRole = "tutor";
         align-items: center;
     }
 
-    .buttons {
+    .hours-bar {
         display: flex;
-        gap: 24px;
-        margin-top: 40px;
+        width: 100%;
+        height: 60px;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 64px;
+    }
+
+    .hours-segment {
+        display: flex;
+        align-items: center;
+        padding: 0 18px;
+        white-space: nowrap;
+        transition: width 0.4s ease;
+    }
+
+    .scheduled-hours-text{
+        color: #4D662E; 
+        font-weight: 400; 
+        font-size: 20px;
+    }
+
+    .remaining-hours-text {
+        color: #513199;
+        font-weight: 400; 
+        font-size: 20px;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-direction: row;
+        gap: 40px;
+        margin-top: 25px;
+        
+        width: 100%;
+        height: 503px;
+    }
+
+    .cards-container > div {
+        flex: 1;
+    }
+
+    .cards-container > .incoming-sessions-container {
+        flex: 0 0 64%;
+    }
+
+    .cards-container > .stats-container {
+        flex: 0 0 33.2%;
+        display: flex;
+        flex-direction: column;
     }
 </style>

@@ -1,0 +1,214 @@
+---
+// src/features/dashboards/components/IncomingSessionCard.astro
+
+// Definimos la estructura de una sesión según lo que vendría de la API
+export interface Session {
+  id: string;
+  title: string;
+  description: string;
+  subject: string;
+  status: string;
+  time: string;
+  timeLeft: string;
+}
+
+interface Props {
+  sessions: Session[]; // Recibe un array de sesiones mockeadas
+  role: 'tutor' | 'student';
+}
+
+const { sessions, role } = Astro.props;
+---
+
+<article class="session-container">
+  <p class="main-title">Tus próximas sesiones</p>
+
+  <div class="cards-stack">
+    {sessions.map((session) => (
+      <div class="session-card-wrapper">
+        <div class="session-card">
+          <div class="card-content">
+            <div class="card-header">
+              <h3>{session.title}</h3>
+              <span class="badge-time">{session.timeLeft}</span>
+            </div>
+            
+            <p class="description">{session.description}</p>
+
+            <div class="card-footer">
+              <div class="tags">
+                <span class="tag-subject">{session.subject}</span>
+                <span class="tag-status">{session.status}</span>
+              </div>
+              <span class="time-label">{session.time}</span>
+            </div>
+          </div>
+
+          {role === 'tutor' && (
+            <div class="actions">
+              <button class="btn-details">Detalles</button>
+              <button class="btn-cancel">Cancelar</button>
+            </div>
+          )}
+        </div>
+      </div>
+    ))}
+
+    <div class="bottom-overlay">
+      <a href="#" class="view-more">Ver más ↗</a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .session-container {
+    background-color: #B797FF;
+    border-radius: 16px;
+    padding: 32px 32px 0 32px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    flex: 0 0 64%;
+  }
+
+  .main-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  .cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+  }
+
+  .session-card {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .card-content {
+    background: #F5F1FF;
+    border-radius: 16px;
+    padding: 15px 12px 12px 22px;
+    flex: 1;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: #3C3C3C;
+    font-size: 1rem; 
+    margin: 0; 
+    font-weight: 700;
+  }
+
+  .badge-time {
+    background: #DAFFAA;
+    color: #749944;
+    padding: 2px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 400;
+    align-items: center;
+    display: flex;
+  }
+
+  .description { 
+    font-size: 12px; 
+    color: #3C3C3C; 
+    margin: -2px 0; 
+    font-weight: 400;
+  }
+  
+  .card-footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .tags { 
+    display: flex; 
+    gap: 10px; 
+  }
+  
+  .tag-subject { 
+    display: flex;
+    background: #FAE9B7; 
+    color: #91792E; 
+    padding: 2px 10px; 
+    border-radius: 16px; 
+    font-size: 12px;
+    font-weight: 400;
+    height: auto;
+    align-items: center;
+  }
+  
+  .tag-status { 
+    background: #C6C6C6; 
+    color: #5F5F5F; 
+    padding: 2px 10px; 
+    border-radius: 16px; 
+    font-size: 12px; 
+    font-weight: 400;
+    height: auto;
+    align-items: center;
+    display: flex;  
+  }
+
+  .time-label { 
+    color: #A3A3A3; 
+    font-size: 12px; 
+    font-weight: 300;
+  }
+
+  .actions { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+  }
+
+  .btn-details, .btn-cancel {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 400;
+    transition: transform 0.1s;
+  }
+
+  .btn-details { background: #8751FF; }
+  .btn-cancel { background: #F35761; }
+  .btn-details:hover, .btn-cancel:hover { transform: scale(1.05); }
+
+  .bottom-overlay {
+    position: absolute;
+    bottom: -10px;
+    left: -35px;
+    right: -35px;
+    height: 71px;
+    background: linear-gradient(180deg, rgba(217, 217, 217, 0) 0%, rgba(163, 163, 163, 0.7) 50%, rgba(95, 95, 95, 0.7) 100%);
+    backdrop-filter: blur(21px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 20px;
+    pointer-events: none;
+  }
+
+  .view-more {
+    pointer-events: auto;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+  }
+</style>

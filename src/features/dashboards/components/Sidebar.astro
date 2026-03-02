@@ -1,5 +1,4 @@
 ---
-const { userRole } = Astro.props;
 import { Image } from "astro:assets";
 import DashboardIcon from "./icons/DashboardIcon.svg";
 import ConfigIcon from "./icons/ConfigIcon.svg";
@@ -7,10 +6,22 @@ import NotificationIcon from "./icons/NotificationIcon.svg";
 import LogoutIcon from "./icons/LogoutIcon.svg";
 import WindowIcon from "./icons/WindowIcon.svg";
 import CollapseIcon from "./icons/CollapseIcon.svg";
+import HistoryIcon from "./icons/HistoryIcon.svg";
+import CalendarIcon from "./icons/CalendarIcon.svg";
+import BinocularIcon from "./icons/BinocularIcon.svg";
+import SearchIcon from "./icons/SearchIcon.svg";
+import CommunityIcon from "./icons/CommunityIcon.svg";
+
+interface Props {
+    userRole: "admin" | "tutor" | "student"; 
+}
+
+const { userRole } = Astro.props;
 ---
 
 <aside class="sidebar">
-    <div class="logo">
+
+    <div class="navbar-header">
         <a href="/"><img src="/favicon.svg" alt="Logo" /></a>
         <button class="collapse-button">
             <Image src={CollapseIcon} alt="Collapse" class="collapse-icon" />
@@ -18,12 +29,41 @@ import CollapseIcon from "./icons/CollapseIcon.svg";
     </div>
 
     <div class="navbar-items">
-        <a href="#"><Image src={DashboardIcon} alt="Dashboard" class="icon"/></a>
-        <a href="#"><Image src={WindowIcon} alt="Window" class="icon"/></a>
-        <a href="#"><Image src={ConfigIcon} alt="Config" class="icon"/></a>
+
+        {userRole === "student" && (
+            <div class="calendar-container">
+                <a href="#"><Image src={CalendarIcon} alt="Calendar" class="icon"/></a>
+            </div>
+        )}
+
+        <div class="dashboard-container"><a href="#"><Image src={DashboardIcon} alt="Dashboard" class="icon"/></a></div>
+
+        {userRole === "admin" && (
+            <>
+                <a href="#"><Image src={WindowIcon} alt="Window" class="icon"/></a>
+                <a href="#"><Image src={ConfigIcon} alt="Config" class="icon"/></a>
+            </>
+        )}
+
+        {userRole === 'tutor' && (
+            <>
+                <a href="#"><Image src={WindowIcon} alt="Window" class="icon"/></a>
+                <a href="#"><Image src={ConfigIcon} alt="Config" class="icon"/></a>
+                <a href="#"><Image src={HistoryIcon} alt="History" class="icon"/></a>
+            </>
+        )}
+
+        {userRole === 'student' && (
+            <>
+                <a href="#"><Image src={SearchIcon} alt="Search" class="icon"/></a>
+                <a href="#"><Image src={BinocularIcon} alt="Binocular" class="icon"/></a>
+                <a href="#"><Image src={CommunityIcon} alt="Community" class="icon"/></a>
+                <a href="#"><Image src={HistoryIcon} alt="History" class="icon"/></a>
+            </>
+        )}
     </div>
 
-    <div class="footer-items">
+    <div class="navbar-footer">
         <div class="notification-container"><a href="#"><Image src={NotificationIcon} alt="Notification" class="icon" /></a></div>
         <a href="#"><Image src={LogoutIcon} alt="Logout" class="icon" /></a>
     </div>
@@ -39,13 +79,23 @@ import CollapseIcon from "./icons/CollapseIcon.svg";
         padding: 30px 0;
     }
 
-    .logo Logo {
+    .navbar-header Logo {
         width: 80px;
         height: 64px;
     }
 
-    .logo {
+    .navbar-header {
         margin-bottom: auto;
+    }
+    
+    .icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .collapse-icon {
+        width: 30px;
+        height: 30px;
     }
 
     .collapse-button {
@@ -75,6 +125,26 @@ import CollapseIcon from "./icons/CollapseIcon.svg";
         margin-bottom: auto;
     }
 
+    .calendar-container {
+        background-color: #E6FFC7;
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .dashboard-container {
+        background-color: #E7DCFF;
+        width: 47px;
+        height: 47px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .notification-container {
         background-color: #E6FFC7;
         width: 48px;
@@ -85,12 +155,8 @@ import CollapseIcon from "./icons/CollapseIcon.svg";
         align-items: center;
     }
 
-    .icon {
-        width: 32px;
-        height: 32px;
-    }
 
-    .footer-items {
+    .navbar-footer {
         margin-top: auto;
         margin-bottom: 40px;
         display: flex;

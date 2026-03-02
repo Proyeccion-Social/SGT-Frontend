@@ -8,15 +8,16 @@ import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
 
 const userName = "Johan"; // Mock user name, replace with actual data in a real application
+const userRole = "admin"; 
 ---
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
-        <Sidebar userRole="admin" />
+        <Sidebar userRole={userRole} />
 
         <main class="content-wrapper">
             <div class="dashboard-content">
                 <div class="welcome-container">
-                    <p>¡Bienvenid@ <RoleBadge name={userName} role="admin" />!</p>
+                    <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
                 </div>
 
                 <div class="buttons">

@@ -1,0 +1,69 @@
+---
+import { Image } from 'astro:assets';
+import HandWrittenArrow from './icons/HandWrittenArrow.svg';
+
+interface Props {
+  name: string;
+  role: string;
+}
+
+const { name, role } = Astro.props;
+var roleName = '';
+if (role === 'admin') {
+  roleName = 'Admin';
+} else if (role === 'student') {
+  roleName = 'Estudiante';
+} else if (role === 'tutor') {
+  roleName = 'Tutor';
+}
+---
+
+<div class="badge-container">
+  <div class="floating-tag">
+    <span class="tag-text">Estás en modo <b>{roleName}</b></span>
+    <Image src={HandWrittenArrow} alt="Arrow" class="hand-drawn-arrow"/>
+  </div>
+  
+  <span class="highlight-name">{name}</span>
+</div>
+
+<style>
+  .badge-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 10px;
+    z-index: 1;
+    width: auto;
+    height: auto;
+  }
+
+  .floating-tag {
+    position: absolute;
+    top: -40px;
+    left: 80px;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tag-text {
+    font-family: 'Caveat', sans-serif;
+    font-weight: lighter;
+    font-size: 24px;
+    color: #A855F7; 
+  }
+
+  .hand-drawn-arrow {
+    width: 2000px;
+    height: 100px;
+    margin-top: -10px;
+    margin-left: -70px;
+    z-index: -1;
+  }
+
+  .highlight-name {
+    color: #A855F7;
+    font-size: 60px;
+    font-weight: bold;
+  }
+</style>

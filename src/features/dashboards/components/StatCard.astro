@@ -5,10 +5,9 @@ import littleMan from "./icons/little-man.png";
 interface Props {
   value: string | number;
   description: string;
-  role: 'tutor' | 'student';
 }
 
-const { value, description, role } = Astro.props;
+const { value, description } = Astro.props;
 ---
 
 <div class="stat-card">
@@ -34,25 +33,26 @@ const { value, description, role } = Astro.props;
     align-items: center;
     position: relative;
     text-align: center;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
+    width: 478px;
+    height: 503px;
   }
 
   .value {
-    font-size: 6rem; /* Tamaño grande para el número */
-    font-weight: 800;
-    color: #A855F7;
-    line-height: 1;
+    font-size: 100px;
+    font-weight: 700;
+    color: #8751FF;
     display: block;
+    font-family: 'Cabinet Grotesk variable', sans-serif;
+    font-style: bold;
   }
 
   .description {
-    font-family: 'Kalam', 'Comic Sans MS', cursive; /* Fuente manuscrita */
-    font-size: 1.8rem;
-    color: #666;
+    font-family: 'Caveat', sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    font-style: bold;
+    color: #818181;
     margin-top: 10px;
-    line-height: 1.2;
   }
 
   .decorative-avatar {

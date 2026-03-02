@@ -5,6 +5,8 @@ import Sidebar from '../../features/dashboards/components/Sidebar.astro';
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
 import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
+import StatCard from "../../features/dashboards/components/StatCard.astro";
+import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 
 const userName = "Johan"; // Mock user name, replace with actual data in a real application
 const userRole = "student";
@@ -30,6 +32,7 @@ const mockSessions = [
   }
 ];
 
+const studentStats = { value: 3, text: "Tutorías esta semana" };
 ---
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
@@ -45,9 +48,21 @@ const mockSessions = [
                     <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
                 </div>
 
-                <div class="incoming-sessions-container">
-                    <IncomingSessionsCard sessions={mockSessions} role={userRole} />
+                <div class="cards-container">
+                    <div class="left-side">
+                        <div class="incoming-sessions-container">
+                            <IncomingSessionsCard sessions={mockSessions} role={userRole} />
+                        </div>
+
+                        <div class="green-photo-space">
+                            <Image src={ImageIcon} alt="Image" />
+                        </div>
+                    </div>
+                    <div class="stats-container">
+                        <StatCard value={studentStats.value} description={studentStats.text} />
+                    </div>
                 </div>
+                
             </div>
         </main>
         
@@ -58,6 +73,7 @@ const mockSessions = [
     .dashboard-container {
         display: flex;
         width: 100%;
+        height: 100%;
         background-color: #F5F1FF;
         padding: 18px 20px 20px 0;
     }
@@ -74,8 +90,10 @@ const mockSessions = [
     }
     
     .dashboard-content {
-        height: 50%;
-        width: 80%;
+        width: 100%;
+        height: 100%;
+        padding: 0 142px;
+        box-sizing: border-box;
     }
     
     .welcome-container {
@@ -84,9 +102,7 @@ const mockSessions = [
         font-size: 60px;
         font-weight: bold;
         color: #3C3C3C;
-        position: absolute;
-        left: 242px;
-        top: 164px;
+        margin-top: 146px;
     }
 
     p {
@@ -111,5 +127,46 @@ const mockSessions = [
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .cards-container {
+        display: flex;
+        flex-direction: row;
+        gap: 40px;
+        margin-top: 25px;
+        width: 100%;
+        height: auto;
+    }
+
+    .left-side {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        flex: 1;
+    }
+
+    .green-photo-space {
+        background-color: #CDFF8E;
+        border-radius: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 280px;
+    }
+
+    .cards-container > div {
+        flex: 1;
+    }
+
+    .cards-container > .incoming-sessions-container {
+        flex: 0 0 64%;
+    }
+
+    .cards-container > .green-photo-space {
+        flex: 0 0 64%;
+    }
+
+    .cards-container > .stats-container {
+        flex: 0 0 33.2%;
     }
 </style>

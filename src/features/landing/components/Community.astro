@@ -108,16 +108,38 @@ import GridBg from "../assets/imgs/GridBg.png";
     color: #1a1a1a;
   }
 
-  @media (width <= 800px){
-    .communityContainer h2 {
-      font-size: 40px;
-    }
-  }
+  
 
-  @media (width <= 650px){
+ @media (768px < width < 1024px) {
+    .communityContainer {
+      margin-top: 100px;
+      margin-bottom: 100px;
+      padding: 0px 20px;
+     }
+
+     .communityContainer h2 {
+      font-size: 40px;
+     }
+ }
+
+  @media (width <= 768px){
+
+    .communityContainer{ 
+      margin-right:  20px;
+      margin-left: 20px;
+      margin-bottom: 120px;
+    }
+    .cardsWrapper {
+        gap: 40px;
+        display: flex;
+
+    }
     .communityContainer h2 {
       font-size: 32px;
     }
+
+    .communityContainer p {
+      font-size: 16px;
   }
 
   

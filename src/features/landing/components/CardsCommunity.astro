@@ -26,19 +26,22 @@ const bgStyle = bgSrc
         class="icon"
       />
     </div>
-    <h4 style={`font-family: ${font}; ${font === "Open Sauce Two" ? "color: #1a1a1a; font-size: 23px;" : ""}`}>{account}</h4>
+    <h4 style={`font-family: ${font}; ${font === "Open Sauce Two" ? "color: #1a1a1a;" : ""}`}>{account}</h4>
   </div>
 </article>
 
 <style>
   .cardCommunity {
-    width: 268px;
-    height: 250px;
+    width: 200px;
+    height: auto;
+    aspect-ratio: 268 / 250;
     box-shadow: 0px 4px 10px 3px rgba(0, 0, 0, 0.1);
     border-radius: 16px;  
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .content {
@@ -48,21 +51,31 @@ const bgStyle = bgSrc
     justify-content: center;
     gap: 16px;
     width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
     text-align: center;
     font-style: normal;
     font-weight: 700;
     font-size: 24px;
-    line-height: 20px;
+    line-height: 1.1;
     letter-spacing: -0.02em;
     color: #FFFFFF;
+  }
+
+  .content h4 {
+    font-size: 23px;
+    margin: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .imageContainer {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: auto;
+    aspect-ratio: 1 / 1;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 16px;
     backdrop-filter: blur(9.4px);
@@ -71,7 +84,65 @@ const bgStyle = bgSrc
   }
 
   .content img {
-    width: 80px;
-    hight: 80px;
+    width: 60px;
+    height: auto;
+    max-width: 100%;
+  }
+
+
+   @media (768px < width < 1024px) {
+    .cardCommunity {
+      width: clamp(160px, 40vw, 180px);
+      height: auto;
+      
+    }
+
+    .content {
+      gap: clamp(10px, 2vw, 16px);
+      padding: clamp(12px, 2.5vw, 16px);
+    }
+
+    .content h4 {
+      font-size: clamp(16px, 2.6vw, 20px);
+    }
+
+    .imageContainer {
+      width: clamp(64px, 45%, 120px);
+    }
+
+    .content img {
+      width: clamp(34px, 40%, 70px);
+      height: auto;
+    }
+  }
+
+  @media (width <= 768px) {
+    .cardCommunity {
+      width: clamp(140px, 40vw, 190px);
+      height: auto;
+    }
+
+    .content {
+      gap: clamp(8px, 2vw, 12px);
+      padding: clamp(10px, 3vw, 14px);
+    }
+
+    .content h4 {
+      font-size: clamp(14px, 3.6vw, 16px);
+      line-height: 1.15;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+
+    .content img {
+      width: clamp(30px, 42%, 60px);
+      height: auto;
+    }
+
+    .imageContainer {
+      width: clamp(56px, 55%, 96px);
+    }
   }
 </style>

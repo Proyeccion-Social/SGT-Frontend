@@ -94,21 +94,57 @@ import { Image } from "astro:assets";
     top: 0;
   }
   
-@media (width <= 1264px){
-  .arrow {
-    top: 115px;
-    left: -395px;
+ @media (width >= 1024px){
+
+  section {
+    height: 97vh;
+    max-height: 1000px;
   }
-}
-@media (width <= 1085px){
+
+
+
+  .principalPage {
+    margin-top: 30px;
+
+  }
   .arrow {
+    top: 95px;
+    left: -350px;
+  }
+
+
+}
+
+ @media (768px < width < 1024px) {
+
+  .arrow{
+    top: 75px;
+    left: -240px;
+  }
+  section {
+    height: 97vh;
+  }
+ }
+
+@media (width <= 768px){
+
+    .arrow {
     display: none;
+  }
+  .principalPage {
+    width: 100%;
+    margin-top: 0px;
+    padding: 0 10px;
+  }
+  
+  section {
+    height: 97vh;
+  }
+  .principalPage {
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 }
 
-@media (width <= 1264px){
-  .principalPage {
-    min-height: 110vh;
-  }
-}
 </style>

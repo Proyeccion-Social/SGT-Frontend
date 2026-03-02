@@ -14,7 +14,7 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       <article class="mainText">
         <article class="markedText">
             <h1>pasaron</h1>
-            <Image
+            <Image class="markedTextImage"
               src={Marked}
               alt='Marked'
             />
@@ -117,13 +117,14 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     color: #3c3c3c;
   }
   .cards {
-    position: absolute;
-    width: 100%;
-    height: 300px;
-    /* top: 0;
-    left: 0; */
-    pointer-events: none;
-  }
+  position: absolute;
+  top: 24px; /* ajusta según tu hero */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 400px; /* espacio real entre cards */
+  pointer-events: none;
+}
 
   .cards:first-child {
     left: -220px;
@@ -146,17 +147,18 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     cursor: pointer;
   }
 
-  @media (width <= 1264px) {
+  @media (width >= 1024px) {
     header {
-      margin-top: 60px;
+      margin-top: 190px;
+      justify-content: flex-start;
     }
     
     .cards {
-      position: relative;
+      position: absolute;
       display: flex;
       justify-content: center;
       height: auto;
-      margin-top: 0px;
+      margin-top: 240px;
     }
 
     .cards :global(img) {
@@ -165,7 +167,6 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       right: auto !important;
       top: auto !important;
       bottom: auto !important;
-      margin-right: -15px;
     }
 
     .cards :global(img:last-child) {
@@ -173,27 +174,135 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     }
   }
 
-  @media (width <= 750px){
+ 
+  @media (768px < width < 1024px) {
+
+      header {
+    justify-content: start;
+    margin-top: clamp(50px, 30vw, 200px);
+    padding: 0 5px;
+    gap: 50px;
+  }
+
+  
     .headerText{
         width: 100%;
-        padding: 0 20px;
     }
     .headerText h1 {
-      font-size: 52px;
-      line-height: 56px;
+      font-size:  50px;
+      line-height: 60px;
     }
     
     .markedText  {
-      width: auto;
+      width: 230px;
+      height: 60px;
     }
 
-    .markedText img {
-      aspect-ratio: 263 / 70;
-      width: 120%;
+    .markedTextImage {
+      height: 65px;
       
     }
 
+
+
+ .cards {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: -12vw  ;
+    display: flex;
+    justify-content: center;
+    gap: 30vw;
   }
 
+    .cards :global(img) {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      top: auto !important;
+      bottom: auto !important;
+    }
+
+
+  }
+
+
+
+    /* ==== Móvil ==== */
+    @media (width <= 768px) {
+
+      .mainText {
+        flex-direction: column;
+        align-items: center;
+      }
+
+  header {
+    justify-content: start;
+    margin-top: clamp(50px, 30vw, 150px);
+    padding: 0 5px;
+  }
+
+  .headerText {
+    
+    width: 100%;
+    gap: 30px;
+  }
+
+  .headerText h1 {
+    font-size: clamp(1.5rem, 10vw, 3rem);
+    line-height: 1.25;
+    text-align: center;
+    padding: 0 5px;
+  }
+
+
+
+  .headerText p {
+    width: 100%;
+    font-size: clamp(1rem, 3vw, 1.25rem);
+    line-height: 22px;
+    padding: 0 20px;
+  }
+
+  .markedText {
+  position: relative;
+  display: inline-block;
+  width: fit-content;
+  padding: 0 16px; 
+}
+
+.markedTextImage {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 100%;
+  height: auto;
+}
+
+.cards {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin-top: -10vw  ;
+    display: flex;
+    justify-content: center;
+    gap: 30vw;
+  }
+
+    .cards :global(img) {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      top: auto !important;
+      bottom: auto !important;
+    }
+
+    .cards :global(img:last-child) {
+    }
+
+
+}
 
 </style>

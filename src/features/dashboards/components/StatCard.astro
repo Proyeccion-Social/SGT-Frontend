@@ -1,0 +1,71 @@
+---
+import { Image } from "astro:assets";
+import littleMan from "./icons/little-man.png";
+
+interface Props {
+  value: string | number;
+  description: string;
+}
+
+const { value, description } = Astro.props;
+---
+
+<div class="stat-card">
+  <div class="content">
+    <span class="value">{value}</span>
+    <p class="description">{description}</p>
+  </div>
+  
+  <div class="decorative-avatar">
+    <Image src={littleMan} alt="decoración" />
+  </div>
+</div>
+
+<style>
+  .stat-card {
+    background-color: #F3F0FF;
+    border: 2px dashed #A855F7;
+    border-radius: 24px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    text-align: center;
+    width: 478px;
+    height: 503px;
+  }
+
+  .value {
+    font-size: 100px;
+    font-weight: 700;
+    color: #8751FF;
+    display: block;
+    font-family: 'Cabinet Grotesk variable', sans-serif;
+    font-style: bold;
+  }
+
+  .description {
+    font-family: 'Caveat', sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    font-style: bold;
+    color: #818181;
+    margin-top: 10px;
+  }
+
+  .decorative-avatar {
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    width: 60px;
+    height: 60px;
+  }
+
+  .decorative-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+</style>

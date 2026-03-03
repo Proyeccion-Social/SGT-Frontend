@@ -1,0 +1,17 @@
+---
+const { backgroundColor, title, titleColor, description } = Astro.props;
+---
+
+<button style={`background-color: ${backgroundColor};  color: ${titleColor}; `}>{title}</button>
+
+<style>
+    button {
+        border-radius: 8px;
+        font-size: 24px; 
+        padding: 8px 12px; 
+        cursor: pointer; 
+        border: none; 
+        font-weight: bold;
+
+    }
+</style>

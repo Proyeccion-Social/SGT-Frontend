@@ -6,6 +6,7 @@ export default function AuthHydrator() {
 
     useEffect(() => {
         const stored = sessionStorage.getItem("auth_user");
+        console.log("Hidratando store:", stored);
         if (stored) {
             const { user, requiresPasswordChange, requiresProfileCompletion } = JSON.parse(stored);
             setUser({ user, requiresPasswordChange, requiresProfileCompletion });

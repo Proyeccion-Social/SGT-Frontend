@@ -14,17 +14,17 @@ type User = {
 
 type AuthStore = {
     user: User | null;
-    cambioClaveRequerido: boolean;
-    perfilCompletoRequerido: boolean;
-    setUser: (payload: { user: User; cambioClaveRequerido?: boolean; perfilCompletoRequerido?: boolean }) => void;
+    requiresPasswordChange: boolean;
+    requiresProfileCompletion: boolean;
+    setUser: (payload: { user: User; requiresPasswordChange?: boolean; requiresProfileCompletion?: boolean }) => void;
     clearUser: () => void;
 };
 
 export const useAuthStore = create<AuthStore>((set) => ({
     user: null,
-    cambioClaveRequerido: false,
-    perfilCompletoRequerido: false,
-    setUser: ({ user, cambioClaveRequerido = false, perfilCompletoRequerido = false }) =>
-        set({ user, cambioClaveRequerido, perfilCompletoRequerido }),
-    clearUser: () => set({ user: null, cambioClaveRequerido: false, perfilCompletoRequerido: false }),
+    requiresPasswordChange: false,
+    requiresProfileCompletion: false,
+    setUser: ({ user, requiresPasswordChange = false, requiresProfileCompletion = false }) =>
+        set({ user, requiresPasswordChange, requiresProfileCompletion }),
+    clearUser: () => set({ user: null, requiresPasswordChange: false, requiresProfileCompletion: false }),
 }));

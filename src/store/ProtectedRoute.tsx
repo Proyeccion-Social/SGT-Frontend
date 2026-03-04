@@ -1,13 +1,14 @@
 import { useAuthStore } from '@/store/authStore';
 
 type Props = {
-    allowedRoles: Array<'Admin' | 'Tutor' | 'Estudiante'>;
+    allowedRoles: Array<'ADMIN' | 'TUTOR' | 'STUDENT'>;
     children: React.ReactNode;
     redirectTo?: string;
 };
 
-export const ProtectedRoute = ({ allowedRoles, children, redirectTo = '/login' }: Props) => {
+export const ProtectedRoute = ({ allowedRoles, children, redirectTo = '/' }: Props) => {
     const user = useAuthStore((state) => state.user);
+    const isHydrated = useAuthStore((state) => state._hasHydrated);
 
     if (!user) {
         window.location.href = redirectTo;
@@ -15,7 +16,7 @@ export const ProtectedRoute = ({ allowedRoles, children, redirectTo = '/login' }
     }
 
     if (!allowedRoles.includes(user.role)) {
-        window.location.href = '/unauthorized';
+        window.location.href = '/';
         return null;
     }
 

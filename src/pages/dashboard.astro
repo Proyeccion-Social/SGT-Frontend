@@ -1,24 +1,9 @@
 ---
-//Imports 
-import AdminLayout from '../layouts/dashboards/AdminDashboard.astro'
-import StudentLayout from '../layouts/dashboards/StudentDashboard.astro'
-import TutorLayout from '../layouts/dashboards/TutorDashboard.astro'
-
-//Mock user role, in a real application this would come from authentication context
-const userRole = 'admin'; // Change this to 'student' or 'tutor' to test different layouts
-
-//UserRole information space 
+// src/pages/dashboard.astro
+import Layout from "../layouts/Layout.astro";
+import DashboardRouter from "../reactComponents/DashboardRouter";
 ---
 
-{userRole === 'admin' && (
-  <AdminLayout title="Admin Dashboard"/>
-)}
-
-<!-- {userRole === 'student' && (
-  <StudentLayout title="Student Dashboard"/>
-)} -->
-
-<!-- {userRole === 'tutor' && (
-  <TutorLayout title="Tutor Dashboard"/>
-)} -->
-
+<Layout title="Dashboard">
+  <DashboardRouter client:load />
+</Layout>

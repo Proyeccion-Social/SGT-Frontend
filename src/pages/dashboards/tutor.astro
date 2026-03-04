@@ -1,0 +1,8 @@
+---
+import TutorDashboard from "../../layouts/dashboards/TutorDashboard.astro";
+import { ProtectedRoute } from "@/store/ProtectedRoute";
+---
+
+<ProtectedRoute allowedRoles={["TUTOR"]} redirectTo="/" client:only="react">
+    <TutorDashboard title="Tutor Dashboard" />
+</ProtectedRoute>

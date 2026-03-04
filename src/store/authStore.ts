@@ -1,7 +1,7 @@
-// src/store/authStore.ts
 import { create } from 'zustand';
-type Role = 'Admin' | 'Tutor' | 'Estudiante';
-type Status = 'Activo' | 'Inactivo' | 'Suspuesto';
+import { persist } from 'zustand/middleware';
+type Role = 'ADMIN' | 'TUTOR' | 'STUDENT';
+type Status = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 type User = {
     id: string;
@@ -12,19 +12,33 @@ type User = {
     status: Status;
 };
 
-type AuthStore = {
+interface AuthStore {
     user: User | null;
     requiresPasswordChange: boolean;
     requiresProfileCompletion: boolean;
-    setUser: (payload: { user: User; requiresPasswordChange?: boolean; requiresProfileCompletion?: boolean }) => void;
+    _hasHydrated: boolean;
+    setHasHydrated: (val: boolean) => void;
+    setUser: (user: User) => void;
     clearUser: () => void;
-};
+}
 
-export const useAuthStore = create<AuthStore>((set) => ({
-    user: null,
-    requiresPasswordChange: false,
-    requiresProfileCompletion: false,
-    setUser: ({ user, requiresPasswordChange = false, requiresProfileCompletion = false }) =>
-        set({ user, requiresPasswordChange, requiresProfileCompletion }),
-    clearUser: () => set({ user: null, requiresPasswordChange: false, requiresProfileCompletion: false }),
-}));
+
+export const useAuthStore = create<AuthStore>()(
+    persist(
+        (set) => ({
+            user: null,
+            requiresPasswordChange: false,
+            requiresProfileCompletion: false,
+            _hasHydrated: false,
+            setHasHydrated: (val) => set({ _hasHydrated: val }),
+            setUser: (user) => set({ user }),
+            clearUser: () => set({ user: null }),
+        }),
+        {
+            name: 'auth-storage',
+            onRehydrateStorage: () => (state) => {
+                state?.setHasHydrated(true);
+            },
+        }
+    )
+);

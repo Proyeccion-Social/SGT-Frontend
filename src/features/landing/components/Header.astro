@@ -10,14 +10,11 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
 <header>
   <div class='headerText'>
     <div class='headerTitle'>
-      <h1>Aprende con quienes ya </h1>
-      <article class="mainText">
-        <article class="markedText">
-            <h1>pasaron</h1>
-            <Image class="markedTextImage"
-              src={Marked}
-              alt='Marked'
-            />
+      <h1>Aprende con quienes ya</h1>
+      <article class='mainText'>
+        <article class='markedText'>
+          <h1>pasaron</h1>
+          <Image class='markedTextImage' src={Marked} alt='Marked' />
         </article>
         <h1>por lo mismo</h1>
       </article>
@@ -27,12 +24,12 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       parte de la comunidad
     </p>
   </div>
-  
+
   <div class='ctaButtons'>
     <ButtonCta />
     <a data-open-registry>O regístrate</a>
   </div>
-  
+
   <section class='cards'>
     <CardImage
       position='left'
@@ -56,10 +53,11 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     align-items: center;
     gap: 24px;
     position: relative;
-    height: 100%;
+    z-index: 1;
+    /* min-height: 100svh; */
     justify-content: center;
-    margin-bottom: 50px;
-    margin-top: 210px;
+    padding-top: 80px;
+    padding-bottom: 50px;
     font-family: "Open Sauce Two";
     letter-spacing: -0.02em;
     color: #1a1a1a;
@@ -78,7 +76,7 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
   .mainText {
     display: flex;
     justify-content: center;
-    
+
     position: relative;
   }
 
@@ -118,16 +116,16 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     color: #3c3c3c;
   }
   .cards {
-  position: absolute;
-  top: 24px; /* ajusta según tu hero */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 400px; /* espacio real entre cards */
-  pointer-events: none;
-  width: 100%;
-  height: auto;
-}
+    position: absolute;
+    top: 24px; /* ajusta según tu hero */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 400px; /* espacio real entre cards */
+    pointer-events: none;
+    width: 100%;
+    height: auto;
+  }
 
   .cards:first-child {
     left: -220px;
@@ -150,15 +148,14 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     cursor: pointer;
   }
 
-  @media (1024px <= width <= 1265px){
-
-      .mainText {
-        flex-direction: column;
-        align-items: center;
-      }
+  @media (1024px <= width <= 1265px) {
+    .mainText {
+      flex-direction: column;
+      align-items: center;
+    }
 
     header {
-      margin-top: clamp(50px, 18vw, 300px);
+      padding-top: clamp(80px, 18vw, 300px);
     }
     .cards {
       width: 60vw;
@@ -178,7 +175,6 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       justify-content: flex-start;
     }
 
-    
     .cards {
       flex-direction: column;
       gap: 200px;
@@ -186,8 +182,6 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     }
 
     .cards :global(img) {
-      
-     
     }
 
     .cards :global(img:last-child) {
@@ -195,47 +189,42 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     }
   }
 
- 
   @media (768px < width < 1024px) {
+    header {
+      justify-content: center;
+      padding-top: clamp(80px, 30vw, 200px);
+      padding-left: 5px;
+      padding-right: 5px;
+      gap: 50px;
+    }
 
-      header {
-    justify-content: start;
-    margin-top: clamp(50px, 30vw, 200px);
-    padding: 0 5px;
-    gap: 50px;
-  }
-
-  
-    .headerText{
-        width: 100%;
+    .headerText {
+      width: 100%;
     }
     .headerText h1 {
-      font-size:  50px;
+      font-size: 50px;
       line-height: 60px;
     }
-    
-    .markedText  {
+
+    .markedText {
       width: 230px;
       height: 60px;
     }
 
     .markedTextImage {
       height: 65px;
-      
     }
 
-
-
- .cards {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin-top: -12vw  ;
-    display: flex;
-    justify-content: center;
-    gap: 30vw;
-  }
+    .cards {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      margin-top: -12vw;
+      display: flex;
+      justify-content: center;
+      gap: 30vw;
+    }
 
     .cards :global(img) {
       position: relative !important;
@@ -244,73 +233,74 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       top: auto !important;
       bottom: auto !important;
     }
-
-
-  }
-
-
-
-    /* ==== Móvil ==== */
-    @media (width <= 768px) {
-
-      .mainText {
-        flex-direction: column;
-        align-items: center;
-      }
-
-  header {
-    justify-content: start;
-    margin-top: clamp(50px, 30vw, 150px);
-    padding: 0 5px;
-  }
-
-  .headerText {
     
-    width: 100%;
-    gap: 30px;
+    header {
+      justify-content: center;
+      padding-top: 0px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
   }
 
-  .headerText h1 {
-    font-size: clamp(1.5rem, 10vw, 3rem);
-    line-height: 1.25;
-    text-align: center;
-    padding: 0 5px;
-  }
+  /* ==== Móvil ==== */
+  @media (width <= 768px) {
+    .mainText {
+      flex-direction: column;
+      align-items: center;
+    }
 
+    header {
+      justify-content: center;
+      padding-top: 0px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
 
+    .headerText {
+      width: 100%;
+      gap: 15px;
+    }
 
-  .headerText p {
-    width: 100%;
-    font-size: clamp(1rem, 3vw, 1.25rem);
-    line-height: 22px;
-    padding: 0 20px;
-  }
+    .headerText h1 {
+      font-size: clamp(1.5rem, 10vw, 3rem);
+      line-height: 1.25;
+      text-align: center;
+      padding: 0 5px;
+    }
 
-  .markedText {
-  position: relative;
-  display: inline-block;
-  width: fit-content;
-  padding: 0 16px; 
-}
+    .headerText p {
+      width: 100%;
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      line-height: 22px;
+      padding: 0 20px;
+    }
 
-.markedTextImage {
-  position: absolute;
-  bottom: -6px;
-  left: 0;
-  width: 100%;
-  height: auto;
-}
+    .markedText {
+      position: relative;
+      display: inline-block;
+      width: fit-content;
+      padding: 0 16px;
+    }
 
-.cards {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin-top: -10vw  ;
-    display: flex;
-    justify-content: center;
-    gap: 30vw;
-  }
+    .markedTextImage {
+      position: absolute !important;
+      bottom: -3px !important;
+      left: 5px !important;
+      width: 90% !important;
+      height: auto !important;
+    }
+
+    .cards {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      margin-top: -10vw;
+      display: flex;
+      justify-content: center;
+      gap: 30vw;
+    }
 
     .cards :global(img) {
       position: relative !important;
@@ -322,8 +312,5 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
 
     .cards :global(img:last-child) {
     }
-
-
-}
-
+  }
 </style>

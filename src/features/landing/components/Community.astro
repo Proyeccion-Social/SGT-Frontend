@@ -9,7 +9,7 @@ import GridBg from "../assets/imgs/GridBg.png";
   <div class='gridBgWrapper'>
     <Image src={GridBg} alt='' class='gridBg' />
   </div>
-  <h2>!Estamos construyendo <span> comunidad</span>!</h2>
+  <h2>¡Estamos construyendo <span> comunidad</span> !</h2>
   <p>
     Únete y descubre cómo el aprendizaje colaborativo puede cambiar tu semestre
   </p>
@@ -79,8 +79,8 @@ import GridBg from "../assets/imgs/GridBg.png";
 
   h2 span {
     color: #8751ff;
-    font-family: "Instrument Serif";
-    font-style: italic;
+    font-family: "Caveat";
+    font-size: 70px;
     position: relative;
   }
 
@@ -105,7 +105,7 @@ import GridBg from "../assets/imgs/GridBg.png";
     font-size: 20px;
     line-height: 56px;
     letter-spacing: -0.02em;
-
+    text-wrap: balance;
     color: #1a1a1a;
   }
 
@@ -151,15 +151,25 @@ import GridBg from "../assets/imgs/GridBg.png";
       align-items: start;
       z-index: -100;
       top: 6%;
+      opacity: 0.5;
+      /* display: none; */
     }
 
-  
+    .gridBg {
+      position: relative;
+      top: -40px;
+    }
+    
+    h2 span {
+      font-size: 44px;
+      line-height: 0.7;
+    }
 
     .communityContainer{ 
       margin-right:  20px;
       margin-left: 20px;
       margin-bottom: 120px;
-      margin-top: 150px;
+      /* margin-top: 150px; */
     }
     .cardsWrapper {
         gap: 30px;
@@ -168,14 +178,15 @@ import GridBg from "../assets/imgs/GridBg.png";
     }
     .communityContainer h2 {
       text-align: center;
-      line-height: 45px;
-      font-size: 32px;
+      font-size: 30px;
+      line-height: 40px;
+      margin-bottom: 20px;
     }
 
     .communityContainer p {
       text-align: center;
-      font-size: 16px;
-      line-height: 30px;
+      font-size: 14px;
+      line-height: 20px;
   }
   }
   

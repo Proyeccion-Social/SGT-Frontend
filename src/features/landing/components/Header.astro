@@ -59,6 +59,7 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     height: 100%;
     justify-content: center;
     margin-bottom: 50px;
+    margin-top: 210px;
     font-family: "Open Sauce Two";
     letter-spacing: -0.02em;
     color: #1a1a1a;
@@ -124,6 +125,8 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
   display: flex;
   gap: 400px; /* espacio real entre cards */
   pointer-events: none;
+  width: 100%;
+  height: auto;
 }
 
   .cards:first-child {
@@ -147,26 +150,44 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     cursor: pointer;
   }
 
+  @media (1024px <= width <= 1265px){
+
+      .mainText {
+        flex-direction: column;
+        align-items: center;
+      }
+
+    header {
+      margin-top: clamp(50px, 18vw, 300px);
+    }
+    .cards {
+      width: 60vw;
+    }
+
+    .headerText {
+      width: 55vw;
+    }
+    .headerText h1 {
+      font-size: 60px;
+      line-height: 70px;
+    }
+  }
+
   @media (width >= 1024px) {
     header {
-      margin-top: 190px;
       justify-content: flex-start;
     }
+
     
     .cards {
-      position: absolute;
-      display: flex;
-      justify-content: center;
-      height: auto;
-      margin-top: 240px;
+      flex-direction: column;
+      gap: 200px;
+      margin-top: 180px;
     }
 
     .cards :global(img) {
-      position: relative !important;
-      left: auto !important;
-      right: auto !important;
-      top: auto !important;
-      bottom: auto !important;
+      
+     
     }
 
     .cards :global(img:last-child) {

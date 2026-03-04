@@ -15,7 +15,7 @@ const { imgSrc, title, rotation = 0, position } = Astro.props;
 <Image
   src={imgSrc}
   alt={title}
-  style={`transform: rotate(${rotation}deg); ${position === "left" ? "left: -120px; bottom: 0px;" : "right: -150px; top: -50px;"}`}
+  style={`transform: rotate(${rotation}deg); ${position === "left" ? "left: -120px; bottom: -120px;" : "right: -150px; top: -250px;"}`}
 />
 
 <style>
@@ -31,8 +31,8 @@ const { imgSrc, title, rotation = 0, position } = Astro.props;
 
  @media (768px < width < 1024px) {
     img {
-      width: 25vw;
-      height: 25vw;
+      width: 20vw;
+      height: 20vw;
       max-width: 200px;
       max-height: 200px;
     }

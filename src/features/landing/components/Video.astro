@@ -4,12 +4,32 @@ import VideoImg from "../assets/imgs/Video.png"
 ---
 
 <section class="videoSection">
-    <Image src={VideoImg} alt="Video" />
+    <Image class="videoImage" src={VideoImg} alt="Video" />
 </section>
 
 <style>
     .videoSection {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        
         position: absolute;
         bottom: -100px;
+    }
+
+    .videoImage {
+        width: 100%;
+        height: auto;
+    }
+    @media ( 768px < width < 1024px) {
+        .videoSection {
+            bottom: 0px;
+        }
+    }
+    @media (width <= 768px) {
+        .videoSection {
+            bottom: 0px;
+        }
+        
     }
 </style>

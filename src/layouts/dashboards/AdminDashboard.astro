@@ -41,8 +41,9 @@ const userRole = "admin";
 <style>
     .dashboard-container {
         display: flex;
-        width: 100%;
+        width: 100vw;
         height: 100%;
+        overflow-x: hidden;
         background-color: #F5F1FF;
     }
 
@@ -50,6 +51,7 @@ const userRole = "admin";
         flex: 1;
         display: flex;
         padding: 18px 20px 20px 0;
+        min-width: 0;
     }
     
     .dashboard-content {

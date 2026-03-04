@@ -253,6 +253,16 @@
   --paragraph-spacing-heading-h5: 28px;
   --paragraph-spacing-heading-h6: 28px;
 
+    /* ========== Breakpoints (responsive)
+   * Usar estos valores en @media (width <= XXpx) o en max-width.
+   * sm: 640px  | md: 768px  | lg: 1024px  | xl: 1280px  | 2xl: 1536px
+   */
+   --bp-sm: 640px;
+   --bp-md: 768px;
+   --bp-lg: 1024px;
+   --bp-xl: 1280px;
+   --bp-2xl: 1536px;
+
   --spacing-3xs: var(--scale-50);
   --spacing-xxs: var(--scale-150);
   --spacing-2xs: var(--scale-100);

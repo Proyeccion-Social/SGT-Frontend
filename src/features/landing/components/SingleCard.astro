@@ -79,4 +79,15 @@ const { imgSrc, title, header, headerSubtitle, bg } = Astro.props;
         height: 100%;
         object-fit: cover;
     }
+
+    @media (width <= 768px) {
+        .cardContainer {
+            width: 100%;
+            max-width: 362px;
+        }
+
+        .cardImage {
+            height: 100%;
+        }
+    }
 </style>

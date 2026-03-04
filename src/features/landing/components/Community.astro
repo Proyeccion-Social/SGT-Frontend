@@ -9,7 +9,7 @@ import GridBg from "../assets/imgs/GridBg.png";
   <div class='gridBgWrapper'>
     <Image src={GridBg} alt='' class='gridBg' />
   </div>
-  <h2>!Estamos construyendo <span> comunidad</span>!</h2>
+  <h2>¡Estamos construyendo <span> comunidad</span> !</h2>
   <p>
     Únete y descubre cómo el aprendizaje colaborativo puede cambiar tu semestre
   </p>
@@ -36,6 +36,7 @@ import GridBg from "../assets/imgs/GridBg.png";
     margin-top: 80px;
     margin-bottom: 200px;
     position: relative;
+    
   }
 
   .gridBgWrapper {
@@ -78,8 +79,8 @@ import GridBg from "../assets/imgs/GridBg.png";
 
   h2 span {
     color: #8751ff;
-    font-family: "Instrument Serif";
-    font-style: italic;
+    font-family: "Caveat";
+    font-size: 70px;
     position: relative;
   }
 
@@ -104,13 +105,89 @@ import GridBg from "../assets/imgs/GridBg.png";
     font-size: 20px;
     line-height: 56px;
     letter-spacing: -0.02em;
-
+    text-wrap: balance;
     color: #1a1a1a;
   }
 
-  @media (width <= 800px){
-    .communityContainer h2 {
-      font-size: 40px;
+  @media (width >= 1024px) {
+    .gridBgWrapper {
+      overflow: hidden;
+    }
+
+    .gridBg{
+      width: 180%;
+      height: 180%;
     }
   }
+
+ @media (768px < width < 1024px) {
+
+  .gridBgWrapper{
+      top: 28%;
+
+  }
+    .communityContainer {
+      margin-top: 100px;
+      margin-bottom: 100px;
+      padding: 0px 20px;
+     }
+
+     .communityContainer h2 {
+      font-size: 40px;
+      text-align: center;
+     }
+      .communityContainer p {
+        text-align: center;
+ }
+}
+
+  @media (width <= 768px){
+
+    .gridBgWrapper{
+      max-width: 600px;
+      max-height: 300px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: start;
+      z-index: -100;
+      top: 6%;
+      opacity: 0.5;
+      /* display: none; */
+    }
+
+    .gridBg {
+      position: relative;
+      top: -40px;
+    }
+    
+    h2 span {
+      font-size: 44px;
+      line-height: 0.7;
+    }
+
+    .communityContainer{ 
+      margin-right:  20px;
+      margin-left: 20px;
+      margin-bottom: 120px;
+      /* margin-top: 150px; */
+    }
+    .cardsWrapper {
+        gap: 30px;
+        display: flex;
+
+    }
+    .communityContainer h2 {
+      text-align: center;
+      font-size: 30px;
+      line-height: 40px;
+      margin-bottom: 20px;
+    }
+
+    .communityContainer p {
+      text-align: center;
+      font-size: 14px;
+      line-height: 20px;
+  }
+  }
+  
 </style>

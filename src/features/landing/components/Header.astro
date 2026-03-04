@@ -9,17 +9,27 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
 
 <header>
   <div class='headerText'>
-    <h1>Aprende con quienes ya pasaron por lo mismo</h1>
+    <div class='headerTitle'>
+      <h1>Aprende con quienes ya</h1>
+      <article class='mainText'>
+        <article class='markedText'>
+          <h1>pasaron</h1>
+          <Image class='markedTextImage' src={Marked} alt='Marked' />
+        </article>
+        <h1>por lo mismo</h1>
+      </article>
+    </div>
     <p>
       Conecta con tutores, agenda sesiones presenciales o virtuales, y forma
       parte de la comunidad
     </p>
-    <Image
-      style={`position: absolute; left: 115px; top: 75px;`}
-      src={Marked}
-      alt='Marked'
-    />
   </div>
+
+  <div class='ctaButtons'>
+    <ButtonCta />
+    <a data-open-registry>O regístrate</a>
+  </div>
+
   <section class='cards'>
     <CardImage
       position='left'
@@ -34,10 +44,6 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
       rotation={10}
     />
   </section>
-  <div class='ctaButtons'>
-    <ButtonCta />
-    <a data-open-registry>O regístrate</a>
-  </div>
 </header>
 
 <style>
@@ -47,9 +53,11 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     align-items: center;
     gap: 24px;
     position: relative;
-    height: 100%;
+    z-index: 1;
+    /* min-height: 100svh; */
     justify-content: center;
-    margin-bottom: 50px;
+    padding-top: 80px;
+    padding-bottom: 50px;
     font-family: "Open Sauce Two";
     letter-spacing: -0.02em;
     color: #1a1a1a;
@@ -66,12 +74,35 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     align-items: center;
   }
 
+  .mainText {
+    display: flex;
+    justify-content: center;
+
+    position: relative;
+  }
+
+  .markedText {
+    position: relative;
+    display: inline-block;
+    width: 263px;
+  }
+
+  .markedText img {
+    position: absolute;
+    bottom: -8px;
+    width: 100%;
+    left: -4px;
+    z-index: 0;
+  }
+
   .headerText h1 {
     font-style: normal;
     font-weight: 700;
     font-size: 60px;
     line-height: 72px;
     z-index: 1;
+    position: relative;
+    justify-content: center;
   }
 
   .headerText p {
@@ -85,14 +116,16 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
 
     color: #3c3c3c;
   }
-
   .cards {
     position: absolute;
-    width: 100%;
-    height: 300px;
-    /* top: 0;
-    left: 0; */
+    top: 24px; /* ajusta según tu hero */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 400px; /* espacio real entre cards */
     pointer-events: none;
+    width: 100%;
+    height: auto;
   }
 
   .cards:first-child {
@@ -114,5 +147,171 @@ import CardTuto2 from "../assets/imgs/CardTuto2.png";
     text-decoration-line: underline;
     color: #1a1a1a;
     cursor: pointer;
+  }
+
+  @media (1024px <= width <= 1265px) {
+    .mainText {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      padding-top: clamp(80px, 18vw, 300px);
+    }
+    .cards {
+      width: 60vw;
+    }
+
+    .headerText {
+      width: 55vw;
+    }
+    .headerText h1 {
+      font-size: 60px;
+      line-height: 70px;
+    }
+  }
+
+  @media (width >= 1024px) {
+    header {
+      justify-content: flex-start;
+    }
+
+    .cards {
+      flex-direction: column;
+      gap: 200px;
+      margin-top: 180px;
+    }
+
+    .cards :global(img) {
+    }
+
+    .cards :global(img:last-child) {
+      margin-right: 0;
+    }
+  }
+
+  @media (768px < width < 1024px) {
+    header {
+      justify-content: center;
+      padding-top: clamp(80px, 30vw, 200px);
+      padding-left: 5px;
+      padding-right: 5px;
+      gap: 50px;
+    }
+
+    .headerText {
+      width: 100%;
+    }
+    .headerText h1 {
+      font-size: 50px;
+      line-height: 60px;
+    }
+
+    .markedText {
+      width: 230px;
+      height: 60px;
+    }
+
+    .markedTextImage {
+      height: 65px;
+    }
+
+    .cards {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      margin-top: -12vw;
+      display: flex;
+      justify-content: center;
+      gap: 30vw;
+    }
+
+    .cards :global(img) {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      top: auto !important;
+      bottom: auto !important;
+    }
+    
+    header {
+      justify-content: center;
+      padding-top: 0px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+  }
+
+  /* ==== Móvil ==== */
+  @media (width <= 768px) {
+    .mainText {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      justify-content: center;
+      padding-top: 0px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    .headerText {
+      width: 100%;
+      gap: 15px;
+    }
+
+    .headerText h1 {
+      font-size: clamp(1.5rem, 10vw, 3rem);
+      line-height: 1.25;
+      text-align: center;
+      padding: 0 5px;
+    }
+
+    .headerText p {
+      width: 100%;
+      font-size: clamp(1rem, 3vw, 1.25rem);
+      line-height: 22px;
+      padding: 0 20px;
+    }
+
+    .markedText {
+      position: relative;
+      display: inline-block;
+      width: fit-content;
+      padding: 0 16px;
+    }
+
+    .markedTextImage {
+      position: absolute !important;
+      bottom: -3px !important;
+      left: 5px !important;
+      width: 90% !important;
+      height: auto !important;
+    }
+
+    .cards {
+      position: relative;
+      top: auto;
+      left: auto;
+      transform: none;
+      margin-top: -10vw;
+      display: flex;
+      justify-content: center;
+      gap: 30vw;
+    }
+
+    .cards :global(img) {
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      top: auto !important;
+      bottom: auto !important;
+    }
+
+    .cards :global(img:last-child) {
+    }
   }
 </style>

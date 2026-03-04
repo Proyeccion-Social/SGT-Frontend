@@ -7,7 +7,7 @@ import RegistryForm from "./RegistryForm.astro";
 <dialog id='registryDialog' class='registryDialog'>
   <div class='dialogBackdrop' data-close-registry></div>
   <div class='dialogContent'>
-    <button class='closeBtn' data-close-registry aria-label='Cerrar'>
+    <!-- <button class='closeBtn' data-close-registry aria-label='Cerrar'>
       <svg
         width='24'
         height='24'
@@ -17,8 +17,8 @@ import RegistryForm from "./RegistryForm.astro";
         stroke-width='2'
       >
         <path d='M18 6L6 18M6 6l12 12'></path>
-      </svg>
-    </button>
+      </svg> 
+    </button>-->
     <RegistryCard>
       <RegistryHeader />
       <RegistryForm />
@@ -73,6 +73,10 @@ import RegistryForm from "./RegistryForm.astro";
   }
 
   .dialogContent {
+    display: flex;
+    width: 100%;
+    padding: 0 16px;
+    justify-content: center;
     position: relative;
     z-index: 1;
     transform: scale(0.95) translateY(10px);

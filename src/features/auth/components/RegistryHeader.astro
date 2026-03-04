@@ -12,6 +12,8 @@ import Icon from "../assets/imgs/icon.svg";
 </div>
 
 <style>
+
+  
   .containerHeader {
     display: flex;
     font-family: "Open Sauce Two";
@@ -41,7 +43,7 @@ import Icon from "../assets/imgs/icon.svg";
   .containerHeader h1 {
     font-weight: 700;
     font-size: 40px;
-    line-height: 24px;
+    line-height: 1.2;
     letter-spacing: -0.02em;
   }
 
@@ -50,5 +52,32 @@ import Icon from "../assets/imgs/icon.svg";
     font-size: 16px;
     line-height: 24px;
     letter-spacing: -0.02em;
+  }
+
+  
+
+  @media(width <= 768px) {
+    .containerHeader {
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .containerHeader img {
+      top: 15px;
+      left: 0px;
+
+    }
+
+    .containerHeader h1 {
+      font-size: 30px;
+      text-align: center;
+    }
+
+     .containerHeader
+
+    p {
+      text-align: center;
+    }
   }
 </style>

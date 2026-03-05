@@ -1,10 +1,12 @@
 ---
 import { Image } from 'astro:assets';
 import VideoImg from "../assets/imgs/Video.png"
+import VideoImg2 from "../assets/imgs/Video2.png"
 ---
 
 <section class="videoSection">
-    <Image class="videoImage" src={VideoImg} alt="Video" />
+    <Image class="videoImage videoImage--desktop" src={VideoImg} alt="Video" />
+    <Image class="videoImage videoImage--mobile" src={VideoImg2} alt="Video" />
 </section>
 
 <style>
@@ -21,6 +23,10 @@ import VideoImg from "../assets/imgs/Video.png"
         width: 100%;
         height: auto;
     }
+
+    .videoImage--mobile {
+        display: none;
+    }
     @media ( 768px < width < 1024px) {
         .videoSection {
             bottom: 0px;
@@ -28,8 +34,16 @@ import VideoImg from "../assets/imgs/Video.png"
     }
     @media (width <= 768px) {
         .videoSection {
-            bottom: 0px;
+            bottom: -50px;
         }
-        
+
+        .videoImage--desktop {
+            display: none;
+        }
+
+        .videoImage--mobile {
+            display: block;
+            
+        }
     }
 </style>

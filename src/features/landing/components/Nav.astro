@@ -1,231 +1,245 @@
 ---
-import FullLogo from "./FullLogo.astro"
+import FullLogo from "./FullLogo.astro";
+import MenuIcon from "../assets/icons/menu.svg";
+import { Image } from "astro:assets";
 ---
 
-<nav class="navBar">
-    <FullLogo />
+<nav class='navBar'>
+  <FullLogo />
 
-    <button class="hamburger" id="menuToggle">
-        ☰
-    </button>
-    <div class="navMenu">
-        <ul class="navLinks">
-            <li><a href="#features">Cómo funciona</a></li>
-            <li><a href="#pricing">Comunidad</a></li>
-            <li><a href="#contact">Impacto</a></li>
-        </ul>
-        <button data-open-login class="data-open-login">¡Comienza!</button>
-    </div>
+  <button class='hamburger' id='menuToggle'>
+    <Image src={MenuIcon} alt='Menu' />
+  </button>
+  <ul class='navLinks'>
+    <li><a href='#features'>Cómo funciona</a></li>
+    <li><a href='#pricing'>Comunidad</a></li>
+    <li><a href='#contact'>Impacto</a></li>
+  </ul>
+  <button data-open-login class='data-open-login'>¡Comienza!</button>
 </nav>
+<div class='navMenu'>
+  <ul class='navLinks navLinks--mobile'>
+    <li><a href='#features'>Cómo funciona</a></li>
+    <li><a href='#pricing'>Comunidad</a></li>
+    <li><a href='#contact'>Impacto</a></li>
+  </ul>
+  <button data-open-login class='data-open-login'>¡Comienza!</button>
+</div>
 
 <script>
-    const nav = document.querySelector('.navBar');
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 30) {
-            nav?.classList.add('scrolled');
-        } else {
-            nav?.classList.remove('scrolled');
-        }
-    });
+  const nav = document.querySelector(".navBar");
+  const navMenu = document.querySelector(".navMenu") as HTMLElement | null;
 
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 30) {
+      nav?.classList.add("scrolled");
+      if (navMenu) navMenu.style.top = "calc(20px + 54px + 8px)";
+    } else {
+      nav?.classList.remove("scrolled");
+      if (navMenu) navMenu.style.top = "calc(25px + 54px + 8px)";
+    }
+  });
 
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.navLinks');
-    const navMenu = document.querySelector('.navMenu');
+  const hamburger = document.querySelector(".hamburger");
 
-    hamburger?.addEventListener('click', () => {
-        navMenu?.classList.toggle('active');
-    });
+  hamburger?.addEventListener("click", () => {
+    navMenu?.classList.toggle("active");
+  });
 </script>
 
 <style>
+  .navBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 660px;
+    height: 54px;
+    padding: 12px 12px;
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(12.4px);
+    -webkit-backdrop-filter: blur(12.4px);
+    border: 1px solid rgba(255, 255, 255, 0.19);
+    border-radius: 24px;
+
+    font-family: "Cabinet Grotesk Variable";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 32px;
+    letter-spacing: -0.02em;
+    position: fixed;
+    top: 40px;
+    transition: top 0.3s ease;
+
+    z-index: 10000;
+  }
+
+  .navBar.scrolled {
+    top: 20px;
+  }
+
+  .hamburger {
+    display: none;
+    background-color: transparent;
+    width: auto;
+    border-radius: 8px;
+  }
+  .navMenu {
+    display: none;
+    font-family: "Cabinet Grotesk Variable";
+  }
+
+  .navLinks {
+    font-size: 16px;
+    display: flex;
+    gap: 8px;
+    color: #1a1a1a;
+    margin-right: 20px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1px;
+  }
+
+  .menu-toggle {
+    display: none;
+    font-size: 50px;
+    cursor: pointer;
+    color: #1a1a1a;
+    background: none;
+    border: none;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  li a {
+    text-decoration: none;
+    color: #1a1a1a;
+  }
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 12px;
+    width: 97px;
+    height: 32px;
+    background: #cdff8e;
+    border-radius: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+    border: none;
+  }
+
+  /* ==== Laptop ==== */
+  @media (width <= 1024px) {
     .navBar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 660px;
-        height: 54px;
-        padding: 12px 12px;
-        background: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(12.4px);
-        -webkit-backdrop-filter: blur(12.4px);
-        border: 1px solid rgba(255, 255, 255, 0.19);
-        border-radius: 24px;
-
-        font-family: "Cabinet Grotesk Variable";
-        font-style: normal;
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 32px;
-        letter-spacing: -0.02em;
-        position: fixed;
-        top: 40px;
-        transition: top 0.3s ease;
-        
-        z-index: 10000;
+      top: 30px;
     }
-
-    .navBar.scrolled {
-        top: 20px;
-    }
-
-    .hamburger{
-        display: none;
-    }
-    .navMenu {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 80px;
-        
-    }
-    
     .navLinks {
-        font-size: 16px;
-        display: flex;
-        gap: 8px;
-        color: #1A1A1A;
-        margin-right: 20px;
-        justify-content: center;
-        align-items: center;
-        margin-top: 1px;
+      font-size: 16px;
+    }
+  }
+
+  /* ==== Tablet ==== */
+  @media (640px < width < 1024px) {
+    .navMenu {
+      gap: 35px;
+    }
+    .navLinks {
+      font-size: 16px;
     }
 
-    .menu-toggle {
-        display: none;
-        font-size: 50px;
-        cursor: pointer;
-        color: #1A1A1A;
-        background: none;
-        border: none;
+    .navBar {
+      width: 560px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ==== Móvil ==== */
+  @media (width <= 640px) {
+    .navBar {
+      width: 90%;
+      top: 25px;
+      border-radius: 20px;
     }
 
-    li {
-        list-style: none;
+    .navBar .navLinks,
+    .navBar .data-open-login {
+      display: none;
     }
 
-    li a {
-        text-decoration: none;
-        color: #1A1A1A;
-        
+    .hamburger {
+      display: block;
     }
 
-    button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0px 12px;
-        width: 97px;
-        height: 32px;
-        background: #CDFF8E;
-        border-radius: 16px;
-        font-weight: 500;
-        color: #1A1A1A;
-        border: none;  
-    }
-    
-    /* ==== Laptop ==== */
-    @media (width <= 1024px) {
-        .navBar {
-            top: 30px;
-        }
-        .navLinks {
-            font-size: 16px;
-        }
-    }
-
-    /* ==== Tablet ==== */
-  @media (640px < width < 1024px)  {
-        .navMenu {
-            gap: 35px;
-        }
-        .navLinks {
-            
-            font-size: 16px;
-
-        }
-
-        .navBar {
-            width: 560px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .navBar button {
-            width: 80px;
-            font-size: small;
-        }
+    .navMenu {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: stretch;
+      position: fixed;
+      top: calc(25px + 54px + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-height: 50vh;
+      background: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(12.4px);
+      -webkit-backdrop-filter: blur(12.4px);
+      border: 1px solid rgba(255, 255, 255, 0.19);
+      border-radius: 24px;
+      padding: 20px 20px;
+      gap: 16px;
+      opacity: 0;
+      transition: all 0.3s ease-out;
+      pointer-events: none;
+      z-index: 9999;
     }
 
-
-    /* ==== Móvil ==== */
-    @media (width <= 640px) {
-        .navBar {
-            width: 90%;
-            top: 25px;
-        }
-
-        .hamburger {
-            display: block;
-        }
-
-        .navMenu {
-            font-size: 14px;
-            gap: 12px;
-            display: flex;
-            justify-content: space-around;
-            position: absolute;
-            top: 110%;
-            right: 0;
-            width: 100%;
-            height: auto;
-            background: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(12.4px);
-            -webkit-backdrop-filter: blur(12.4px);
-            border: 1px solid rgba(255, 255, 255, 0.19);
-            border-radius: 24px;
-            padding: 12px;
-            opacity: 0;
-            transition: all 0.3s ease-out;
-            pointer-events: none;
-
-            flex-wrap: wrap;
-            
-        }
-
-        .navLinks {
-                font-size: clamp(0.8rem, 3.5vw, 1rem);
-                font-style: bold;
-                display: flex;
-                flex-direction: row;
-                margin: 0;
-            flex-wrap: wrap;
-            gap: 8px 12px;
-        }
-
-        .data-open-login {
-                display: block;
-                padding: 0;
-                
-            }
-
-        .navMenu.active {
-            
-            
-            opacity: 1;
-            transition: all 0.3s ease-out;
-
-            pointer-events: auto;
-
-            
-            
-            
-        }
-
+    .navLinks--mobile {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin: 0;
+      padding: 0;
+      gap: 4px;
+      flex: 1;
     }
 
+    .navLinks--mobile li {
+      width: 100%;
+    }
+
+    .navLinks--mobile li a {
+      display: block;
+      width: 100%;
+      padding: 12px 8px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .navLinks--mobile li a:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .navMenu .data-open-login {
+      display: flex;
+      width: 100%;
+      height: 42px;
+      border-radius: 16px;
+      font-size: 1rem;
+    }
+
+    .navMenu.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
 </style>

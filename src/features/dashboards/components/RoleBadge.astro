@@ -28,7 +28,7 @@ if (role === 'admin') {
         </>
     ) : null}
   </div>
-  
+
   <span class="highlight-name">
     {name}
     {roleName === 'Estudiante' && (
@@ -64,8 +64,8 @@ if (role === 'admin') {
   }
 
   .hand-drawn-arrow {
-    width: 2000px;
-    height: 100px;
+    width: 200px;
+    height: auto;
     margin-top: -10px;
     margin-left: -70px;
     z-index: -1;
@@ -73,7 +73,7 @@ if (role === 'admin') {
 
   .highlight-name {
     color: #A855F7;
-    font-size: 60px;
+    font-size: clamp(2rem, 5vw, 4rem);
     font-weight: bold;
     position: relative;
     display: inline-block;
@@ -81,10 +81,11 @@ if (role === 'admin') {
 
   .hand-drawn-line {
     position: absolute;
-    top: -55px;
+    top: 5px;
     left: 20;
     width: 100%;
-    height: 190px;
+    height: auto;
+    max-height: 80px;
     z-index: -1;
   }
 </style>

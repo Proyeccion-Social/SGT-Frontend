@@ -1,10 +1,33 @@
-/* Font Faces */
+@import "sileo/styles.css";
+
 @font-face {
   font-family: "Cabinet Grotesk Variable";
   src: url("/src/assets/fonts/CabinetGrotesk-Variable.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+}
+
+:root {
+  font-family: "Open Sauce Two", "Cabinet Grotesk Variable", system-ui, -apple-system, sans-serif;
+}
+
+[data-sileo-title] {
+    color: #ffffff !important;
+}
+
+[data-sileo-description] {
+    color: #ffffff !important;
+}
+
+[data-sileo-badge] {
+    color: #ffffff !important;
+    background-color: #ffffff15 !important;
+}
+
+[data-sileo-button] {
+    color: #ffffff !important;
+    background-color: #ffffff20 !important;
 }
 
 @font-face {

@@ -2,6 +2,7 @@
 import RegistryCard from "./RegistryCard.astro";
 import RegistryHeader from "./RegistryHeader.astro";
 import RegistryForm from "./RegistryForm.astro";
+import ToasterReact from "@/reactComponents/ToasterReact";
 ---
 
 <dialog id='registryDialog' class='registryDialog'>
@@ -23,6 +24,7 @@ import RegistryForm from "./RegistryForm.astro";
       <RegistryHeader />
       <RegistryForm />
     </RegistryCard>
+    <ToasterReact client:load/>
   </div>
 </dialog>
 

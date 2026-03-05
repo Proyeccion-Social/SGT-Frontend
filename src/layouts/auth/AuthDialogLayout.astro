@@ -5,6 +5,7 @@ interface Props {
 }
 
 const { dialogId, dialogClass } = Astro.props;
+import ToasterReact from "@/reactComponents/ToasterReact";
 ---
 
 <dialog id={dialogId} class={`authDialog ${dialogClass}`}>
@@ -22,6 +23,7 @@ const { dialogId, dialogClass } = Astro.props;
       </svg>
     </button> -->
     <slot />
+    <ToasterReact client:load/>
   </div>
 </dialog>
 

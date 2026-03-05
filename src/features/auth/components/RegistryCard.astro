@@ -10,7 +10,7 @@ import SideImage from "../assets/imgs/SideImage.png"
         <Image src={Arrow} alt="Flecha derecha" />
         <p>¡Bienvenido!</p>
     </article>
-    <Image src={SideImage} alt="Imagen lateral" />
+    <Image src={SideImage} alt="Imagen lateral" class="greenImage"  />
     <div class="registryCard">
         <button class="closeBtn" data-close-registry aria-label="Cerrar">
             <svg
@@ -146,24 +146,23 @@ import SideImage from "../assets/imgs/SideImage.png"
         }
     }
     @media (width <= 768px) {
+
+        .greenImage {
+            display: none;
+        }
         .arrowText{
             display: none;
         }
         .registrySection {
             grid-template-columns: 1fr;
             max-width: 400px;
-            grid-template-rows: repeat(2, auto); 
-            grid-template-rows: 300px;
             width: 100%;
 
         }
 
-        .registrySection img {
-            border-radius: 24px 24px 0px 0px;
-        }
 
         .registryCard {
-            border-radius: 0px 0px 24px 24px;
+            border-radius: 24px;
         }
 
         .arrowText {

@@ -1,0 +1,266 @@
+---
+import { Image } from "astro:assets";
+import DashboardIcon from "./icons/DashboardIcon.svg";
+import ConfigIcon from "./icons/ConfigIcon.svg";
+import NotificationIcon from "./icons/NotificationIcon.svg";
+import LogoutIcon from "./icons/LogoutIcon.svg";
+import WindowIcon from "./icons/WindowIcon.svg";
+import CollapseIcon from "./icons/CollapseIcon.svg";
+import HistoryIcon from "./icons/HistoryIcon.svg";
+import CalendarIcon from "./icons/CalendarIcon.svg";
+import BinocularIcon from "./icons/BinocularIcon.svg";
+import SearchIcon from "./icons/SearchIcon.svg";
+import CommunityIcon from "./icons/CommunityIcon.svg";
+
+interface Props {
+  userRole: "admin" | "tutor" | "student";
+}
+
+const { userRole } = Astro.props;
+---
+
+<aside class='sidebar'>
+  <div class='navbar-header'>
+    <a href='/'><img src='/favicon.svg' alt='Logo' /></a>
+    <button class='collapse-button'>
+      <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
+    </button>
+  </div>
+
+  <div class='navbar-items'>
+    {
+      userRole === "student" && (
+        <div class='calendar-container'>
+          <a href='#'>
+            <Image src={CalendarIcon} alt='Calendar' class='icon' />
+          </a>
+        </div>
+      )
+    }
+
+    <div class='dashboard-container'>
+      <a href='#'><Image src={DashboardIcon} alt='Dashboard' class='icon' /></a>
+    </div>
+
+    {
+      userRole === "admin" && (
+        <>
+          <a href='#'>
+            <Image src={WindowIcon} alt='Window' class='icon' />
+          </a>
+          <a href='#'>
+            <Image src={ConfigIcon} alt='Config' class='icon' />
+          </a>
+        </>
+      )
+    }
+
+    {
+      userRole === "tutor" && (
+        <>
+          <a href='#'>
+            <Image src={WindowIcon} alt='Window' class='icon' />
+          </a>
+          <a href='#'>
+            <Image src={ConfigIcon} alt='Config' class='icon' />
+          </a>
+          <a href='#'>
+            <Image src={HistoryIcon} alt='History' class='icon' />
+          </a>
+        </>
+      )
+    }
+
+    {
+      userRole === "student" && (
+        <>
+          <a href='#'>
+            <Image src={SearchIcon} alt='Search' class='icon' />
+          </a>
+          <a href='#'>
+            <Image src={BinocularIcon} alt='Binocular' class='icon' />
+          </a>
+          <a href='#'>
+            <Image src={CommunityIcon} alt='Community' class='icon' />
+          </a>
+          <a href='#'>
+            <Image src={HistoryIcon} alt='History' class='icon' />
+          </a>
+        </>
+      )
+    }
+  </div>
+
+  <div class='navbar-footer'>
+    <div class='notification-container'>
+      <a href='#'
+        ><Image src={NotificationIcon} alt='Notification' class='icon' /></a
+      >
+    </div>
+    <a href='#'><Image src={LogoutIcon} alt='Logout' class='icon' /></a>
+  </div>
+</aside>
+
+<style>
+  .sidebar {
+    width: 100px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 0;
+  }
+
+  img {
+    height: 4rem;
+    width: auto;
+    bottom: 1px;
+    left: 3px;
+  }
+
+  .navbar-header {
+    margin-top: -1rem;
+    margin-bottom: auto;
+  }
+
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .collapse-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .collapse-button {
+    position: absolute;
+    left: 82px;
+    top: 47px;
+    background: white;
+    border: none;
+    border-radius: 24px;
+    width: 39px;
+    height: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .navbar-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .navbar-items > a,
+  .navbar-footer > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+  }
+
+  .navbar-items > a:hover,
+  .navbar-footer > a:hover {
+    background: rgba(243, 237, 255, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transform: scale(1.06);
+  }
+
+  .calendar-container {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(
+      135deg,
+      rgba(159, 116, 255, 0.6),
+      rgba(130, 80, 255, 0.35)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+      0 4px 16px rgba(130, 80, 255, 0.3),
+      inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transition: all 0.25s ease;
+    margin-bottom: 8px;
+  }
+
+  .calendar-container:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(159, 116, 255, 0.8),
+      rgba(130, 80, 255, 0.5)
+    );
+    box-shadow:
+      0 6px 24px rgba(130, 80, 255, 0.45),
+      inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    transform: scale(1.08);
+  }
+
+  .dashboard-container {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(243, 237, 255, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(130, 80, 255, 0.08);
+    transition: all 0.25s ease;
+  }
+
+  .dashboard-container:hover {
+    background: rgba(243, 237, 255, 0.75);
+    box-shadow: 0 3px 12px rgba(130, 80, 255, 0.15);
+    transform: scale(1.06);
+  }
+
+  .notification-container {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(230, 255, 199, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 2px 8px rgba(120, 180, 60, 0.1);
+    transition: all 0.25s ease;
+  }
+
+  .notification-container:hover {
+    background: rgba(230, 255, 199, 0.7);
+    box-shadow: 0 3px 12px rgba(120, 180, 60, 0.2);
+    transform: scale(1.06);
+  }
+
+  .navbar-footer {
+    margin-top: auto;
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+</style>

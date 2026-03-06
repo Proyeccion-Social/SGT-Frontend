@@ -5,18 +5,14 @@ import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import OptionButton from "../../features/dashboards/components/OptionButton.astro";
 import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
-import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
+import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
 
 const payload = JSON.parse(atob(token.split(".")[1]));
-const userName: string = payload.name;
 const userRole = payload.role.toLowerCase() as 'admin' | 'tutor' | 'student';
-
 ---
-
-
 
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
@@ -24,9 +20,9 @@ const userRole = payload.role.toLowerCase() as 'admin' | 'tutor' | 'student';
 
         <main class="content-wrapper">
             <div class="dashboard-content">
-                <div class="welcome-container">
-                    <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
-                </div>
+
+                
+                <WelcomeBanner client:only="react" />
 
                 <div class="buttons">
                     <OptionButton backgroundColor="#B797FF" titleColor="#513199" title="Crear tutor" />
@@ -44,6 +40,7 @@ const userRole = payload.role.toLowerCase() as 'admin' | 'tutor' | 'student';
         </main>
     </div>
 </MainLayout>
+
 
 <style>
     .dashboard-container {

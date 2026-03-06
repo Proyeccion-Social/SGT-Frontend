@@ -2,6 +2,8 @@
 import { Image } from 'astro:assets';
 import HandWrittenArrow from './icons/HandWrittenArrow.svg';
 import HandWrittenLine from './icons/HandWrittenLine.svg';
+import "../../../styles/badge.css";
+
 
 interface Props {
   name: string;
@@ -37,57 +39,3 @@ if (role === 'admin') {
   </span>
 </div>
 
-<style>
-  .badge-container {
-    position: relative;
-    display: inline-block;
-    margin-left: 10px;
-    z-index: 1;
-    width: auto;
-    height: auto;
-  }
-
-  .floating-tag {
-    position: absolute;
-    top: -30px;
-    left: 100px;
-    white-space: nowrap;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .tag-text {
-    font-family: 'Caveat', sans-serif;
-    font-weight: lighter;
-    font-size: 24px;
-    color: #9f74ff; 
-  }
-
-  .hand-drawn-arrow {
-    width: 200px;
-    height: auto;
-    margin-top: -10px;
-    margin-left: -70px;
-    z-index: -1;
-    opacity: 0.7;
-  }
-
-  .highlight-name {
-    color: #9f74ff;
-    font-size: clamp(2rem, 5vw, 4rem);
-    font-weight: bold;
-    position: relative;
-    display: inline-block;
-  }
-
-  .hand-drawn-line {
-    position: absolute;
-    top: 5px;
-    left: 20;
-    width: 100%;
-    height: auto;
-    max-height: 80px;
-    z-index: -1;
-    opacity: 0.7;
-  }
-</style>

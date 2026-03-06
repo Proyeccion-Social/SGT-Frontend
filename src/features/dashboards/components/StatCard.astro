@@ -24,7 +24,7 @@ const { value, description } = Astro.props;
 <style>
   .stat-card {
     background-color: #F3F0FF;
-    border: 2px dashed #A855F7;
+    border: 2px dashed #9f74ff;
     border-radius: 24px;
     padding: 2rem;
     display: flex;
@@ -34,7 +34,6 @@ const { value, description } = Astro.props;
     position: relative;
     text-align: center;
     width: 100%;
-    max-width: 320px;
     aspect-ratio: 1/1;
     margin: 0 auto;
   }
@@ -48,7 +47,7 @@ const { value, description } = Astro.props;
   .value {
     font-size: clamp(60px, 8vw, 100px);
     font-weight: 700;
-    color: #8751FF;
+    color: #9f74ff;
     display: block;
     font-family: 'Cabinet Grotesk variable', sans-serif;
     font-style: bold;
@@ -61,12 +60,13 @@ const { value, description } = Astro.props;
     font-weight: 700;
     font-style: bold;
     color: #818181;
+    line-height: 1;
     margin: 0;
   }
 
   .decorative-avatar {
     position: absolute;
-    bottom: 10px;
+    bottom: 0px;
     right: 10px;
     width: clamp(40px, 5vw, 60px);
     height: auto;

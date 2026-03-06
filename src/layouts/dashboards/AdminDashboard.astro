@@ -1,14 +1,14 @@
 ---
 import { Image } from "astro:assets";
-import MainLayout from '../Layout.astro';
-import Sidebar from '../../features/dashboards/components/Sidebar.astro';
-import OptionButton from '../../features/dashboards/components/OptionButton.astro';
-import ColorChangeIcon from "../../features/dashboards/components/icons/ColorChangeIcon.svg";
+import MainLayout from "../Layout.astro";
+import Sidebar from "../../features/dashboards/components/Sidebar.astro";
+import OptionButton from "../../features/dashboards/components/OptionButton.astro";
+import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
 
 const userName = "Johan"; // Mock user name, replace with actual data in a real application
-const userRole = "admin"; 
+const userRole = "admin";
 ---
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
@@ -29,7 +29,7 @@ const userRole = "admin";
                 </div>
 
                 <div class="user-header">
-                    <button class="color-change-button"><Image src={ColorChangeIcon} alt="Change Color" class="color-change-img"/></button>
+                    <button class="role-change-button"><Image src={RoleChangeIcon} alt="Change Role" class="role-change-img"/></button>
                     <button class="avatar"><Image src={UserIcon} alt="User" /></button>
                 </div>
             </div>
@@ -41,17 +41,19 @@ const userRole = "admin";
 <style>
     .dashboard-container {
         display: flex;
-        width: 100%;
+        width: 100vw;
         height: 100%;
-        background-color: #F5F1FF;
+        overflow-x: hidden;
+        background-color: #f3edff;
     }
 
     .content-wrapper {
         flex: 1;
         display: flex;
         padding: 18px 20px 20px 0;
+        min-width: 0;
     }
-    
+
     .dashboard-content {
         flex: 1;
         display: flex;
@@ -61,8 +63,9 @@ const userRole = "admin";
         overflow-y: auto;
         align-items: center;
         justify-content: center;
+        margin-top: 30px;
     }
-    
+
     .welcome-container {
         display: flex;
         flex-direction: row;

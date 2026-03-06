@@ -19,7 +19,7 @@ const defaultKey = "Modalidades";
       ))
     }
   </div>
-
+ 
   <div class='interactContent'>
     {
       entries.map(([key, value]) => (
@@ -57,20 +57,24 @@ const defaultKey = "Modalidades";
     overflow: hidden;
   }
 
-  .interactContainer {
-    position: relative;
-    width: 1340px;
-    height: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    margin: 200px auto;
-  }
+ .interactContainer {
+  position: relative;
+  width: 100%;
+  max-width: 1340px;   /* límite en desktop */
+  min-height: 600px;
+  aspect-ratio: 1340 / 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 200px auto;
+  padding: 0 20px;
+}
 
   .interact-bg {
     position: absolute;
+    
     inset: 0;
     width: 100%;
     height: 100%;
@@ -92,7 +96,7 @@ const defaultKey = "Modalidades";
     font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 700;
-    font-size: 60px;
+    font-size: clamp(32px, 5vw, 60px);
     line-height: 72px;
     letter-spacing: -0.02em;
     color: #1a1a1a;
@@ -103,7 +107,7 @@ const defaultKey = "Modalidades";
     font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 400;
-    font-size: 20px;
+    font-size: clamp(16px, 2vw, 20px);
     line-height: 24px;
     letter-spacing: -0.02em;
     color: #1a1a1a;
@@ -162,18 +166,90 @@ const defaultKey = "Modalidades";
     height: 40px;
   }
 
-  @media (width <= 1343px) {
+ @media (768px < width < 1024px)  {
     .interactContainer {
       width: 90%;
-      aspect-ratio: 12 / 10;
       padding: 0 20px;
-      
+      min-height: 500px;
+      margin: 100px auto;
+      height: auto;  
     }
     .interact-bg {
-      object-fit: none;
+      object-fit: contain;
+    }
+
+    .interactMenu {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      height: auto;
+      
     }
   }
 
+  @media (width <= 768px) {
+
+    .interactContainer {
+      width: 90%;
+      aspect-ratio: auto;
+      min-height: 500px;
+      height: auto;
+      margin: 150px auto;
+      padding: 50px 20px 32px;
+      gap: 60px;
+    }
+
+    .interactBgWrapper {
+      border-radius: 32px;
+      overflow: hidden;
+    }
+
+    .interact-bg {
+      border-radius: 32px;
+      object-fit: cover;
+    }
+
+    /* En mobile, el texto no debe ser absolute para que el contenedor crezca */
+    .interactContent {
+      margin-bottom: 0;
+    }
+
+    .interact-text {
+      position: static;
+      inset: auto;
+      opacity: 1;
+      pointer-events: auto;
+      transition: none;
+    }
+
+    .interact-text:not(.active) {
+      display: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* El menú tampoco debe ser absolute en mobile (si no, no suma altura) */
+    .interactMenu {
+      position: static;
+      bottom: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      height: auto;
+    }
+
+    .interact-option {
+      width: auto;
+      height: auto;
+      font-size: 16px;
+      padding: 6px 12px;
+    }
+
+    .interactContent h2 {
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+  }
 
 </style>
 

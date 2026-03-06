@@ -5,12 +5,25 @@ import SideImage from "../assets/imgs/SideImage.png"
 ---
 
 <section class="registrySection">
+    
     <article class="arrowText">
         <Image src={Arrow} alt="Flecha derecha" />
         <p>¡Bienvenido!</p>
     </article>
-    <Image src={SideImage} alt="Imagen lateral" />
+    <Image src={SideImage} alt="Imagen lateral" class="greenImage"  />
     <div class="registryCard">
+        <button class="closeBtn" data-close-registry aria-label="Cerrar">
+            <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <path d="M18 6L6 18M6 6l12 12"></path>
+            </svg>
+        </button>
         <slot/>
     </div>
 </section>
@@ -18,8 +31,12 @@ import SideImage from "../assets/imgs/SideImage.png"
 <style>
 
     .registrySection {
+        width: 90%;
         display: grid;
-        grid-template-columns: repeat(2, 484px);
+        grid-template-columns: repeat(2, 1fr);
+        place-items: center;
+        max-width: 968px;
+        min-height: 655px;
         grid-template-rows: 655px;
         align-items: center;
         justify-content: center;
@@ -28,6 +45,31 @@ import SideImage from "../assets/imgs/SideImage.png"
         font-family: "Open Sauce Two";
     }
     
+
+    .closeBtn {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        z-index: 10;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #666;
+        transition:
+            background 0.15s ease,
+            color 0.15s ease;
+  }
+
+  .closeBtn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1a1a1a;
+  }
     .registrySection img,
     .registryCard {
         width: 100%;
@@ -43,6 +85,7 @@ import SideImage from "../assets/imgs/SideImage.png"
     }
 
     .registryCard {
+        
         background: #ffffff;
         display: flex;
         flex-direction: column;
@@ -86,4 +129,47 @@ import SideImage from "../assets/imgs/SideImage.png"
         line-height: 30px;
         color: #FFFFFF;
     }
+
+    @media (1024px <= width <= 1340px){
+        .arrowText {
+            right: 80px;
+            top: -50px;
+        }
+
+        
+    }
+
+    @media (width >= 1024px){}
+    @media (768px < width < 1024px){
+        .arrowText{
+            display: none;
+        }
+    }
+    @media (width <= 768px) {
+
+        .greenImage {
+            display: none;
+        }
+        .arrowText{
+            display: none;
+        }
+        .registrySection {
+            grid-template-columns: 1fr;
+            max-width: 400px;
+            width: 100%;
+
+        }
+
+
+        .registryCard {
+            border-radius: 24px;
+            height: auto;
+            padding: 40px 20px;
+        }
+
+        .arrowText {
+            display: none;
+        }
+    } 
+
 </style>

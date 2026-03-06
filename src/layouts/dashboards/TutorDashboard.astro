@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 import MainLayout from '../Layout.astro';
 import Sidebar from '../../features/dashboards/components/Sidebar.astro';
-import ColorChangeIcon from "../../features/dashboards/components/icons/ColorChangeIcon.svg";
+import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
 import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
@@ -45,13 +45,14 @@ const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyL
     <div class="dashboard-container">
         <Sidebar userRole={userRole} />
 
-        <div class="user-header">
-            <button class="color-change-button"><Image src={ColorChangeIcon} alt="Change Color" class="color-change-img"/></button>
-            <button class="avatar"><Image src={UserIcon} alt="User" /></button>
-        </div>
-
         <main class="content-wrapper">
             <div class="dashboard-content">
+                        
+                <div class="user-header">
+                    <button class="role-change-button"><Image src={RoleChangeIcon} alt="Change Color" class="role-change-img"/></button>
+                    <button class="avatar"><Image src={UserIcon} alt="User" /></button>
+                </div>
+
                 <div class="welcome-container">
                     <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
                 </div>
@@ -85,9 +86,10 @@ const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyL
     .dashboard-container {
         display: flex;
         width: 100%;
-        height: 100%;
-        background-color: #F5F1FF;
+        height: 100vh;
+        background-color: #f3edff;
         padding: 18px 20px 20px 0;
+        box-sizing: border-box;
     }
 
     .content-wrapper {
@@ -96,43 +98,52 @@ const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyL
         flex-direction: column;
         background-color: #fff;
         border-radius: 16px;
+        position: relative;
+        justify-content: flex-start;
+        overflow-x: hidden;
         overflow-y: auto;
-        align-items: center;
-        justify-content: center;
+    }
+
+    .content-wrapper::-webkit-scrollbar {
+        width: 6px;
+        height: 100px;
+    }
+    .content-wrapper::-webkit-scrollbar-thumb {
+        background: #e7dcff;
+        border-radius: 10px;
     }
     
     .dashboard-content {
+        display: flex;
+        flex-direction: column;
         width: 100%;
-        height: 100%;
-        padding: 0 142px;
+        gap: 1.5rem;
+        padding-top: 2rem;
         box-sizing: border-box;
     }
     
     .welcome-container {
         display: flex;
         flex-direction: row;
-        font-size: 60px;
+        font-size: clamp(2rem, 5vw, 4rem);
         font-weight: bold;
-        color: #3C3C3C;
-        margin-top: 146px;
-    }
-
-    p {
-        font-size: 60px;
-        font-weight: bold;
+        flex-shrink: 0;
+        padding: 0 10rem;
         color: #3C3C3C;
     }
 
     .user-header {
-        position: absolute;
-        top: 63px;
-        right: 70px;
+        position: sticky;
+        align-self: flex-end;
         display: flex;
         align-items: center;
         gap: 12px;
+        padding-right: 3rem;
+        top: 1rem;
+        z-index: 100;
     }
 
-    .color-change-button {
+    .role-change-button {
         background-color: #F5F1FF;
         border: none;
         border-radius: 8px;
@@ -151,22 +162,24 @@ const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyL
         display: flex;
         justify-content: center;
         align-items: center;
+        cursor: pointer;
     }
 
     .hours-bar {
         display: flex;
-        width: 100%;
-        height: 60px;
-        border-radius: 12px;
+        position: relative;
+        min-height: 60px;
         overflow: hidden;
-        margin-top: 64px;
+        border-radius: 12px;
+        margin: 0 10rem;
+        width: auto;
     }
 
     .hours-segment {
         display: flex;
         align-items: center;
-        padding: 0 18px;
-        white-space: nowrap;
+        height: 100%;
+        padding-left: 2rem;
         transition: width 0.4s ease;
     }
 
@@ -183,25 +196,14 @@ const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyL
     }
 
     .cards-container {
-        display: flex;
-        flex-direction: row;
-        gap: 40px;
-        margin-top: 25px;
-        width: 100%;
-        height: 503px;
-    }
-
-    .cards-container > div {
-        flex: 1;
-    }
-
-    .cards-container > .incoming-sessions-container {
-        flex: 0 0 64%;
-    }
-
-    .cards-container > .stats-container {
-        flex: 0 0 33.2%;
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 64fr 36fr;
+        gap: clamp(15px, 3vw, 40px);
+        margin: 0 10rem;
+        width: auto;
+        align-items: start;
+        min-height: 0;
+        height: auto;
+        margin-bottom: 2rem;
     }
 </style>

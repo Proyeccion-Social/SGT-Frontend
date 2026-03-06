@@ -32,7 +32,7 @@ import Arrow from "../assets/imgs/Arrow.svg"
         border-radius: 24px;
         width: 100%;
         max-width: 484px;
-        min-height: 569px; /* en vez de height fijo */
+        height: auto; /* para que se ajuste al contenido */
 
         background: #FFFFFF;
         box-shadow: 0px 4px 37px 4px rgba(0, 0, 0, 0.1);
@@ -100,9 +100,16 @@ import Arrow from "../assets/imgs/Arrow.svg"
     }
 
     
-    @media (width >= 1024px){}
-    @media (768px < width < 1024px){
+    @media (width >= 1024px){
+        .login-card {
+                    min-height: 569px; /* en vez de height fijo */
 
+    }}
+    @media (768px < width < 1024px){
+             .login-card {
+                    min-height: 569px; /* en vez de height fijo */
+
+    }
     }
     @media (width <= 768px) {
         .arrowText{
@@ -110,7 +117,7 @@ import Arrow from "../assets/imgs/Arrow.svg"
         }
         .login-card {
             width: 90%;
-            min-height: auto;
+            height: auto;
             padding: 40px 20px;
         }
 

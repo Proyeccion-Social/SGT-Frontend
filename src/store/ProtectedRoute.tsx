@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/store/authStore';
+import { useEffect } from 'react';
 
 type Props = {
     allowedRoles: Array<'ADMIN' | 'TUTOR' | 'STUDENT'>;
@@ -21,4 +22,18 @@ export const ProtectedRoute = ({ allowedRoles, children, redirectTo = '/' }: Pro
     }
 
     return <>{children}</>;
+};
+
+export const AuthRedirect = () => {
+    const user = useAuthStore((state) => state.user);
+    const isHydrated = useAuthStore((state) => state._hasHydrated);
+
+    useEffect(() => {
+        if (!isHydrated) return;
+        if (user) {
+            window.location.href = '/dashboard';
+        }
+    }, [user, isHydrated]);
+
+    return null;
 };

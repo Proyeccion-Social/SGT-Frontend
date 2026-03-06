@@ -1,23 +1,20 @@
 ---
-//Imports 
-import AdminLayout from '../layouts/dashboards/AdminDashboard.astro'
-import StudentLayout from '../layouts/dashboards/StudentDashboard.astro'
-import TutorLayout from '../layouts/dashboards/TutorDashboard.astro'
+import AdminDashboard from "../layouts/dashboards/AdminDashboard.astro";
+import StudentDashboard from "../layouts/dashboards/StudentDashboard.astro";
+import TutorDashboard from "../layouts/dashboards/TutorDashboard.astro";
 
-//Mock user role, in a real application this would come from authentication context
-const userRole = 'student'; // Change this to 'student' or 'tutor' to test different layouts
+export const prerender = false;
 
-//UserRole information space 
+const token = Astro.cookies.get("access_token")?.value;
+
+if (!token) {
+  return Astro.redirect("/");
+}
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role; // 'ADMIN', 'TUTOR', 'STUDENT'
 ---
 
-{userRole === 'admin' && (
-  <AdminLayout title="Admin Dashboard"/>
-)}
-
-{userRole === 'student' && (
-  <StudentLayout title="Student Dashboard"/>
-)}
-
-{userRole === 'tutor' && (
-  <TutorLayout title="Tutor Dashboard"/>
-)}
+{userRole === "ADMIN" && <AdminDashboard title="Admin Dashboard" />}
+{userRole === "TUTOR" && <TutorDashboard title="Tutor Dashboard" />}
+{userRole === "STUDENT" && <StudentDashboard title="Student Dashboard" />}

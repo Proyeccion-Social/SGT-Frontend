@@ -8,8 +8,12 @@ import IncomingSessionsCard from "../../features/dashboards/components/IncomingS
 import StatCard from "../../features/dashboards/components/StatCard.astro";
 import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 
-const userName = "Johan"; // Mock user name, replace with actual data in a real application
-const userRole = "student";
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) return Astro.redirect("/");
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userName: string = payload.name;
+const userRole = payload.role.toLowerCase() as 'admin' | 'tutor' | 'student';
 
 const mockSessions = [
     {
@@ -51,7 +55,8 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
                 <div class="cards-container">
                     <div class="left-side">
                         <div class="incoming-sessions-container">
-                            <IncomingSessionsCard sessions={mockSessions} role={userRole} />
+                            <IncomingSessionsCard sessions={mockSessions} role={userRole as 'tutor' | 'student'} />
+
                         </div>
 
                         <div class="green-photo-space">
@@ -62,113 +67,7 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
                         <StatCard value={studentStats.value} description={studentStats.text} />
                     </div>
                 </div>
-                
             </div>
         </main>
-        
     </div>
 </MainLayout>
-
-<style>
-    .dashboard-container {
-        display: flex;
-        width: 100%;
-        height: 100vh;
-        background-color: #f3edff;
-        padding: 18px 20px 20px 0;
-        box-sizing: border-box;
-    }
-
-    .content-wrapper {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background-color: #fff;
-        border-radius: 16px;
-        position: relative;
-        justify-content: flex-start;
-        overflow: hidden;
-        overflow-y: auto;
-        clip-path: inset(0 0 0 0 round 16px);
-    }
-
-    .content-wrapper::-webkit-scrollbar {
-        width: 6px;
-    }
-    
-    .content-wrapper::-webkit-scrollbar-thumb {
-        background: #e8e8e8;
-        border-radius: 10px;
-    }
-
-    .dashboard-content {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 1.5rem;
-        box-sizing: border-box;
-        padding-top: 0.5rem;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .welcome-container {
-        display: flex;
-        flex-direction: row;
-        font-size: clamp(2rem, 5vw, 4rem);
-        font-weight: bold;
-        flex-shrink: 0;
-        padding: 0 10rem;
-        color: #3c3c3c;
-    }
-
-    .user-header {
-        position: sticky;
-        align-self: flex-end;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding-right: 3rem;
-        top: 2rem;
-        z-index: 100;
-    }
-
-    .avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        background: none;
-        padding: 0;
-    }
-
-    .cards-container {
-        display: grid;
-        grid-template-columns: 64fr 36fr;
-        gap: clamp(15px, 3vw, 40px);
-        margin: 0 10rem;
-        width: auto;
-        align-items: start;
-        min-height: 0;
-        height: auto;
-        margin-bottom: 2rem;
-    }
-
-    .left-side {
-        display: flex;
-        flex-direction: column;
-        gap: clamp(15px, 3vw, 40px);
-    }
-
-    .green-photo-space {
-        background-color: #cdff8e;
-        border-radius: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 280px;
-        width: 100%;
-    }
-</style>

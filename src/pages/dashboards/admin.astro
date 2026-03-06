@@ -1,8 +1,0 @@
----
-import AdminDashboard from "../../layouts/dashboards/AdminDashboard.astro";
-import { ProtectedRoute } from "@/store/ProtectedRoute";
----
-
-<ProtectedRoute allowedRoles={["ADMIN"]} redirectTo="/" client:only="react">
-    <AdminDashboard title="Admin Dashboard" />
-</ProtectedRoute>

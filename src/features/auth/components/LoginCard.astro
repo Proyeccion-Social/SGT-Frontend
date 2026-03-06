@@ -3,6 +3,18 @@ import { Image } from "astro:assets";
 import Arrow from "../assets/imgs/Arrow.svg"
 ---
 <div class="login-card">
+    <button class="closeBtn" data-close-dialog aria-label="Cerrar">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M18 6L6 18M6 6l12 12"></path>
+      </svg>
+    </button>
     <article class="arrowText">
         <Image src={Arrow} alt="Flecha izquierda" />
         <p>Solo correos @udistrital.edu.co</p>
@@ -18,8 +30,9 @@ import Arrow from "../assets/imgs/Arrow.svg"
         align-items: center;
         justify-content: center;
         border-radius: 24px;
-        width: 484px;
-        height: 569px;
+        width: 100%;
+        max-width: 484px;
+        min-height: 569px; /* en vez de height fijo */
 
         background: #FFFFFF;
         box-shadow: 0px 4px 37px 4px rgba(0, 0, 0, 0.1);
@@ -27,6 +40,31 @@ import Arrow from "../assets/imgs/Arrow.svg"
         transition: height 0.3s ease-in-out;
         position: relative;
     }
+
+      .closeBtn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #666;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .closeBtn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1a1a1a;
+  }
 
     .arrowText {
         display: flex;
@@ -40,9 +78,10 @@ import Arrow from "../assets/imgs/Arrow.svg"
     }
 
     .arrowText.hidden {
+        display: none;
         opacity: 0;
-        visibility: hidden;
     }
+
     .arrowText p {
         position: absolute;
         left: 30px;
@@ -59,4 +98,32 @@ import Arrow from "../assets/imgs/Arrow.svg"
 
 
     }
+
+    
+    @media (width >= 1024px){}
+    @media (768px < width < 1024px){
+
+    }
+    @media (width <= 768px) {
+        .arrowText{
+            display: none;
+        }
+        .login-card {
+            width: 90%;
+            min-height: auto;
+            padding: 40px 20px;
+        }
+
+        .arrowText {
+            left: -80px;
+            top: -80px;
+        }
+    }
+
+    /*    @media (width >= 1024px){}
+    @media (768px < width < 1024px){}
+    @media (width <= 768px) {} */
+
 </style>
+
+

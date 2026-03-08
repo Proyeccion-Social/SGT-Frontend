@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+
+const { id } = Astro.params;
+
+const res = await fetch(`http://localhost:4321/api/tutors/${id}`);
+const tutor = await res.json();
+---
+
+<h1>{tutor.name}</h1>
+
+<p>{tutor.description}</p>
+
+<a href={`/tutors/${id}/availability`}>
+  Ver disponibilidad
+</a>

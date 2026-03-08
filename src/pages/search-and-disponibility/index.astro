@@ -1,0 +1,65 @@
+---
+const res = await fetch("http://localhost:4321/api/search-and-disponibility");
+const tutors = await res.json();
+console.log(tutors);
+---
+
+<h1>Explorar tutores</h1>
+
+<div style="display:flex; gap:40px">
+
+  <!-- LISTA DE TUTORES -->
+  <div style="width:40%">
+    <h2>Tutores</h2>
+
+    <ul>
+      {tutors.data?.map((tutor) => (
+        <li>
+          <button onclick={`loadTutor("${tutor.tutorId}")`}>
+            {tutor.name}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <!-- DETALLE DEL TUTOR -->
+  <div style="width:60%">
+    <h2>Información del tutor</h2>
+
+    <div id="tutor-info">
+      Selecciona un tutor
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+async function loadTutor(id){
+
+  const profileRes = await fetch(`/api/search-and-disponibility/${id}`)
+  const tutor = await profileRes.json()
+
+  const slotsRes = await fetch(`/api/search-and-disponibility/${id}/availability`)
+  const slots = await slotsRes.json()
+
+  const container = document.getElementById("tutor-info")
+
+  container.innerHTML = `
+    <h3>${tutor.name}</h3>
+    <p>${tutor.description ?? "Sin descripción"}</p>
+
+    <h4>Disponibilidad</h4>
+
+    <ul>
+      ${slots.map(slot => `
+        <li>
+          ${slot.dayOfWeek} - ${slot.startTime} (${slot.modality})
+        </li>
+      `).join("")}
+    </ul>
+  `
+}
+
+</script>

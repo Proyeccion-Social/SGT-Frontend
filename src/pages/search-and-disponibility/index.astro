@@ -1,65 +1,74 @@
 ---
-const res = await fetch("http://localhost:4321/api/search-and-disponibility");
+export const prerender = false;
+
+const url = new URL("/api/search-and-disponibility", Astro.url);
+const res = await fetch(url);
+
 const tutors = await res.json();
-console.log(tutors);
 ---
 
 <h1>Explorar tutores</h1>
 
-<div style="display:flex; gap:40px">
-
+<div style='display:flex; gap:40px'>
   <!-- LISTA DE TUTORES -->
-  <div style="width:40%">
+  <div style='width:40%'>
     <h2>Tutores</h2>
 
     <ul>
-      {tutors.data?.map((tutor) => (
-        <li>
-          <button onclick={`loadTutor("${tutor.tutorId}")`}>
-            {tutor.name}
-          </button>
-        </li>
-      ))}
+      {
+        tutors.map((tutor) => (
+          <li>
+            <button onclick={`loadTutor("${tutor.tutorId}")`}>
+              {tutor.tutorName}
+            </button>
+          </li>
+        ))
+      }
     </ul>
   </div>
 
   <!-- DETALLE DEL TUTOR -->
-  <div style="width:60%">
+  <div style='width:60%'>
     <h2>Información del tutor</h2>
 
-    <div id="tutor-info">
-      Selecciona un tutor
-    </div>
-
+    <div id='tutor-info'>Selecciona un tutor</div>
   </div>
-
 </div>
 
-<script>
-async function loadTutor(id){
+<script is:inline>
+  async function loadTutor(id) {
+    const profileRes = await fetch(`/api/search-and-disponibility/${id}`);
+    const tutor = await profileRes.json();
 
-  const profileRes = await fetch(`/api/search-and-disponibility/${id}`)
-  const tutor = await profileRes.json()
+    const slotsRes = await fetch(
+      `/api/search-and-disponibility/${id}/availability`,
+    );
+    const slotsData = await slotsRes.json();
 
-  const slotsRes = await fetch(`/api/search-and-disponibility/${id}/availability`)
-  const slots = await slotsRes.json()
+    const container = document.getElementById("tutor-info");
 
-  const container = document.getElementById("tutor-info")
+    const subjectsList =
+      tutor.subjects?.map((s) => s.name).join(", ") ?? "Sin materias";
 
-  container.innerHTML = `
+    container.innerHTML = `
     <h3>${tutor.name}</h3>
-    <p>${tutor.description ?? "Sin descripción"}</p>
+    <p><strong>Materias:</strong> ${subjectsList}</p>
+    <p><strong>Calificación:</strong> ${tutor.averageRating} (${tutor.totalRatings} valoraciones)</p>
+    <p><strong>Modalidades:</strong> ${tutor.availableModalities?.join(", ") ?? "N/A"}</p>
 
     <h4>Disponibilidad</h4>
 
     <ul>
-      ${slots.map(slot => `
+      ${slotsData.availableSlots
+        .map(
+          (slot) => `
         <li>
-          ${slot.dayOfWeek} - ${slot.startTime} (${slot.modality})
+          ${slot.dayOfWeek} - ${slot.startTime} a ${slot.endTime} (${slot.modality})
         </li>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </ul>
-  `
-}
-
+  `;
+  }
 </script>

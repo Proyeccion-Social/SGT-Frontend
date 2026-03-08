@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import {getTutorProfile} from  "@/features/search-and-disponibility/services/getTutorProfile";
+import { getTutorProfile } from  "@/features/search-and-disponibility/services/getTutorProfile";
 
 export const prerender = false;
 export const GET: APIRoute = async ({ params }) => {

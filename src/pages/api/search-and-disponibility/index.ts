@@ -1,16 +1,13 @@
 import type { APIRoute } from "astro";
 import { getAllTutors } from "@/features/search-and-disponibility/services/getAllTutors";
 
-export const GET: APIRoute = async ({ request , cookies}) => {
-
+export const GET: APIRoute = async ({ request }) => {
     try {
-        const token = cookies.get('access_token')?.value;
-
         const url = new URL(request.url);
-        const modality = url.searchParams.get('modality') ;
+        const modality = url.searchParams.get('modality');
         const onlyAvailable = url.searchParams.get('onlyAvailable');
 
-        const tutors = await getAllTutors(token!, {
+        const tutors = await getAllTutors({
             modality: modality ?? undefined,
             onlyAvailable: onlyAvailable === 'true' 
         });
@@ -20,11 +17,11 @@ export const GET: APIRoute = async ({ request , cookies}) => {
             headers: { 'Content-Type': 'application/json' },
         });
 
-        }catch (error) {
-
-            return new Response(JSON.stringify({ error: 'Failed to fetch tutors' }), {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
+        } 
+    catch (error) {
+        return new Response(JSON.stringify({ error: 'Failed to fetch tutors' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
+}

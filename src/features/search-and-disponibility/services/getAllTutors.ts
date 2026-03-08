@@ -1,10 +1,9 @@
 const API_URL = import.meta.env.API_URL;
 
-export async function getAllTutors(token: string, filters?: {
+export async function getAllTutors(filters?: {
     modality?: string;
     onlyAvailable?: boolean;
 }) {
-
     const params = new URLSearchParams();
 
     if (filters?.modality) {
@@ -14,17 +13,11 @@ export async function getAllTutors(token: string, filters?: {
         params.append('onlyAvailable', String(filters.onlyAvailable));
     }
 
-    const response = await fetch(`${API_URL}/availability/tutors/slots?${params.toString()}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
+    const response = await fetch(`${API_URL}/availability/tutors/slots?${params.toString()}`);
 
     if (!response.ok) {
         throw new Error('Failed to fetch tutors');
-        }
+    }
 
     return response.json();
 }

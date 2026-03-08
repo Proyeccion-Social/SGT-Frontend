@@ -3,14 +3,24 @@ export const prerender = false;
 
 const { id } = Astro.params;
 
-const res = await fetch(`http://localhost:4321/api/tutors/${id}`);
+const res = await fetch(
+  `http://localhost:4321/api/search-and-disponibility/${id}`,
+);
 const tutor = await res.json();
 ---
 
 <h1>{tutor.name}</h1>
 
-<p>{tutor.description}</p>
+<p>
+  <strong>Materias:</strong>
+  {tutor.subjects?.map((s) => s.name).join(", ")}
+</p>
+<p>
+  <strong>Calificación:</strong>
+  {tutor.averageRating} ({tutor.totalRatings} valoraciones)
+</p>
+<p><strong>Modalidades:</strong> {tutor.availableModalities?.join(", ")}</p>
 
-<a href={`/tutors/${id}/availability`}>
+<a href={`/search-and-disponibility/${id}/availability`}>
   Ver disponibilidad
 </a>

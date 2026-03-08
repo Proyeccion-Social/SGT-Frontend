@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import { getTutorAvailability } from "@/features/search-and-disponibility/services/getTutorAvailability";
 
+export const prerender = false;
+
 export const GET: APIRoute = async ({ params }) => {
 
     try {

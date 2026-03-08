@@ -3,18 +3,20 @@ export const prerender = false;
 
 const { id } = Astro.params;
 
-
-
-const res = await fetch(`http://localhost:4321/api/tutors/${id}/availability`);
-const slots = await res.json();
+const res = await fetch(
+  `http://localhost:4321/api/search-and-disponibility/${id}/availability`,
+);
+const slotsData = await res.json();
 ---
 
-<h1>Disponibilidad</h1>
+<h1>Disponibilidad de {slotsData.tutorName}</h1>
 
 <ul>
-  {slots.map((slot) => (
-    <li>
-      {slot.dayOfWeek} - {slot.startTime} ({slot.modality})
-    </li>
-  ))}
-</ul>|
+  {
+    slotsData.availableSlots.map((slot) => (
+      <li>
+        {slot.dayOfWeek} - {slot.startTime} a {slot.endTime} ({slot.modality})
+      </li>
+    ))
+  }
+</ul>

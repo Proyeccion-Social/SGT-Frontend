@@ -2,19 +2,18 @@
 import AdminDashboard from "../layouts/dashboards/AdminDashboard.astro";
 import StudentDashboard from "../layouts/dashboards/StudentDashboard.astro";
 import TutorDashboard from "../layouts/dashboards/TutorDashboard.astro";
-
-export const prerender = false;
-
+import { fade } from "astro:transitions";
 const token = Astro.cookies.get("access_token")?.value;
 
 if (!token) {
-  return Astro.redirect("/");
+  return Astro.redirect("/?session=expired");
 }
 
 const payload = JSON.parse(atob(token.split(".")[1]));
 const userRole = payload.role; // 'ADMIN', 'TUTOR', 'STUDENT'
 ---
-
-{userRole === "ADMIN" && <AdminDashboard title="Admin Dashboard" />}
-{userRole === "TUTOR" && <TutorDashboard title="Tutor Dashboard" />}
-{userRole === "STUDENT" && <StudentDashboard title="Student Dashboard" />}
+<article transition:animate={fade({duration: "0.5s"})} >
+  {userRole === "ADMIN" && <AdminDashboard title='Admin Dashboard' />}
+  {userRole === "TUTOR" && <TutorDashboard title='Tutor Dashboard' />}
+  {userRole === "STUDENT" && <StudentDashboard title='Student Dashboard' />}
+</article>

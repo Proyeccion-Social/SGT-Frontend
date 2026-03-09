@@ -5,12 +5,9 @@ import AuthDialogsContainer from "@/layouts/auth/AuthDialogsContainer.astro";
 import LoginDialog from "@/features/auth/components/LoginDialog.astro";
 import ForgotPasswordDialog from "@/features/auth/components/ForgotPasswordDialog.astro";
 import RegistryDialog from "@/features/auth/components/RegistryDialog.astro";
-import { AuthRedirect } from "@/store/ProtectedRoute";
 ---
 
-<AuthRedirect client:only="react" />
-
-<Layout title="Home">
+<Layout title='Home'>
   <PrincipalContent />
   <RegistryDialog />
 

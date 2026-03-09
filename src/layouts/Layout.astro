@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import { ViewTransitions } from "astro:transitions";
 import AuthHydrator from "@/store/AuthHydrator";
 
 interface Props {
@@ -10,13 +11,13 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang='es'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="generator" content={Astro.generator} />
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width' />
+    <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+    <meta name='generator' content={Astro.generator} />
+    <ViewTransitions />
     <title>{title}</title>
   </head>
   <body>

@@ -10,7 +10,7 @@ export const WelcomeBanner = () => {
 
   return (
     <div className={`welcome-container ${isAdmin ? 'welcome-container--admin' : ''}`}>
-      <p>¡Hola de nuevo <RoleBadge name={user.name} role={user.role} />!</p>
+      <p>¡Hola de nuevo<RoleBadge name={user.name} role={user.role} />!</p>
     </div>
   );
 };

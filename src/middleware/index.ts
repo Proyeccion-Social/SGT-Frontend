@@ -5,9 +5,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const protectedRoutes = ['/dashboard'];
 
+  // Si va a "/" y tiene token válido, redirigir al dashboard directamente
+  if (url.pathname === '/' && !url.searchParams.has('session') && token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isExpired = payload.exp * 1000 < Date.now();
+      if (!isExpired) {
+        return context.redirect('/dashboard');
+      }
+    } catch {
+      // Token inválido, dejar que cargue la landing
+    }
+  }
+
   if (protectedRoutes.some(route => url.pathname.startsWith(route))) {
     if (!token) {
-      return context.redirect('/');
+      return context.redirect('/?session=expired');
     }
 
     try {

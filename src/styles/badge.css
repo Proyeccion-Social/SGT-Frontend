@@ -18,6 +18,16 @@
   color: #3c3c3c;
 }
 
+.welcome-container p {
+  font-family: 'Open Sauce Two';
+  font-style: normal;
+  font-weight: 600;
+  font-size: 60px;
+  line-height: 72px;
+  letter-spacing: -0.02em;
+  color: #3C3C3C;
+}
+
 /* Solo admin */
 .welcome-container--admin {
   justify-content: center;

@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.API_URL;
 
-
+// trae el perfil de un tutor específico
 export async function getTutorProfile(id: string) {
 
     const response = await fetch(`${API_URL}/tutors/${id}`);

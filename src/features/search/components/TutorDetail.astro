@@ -1,0 +1,104 @@
+---
+---
+
+<section class="tutor-detail-section">
+  <h2 class="tutor-detail-title">Información del tutor</h2>
+
+  <div id="tutor-info" class="tutor-detail-placeholder">
+    <p class="tutor-detail-empty">Selecciona un tutor para ver su información</p>
+  </div>
+</section>
+
+<style>
+  .tutor-detail-section {
+    flex: 1.5;
+    min-width: 0;
+  }
+
+  .tutor-detail-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-negrops-700);
+    margin: 0 0 0.75rem;
+  }
+
+  .tutor-detail-placeholder {
+    background: var(--color-color-white);
+    border: 1px solid var(--color-negrops-100);
+    border-radius: 8px;
+    padding: 1.5rem;
+    min-height: 200px;
+  }
+
+  .tutor-detail-empty {
+    color: var(--color-negrops-400);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  /* Estilos para el contenido inyectado dinámicamente */
+  .tutor-detail-placeholder :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-negrops-700);
+    margin: 0 0 1rem;
+  }
+
+  .tutor-detail-placeholder :global(p) {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+    color: var(--color-negrops-600);
+  }
+
+  .tutor-detail-placeholder :global(h4) {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-negrops-700);
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .tutor-detail-placeholder :global(ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .tutor-detail-placeholder :global(li) {
+    padding: 0.5rem 0.75rem;
+    background: var(--color-moradops-50);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--color-negrops-600);
+  }
+</style>
+
+<script is:inline>
+  async function loadTutor(id) {
+    const [profileRes, slotsRes] = await Promise.all([
+      fetch(`/api/search/${encodeURIComponent(id)}`),
+      fetch(`/api/search/${encodeURIComponent(id)}/availability`),
+    ]);
+
+    const tutor = await profileRes.json();
+    const slotsData = await slotsRes.json();
+
+    const subjectsList = tutor.subjects?.map(s => s.name).join(", ") ?? "Sin materias";
+    const slots = slotsData.availableSlots ?? [];
+
+    document.getElementById("tutor-info").innerHTML = `
+      <h3>${tutor.name}</h3>
+      <p><strong>Materias:</strong> ${subjectsList}</p>
+      <p><strong>Calificación:</strong> ${tutor.averageRating} (${tutor.totalRatings} valoraciones)</p>
+      <p><strong>Modalidades:</strong> ${tutor.availableModalities?.join(", ") ?? "N/A"}</p>
+      <h4>Disponibilidad</h4>
+      <ul>
+        ${slots.map(slot => `
+          <li>${slot.dayOfWeek} - ${slot.startTime} a ${slot.endTime} (${slot.modality})</li>
+        `).join("")}
+      </ul>
+    `;
+  }
+</script>

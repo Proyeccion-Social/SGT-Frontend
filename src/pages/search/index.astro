@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+
+import Layout from "../../layouts/Layout.astro";
+import SearchBar from "../../features/search/components/SearchBar.astro";
+import TutorList from "../../features/search/components/TutorList.astro";
+import TutorDetail from "../../features/search/components/TutorDetail.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+
+const url = new URL("/api/search", Astro.url);
+const res = await fetch(url);
+const tutors = await res.json();
+
+const subjectsUrl = new URL("/api/search/subjects", Astro.url);
+const subjectsRes = await fetch(subjectsUrl);
+const subjectsData = await subjectsRes.json();
+const subjects = subjectsData.data ?? [];
+---
+
+<Layout title="Explorar tutores">
+  <div class="page-wrapper">
+    <Sidebar userRole="student" />
+
+    <div class="search-page">
+      <SearchBar subjects={subjects} />
+
+      
+        <TutorList tutors={tutors} />
+        <TutorDetail />
+      
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .page-wrapper {
+    display: flex;
+    height: 100vh;
+  }
+
+  .search-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+  }
+
+  .search-content {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .search-content {
+      flex-direction: column;
+    }
+  }
+</style>

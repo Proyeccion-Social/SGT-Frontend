@@ -1,0 +1,220 @@
+
+---
+interface Subject {
+  name: string;
+}
+
+interface Props {
+  subjects: Subject[];
+}
+
+const { subjects } = Astro.props;
+---
+
+<section class="search-bar">
+  <div class="search-bar-row">
+    <input
+      type="text"
+      id="name-filter"
+      class="search-input"
+      placeholder="Buscar por nombre del tutor..."
+    />
+
+    <select id="subject-filter" class="search-select">
+      <option value="">Todas las materias</option>
+      {subjects.map((subject) => (
+        <option value={subject.name}>{subject.name}</option>
+      ))}
+    </select>
+
+    <button id="search-btn" class="search-button" type="button">Buscar</button>
+  </div>
+
+  <div class="search-modalities">
+    <label class="modality-label">
+      <input type="checkbox" name="modalities" value="VIRT" checked />
+      Online
+    </label>
+    <label class="modality-label">
+      <input type="checkbox" name="modalities" value="PRES" checked />
+      Presencial
+    </label>
+  </div>
+</section>
+
+<style>
+  .search-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .search-bar-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    /* Frame 1935 */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 723px;
+height: 60px;
+left: 396px;
+top: 325px;
+
+background: rgba(245, 241, 255, 0.77);
+border: 0.4px solid #A3A3A3;
+border-radius: 8px;
+
+  }
+
+  .search-input::placeholder {
+    color: var(--color-negrops-300);
+  }
+
+  .search-input:focus {
+    border-color: var(--color-moradops-400);
+  }
+
+  .search-select {
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--color-negrops-200);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--color-negrops-700);
+    background: var(--color-color-white);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+
+            display: flex;
+flex-direction: row;
+align-items: center;
+padding: 10px;
+gap: 10px;
+
+position: absolute;
+width: 200px;
+height: 60px;
+left: 1410px;
+top: 325px;
+
+background: #58d68d;
+border-radius: 8px;
+  }
+
+  .search-select:focus {
+    border-color: var(--color-moradops-400);
+  }
+
+  .search-modalities {
+        display: flex;
+flex-direction: row;
+align-items: center;
+padding: 10px;
+gap: 10px;
+
+position: absolute;
+width: 200px;
+height: 60px;
+left: 1210px;
+top: 325px;
+
+background: #58d68d ;
+border-radius: 8px;
+  }
+
+  .modality-label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.9rem;
+    color: var(--color-negrops-600);
+    cursor: pointer;
+  }
+
+  .modality-label input[type="checkbox"] {
+    accent-color: var(--color-moradops-500);
+  }
+
+  .search-button {
+    /* Frame 1936 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 10px;
+gap: 10px;
+
+position: absolute;
+width: 60px;
+height: 60px;
+left: 1135px;
+top: 325px;
+
+background: #9F74FF;
+border-radius: 8px;
+
+  }
+
+  .search-button:hover {
+    background: var(--color-moradops-600);
+  }
+
+  .search-button:focus-visible {
+    outline: 2px solid var(--color-moradops-500);
+    outline-offset: 2px;
+  }
+</style>
+
+<script is:inline>
+  document.getElementById("search-btn")
+    ?.addEventListener("click", applyFilters);
+
+  async function applyFilters() {
+    const checked = Array.from(
+      document.querySelectorAll('input[name="modalities"]:checked')
+    ).map(el => el.value);
+
+    const nameQuery = document.getElementById("name-filter").value.trim().toLowerCase();
+    const subjectId = document.getElementById("subject-filter").value;
+
+    let tutors;
+
+    if (subjectId) {
+      const res = await fetch(`/api/search/subjects/${encodeURIComponent(subjectId)}/tutors`);
+      const data = await res.json();
+      tutors = data.data ?? [];
+    } else {
+      let url = "/api/search";
+      if (checked.length === 1) url += `?modality=${encodeURIComponent(checked[0])}`;
+      const res = await fetch(url);
+      tutors = await res.json();
+    }
+
+    if (checked.length === 1) {
+      tutors = tutors.filter(t => (t.modality || []).includes(checked[0]));
+    }
+
+    if (nameQuery) {
+      tutors = tutors.filter(t => {
+        const name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
+        return name.includes(nameQuery);
+      });
+    }
+
+    const list = document.getElementById("tutor-list");
+    list.innerHTML = tutors.map(tutor => `
+      <li class="tutor-list-item">
+        <button class="tutor-list-button" data-tutor-id="${tutor.tutorId || tutor.id}">
+          ${tutor.tutorName || tutor.name || tutor.fullName || "Tutor"}
+        </button>
+      </li>
+    `).join("");
+  }
+</script>

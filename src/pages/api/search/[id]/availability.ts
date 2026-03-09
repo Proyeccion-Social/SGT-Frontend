@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getTutorAvailability } from "@/features/search-and-disponibility/services/getTutorAvailability";
+import { getTutorAvailability } from "@/features/search/services/getTutorAvailability";
 
 export const prerender = false;
 

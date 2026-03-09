@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { getAllTutors } from "@/features/search-and-disponibility/services/getAllTutors";
+import { getAllTutors } from "@/features/search/services/getAllTutors";
 
 export const GET: APIRoute = async ({ request }) => {
     try {

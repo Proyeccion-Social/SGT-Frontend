@@ -1,5 +1,7 @@
 const API_URL = import.meta.env.API_URL;
 
+
+// trae todos los tutores disponibles, con la posibilidad de filtrar por modalidad y disponibilidad
 export async function getAllTutors(filters?: {
     modality?: string;
     onlyAvailable?: boolean;

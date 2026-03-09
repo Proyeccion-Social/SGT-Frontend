@@ -4,12 +4,15 @@ import MainLayout from '../Layout.astro';
 import Sidebar from '../../features/dashboards/components/Sidebar.astro';
 import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
-import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
 import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "../../features/dashboards/components/StatCard.astro";
+import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 
-const userName = "Johan"; // Mock user name, replace with actual data in a real application
-const userRole = "tutor";
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) return Astro.redirect("/");
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as 'admin' | 'tutor' | 'student';
 
 const mockSessions = [
   {
@@ -33,7 +36,6 @@ const mockSessions = [
 ];
 
 const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
-// TODO: Replace with API call 
 const mockWorkload = {
   scheduledHours: 2,
   weeklyLimit: 8,
@@ -41,6 +43,7 @@ const mockWorkload = {
 const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
 const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100, 100);
 ---
+
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
         <Sidebar userRole={userRole} />
@@ -53,34 +56,32 @@ const usedPercent = Math.min((mockWorkload.scheduledHours / mockWorkload.weeklyL
                     <button class="avatar"><Image src={UserIcon} alt="User" /></button>
                 </div>
 
-                <div class="welcome-container">
-                    <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
-                </div>
+                <!-- Nombre y rol desde Zustand store -->
+                <WelcomeBanner client:only="react" />
 
                 <div class="hours-bar">
                     <div class="hours-segment hours-scheduled" style={`width: ${usedPercent}%; background-color: #DAFFAA;`}>
-                            <span class="scheduled-hours-text">{mockWorkload.scheduledHours} hora{mockWorkload.scheduledHours !== 1 ? "s" : ""} agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span>
-                        </div>
-                        <div class="hours-segment hours-remaining" style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}>
-                            <span class="remaining-hours-text">{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span>
+                        <span class="scheduled-hours-text">{mockWorkload.scheduledHours} hora{mockWorkload.scheduledHours !== 1 ? "s" : ""} agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span>
+                    </div>
+                    <div class="hours-segment hours-remaining" style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}>
+                        <span class="remaining-hours-text">{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span>
                     </div>
                 </div>
 
                 <div class="cards-container">
                     <div class="incoming-sessions-container">
-                        <IncomingSessionsCard sessions={mockSessions} role={userRole} />
+                        <IncomingSessionsCard sessions={mockSessions} role={userRole as 'tutor' | 'student'} />
                     </div>
 
                     <div class="stats-container">
                         <StatCard value={tutorStats.value} description={tutorStats.text} />
                     </div>
                 </div>
-                
             </div>
         </main>
-        
     </div>
 </MainLayout>
+
 
 <style>
     .dashboard-container {

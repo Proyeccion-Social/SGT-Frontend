@@ -47,8 +47,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
         });
       }
     } catch {
-      context.cookies.delete('access_token', { path: '/' });
-      return context.redirect('/');
+        context.cookies.delete('access_token', { path: '/' });
+        context.cookies.delete('refresh_token', { path: '/' });
+        return context.redirect('/?session=expired');
     }
   }
 

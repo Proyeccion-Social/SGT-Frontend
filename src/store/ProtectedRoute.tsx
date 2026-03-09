@@ -27,6 +27,7 @@ export const ProtectedRoute = ({ allowedRoles, children, redirectTo = '/' }: Pro
 export const AuthRedirect = () => {
   const user = useAuthStore((state) => state.user);
   const isHydrated = useAuthStore((state) => state._hasHydrated);
+  const clearUser = useAuthStore((state) => state.clearUser);
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -35,7 +36,13 @@ export const AuthRedirect = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
+  useEffect(() => {screenTop
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session') === 'expired') {
+      clearUser();
+      return; 
+    }
+
     if (!isHydrated && !timedOut) return;
     if (user) {
       window.location.href = '/dashboard';

@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/store/authStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type Props = {
     allowedRoles: Array<'ADMIN' | 'TUTOR' | 'STUDENT'>;
@@ -22,18 +22,26 @@ export const ProtectedRoute = ({ allowedRoles, children, redirectTo = '/' }: Pro
     }
 
     return <>{children}</>;
-};
+}
 
 export const AuthRedirect = () => {
-    const user = useAuthStore((state) => state.user);
-    const isHydrated = useAuthStore((state) => state._hasHydrated);
+  const user = useAuthStore((state) => state.user);
+  const isHydrated = useAuthStore((state) => state._hasHydrated);
+  const [timedOut, setTimedOut] = useState(false);
 
-    useEffect(() => {
-        if (!isHydrated) return;
-        if (user) {
-            window.location.href = '/dashboard';
-        }
-    }, [user, isHydrated]);
+  useEffect(() => {
+    // Si en 2 segundos no hidrata, asume que no hay sesión
+    const timer = setTimeout(() => setTimedOut(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
-    return null;
+  useEffect(() => {
+    if (!isHydrated && !timedOut) return;
+    if (user) {
+      window.location.href = '/dashboard';
+    }
+  }, [user, isHydrated, timedOut]);
+
+  return null;
 };
+

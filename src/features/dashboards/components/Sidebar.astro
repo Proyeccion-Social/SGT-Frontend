@@ -39,7 +39,7 @@ const { userRole } = Astro.props;
     }
 
     <div class='dashboard-container'>
-      <a href='#'><Image src={DashboardIcon} alt='Dashboard' class='icon' /></a>
+      <a href='/dashboard'><Image src={DashboardIcon} alt='Dashboard' class='icon' /></a>
     </div>
 
     {
@@ -58,8 +58,8 @@ const { userRole } = Astro.props;
     {
       userRole === "tutor" && (
         <>
-          <a href='#'>
-            <Image src={WindowIcon} alt='Window' class='icon' />
+          <a href='/availability/tutor/slots'>
+            <Image src={WindowIcon} alt='Slots' class='icon' />
           </a>
           <a href='#'>
             <Image src={ConfigIcon} alt='Config' class='icon' />

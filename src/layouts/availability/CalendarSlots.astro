@@ -1,0 +1,164 @@
+---
+import MainLayout from "../Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+import Calendar from "@/features/availability/components/Calendar.astro";
+import type { Slot } from "@/features/availability/services/availabilityService";
+import { jwtDecode } from "jwt-decode";
+
+let tutorId = "";
+try {
+    const token = Astro.cookies.get("access_token")?.value;
+    if (token) {
+        const decoded = jwtDecode(token) as any;
+        tutorId = decoded.id || decoded.sub;
+    }
+} catch (e) {
+    console.error("Error decoding token:", e);
+}
+
+let Slots: Slot[] = [];
+
+if (tutorId) {
+    try {
+        const response = await fetch(
+            `${import.meta.env.API_URL}/api/v1/availability/tutors/${tutorId}/slots`,
+        );
+        if (response.ok) {
+            Slots = await response.json();
+        } else {
+            console.error("Failed to fetch slots:", await response.text());
+        }
+    } catch (e) {
+        console.error("Error fetching slots:", e);
+    }
+}
+---
+
+<MainLayout title="Availability">
+    <div class="availability-container">
+        <Sidebar userRole="tutor" />
+
+        <main class="content-wrapper">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="week-selector">
+                        <h3>Tu Semana</h3>
+                        <p>02-08 de Marzo</p>
+                        <button>{"<"}</button>
+                        <button>{">"}</button>
+                        <UserHeader userRole="tutor" />
+                    </div>
+                    <div class="legend">
+                        <p>Espacios disponibles para tutoría</p>
+                    </div>
+                </div>
+
+                <Calendar slots={Slots} />
+            </div>
+        </main>
+    </div>
+</MainLayout>
+
+<style>
+    .availability-container {
+        display: flex;
+        width: 100vw;
+        height: 100vh;
+        background-color: #f3edff;
+        padding: 18px 20px 20px 0;
+    }
+
+    .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        border-radius: 16px;
+        position: relative;
+        justify-content: flex-start;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .calendar-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .calendar-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+        width: 100%;
+        padding: 40px 50px 40px 50px;
+        border-bottom: solid 1px #e7dcff;
+        gap: 12px;
+    }
+
+    .week-selector {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .week-selector h3 {
+        font-size: 32px;
+        font-weight: bold;
+        color: #9f74ff;
+    }
+
+    .week-selector p {
+        font-size: 16px;
+        font-weight: 400;
+        font-style: normal;
+        color: #5f5f5f;
+        margin-top: 5px;
+    }
+
+    .week-selector button {
+        height: 1.5rem;
+        width: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .legend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background-color: #e2d5ff;
+        width: fit-content;
+    }
+
+    .legend p {
+        font-weight: 400;
+        font-style: normal;
+        font-size: 12px;
+        color: #3c3c3c;
+        padding: 4px 8px;
+    }
+
+    .calendar-body {
+        padding: 20px;
+        height: 100%;
+        width: 100%;
+    }
+
+    .content-wrapper::-webkit-scrollbar {
+        width: 6px;
+        height: 100px;
+    }
+
+    .content-wrapper::-webkit-scrollbar-thumb {
+        background: #e7dcff;
+        border-radius: 10px;
+    }
+</style>

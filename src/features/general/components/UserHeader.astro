@@ -1,0 +1,56 @@
+---
+import { Image } from "astro:assets";
+import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
+import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
+
+const { userRole } = Astro.props;
+---
+
+<div class="user-header">
+    {
+        (userRole === "tutor" || userRole === "admin") && (
+            <button class="role-change-button">
+                <Image src={RoleChangeIcon} alt="Change Role"/>
+            </button>
+        )
+    }
+    <button class="avatar"><Image src={UserIcon} alt="User" /></button>
+</div>
+
+<style>
+    .user-header {
+        position: sticky;
+        align-self: flex-end;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-right: 3rem;
+        top: 2rem;
+        z-index: 100;
+        margin-left: auto;
+    }
+
+    .role-change-button {
+        background-color: #f5f1ff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 29px;
+        height: 29px;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        background: none;
+        padding: 0;
+    }
+</style>

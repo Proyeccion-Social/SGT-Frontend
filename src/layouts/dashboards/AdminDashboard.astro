@@ -6,6 +6,7 @@ import OptionButton from "../../features/dashboards/components/OptionButton.astr
 import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
+import UserHeader from "@/features/general/components/UserHeader.astro";
 
 const userName = "Johan"; // Mock user name, replace with actual data in a real application
 const userRole = "admin";
@@ -16,9 +17,7 @@ const userRole = "admin";
 
         <main class="content-wrapper">
             <div class="dashboard-content">
-                <div class="welcome-container">
-                    <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
-                </div>
+                <UserHeader userRole={userRole}/>
 
                 <div class="buttons">
                     <OptionButton backgroundColor="#B797FF" titleColor="#513199" title="Crear tutor" />

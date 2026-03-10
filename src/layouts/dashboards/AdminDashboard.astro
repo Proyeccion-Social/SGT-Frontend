@@ -1,39 +1,75 @@
 ---
 import { Image } from "astro:assets";
+import { jwtDecode } from "jwt-decode";
 import MainLayout from "../Layout.astro";
 import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import OptionButton from "../../features/dashboards/components/OptionButton.astro";
 import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
-import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
+import RoleBadge from "../../features/dashboards/components/RoleBadge.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 
-const userName = "Johan"; // Mock user name, replace with actual data in a real application
+let userName = "";
+try {
+    const token = Astro.cookies.get("access_token")?.value;
+    if (token) {
+        const decoded = jwtDecode(token) as any;
+        userName = decoded.name || "";
+    }
+} catch (e) {}
 const userRole = "admin";
 ---
+
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
         <Sidebar userRole={userRole} />
 
         <main class="content-wrapper">
             <div class="dashboard-content">
-                <UserHeader userRole={userRole}/>
+                <UserHeader userRole={userRole} />
 
                 <div class="buttons">
-                    <OptionButton backgroundColor="#B797FF" titleColor="#513199" title="Crear tutor" />
-                    <OptionButton backgroundColor="#CDFF8E" titleColor="#4D662E" title="Analíticas" />
-                    <OptionButton backgroundColor="#F7DF94" titleColor="#91792E" title="Materias" />
-                    <OptionButton backgroundColor="#A3A3A3" titleColor="#1A1A1A" title="Configuración" />
-                    <OptionButton backgroundColor="#58D68D" titleColor="#12522D" title="Gestionar tutores" />
+                    <OptionButton
+                        backgroundColor="#B797FF"
+                        titleColor="#513199"
+                        title="Crear tutor"
+                    />
+                    <OptionButton
+                        backgroundColor="#CDFF8E"
+                        titleColor="#4D662E"
+                        title="Analíticas"
+                    />
+                    <OptionButton
+                        backgroundColor="#F7DF94"
+                        titleColor="#91792E"
+                        title="Materias"
+                    />
+                    <OptionButton
+                        backgroundColor="#A3A3A3"
+                        titleColor="#1A1A1A"
+                        title="Configuración"
+                    />
+                    <OptionButton
+                        backgroundColor="#58D68D"
+                        titleColor="#12522D"
+                        title="Gestionar tutores"
+                    />
                 </div>
 
                 <div class="user-header">
-                    <button class="role-change-button"><Image src={RoleChangeIcon} alt="Change Role" class="role-change-img"/></button>
-                    <button class="avatar"><Image src={UserIcon} alt="User" /></button>
+                    <button class="role-change-button"
+                        ><Image
+                            src={RoleChangeIcon}
+                            alt="Change Role"
+                            class="role-change-img"
+                        /></button
+                    >
+                    <button class="avatar"
+                        ><Image src={UserIcon} alt="User" /></button
+                    >
                 </div>
             </div>
         </main>
-        
     </div>
 </MainLayout>
 
@@ -72,13 +108,13 @@ const userRole = "admin";
         align-items: center;
         font-size: 60px;
         font-weight: bold;
-        color: #3C3C3C;
+        color: #3c3c3c;
     }
 
     p {
         font-size: 60px;
         font-weight: bold;
-        color: #3C3C3C;
+        color: #3c3c3c;
     }
 
     .user-header {
@@ -91,7 +127,7 @@ const userRole = "admin";
     }
 
     .color-change-button {
-        background-color: #F5F1FF;
+        background-color: #f5f1ff;
         border: none;
         border-radius: 8px;
         cursor: pointer;

@@ -1,21 +1,30 @@
 ---
 import { Image } from "astro:assets";
-import MainLayout from '../Layout.astro';
-import Sidebar from '../../features/dashboards/components/Sidebar.astro';
-import RoleBadge from '../../features/dashboards/components/RoleBadge.astro';
+import { jwtDecode } from "jwt-decode";
+import MainLayout from "../Layout.astro";
+import Sidebar from "../../features/dashboards/components/Sidebar.astro";
+import RoleBadge from "../../features/dashboards/components/RoleBadge.astro";
 import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "../../features/dashboards/components/StatCard.astro";
 import UserHeader from "../../features/general/components/UserHeader.astro";
 import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 
-const userName = "Johan"; // Mock user name, replace with actual data in a real application
+let userName = "";
+try {
+    const token = Astro.cookies.get("access_token")?.value;
+    if (token) {
+        const decoded = jwtDecode(token) as any;
+        userName = decoded.name || "";
+    }
+} catch (e) {}
 const userRole = "student";
 
 const mockSessions = [
     {
         id: "1",
         title: "Introducción a derivadas y definición por límite",
-        description: "En esta tutoría quiero que me expliquen la regla de la cadena",
+        description:
+            "En esta tutoría quiero que me expliquen la regla de la cadena",
         subject: "Cálculo Diferencial",
         status: "Cerrada",
         time: "Hoy 3:00 PM",
@@ -34,22 +43,31 @@ const mockSessions = [
 
 const studentStats = { value: 3, text: "Tutorías esta semana" };
 ---
+
 <MainLayout title="Dashboard">
     <div class="dashboard-container">
         <Sidebar userRole={userRole} />
 
         <main class="content-wrapper">
             <div class="dashboard-content">
-                <UserHeader userRole={userRole}/>
+                <UserHeader userRole={userRole} />
 
                 <div class="welcome-container">
-                    <p>¡Bienvenid@ <RoleBadge name={userName} role={userRole} />!</p>
+                    <p>
+                        ¡Bienvenid@ <RoleBadge
+                            name={userName}
+                            role={userRole}
+                        />!
+                    </p>
                 </div>
 
                 <div class="cards-container">
                     <div class="left-side">
                         <div class="incoming-sessions-container">
-                            <IncomingSessionsCard sessions={mockSessions} role={userRole} />
+                            <IncomingSessionsCard
+                                sessions={mockSessions}
+                                role={userRole}
+                            />
                         </div>
 
                         <div class="green-photo-space">
@@ -57,13 +75,14 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
                         </div>
                     </div>
                     <div class="stats-container">
-                        <StatCard value={studentStats.value} description={studentStats.text} />
+                        <StatCard
+                            value={studentStats.value}
+                            description={studentStats.text}
+                        />
                     </div>
                 </div>
-                
             </div>
         </main>
-        
     </div>
 </MainLayout>
 
@@ -93,7 +112,7 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
     .content-wrapper::-webkit-scrollbar {
         width: 6px;
     }
-    
+
     .content-wrapper::-webkit-scrollbar-thumb {
         background: #e8e8e8;
         border-radius: 10px;
@@ -118,8 +137,6 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
         padding: 0 10rem;
         color: #3c3c3c;
     }
-
-    
 
     .cards-container {
         display: grid;

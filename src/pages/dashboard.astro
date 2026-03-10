@@ -6,15 +6,19 @@ import StudentLayout from "../layouts/dashboards/StudentDashboard.astro";
 import TutorLayout from "../layouts/dashboards/TutorDashboard.astro";
 import { jwtDecode } from "jwt-decode";
 
+// Auth guard: redirect unauthenticated users to home page
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) {
+  return Astro.redirect("/");
+}
+
 let userRole: string = "tutor";
 try {
-  const token = Astro.cookies.get("access_token")?.value;
-  if (token) {
-    const decoded = jwtDecode(token) as any;
-    userRole = decoded.role ? decoded.role.toLowerCase() : "tutor";
-  }
+  const decoded = jwtDecode(token) as any;
+  userRole = decoded.role ? decoded.role.toLowerCase() : "tutor";
 } catch (e) {
   console.error("Error decoding token in dashboard:", e);
+  return Astro.redirect("/");
 }
 ---
 

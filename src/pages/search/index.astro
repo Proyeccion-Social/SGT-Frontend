@@ -7,14 +7,8 @@ import TutorList from "../../features/search/components/TutorList.astro";
 import TutorDetail from "../../features/search/components/TutorDetail.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 
-const url = new URL("/api/search", Astro.url);
-const res = await fetch(url);
-const tutors = await res.json();
 
-const subjectsUrl = new URL("/api/search/subjects", Astro.url);
-const subjectsRes = await fetch(subjectsUrl);
-const subjectsData = await subjectsRes.json();
-const subjects = subjectsData.data ?? [];
+
 ---
 
 <Layout title="Explorar tutores">
@@ -22,10 +16,10 @@ const subjects = subjectsData.data ?? [];
     <Sidebar userRole="student" />
 
     <div class="search-page">
-      <SearchBar subjects={subjects} />
+      <SearchBar />
 
       
-        <TutorList tutors={tutors} />
+        <TutorList />
         <TutorDetail />
       
     </div>
@@ -39,11 +33,12 @@ const subjects = subjectsData.data ?? [];
   }
 
   .search-page {
+    justify-content: start;
     flex: 1;
     display: flex;
     flex-direction: column;
     padding: 2rem 1.5rem;
-    overflow-y: auto;
+
   }
 
   .search-content {

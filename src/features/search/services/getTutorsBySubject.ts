@@ -1,5 +1,12 @@
 const API_URL = import.meta.env.API_URL;
 
+export interface TutorsBySubjectFilters {
+    subjectId?: string;
+    subjectName?: string;
+    modality?: string;
+    onlyAvailable?: boolean;
+}
+
 export interface TutorsBySubjectResponse {
     success: boolean;
     subject: {
@@ -10,12 +17,20 @@ export interface TutorsBySubjectResponse {
     total: number;
 }
 
-// trae los tutores disponibles para una materia específica
+// GET /api/v1/availability/tutors/subject
+// RF-14: Visualizar tutores por materia (Código o Nombre) con su disponibilidad
 export async function getTutorsBySubject(
-    subjectId: string,
+    filters: TutorsBySubjectFilters,
     token: string,
 ): Promise<TutorsBySubjectResponse> {
-    const url = `${API_URL}/availability/subjects/${subjectId}/tutors`;
+    const params = new URLSearchParams();
+
+    if (filters.subjectId) params.append("subjectId", filters.subjectId);
+    if (filters.subjectName) params.append("subjectName", filters.subjectName);
+    if (filters.modality) params.append("modality", filters.modality);
+    if (filters.onlyAvailable !== undefined) params.append("onlyAvailable", String(filters.onlyAvailable));
+
+    const url = `${API_URL}/availability/tutors/subject?${params.toString()}`;
 
     const response = await fetch(url, {
         method: "GET",

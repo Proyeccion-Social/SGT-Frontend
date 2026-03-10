@@ -4,31 +4,46 @@ interface Tutor {
   tutorName?: string;
   name?: string;
 }
-
-interface Props {
-  tutors: Tutor[];
-}
-
-const { tutors } = Astro.props;
 ---
 
-<section class="tutor-list-section">
+<section id="tutor-list-section" class="tutor-list-section" hidden>
   <h2 class="tutor-list-title">Resultados</h2>
-  <ul id="tutor-list" class="tutor-list">
-    {
-      tutors.map((tutor) => (
-        <li class="tutor-list-item">
-          <button
-            class="tutor-list-button"
-            data-tutor-id={tutor.tutorId}
-          >
-            {tutor.tutorName || tutor.name}
-          </button>
-        </li>
-      ))
-    }
-  </ul>
+  <ul id="tutor-list" class="tutor-list"></ul>
+
+  <template id="tutor-item-template">
+    <li class="tutor-list-item">
+      <button class="tutor-list-button" data-tutor-id=""></button>
+    </li>
+  </template>
 </section>
+
+
+<script is:inline>
+  document.getElementById("tutor-list")
+    ?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-tutor-id]");
+      if (btn) loadTutor(btn.dataset.tutorId);
+    });
+
+  document.addEventListener("tutors-updated", (e) => {
+    const tutors = e.detail;
+    const section = document.getElementById("tutor-list-section");
+    const list = document.getElementById("tutor-list");
+    const template = document.getElementById("tutor-item-template");
+    if (!list || !template || !section) return;
+
+    list.innerHTML = "";
+    tutors.forEach(tutor => {
+      const clone = template.content.cloneNode(true);
+      const btn = clone.querySelector(".tutor-list-button");
+      btn.dataset.tutorId = tutor.tutorId || tutor.id;
+      btn.textContent = tutor.tutorName || tutor.name || tutor.fullName || "Tutor";
+      list.appendChild(clone);
+    });
+
+    section.hidden = false;
+  });
+</script>
 
 <style>
   .tutor-list-section {
@@ -48,8 +63,9 @@ const { tutors } = Astro.props;
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
   }
 
   .tutor-list-item {
@@ -61,7 +77,7 @@ const { tutors } = Astro.props;
     padding: 0.75rem 1rem;
     text-align: left;
     background: var(--color-color-white);
-    border: 1px solid var(--color-negrops-100);
+    border: 1px solid red;
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.95rem;
@@ -80,10 +96,3 @@ const { tutors } = Astro.props;
   }
 </style>
 
-<script is:inline>
-  document.getElementById("tutor-list")
-    ?.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-tutor-id]");
-      if (btn) loadTutor(btn.dataset.tutorId);
-    });
-</script>

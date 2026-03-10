@@ -1,33 +1,39 @@
 
 ---
 interface Subject {
+  id: string;
   name: string;
 }
 
-interface Props {
-  subjects: Subject[];
-}
 
-const { subjects } = Astro.props;
+const url = new URL("/api/search", Astro.url);
+const subjectsUrl = new URL("/api/search/subjects", Astro.url);
+const subjectsRes = await fetch(subjectsUrl);
+const subjectsData = await subjectsRes.json();
+const subjects = subjectsData.data ?? [];
+
+import searchIcon from "@/features/search/assets/search.png";
 ---
-
+ <section class="title-section" id="title-section">
+  <h1 class="page-title">¡Los mejores de la facultad!</h1>
+</section>
 <section class="search-bar">
   <div class="search-bar-row">
     <input
       type="text"
       id="name-filter"
       class="search-input"
-      placeholder="Buscar por nombre del tutor..."
+      placeholder="Buscar por nombre del tutor"
     />
+    <button id="search-btn" class="search-button" type="button" ><img src={searchIcon.src} alt="Buscar" /></button>
 
     <select id="subject-filter" class="search-select">
       <option value="">Todas las materias</option>
       {subjects.map((subject) => (
-        <option value={subject.name}>{subject.name}</option>
+        <option value={subject.id}>{subject.name}</option>
       ))}
     </select>
 
-    <button id="search-btn" class="search-button" type="button">Buscar</button>
   </div>
 
   <div class="search-modalities">
@@ -42,10 +48,113 @@ const { subjects } = Astro.props;
   </div>
 </section>
 
+
+<script is:inline>
+
+
+  document.getElementById("search-btn")
+    ?.addEventListener("click", () => {
+    applyFilters();
+    document.getElementById("title-section")?.classList.add("hide");
+  });
+    
+
+
+    
+
+  async function applyFilters() {
+    const checked = Array.from(
+      document.querySelectorAll('input[name="modalities"]:checked')
+    ).map(el => el.value);
+
+    const nameQuery = document.getElementById("name-filter").value.trim().toLowerCase();
+    const subjectId = document.getElementById("subject-filter").value;
+
+    let tutors;
+
+    if (subjectId) {
+      const res = await fetch(`/api/search/tutors/subject?subjectId=${encodeURIComponent(subjectId)}`);
+      const data = await res.json();
+      tutors = data.data ?? [];
+    } else {
+      let url = "/api/search";
+      if (checked.length === 1) url += `?modality=${encodeURIComponent(checked[0])}`;
+      const res = await fetch(url);
+      tutors = await res.json();
+    }
+
+    if (checked.length === 1) {
+      tutors = tutors.filter(t => (t.modality || []).includes(checked[0]));
+    }
+
+      /*if (checked.length === 0) {
+    document.getElementById("tutor-list").innerHTML = "";
+    return;
+  } */
+
+    if (nameQuery) {
+      tutors = tutors.filter(t => {
+        const name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
+        return name.includes(nameQuery);
+      });
+    }
+
+    document.dispatchEvent(new CustomEvent("tutors-updated", { detail: tutors }));
+  }
+</script>
+
 <style>
+
+
+/* Estado normal */
+.title-section {
+  margin-top: 280px;
+  margin-bottom: 100px;
+  opacity: 1;
+
+  /* Animamos espacio + opacidad */
+  transition:
+    margin-top 0.4s ease,
+    margin-bottom 0.4s ease,
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+/* Cuando desaparece */
+.title-section.hide {
+  margin-top: 0;
+  margin-bottom: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+
+  /* Evita que interfiera con clicks mientras se oculta */
+  pointer-events: none;
+}
+
+  .page-title {
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-negrops-900);
+
+    /* ¡Los mejores de la facultad */
+
+
+font-family: 'Open Sauce Two';
+font-style: normal;
+font-weight: 500;
+font-size: 52px;
+line-height: 32px;
+/* identical to box height, or 62% */
+letter-spacing: -0.02em;
+
+color: #1A1A1A;
+
+
+  }
   .search-bar {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.75rem;
   }
 
@@ -57,10 +166,10 @@ const { subjects } = Astro.props;
 
   .search-input {
     /* Frame 1935 */
+    padding-left: 20px;
 
 box-sizing: border-box;
 
-position: absolute;
 width: 723px;
 height: 60px;
 left: 396px;
@@ -97,7 +206,6 @@ align-items: center;
 padding: 10px;
 gap: 10px;
 
-position: absolute;
 width: 200px;
 height: 60px;
 left: 1410px;
@@ -118,7 +226,6 @@ align-items: center;
 padding: 10px;
 gap: 10px;
 
-position: absolute;
 width: 200px;
 height: 60px;
 left: 1210px;
@@ -151,7 +258,6 @@ align-items: center;
 padding: 10px;
 gap: 10px;
 
-position: absolute;
 width: 60px;
 height: 60px;
 left: 1135px;
@@ -159,6 +265,7 @@ top: 325px;
 
 background: #9F74FF;
 border-radius: 8px;
+border-color: transparent;
 
   }
 
@@ -170,51 +277,13 @@ border-radius: 8px;
     outline: 2px solid var(--color-moradops-500);
     outline-offset: 2px;
   }
-</style>
 
-<script is:inline>
-  document.getElementById("search-btn")
-    ?.addEventListener("click", applyFilters);
-
-  async function applyFilters() {
-    const checked = Array.from(
-      document.querySelectorAll('input[name="modalities"]:checked')
-    ).map(el => el.value);
-
-    const nameQuery = document.getElementById("name-filter").value.trim().toLowerCase();
-    const subjectId = document.getElementById("subject-filter").value;
-
-    let tutors;
-
-    if (subjectId) {
-      const res = await fetch(`/api/search/subjects/${encodeURIComponent(subjectId)}/tutors`);
-      const data = await res.json();
-      tutors = data.data ?? [];
-    } else {
-      let url = "/api/search";
-      if (checked.length === 1) url += `?modality=${encodeURIComponent(checked[0])}`;
-      const res = await fetch(url);
-      tutors = await res.json();
-    }
-
-    if (checked.length === 1) {
-      tutors = tutors.filter(t => (t.modality || []).includes(checked[0]));
-    }
-
-    if (nameQuery) {
-      tutors = tutors.filter(t => {
-        const name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
-        return name.includes(nameQuery);
-      });
-    }
-
-    const list = document.getElementById("tutor-list");
-    list.innerHTML = tutors.map(tutor => `
-      <li class="tutor-list-item">
-        <button class="tutor-list-button" data-tutor-id="${tutor.tutorId || tutor.id}">
-          ${tutor.tutorName || tutor.name || tutor.fullName || "Tutor"}
-        </button>
-      </li>
-    `).join("");
+  .search-button:focus:not(:focus-visible) {
+    outline: 2px solid var(--color-moradops-500);
+    background: #9F74FF;
   }
-</script>
+
+  .search-button:active {
+    background: #9F74FF;
+  }
+</style>

@@ -3,13 +3,14 @@ import { getTutorsBySubject } from "@/features/search/services/getTutorsBySubjec
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, cookies }) => {
+export const GET: APIRoute = async ({ url, cookies }) => {
     try {
-        const subjectId = params.subjectId;
+        const subjectId = url.searchParams.get("subjectId") ?? undefined;
+        const subjectName = url.searchParams.get("subjectName") ?? undefined;
 
-        if (!subjectId) {
+        if (!subjectId && !subjectName) {
             return new Response(
-                JSON.stringify({ message: "ID de materia es requerido" }),
+                JSON.stringify({ message: "Debe proporcionar subjectId o subjectName" }),
                 { status: 400, headers: { "Content-Type": "application/json" } }
             );
         }
@@ -23,7 +24,14 @@ export const GET: APIRoute = async ({ params, cookies }) => {
             );
         }
 
-        const result = await getTutorsBySubject(subjectId, token);
+        const modality = url.searchParams.get("modality") ?? undefined;
+        const onlyAvailableParam = url.searchParams.get("onlyAvailable");
+        const onlyAvailable = onlyAvailableParam !== null ? onlyAvailableParam === "true" : undefined;
+
+        const result = await getTutorsBySubject(
+            { subjectId, subjectName, modality, onlyAvailable },
+            token,
+        );
 
         return new Response(JSON.stringify(result), {
             status: 200,

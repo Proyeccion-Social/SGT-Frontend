@@ -1,13 +1,66 @@
 ---
 ---
 
-<section class="tutor-detail-section">
+<section class="tutor-detail-section" hidden id="tutor-detail-section">
   <h2 class="tutor-detail-title">Información del tutor</h2>
 
   <div id="tutor-info" class="tutor-detail-placeholder">
-    <p class="tutor-detail-empty">Selecciona un tutor para ver su información</p>
+    <p id="tutor-empty-msg" class="tutor-detail-empty">
+      Selecciona un tutor para ver su información
+    </p>
+
+    <div id="tutor-content" hidden>
+      <h3 id="tutor-name"></h3>
+      <p><strong>Materias:</strong> <span id="tutor-subjects"></span></p>
+      <p><strong>Calificación:</strong> <span id="tutor-rating"></span></p>
+      <p><strong>Modalidades:</strong> <span id="tutor-modalities"></span></p>
+
+      <h4>Disponibilidad</h4>
+      <ul id="tutor-slots"></ul>
+    </div>
   </div>
 </section>
+
+<script is:inline>
+  const el = (id) => document.getElementById(id);
+
+  async function loadTutor(id) {
+    try {
+      const [profileRes, slotsRes] = await Promise.all([
+        fetch(`/api/search/${encodeURIComponent(id)}`),
+        fetch(`/api/search/${encodeURIComponent(id)}/availability`)
+      ]);
+
+      const tutor = await profileRes.json();
+      const { availableSlots = [] } = await slotsRes.json();
+
+      const subjects =
+        tutor.subjects?.map(s => s.name).join(", ") ?? "Sin materias";
+
+      const slotsHTML = availableSlots
+        .map(slot =>
+          `<li>${slot.dayOfWeek} - ${slot.startTime} a ${slot.endTime} (${slot.modality})</li>`
+        )
+        .join("");
+
+      el("tutor-name").textContent = tutor.name;
+      el("tutor-subjects").textContent = subjects;
+      el("tutor-rating").textContent =
+        `${tutor.averageRating} (${tutor.totalRatings} valoraciones)`;
+      el("tutor-modalities").textContent =
+        tutor.availableModalities?.join(", ") ?? "N/A";
+
+      el("tutor-slots").innerHTML = slotsHTML;
+
+      el("tutor-empty-msg").hidden = true;
+      el("tutor-content").hidden = false;
+      el("tutor-detail-section").hidden = false;
+
+    } catch (error) {
+      console.error("Error cargando tutor:", error);
+    }
+  }
+</script>
 
 <style>
   .tutor-detail-section {
@@ -36,7 +89,6 @@
     margin: 0;
   }
 
-  /* Estilos para el contenido inyectado dinámicamente */
   .tutor-detail-placeholder :global(h3) {
     font-size: 1.25rem;
     font-weight: 600;
@@ -74,31 +126,3 @@
     color: var(--color-negrops-600);
   }
 </style>
-
-<script is:inline>
-  async function loadTutor(id) {
-    const [profileRes, slotsRes] = await Promise.all([
-      fetch(`/api/search/${encodeURIComponent(id)}`),
-      fetch(`/api/search/${encodeURIComponent(id)}/availability`),
-    ]);
-
-    const tutor = await profileRes.json();
-    const slotsData = await slotsRes.json();
-
-    const subjectsList = tutor.subjects?.map(s => s.name).join(", ") ?? "Sin materias";
-    const slots = slotsData.availableSlots ?? [];
-
-    document.getElementById("tutor-info").innerHTML = `
-      <h3>${tutor.name}</h3>
-      <p><strong>Materias:</strong> ${subjectsList}</p>
-      <p><strong>Calificación:</strong> ${tutor.averageRating} (${tutor.totalRatings} valoraciones)</p>
-      <p><strong>Modalidades:</strong> ${tutor.availableModalities?.join(", ") ?? "N/A"}</p>
-      <h4>Disponibilidad</h4>
-      <ul>
-        ${slots.map(slot => `
-          <li>${slot.dayOfWeek} - ${slot.startTime} a ${slot.endTime} (${slot.modality})</li>
-        `).join("")}
-      </ul>
-    `;
-  }
-</script>

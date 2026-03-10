@@ -1,23 +1,25 @@
 ---
-//Imports 
-import AdminLayout from '../layouts/dashboards/AdminDashboard.astro'
-import StudentLayout from '../layouts/dashboards/StudentDashboard.astro'
-import TutorLayout from '../layouts/dashboards/TutorDashboard.astro'
+export const prerender = false;
+//Imports
+import AdminLayout from "../layouts/dashboards/AdminDashboard.astro";
+import StudentLayout from "../layouts/dashboards/StudentDashboard.astro";
+import TutorLayout from "../layouts/dashboards/TutorDashboard.astro";
+import { jwtDecode } from "jwt-decode";
 
-//Mock user role, in a real application this would come from authentication context
-const userRole = 'tutor'; // Change this to 'student' or 'tutor' to test different layouts
-
+let userRole: string = "tutor";
+try {
+  const token = Astro.cookies.get("access_token")?.value;
+  if (token) {
+    const decoded = jwtDecode(token) as any;
+    userRole = decoded.role ? decoded.role.toLowerCase() : "tutor";
+  }
+} catch (e) {
+  console.error("Error decoding token in dashboard:", e);
+}
 ---
 
-{userRole === 'admin' && (
-  <AdminLayout title="Admin Dashboard"/>
-)}
+{userRole === "admin" && <AdminLayout title="Dashboard" />}
 
-{userRole === 'student' && (
-  <StudentLayout title="Student Dashboard"/>
-)}
+{userRole === "student" && <StudentLayout title="Dashboard" />}
 
-{userRole === 'tutor' && (
-  <TutorLayout title="Tutor Dashboard"/>
-)}
-
+{userRole === "tutor" && <TutorLayout title="Dashboard" />}

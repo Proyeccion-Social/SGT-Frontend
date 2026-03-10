@@ -5,20 +5,21 @@ interface Props {
   slots: Slot[];
 }
 
-const { slots } = Astro.props;
+const { slots: rawSlots } = Astro.props;
+const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
-const HOUR_START  = 7;
-const HOUR_END    = 19;
+const HOUR_START = 7;
+const HOUR_END = 19;
 const HOUR_HEIGHT = 64;
 const TOTAL_HOURS = HOUR_END - HOUR_START;
 
 const DAYS = [
-  { key: "LUNES",     label: "Lunes" },
-  { key: "MARTES",    label: "Martes" },
+  { key: "LUNES", label: "Lunes" },
+  { key: "MARTES", label: "Martes" },
   { key: "MIERCOLES", label: "Miércoles" },
-  { key: "JUEVES",    label: "Jueves" },
-  { key: "VIERNES",   label: "Viernes" },
-  { key: "SABADO",    label: "Sábado" },
+  { key: "JUEVES", label: "Jueves" },
+  { key: "VIERNES", label: "Viernes" },
+  { key: "SABADO", label: "Sábado" },
 ];
 
 const hours = Array.from({ length: TOTAL_HOURS }, (_, i) => HOUR_START + i);
@@ -28,7 +29,7 @@ function getWeekDates(): Record<string, number> {
   const dayOfWeek = today.getDay();
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-  const keys = ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"];
+  const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
   const result: Record<string, number> = {};
   keys.forEach((key, i) => {
     const d = new Date(monday);
@@ -46,71 +47,77 @@ function timeToMinutes(time: string): number {
 }
 
 function getSlotStyle(slot: Slot): string {
-  const startMin    = timeToMinutes(slot.startTime);
-  const endMin      = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
+  const startMin = timeToMinutes(slot.startTime);
+  const endMin = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
   const calStartMin = HOUR_START * 60;
-  const top         = ((startMin - calStartMin) / 60) * HOUR_HEIGHT;
-  const height      = ((endMin - startMin) / 60) * HOUR_HEIGHT - 4;
+  const top = ((startMin - calStartMin) / 60) * HOUR_HEIGHT;
+  const height = ((endMin - startMin) / 60) * HOUR_HEIGHT - 4;
   return `top: ${top}px; height: ${height}px;`;
 }
 
 function getSlotsByDay(dayKey: string): Slot[] {
-  return slots.filter(s => s.dayOfWeek === dayKey);
+  return slots.filter(
+    (s) => s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
+  );
 }
 ---
 
 <div class="calendar-outer">
   <div class="calendar-wrapper">
-
     <!-- Header de días -->
     <div class="calendar-header">
-      <div class="time-gutter" />
-      {DAYS.map(day => (
-        <div class="day-header">
-          <span class="day-name">{day.label}</span>
-          <span class="day-number">
-            {weekDates[day.key]?.toString().padStart(2, "0")}
-          </span>
-        </div>
-      ))}
+      <div class="time-gutter"></div>
+      {
+        DAYS.map((day) => (
+          <div class="day-header">
+            <span class="day-name">{day.label}</span>
+            <span class="day-number">
+              {weekDates[day.key]?.toString().padStart(2, "0")}
+            </span>
+          </div>
+        ))
+      }
     </div>
 
     <!-- Cuerpo -->
     <div class="calendar-body">
-
       <!-- Columna de horas -->
       <div class="time-column">
-        {hours.map(hour => (
-          <div class="time-cell">{hour}:00</div>
-        ))}
+        {hours.map((hour) => <div class="time-cell">{hour}:00</div>)}
       </div>
 
       <!-- Columnas de días -->
-      {DAYS.map(day => (
-        <div class="day-column">
-          {hours.map(_ => <div class="hour-cell" />)}
+      {
+        DAYS.map((day) => (
+          <div class="day-column">
+            {hours.map((_) => (
+              <div class="hour-cell" />
+            ))}
 
-          {getSlotsByDay(day.key).map(slot => (
-            <div
-              class={`slot-block ${slot.modality === "VIRT" ? "slot-virtual" : "slot-presencial"}`}
-              style={getSlotStyle(slot)}
-              data-slot-id={slot.id}
-              data-day={slot.dayOfWeek}
-              data-start={slot.startTime}
-              data-end={slot.endTime}
-              data-modality={slot.modality}
-            >
-              <span class="slot-time">
-                {slot.startTime}{slot.endTime ? ` — ${slot.endTime}` : ""}
-              </span>
-              <span class="slot-badge">
-                {slot.modality === "VIRT" ? "Virtual" : "Presencial"}
-              </span>
-            </div>
-          ))}
-        </div>
-      ))}
-
+            {getSlotsByDay(day.key).map((slot) => (
+              <div
+                class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"}`}
+                style={getSlotStyle(slot)}
+                data-slot-id={slot.id}
+                data-day={slot.dayOfWeek}
+                data-start={slot.startTime}
+                data-end={slot.endTime}
+                data-modality={slot.modality}
+              >
+                <span class="slot-time">
+                  {slot.startTime}
+                  {slot.endTime ? ` — ${slot.endTime}` : ""}
+                </span>
+                <span class="slot-badge">
+                  {slot.modality?.toString().toUpperCase() === "VIRT"
+                    ? "Virtual"
+                    : "Presencial"}
+                </span>
+              </div>
+            ))}
+          </div>
+        ))
+      }
     </div>
   </div>
 </div>
@@ -126,7 +133,7 @@ function getSlotsByDay(dayKey: string): Slot[] {
   .calendar-wrapper {
     background: #ffffff;
     overflow: hidden;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -157,7 +164,9 @@ function getSlotsByDay(dayKey: string): Slot[] {
     min-width: 0;
   }
 
-  .day-header:last-child { border-right: none; }
+  .day-header:last-child {
+    border-right: none;
+  }
 
   .day-name {
     font-size: 0.72rem;
@@ -217,7 +226,9 @@ function getSlotsByDay(dayKey: string): Slot[] {
     min-width: 0;
   }
 
-  .day-column:last-child { border-right: none; }
+  .day-column:last-child {
+    border-right: none;
+  }
 
   .hour-cell {
     height: 64px;
@@ -236,7 +247,9 @@ function getSlotsByDay(dayKey: string): Slot[] {
     flex-direction: column;
     gap: 2px;
     cursor: pointer;
-    transition: filter 0.15s ease, transform 0.15s ease;
+    transition:
+      filter 0.15s ease,
+      transform 0.15s ease;
     overflow: hidden;
     box-sizing: border-box;
   }

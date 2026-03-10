@@ -5,32 +5,27 @@ import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
 import type { Slot } from "@/features/availability/services/availabilityService";
 import { jwtDecode } from "jwt-decode";
+import BackArrowIcon from "@/features/availability/components/icons/BackArrowIcon.svg";
+import ForwardArrowIcon from "@/features/availability/components/icons/ForwardArrowIcon.svg";
+import { Image } from "astro:assets";
+import { getTutorSlots } from "@/features/availability/services/availabilityService";
 
 let tutorId = "";
 try {
     const token = Astro.cookies.get("access_token")?.value;
     if (token) {
         const decoded = jwtDecode(token) as any;
-        tutorId = decoded.id || decoded.sub;
+        tutorId = decoded.id || decoded.sub || decoded.userId;
     }
 } catch (e) {
-    console.error("Error decoding token:", e);
 }
 
 let Slots: Slot[] = [];
 
 if (tutorId) {
     try {
-        const response = await fetch(
-            `${import.meta.env.API_URL}/api/v1/availability/tutors/${tutorId}/slots`,
-        );
-        if (response.ok) {
-            Slots = await response.json();
-        } else {
-            console.error("Failed to fetch slots:", await response.text());
-        }
-    } catch (e) {
-        console.error("Error fetching slots:", e);
+        Slots = await getTutorSlots(tutorId);
+    } catch (e: any) {
     }
 }
 ---
@@ -45,8 +40,8 @@ if (tutorId) {
                     <div class="week-selector">
                         <h3>Tu Semana</h3>
                         <p>02-08 de Marzo</p>
-                        <button>{"<"}</button>
-                        <button>{">"}</button>
+                        <button><Image src={BackArrowIcon} alt="Back" /></button>
+                        <button><Image src={ForwardArrowIcon} alt="Forward" /></button>
                         <UserHeader userRole="tutor" />
                     </div>
                     <div class="legend">

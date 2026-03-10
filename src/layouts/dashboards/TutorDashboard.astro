@@ -8,22 +8,18 @@ import UserHeader from "@/features/general/components/UserHeader.astro";
 
 import { jwtDecode } from "jwt-decode";
 
-let userName = "Usuario";
-let userRole: "tutor" | "admin" | "student" = "tutor";
+let userName = "";
+const { userRole = "tutor" } = Astro.props;
+
 try {
     const token = Astro.cookies.get("access_token")?.value;
     if (token) {
         const decoded = jwtDecode(token) as any;
-        userName = decoded.name || "Usuario";
-        const decodedRole = decoded.role ? decoded.role.toLowerCase() : "tutor";
-        if (["tutor", "admin", "student"].includes(decodedRole)) {
-            userRole = decodedRole as "tutor" | "admin" | "student";
-        }
+        userName = decoded.name || "";
     }
-} catch (e) {
-    console.error("Error decoding token in TutorDashboard:", e);
-}
+} catch (e) {}
 
+// TODO: Replace with API call
 const mockSessions = [
     {
         id: "1",
@@ -47,7 +43,6 @@ const mockSessions = [
 ];
 
 const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
-// TODO: Replace with API call
 const mockWorkload = {
     scheduledHours: 2,
     weeklyLimit: 8,

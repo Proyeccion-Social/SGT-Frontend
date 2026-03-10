@@ -10,25 +10,30 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     cookies.set("access_token", result.accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
       path: "/",
-      maxAge: 60 * 15 // 15 min
+      maxAge: 60 * 15
     });
 
     cookies.set("refresh_token", result.refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/api", 
+      path: "/",
       maxAge: 60 * 60 * 24 * 7
     });
 
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    // Configuración de cookies
+    headers.append("Set-Cookie", `access_token=${result.accessToken}; Path=/; Max-Age=900; SameSite=Lax`);
+    headers.append("Set-Cookie", `refresh_token=${result.refreshToken}; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax`);
+
     return new Response(
-      JSON.stringify({ user: result.user }),
+      JSON.stringify({
+        user: result.user,
+        accessToken: result.accessToken
+      }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers
       }
     );
 

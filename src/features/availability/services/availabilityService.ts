@@ -1,6 +1,6 @@
 // Importación de la API y la ruta de disponibilidad
 const API_URL = import.meta.env.API_URL;
-const AVAILABILITY_PATH = '/api/v1/availability';
+const AVAILABILITY_PATH = '/availability';
 
 //===============================================================
 // Tipos de datos
@@ -76,10 +76,14 @@ export interface ApiError {
 //===============================================================
 
 /**
- * Obtiene el JWT desde sessionStorage
+ * Obtiene el JWT desde las cookies del navegador
  */
 function getToken(): string | null {
-    return sessionStorage.getItem('accessToken');
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; access_token=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
 }
 
 /**
@@ -114,8 +118,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
         message: 'Error interno del servidor',
         description: 'Error al procesar la respuesta del servidor'
     }));
-    
-    throw errorBody;   
+
+    throw errorBody;
 }
 
 //===============================================================
@@ -157,7 +161,29 @@ export async function getTutorSlots(
         },
     });
 
-    return handleResponse<Slot[]>(response);
+    const result = await handleResponse<any>(response);
+
+    const rawSlots = result.availableSlots || (Array.isArray(result) ? result : []);
+
+    // Day translation map
+    const dayMap: Record<string, DayOfWeek> = {
+        'MONDAY': 'LUNES',
+        'TUESDAY': 'MARTES',
+        'WEDNESDAY': 'MIERCOLES',
+        'THURSDAY': 'JUEVES',
+        'FRIDAY': 'VIERNES',
+        'SATURDAY': 'SABADO',
+    };
+
+    return rawSlots.map((s: any) => ({
+        id: s.slotId || s.id,
+        dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
+        startTime: s.startTime?.substring(0, 5), // '10:00:00' -> '10:00'
+        endTime: s.endTime?.substring(0, 5),
+        modality: s.modality,
+        location: s.location,
+        platform: s.platform
+    }));
 }
 
 /**
@@ -229,20 +255,20 @@ export async function setWeeklyLimit(
  * - PERMISSION_01 (403): El usuario no tiene rol de tutor
  */
 export async function getTutorWorkload(): Promise<{
-  totalAvailableHours: number;
-  scheduledHours: number;
-  remainingHours: number;
-  limitReachedPercentage: number;
+    totalAvailableHours: number;
+    scheduledHours: number;
+    remainingHours: number;
+    limitReachedPercentage: number;
 }> {
-  const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders();
 
-  const response = await fetch(
-    `${API_URL}${AVAILABILITY_PATH}/tutor/workload`,
-    {
-      method: 'POST',
-      headers,
-    }
-  );
+    const response = await fetch(
+        `${API_URL}${AVAILABILITY_PATH}/tutor/workload`,
+        {
+            method: 'POST',
+            headers,
+        }
+    );
 
-  return handleResponse(response);
+    return handleResponse(response);
 }

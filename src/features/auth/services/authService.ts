@@ -21,24 +21,24 @@ export type RegisterDto = {
 
 
 export const validateEmail = async (email: string) => {
-    try {
-        const response = await fetch(`${API_URL}/auth/check-email`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-        });
+  try {
+    const response = await fetch(`${API_URL}/auth/check-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
 
-        const data = await response.json();
-        console.log(data)
-        return !!data.exists;
-    } catch (error) {
-      console.error('Error validating email:', error);
-      throw new Error('Failed to validate email');
-    }
+    const data = await response.json();
+    console.log(data)
+    return !!data.exists;
+  } catch (error) {
+    console.error('Error validating email:', error);
+    throw new Error('Failed to validate email');
   }
-  
+}
+
 
 export const login = async (
   email: string,
@@ -62,6 +62,15 @@ export const login = async (
 
   return body;
 };
+
+export const fetchMe = async (accessToken: string) => {
+  const response = await fetch(`${API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  if (!response.ok) throw new Error('Failed to fetch user');
+  return response.json();
+};
+
 
 
 export const register = async (data: RegisterDto) => {

@@ -4,30 +4,28 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
 import type { Slot } from "@/features/availability/services/availabilityService";
-import { jwtDecode } from "jwt-decode";
-import BackArrowIcon from "@/features/availability/components/icons/BackArrowIcon.svg";
-import ForwardArrowIcon from "@/features/availability/components/icons/ForwardArrowIcon.svg";
+import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
+import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
+import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
+import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
 import { Image } from "astro:assets";
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
 
-let tutorId = "";
-try {
-    const token = Astro.cookies.get("access_token")?.value;
-    if (token) {
-        const decoded = jwtDecode(token) as any;
-        tutorId = decoded.id || decoded.sub || decoded.userId;
-    }
-} catch (e) {
-}
+const tutorId = getUserIdFromCookie(Astro.cookies);
 
 let Slots: Slot[] = [];
 
 if (tutorId) {
     try {
         Slots = await getTutorSlots(tutorId);
-    } catch (e: any) {
-    }
+    } catch (e: any) {}
 }
+
+const offsetParam = Astro.url.searchParams.get("offset");
+const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
+
+const { today, prevOffset, nextOffset, weekRangeStr } =
+    getWeekRangeFromOffset(weekOffset);
 ---
 
 <MainLayout title="Availability">
@@ -39,9 +37,13 @@ if (tutorId) {
                 <div class="calendar-header">
                     <div class="week-selector">
                         <h3>Tu Semana</h3>
-                        <p>02-08 de Marzo</p>
-                        <button><Image src={BackArrowIcon} alt="Back" /></button>
-                        <button><Image src={ForwardArrowIcon} alt="Forward" /></button>
+                        <p>{weekRangeStr}</p>
+                        <a href={`?offset=${prevOffset}`} class="nav-button"
+                            ><Image src={BackArrowIcon} alt="Back" /></a
+                        >
+                        <a href={`?offset=${nextOffset}`} class="nav-button"
+                            ><Image src={ForwardArrowIcon} alt="Forward" /></a
+                        >
                         <UserHeader userRole="tutor" />
                     </div>
                     <div class="legend">
@@ -49,7 +51,7 @@ if (tutorId) {
                     </div>
                 </div>
 
-                <Calendar slots={Slots} />
+                <Calendar slots={Slots} baseDate={today} />
             </div>
         </main>
     </div>
@@ -114,7 +116,7 @@ if (tutorId) {
         margin-top: 5px;
     }
 
-    .week-selector button {
+    .week-selector .nav-button {
         height: 1.5rem;
         width: 1.5rem;
         display: flex;
@@ -122,6 +124,8 @@ if (tutorId) {
         justify-content: center;
         border: none;
         border-radius: 4px;
+        text-decoration: none;
+        color: inherit;
     }
 
     .legend {

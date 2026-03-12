@@ -11,6 +11,8 @@ export type DayOfWeek = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' 
 
 export type SlotAction = 'CREATE' | 'UPDATE' | 'DELETE';
 
+export type SlotStatus = 'AVAILABLE' | 'BOOKED';
+
 //===============================================================
 // Interfaces
 //===============================================================
@@ -22,6 +24,7 @@ export interface Slot {
     endTime?: string;
     location?: string;
     platform?: string;
+    isBooked?: boolean;
 }
 
 export interface GetAvailabilityQueryDto {
@@ -165,7 +168,6 @@ export async function getTutorSlots(
 
     const rawSlots = result.availableSlots || (Array.isArray(result) ? result : []);
 
-    // Day translation map
     const dayMap: Record<string, DayOfWeek> = {
         'MONDAY': 'LUNES',
         'TUESDAY': 'MARTES',
@@ -178,11 +180,12 @@ export async function getTutorSlots(
     return rawSlots.map((s: any) => ({
         id: s.slotId || s.id,
         dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
-        startTime: s.startTime?.substring(0, 5), // '10:00:00' -> '10:00'
+        startTime: s.startTime?.substring(0, 5),
         endTime: s.endTime?.substring(0, 5),
         modality: s.modality,
         location: s.location,
-        platform: s.platform
+        platform: s.platform,
+        isBooked: s.isBooked
     }));
 }
 

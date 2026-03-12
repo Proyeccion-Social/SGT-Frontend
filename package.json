@@ -9,6 +9,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.7",
     "@astrojs/node": "^9.5.4",
     "@astrojs/react": "^4.4.2",
     "@types/react": "^19.2.14",
@@ -20,6 +21,7 @@
     "shiki": "^3.22.0",
     "sileo": "^0.1.4",
     "sonner": "^2.0.7",
+    "typescript": "^5.9.3",
     "zustand": "^5.0.11"
   }
 }

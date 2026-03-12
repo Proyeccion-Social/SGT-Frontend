@@ -3,116 +3,122 @@ import type { Slot } from "@/features/availability/services/availabilityService"
 
 interface Props {
   slots: Slot[];
+  baseDate?: Date;
 }
 
-const { slots: rawSlots } = Astro.props;
+const { slots: rawSlots, baseDate = new Date() } = Astro.props;
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
-const HOUR_START = 7;
-const HOUR_END = 19;
-const HOUR_HEIGHT = 64;
-const TOTAL_HOURS = HOUR_END - HOUR_START;
+import {
+  DAYS,
+  DAY_COLORS,
+  HOURS_ARRAY as hours,
+} from "../utils/calendarConstants";
 
-const DAYS = [
-  { key: "LUNES", label: "Lunes" },
-  { key: "MARTES", label: "Martes" },
-  { key: "MIERCOLES", label: "Miércoles" },
-  { key: "JUEVES", label: "Jueves" },
-  { key: "VIERNES", label: "Viernes" },
-  { key: "SABADO", label: "Sábado" },
-];
+import {
+  getWeekDates,
+  isSlotInPast,
+  formatDuration,
+  getSlotStyle,
+  getSlotsByDay,
+} from "../utils/calendarUtils";
 
-const hours = Array.from({ length: TOTAL_HOURS }, (_, i) => HOUR_START + i);
+const weekDates = getWeekDates(baseDate);
 
-function getWeekDates(): Record<string, number> {
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-  const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
-  const result: Record<string, number> = {};
-  keys.forEach((key, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    result[key] = d.getDate();
-  });
-  return result;
-}
-
-const weekDates = getWeekDates();
-
-function timeToMinutes(time: string): number {
-  const [h, m] = time.split(":").map(Number);
-  return h * 60 + m;
-}
-
-function getSlotStyle(slot: Slot): string {
-  const startMin = timeToMinutes(slot.startTime);
-  const endMin = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
-  const calStartMin = HOUR_START * 60;
-  const top = ((startMin - calStartMin) / 60) * HOUR_HEIGHT;
-  const height = ((endMin - startMin) / 60) * HOUR_HEIGHT - 4;
-  return `top: ${top}px; height: ${height}px;`;
-}
-
-function getSlotsByDay(dayKey: string): Slot[] {
-  return slots.filter(
-    (s) => s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
-  );
-}
+const systemToday = new Date();
 ---
 
 <div class="calendar-outer">
   <div class="calendar-wrapper">
-    <!-- Header de días -->
     <div class="calendar-header">
       <div class="time-gutter"></div>
       {
-        DAYS.map((day) => (
-          <div class="day-header">
-            <span class="day-name">{day.label}</span>
-            <span class="day-number">
-              {weekDates[day.key]?.toString().padStart(2, "0")}
-            </span>
-          </div>
-        ))
+        DAYS.map((day) => {
+          const date = weekDates[day.key];
+          const isToday =
+            date &&
+            systemToday.getFullYear() === date.getFullYear() &&
+            systemToday.getMonth() === date.getMonth() &&
+            systemToday.getDate() === date.getDate();
+
+          return (
+            <div class={`day-header ${isToday ? "today" : ""}`}>
+              <span class="day-name">{day.label}</span>
+              <span class="day-number">
+                {date?.getDate().toString().padStart(2, "0")}
+              </span>
+            </div>
+          );
+        })
       }
     </div>
 
-    <!-- Cuerpo -->
     <div class="calendar-body">
-      <!-- Columna de horas -->
       <div class="time-column">
         {hours.map((hour) => <div class="time-cell">{hour}:00</div>)}
       </div>
 
-      <!-- Columnas de días -->
       {
         DAYS.map((day) => (
-          <div class="day-column">
+          <div
+            class="day-column"
+            style={`--day-color: ${DAY_COLORS[day.key]};`}
+          >
             {hours.map((_) => (
               <div class="hour-cell" />
             ))}
 
-            {getSlotsByDay(day.key).map((slot) => (
+            {getSlotsByDay(slots, day.key).map((slot) => (
               <div
-                class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"}`}
+                class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""}`}
                 style={getSlotStyle(slot)}
-                data-slot-id={slot.id}
+                data-slot-ids={slot.groupedIds.join(",")}
                 data-day={slot.dayOfWeek}
                 data-start={slot.startTime}
                 data-end={slot.endTime}
                 data-modality={slot.modality}
+                data-is-booked={slot.isBooked}
               >
-                <span class="slot-time">
-                  {slot.startTime}
-                  {slot.endTime ? ` — ${slot.endTime}` : ""}
-                </span>
-                <span class="slot-badge">
-                  {slot.modality?.toString().toUpperCase() === "VIRT"
-                    ? "Virtual"
-                    : "Presencial"}
-                </span>
+                <div class="slot-duration-text">
+                  {formatDuration(slot.startTime, slot.endTime)}
+                </div>
+                <div class="slot-info">
+                  <span class="slot-modality-text">
+                    {slot.modality?.toString().toUpperCase() === "VIRT"
+                      ? "Virtual"
+                      : "Presencial"}
+                  </span>
+                  <span class="slot-badge-status">
+                    {slot.isBooked ? (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                      </svg>
+                    )}
+                    {slot.isBooked ? "Reservado" : "Disponible"}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -123,13 +129,11 @@ function getSlotsByDay(dayKey: string): Slot[] {
 </div>
 
 <style>
-  /* — Contenedor externo con margen de 50px — */
   .calendar-outer {
     width: 100%;
     height: 100%;
   }
 
-  /* — Calendario: no se sale del outer — */
   .calendar-wrapper {
     background: #ffffff;
     overflow: hidden;
@@ -139,7 +143,6 @@ function getSlotsByDay(dayKey: string): Slot[] {
     box-sizing: border-box;
   }
 
-  /* — Header — */
   .calendar-header {
     display: grid;
     grid-template-columns: 56px repeat(6, 1fr);
@@ -168,6 +171,12 @@ function getSlotsByDay(dayKey: string): Slot[] {
     border-right: none;
   }
 
+  .day-header.today {
+    border: 3px solid #9f74ff;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+
   .day-name {
     font-size: 0.72rem;
     font-weight: 600;
@@ -184,7 +193,6 @@ function getSlotsByDay(dayKey: string): Slot[] {
     line-height: 1;
   }
 
-  /* — Body — */
   .calendar-body {
     display: grid;
     grid-template-columns: 56px repeat(6, 1fr);
@@ -198,7 +206,6 @@ function getSlotsByDay(dayKey: string): Slot[] {
     display: no;
   }
 
-  /* — Horas — */
   .time-column {
     border-right: 1px solid #e5e7eb;
     display: flex;
@@ -219,7 +226,6 @@ function getSlotsByDay(dayKey: string): Slot[] {
     white-space: nowrap;
   }
 
-  /* — Días — */
   .day-column {
     position: relative;
     border-right: 1px solid #e5e7eb;
@@ -236,60 +242,83 @@ function getSlotsByDay(dayKey: string): Slot[] {
     flex-shrink: 0;
   }
 
-  /* — Franjas — */
   .slot-block {
     position: absolute;
     left: 4px;
     right: 4px;
     border-radius: 8px;
-    padding: 6px 8px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    justify-content: flex-end;
     cursor: pointer;
+    background: var(--day-color, #f3f4f6);
+    color: rgba(0, 0, 0, 0.7);
     transition:
       filter 0.15s ease,
       transform 0.15s ease;
     overflow: hidden;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .slot-booked {
+    border: 2px dashed rgba(0, 0, 0, 0.1);
+    opacity: 0.9;
+  }
+
+  .slot-booked::after {
+    display: none;
   }
 
   .slot-block:hover {
-    filter: brightness(0.93);
-    transform: scaleX(0.97);
+    filter: brightness(0.96);
+    transform: scale(0.985);
   }
 
-  .slot-presencial {
-    background: #ddd6fe;
-    border-left: 3px solid #a78bfa;
+  .slot-past {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    background: #e5e7eb;
+    color: #6b7280;
   }
 
-  .slot-presencial .slot-time,
-  .slot-presencial .slot-badge {
-    color: #5b21b6;
+  .slot-past:hover {
+    filter: grayscale(1) brightness(0.93) !important;
+    transform: none !important;
   }
 
-  .slot-virtual {
-    background: #bfdbfe;
-    border-left: 3px solid #60a5fa;
-  }
-
-  .slot-virtual .slot-time,
-  .slot-virtual .slot-badge {
-    color: #1e40af;
-  }
-
-  .slot-time {
-    font-size: 0.68rem;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .slot-badge {
-    font-size: 0.62rem;
+  .slot-duration-text {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.65rem;
     font-weight: 500;
-    opacity: 0.8;
+    opacity: 0.7;
+  }
+
+  .slot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .slot-modality-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .slot-badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    width: max-content;
   }
 </style>

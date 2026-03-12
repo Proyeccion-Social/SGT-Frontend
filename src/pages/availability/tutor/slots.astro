@@ -1,6 +1,11 @@
 ---
 export const prerender = false;
 import CalendarSlots from "../../../layouts/availability/CalendarSlots.astro";
+const token = Astro.cookies.get("access_token")?.value;
+
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
 ---
 
-<CalendarSlots />
+<CalendarSlots token={token} />

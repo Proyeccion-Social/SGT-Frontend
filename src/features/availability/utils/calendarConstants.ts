@@ -21,4 +21,13 @@ export const DAY_COLORS: Record<string, string> = {
     SABADO: "#FFD2A1",
 };
 
+export const DAY_TEXT_COLORS: Record<string, string> = {
+    LUNES: "#91792E",
+    MARTES: "#25A35A",
+    MIERCOLES: "#749944",
+    JUEVES: "#2B6CB0",
+    VIERNES: "#6C41CC",
+    SABADO: "#9C4221",
+};
+
 export const HOURS_ARRAY = Array.from({ length: TOTAL_HOURS }, (_, i) => HOUR_START + i);

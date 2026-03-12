@@ -166,7 +166,14 @@ export async function getTutorSlots(
 
     const result = await handleResponse<any>(response);
 
-    const rawSlots = result.availableSlots || (Array.isArray(result) ? result : []);
+    let rawSlots = [];
+    if (result.groupedByDay) {
+        Object.values(result.groupedByDay).forEach((slots: any) => {
+            rawSlots.push(...slots);
+        });
+    } else {
+        rawSlots = result.availableSlots || (Array.isArray(result) ? result : []);
+    }
 
     const dayMap: Record<string, DayOfWeek> = {
         'MONDAY': 'LUNES',
@@ -185,7 +192,7 @@ export async function getTutorSlots(
         modality: s.modality,
         location: s.location,
         platform: s.platform,
-        isBooked: s.isBooked
+        isBooked: s.isAvailable === false ? true : (s.isBooked || false)
     }));
 }
 

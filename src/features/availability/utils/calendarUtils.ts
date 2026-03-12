@@ -35,8 +35,21 @@ export function timeToMinutes(time: string): number {
 export function formatDuration(startTime: string, endTime?: string): string {
     const startMin = timeToMinutes(startTime);
     const endMin = endTime ? timeToMinutes(endTime) : startMin + 60;
-    const diffHours = (endMin - startMin) / 60;
-    return `${diffHours} Hora${diffHours !== 1 ? "s" : ""}`;
+    const totalMins = endMin - startMin;
+
+    const hours = Math.floor(totalMins / 60);
+    const mins = totalMins % 60;
+
+    const hourStr = hours > 0 ? `${hours} hora${hours !== 1 ? "s" : ""}` : "";
+    const minStr = mins > 0 ? `${mins} minutos` : "";
+
+    if (hours > 0 && mins > 0) {
+        return `${hourStr} y ${minStr}`;
+    } else if (hours > 0) {
+        return hourStr;
+    } else {
+        return minStr;
+    }
 }
 
 export function getSlotStyle(slot: Slot): string {

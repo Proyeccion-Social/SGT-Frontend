@@ -12,6 +12,7 @@ const slots = Array.isArray(rawSlots) ? rawSlots : [];
 import {
   DAYS,
   DAY_COLORS,
+  DAY_TEXT_COLORS,
   HOURS_ARRAY as hours,
 } from "../utils/calendarConstants";
 
@@ -21,6 +22,7 @@ import {
   formatDuration,
   getSlotStyle,
   getSlotsByDay,
+  timeToMinutes,
 } from "../utils/calendarUtils";
 
 const weekDates = getWeekDates(baseDate);
@@ -62,15 +64,20 @@ const systemToday = new Date();
         DAYS.map((day) => (
           <div
             class="day-column"
-            style={`--day-color: ${DAY_COLORS[day.key]};`}
+            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
             {hours.map((_) => (
               <div class="hour-cell" />
             ))}
 
-            {getSlotsByDay(slots, day.key).map((slot) => (
+            {getSlotsByDay(slots, day.key).map((slot) => {
+              const startMin = timeToMinutes(slot.startTime);
+              const endMin = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
+              const isHalfHour = 30 >= (endMin - startMin);
+
+              return (
               <div
-                class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""}`}
+                class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
                 style={getSlotStyle(slot)}
                 data-slot-ids={slot.groupedIds.join(",")}
                 data-day={slot.dayOfWeek}
@@ -79,48 +86,64 @@ const systemToday = new Date();
                 data-modality={slot.modality}
                 data-is-booked={slot.isBooked}
               >
-                <div class="slot-duration-text">
-                  {formatDuration(slot.startTime, slot.endTime)}
-                </div>
-                <div class="slot-info">
-                  <span class="slot-modality-text">
-                    {slot.modality?.toString().toUpperCase() === "VIRT"
-                      ? "Virtual"
-                      : "Presencial"}
-                  </span>
-                  <span class="slot-badge-status">
-                    {slot.isBooked ? (
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                      </svg>
-                    )}
-                    {slot.isBooked ? "Reservado" : "Disponible"}
-                  </span>
-                </div>
+                {isHalfHour ? (
+                  <div class="slot-half-hour-content">
+                    <span class="slot-modality-text">
+                      {slot.modality?.toString().toUpperCase() === "VIRT"
+                        ? "Virtual"
+                        : "Presencial"}
+                    </span>
+                    <span class="slot-duration-text-inline">
+                      {formatDuration(slot.startTime, slot.endTime)}
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div class="slot-duration-text">
+                      {formatDuration(slot.startTime, slot.endTime)}
+                    </div>
+                    <div class="slot-info">
+                      <span class="slot-modality-text">
+                        {slot.modality?.toString().toUpperCase() === "VIRT"
+                          ? "Virtual"
+                          : "Presencial"}
+                      </span>
+                      <span class="slot-badge-status">
+                        {slot.isBooked ? (
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : (
+                          <svg
+                            width="10"
+                            height="10"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                          </svg>
+                        )}
+                        {slot.isBooked ? "Reservado" : "Disponible"}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
-            ))}
+            );
+          })}
           </div>
         ))
       }
@@ -172,7 +195,7 @@ const systemToday = new Date();
   }
 
   .day-header.today {
-    border: 3px solid #9f74ff;
+    border: 3px solid #9F74FF;
     border-radius: 6px;
     box-sizing: border-box;
   }
@@ -228,7 +251,7 @@ const systemToday = new Date();
 
   .day-column {
     position: relative;
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7ebd8;
     min-width: 0;
   }
 
@@ -262,9 +285,19 @@ const systemToday = new Date();
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
+  .slot-half-hour-block {
+    padding: 0 10px;
+    justify-content: center;
+  }
+
   .slot-booked {
-    border: 2px dashed rgba(0, 0, 0, 0.1);
-    opacity: 0.9;
+    border: 2px dashed var(--day-text-color, rgba(0, 0, 0, 0.3));
+    opacity: 0.95;
+  }
+
+  .slot-booked .slot-badge-status {
+    background: rgba(255, 255, 255, 0.8);
+    color: #374151;
   }
 
   .slot-booked::after {
@@ -282,6 +315,7 @@ const systemToday = new Date();
     filter: grayscale(1);
     background: #e5e7eb;
     color: #6b7280;
+    border: 1px dashed #A3A3A3;
   }
 
   .slot-past:hover {
@@ -295,7 +329,8 @@ const systemToday = new Date();
     right: 10px;
     font-size: 0.65rem;
     font-weight: 500;
-    opacity: 0.7;
+    color: var(--day-text-color, inherit);
+    opacity: 0.8;
   }
 
   .slot-info {
@@ -320,5 +355,20 @@ const systemToday = new Date();
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.6);
     width: max-content;
+  }
+
+  .slot-half-hour-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .slot-duration-text-inline {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--day-text-color, inherit);
+    opacity: 0.8;
+    white-space: nowrap;
   }
 </style>

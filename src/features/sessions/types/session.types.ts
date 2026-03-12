@@ -1,4 +1,4 @@
-export type Modality = 'ONLINE' | 'IN_PERSON';
+export type Modality = 'VIRT' | 'PRES';
 
 export type SessionType = 'INDIVIDUAL' | 'COLLABORATIVE';
 

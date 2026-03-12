@@ -25,7 +25,7 @@ export function validarLimiteSemanal(
   const { inicio, fin } = getWeekRange(nuevaFecha);
 
   const sesionesSemana = sesionesExistentes.filter(s => {
-    const fecha = new Date(s.date);
+    const fecha = new Date(s.scheduledDate);
     return fecha >= inicio && fecha <= fin && s.status !== 'CANCELLED';
   });
 

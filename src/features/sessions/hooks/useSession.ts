@@ -48,7 +48,7 @@ export function useSession(): UseSessionReturn {
   const agendar = useCallback(
     async (data: CreateSessionDTO, modalidadesPermitidas: Modality[]): Promise<boolean> => {
       // Validaciones core antes de llamar al backend
-      const sesionesDelTutor = sessions.filter(s => s.tutorId === data.tutorId);
+      const sesionesDelTutor = sessions.filter(s => s.tutor.id === data.tutorId);
       const { valido, errores } = validarNuevaSesion(data, sesionesDelTutor, modalidadesPermitidas);
 
       if (!valido) {

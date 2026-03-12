@@ -4,7 +4,6 @@ import {
   getMySessions,
   cancelSession,
 } from '../services/sessionService';
-import { validarNuevaSesion } from '../validations/sessionValidations';
 import type { Session, CreateSessionDTO, Modality } from '../types/session.types';
 import { useAuthStore } from '@/store/authStore';
 
@@ -51,31 +50,23 @@ export function useSession(): UseSessionReturn {
 
 
   const agendar = useCallback(
-    async (data: CreateSessionDTO, modalidadesPermitidas: Modality[]): Promise<boolean> => {
-      // Validaciones core antes de llamar al backend
-      const sesionesDelTutor = sessions.filter(s => s.tutor.id === data.tutorId);
-      const { valido, errores } = validarNuevaSesion(data, sesionesDelTutor, modalidadesPermitidas);
+  async (data: CreateSessionDTO): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const nueva = await createSession(data);
+      setSessions(prev => [...prev, nueva]);
+      return true;
+    } catch (e: any) {
+      setError(e.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  },
+  []
+);
 
-      if (!valido) {
-        setError(errores.join(' | '));
-        return false;
-      }
-
-      setLoading(true);
-      setError(null);
-      try {
-        const nueva = await createSession(data);
-        setSessions(prev => [...prev, nueva]);
-        return true;
-      } catch (e: any) {
-        setError(e.message);
-        return false;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [sessions]
-  );
 
   const cancelar = useCallback(async (sessionId: string): Promise<boolean> => {
     setLoading(true);

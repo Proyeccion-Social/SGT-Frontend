@@ -1,29 +1,19 @@
 ---
-export const prerender = false;
-//Imports
-import AdminLayout from "../layouts/dashboards/AdminDashboard.astro";
-import StudentLayout from "../layouts/dashboards/StudentDashboard.astro";
-import TutorLayout from "../layouts/dashboards/TutorDashboard.astro";
-import { jwtDecode } from "jwt-decode";
-
-// Auth guard: redirect unauthenticated users to home page
+import AdminDashboard from "../layouts/dashboards/AdminDashboard.astro";
+import StudentDashboard from "../layouts/dashboards/StudentDashboard.astro";
+import TutorDashboard from "../layouts/dashboards/TutorDashboard.astro";
+import { fade } from "astro:transitions";
 const token = Astro.cookies.get("access_token")?.value;
+
 if (!token) {
-  return Astro.redirect("/");
+  return Astro.redirect("/?session=expired");
 }
 
-let userRole: string = "tutor";
-try {
-  const decoded = jwtDecode(token) as any;
-  userRole = decoded.role ? decoded.role.toLowerCase() : "tutor";
-} catch (e) {
-  console.error("Error decoding token in dashboard:", e);
-  return Astro.redirect("/");
-}
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role; // 'ADMIN', 'TUTOR', 'STUDENT'
 ---
-
-{userRole === "admin" && <AdminLayout title="Dashboard" />}
-
-{userRole === "student" && <StudentLayout title="Dashboard" />}
-
-{userRole === "tutor" && <TutorLayout title="Dashboard" />}
+<article transition:animate={fade({duration: "0.5s"})} >
+  {userRole === "ADMIN" && <AdminDashboard title='Admin Dashboard' />}
+  {userRole === "TUTOR" && <TutorDashboard title='Tutor Dashboard' />}
+  {userRole === "STUDENT" && <StudentDashboard title='Student Dashboard' />}
+</article>

@@ -70,7 +70,7 @@
               passwordField?.classList.add("visible");
               arrowText?.classList.add("hidden");
 
-              if (loginCard) loginCard.style.height = "655px";
+              if (loginCard) loginCard.style.height = "auto";
 
               passwordInput?.focus();
               passwordVisible = true;
@@ -113,13 +113,24 @@
             throw new Error(data.message || "Login failed");
           }
 
-          // Force client-side cookie if it's not set by server
-          if (data.accessToken) {
-            document.cookie = `access_token=${data.accessToken}; path=/; max-age=900; SameSite=Lax`;
-          }
+          // Guardar usuario en sessionStorage para hidratar el store
+          sessionStorage.setItem(
+            "auth_user",
+            JSON.stringify({
+              user: data.user,
+              requiresPasswordChange: data.requiresPasswordChange,
+              requiresProfileCompletion: data.requiresProfileCompletion,
+            }),
+          );
 
-          // Redirigir al dashboard
-          window.location.href = "/dashboard";
+          // Redirigir según estado del usuario
+          if (data.requiresProfileCompletion) {
+            window.location.href = "/complete-profile";
+          } else if (data.requiresPasswordChange) {
+            window.location.href = "/change-password";
+          } else {
+            window.location.href = "/dashboard";
+          }
         },
         {
           loading: { title: "Iniciando sesión...", fill: "#8751ff" },

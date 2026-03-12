@@ -1,12 +1,17 @@
 ---
-import MainLayout from "../Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
-import RoleBadge from "../../features/dashboards/components/RoleBadge.astro";
+import { Image } from "astro:assets";
+import MainLayout from '../Layout.astro';
+import Sidebar from '../../features/dashboards/components/Sidebar.astro';
+import UserHeader from '../../features/general/components/UserHeader.astro';
 import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "../../features/dashboards/components/StatCard.astro";
-import UserHeader from "@/features/general/components/UserHeader.astro";
-
+import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
+
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) return Astro.redirect("/");
+
+const payload = JSON.parse(atob(token.split(".")[1]));
 
 let userName = "";
 const { userRole = "tutor" } = Astro.props;
@@ -62,46 +67,21 @@ const usedPercent = Math.min(
             <div class="dashboard-content">
                 <UserHeader userRole={userRole} />
 
-                <div class="welcome-container">
-                    <p>
-                        ¡Bienvenid@ <RoleBadge
-                            name={userName}
-                            role={userRole}
-                        />!
-                    </p>
-                </div>
+                <!-- Nombre y rol desde Zustand store -->
+                <WelcomeBanner client:only="react" />
 
                 <div class="hours-bar">
-                    <div
-                        class="hours-segment hours-scheduled"
-                        style={`width: ${usedPercent}%; background-color: #DAFFAA;`}
-                    >
-                        <span class="scheduled-hours-text"
-                            >{mockWorkload.scheduledHours} hora{
-                                mockWorkload.scheduledHours !== 1 ? "s" : ""
-                            } agendada{
-                                mockWorkload.scheduledHours !== 1 ? "s" : ""
-                            } esta semana</span
-                        >
+                    <div class="hours-segment hours-scheduled" style={`width: ${usedPercent}%; background-color: #DAFFAA;`}>
+                        <span class="scheduled-hours-text">{mockWorkload.scheduledHours} hora{mockWorkload.scheduledHours !== 1 ? "s" : ""} agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span>
                     </div>
-                    <div
-                        class="hours-segment hours-remaining"
-                        style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}
-                    >
-                        <span class="remaining-hours-text"
-                            >{remainingHours} hora{
-                                remainingHours !== 1 ? "s" : ""
-                            } restantes esta semana</span
-                        >
+                    <div class="hours-segment hours-remaining" style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}>
+                        <span class="remaining-hours-text">{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span>
                     </div>
                 </div>
 
                 <div class="cards-container">
                     <div class="incoming-sessions-container">
-                        <IncomingSessionsCard
-                            sessions={mockSessions}
-                            role={userRole as "tutor" | "student"}
-                        />
+                        <IncomingSessionsCard sessions={mockSessions} role={userRole as 'tutor' | 'student'} />
                     </div>
 
                     <div class="stats-container">
@@ -115,6 +95,7 @@ const usedPercent = Math.min(
         </main>
     </div>
 </MainLayout>
+
 
 <style>
     .dashboard-container {

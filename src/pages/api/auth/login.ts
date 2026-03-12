@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { login } from "@/features/auth/services/authService";
+import { login, fetchMe } from "@/features/auth/services/authService";
 
 export const prerender = false;
 
@@ -16,33 +16,32 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     cookies.set("refresh_token", result.refreshToken, {
       httpOnly: true,
-      path: "/",
+      secure: true,
+      sameSite: "strict",
+      path: "/api",
       maxAge: 60 * 60 * 24 * 7
     });
 
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
-    // Configuración de cookies
-    headers.append("Set-Cookie", `access_token=${result.accessToken}; Path=/; Max-Age=900; SameSite=Lax`);
-    headers.append("Set-Cookie", `refresh_token=${result.refreshToken}; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax`);
+    const me = await fetchMe(result.accessToken);
 
     return new Response(
       JSON.stringify({
-        user: result.user,
-        accessToken: result.accessToken
+        user: me.user,
+        requiresPasswordChange: me.requiresPasswordChange ?? false,
+        requiresProfileCompletion: me.requiresProfileCompletion ?? false,
       }),
       {
         status: 200,
-        headers
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
 
   } catch (error: any) {
-
     return new Response(
       JSON.stringify({ message: error.message }),
       { status: 401 }
     );
-
   }
 };

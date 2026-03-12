@@ -36,7 +36,33 @@ import arrow from "@/features/search/assets/arrow.png";
     document.getElementById("title-section")?.classList.add("hide");
   });
 
-  async function applyFilters() {
+  /**
+   * Carga todos los tutores del backend una sola vez,
+   * los enriquece con su perfil completo, y los cachea
+   * en window.__allTutors para filtrado client-side.
+   */
+  async function loadAllTutors() {
+    if (window.__allTutors) return window.__allTutors;
+
+    const res = await fetch("/api/search");
+    const data = await res.json();
+    const tutors = data.data ?? data ?? [];
+
+    // Enriquecer cada tutor con su perfil completo
+    const profilePromises = tutors.map((t) => {
+      const id = t.tutorId || t.id;
+      return fetch(`/api/search/${encodeURIComponent(id)}`)
+        .then((res) => (res.ok ? res.json() : t))
+        .catch(() => t);
+    });
+
+    const enriched = await Promise.all(profilePromises);
+    window.__allTutors = enriched;
+    return enriched;
+  }
+
+  async function applyFilters(isInitial = false) {
+    // Leer filtros del UI
     const checked = Array.from(
       document.querySelectorAll('input[name="modalities"]:checked'),
     ).map((el) => el.value);
@@ -46,37 +72,31 @@ import arrow from "@/features/search/assets/arrow.png";
       .value.trim()
       .toLowerCase();
 
-    const subjectId = document.getElementById("subject-filter").value;
+    const subjectId = document.getElementById("subject-filter")?.value || "";
 
-    let tutors = [];
+    // Cargar tutores (usa caché si ya se cargaron)
+    let tutors = await loadAllTutors();
 
-    /* ---------------- FETCH TUTORES ---------------- */
-
+    /* ---------------- FILTRO MATERIA (client-side) ---------------- */
     if (subjectId) {
-      const res = await fetch(
-        `/api/search/tutors/subject?subjectId=${encodeURIComponent(subjectId)}`,
-      );
-
-      const data = await res.json();
-      tutors = data.data ?? [];
-    } else {
-      const res = await fetch("/api/search");
-
-      const data = await res.json();
-      tutors = data.data ?? data ?? [];
+      tutors = tutors.filter((t) => {
+        const subjects = t.subjects || [];
+        return subjects.some((s) => {
+          const sId = s.id || s._id || "";
+          return sId === subjectId;
+        });
+      });
     }
 
-    /* ---------------- FILTRO MODALIDAD ---------------- */
-
+    /* ---------------- FILTRO MODALIDAD (client-side) ---------------- */
     if (checked.length > 0) {
       tutors = tutors.filter((t) => {
-        const modalities = t.modality || t.modalities || [];
+        const modalities = t.availableModalities || t.modality || t.modalities || [];
         return checked.some((m) => modalities.includes(m));
       });
     }
 
-    /* ---------------- FILTRO NOMBRE ---------------- */
-
+    /* ---------------- FILTRO NOMBRE (client-side) ---------------- */
     if (nameQuery) {
       tutors = tutors.filter((t) => {
         const name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
@@ -84,29 +104,24 @@ import arrow from "@/features/search/assets/arrow.png";
       });
     }
 
-    /* ---------------- TRAER PERFIL COMPLETO ---------------- */
-
-    const profilePromises = tutors.map((t) => {
-      const id = t.tutorId || t.id;
-
-      return fetch(`/api/search/${encodeURIComponent(id)}`)
-        .then((res) => (res.ok ? res.json() : t))
-        .catch(() => t);
-    });
-
-    const enrichedTutors = await Promise.all(profilePromises);
-
-    console.log("Enriched tutors:", enrichedTutors);
+    if (isInitial) {
+        tutors = tutors.slice(0, 3);
+    }
 
     document.dispatchEvent(
-      new CustomEvent("tutors-updated", { detail: enrichedTutors }),
+      new CustomEvent("tutors-updated", { detail: { tutors, isInitial } }),
     );
   }
+
+  // Cargar tutores iniciales
+  document.addEventListener("DOMContentLoaded", () => {
+      applyFilters(true);
+  });
 </script>
 
 <style>
   .title-section {
-    margin-top: 220px;
+    margin-top: 120px;
     margin-bottom: 70px;
     display: flex;
     justify-content: center;
@@ -119,6 +134,7 @@ import arrow from "@/features/search/assets/arrow.png";
   }
 
   .title-section.hide {
+    height: 0;
     margin-top: 0;
     margin-bottom: 0;
     opacity: 0;
@@ -155,6 +171,7 @@ import arrow from "@/features/search/assets/arrow.png";
     background: rgba(245, 241, 255, 0.77);
     box-shadow: 0px 4px 9px 2px rgba(135, 81, 255, 0.2);
     border-radius: 40px;
+    border-color: #9f74ff;
   }
 
   .search-input-container {
@@ -202,7 +219,7 @@ position: absolute;
 width: 75px;
 
 left: 670px;
-top: 205px;
+top: 105px;
 
 color: #E8E8E8;
 
@@ -216,7 +233,7 @@ position: absolute;
 width: 80px;
 
 left: 745px;
-top: 180px;
+top: 80px;
 
 font-family: 'Caveat';
 
@@ -241,8 +258,8 @@ position: absolute;
 z-index: -1;
 left: 15%;
 right: 10%;
-top: 25%;
-bottom: 10.63%;
+top: 15%;
+bottom: 20.63%;
 
 background: radial-gradient(50% 50% at 50% 50%, #CFB9FF 0%, rgba(243, 237, 255, 0) 63%);
 
@@ -251,6 +268,6 @@ background: radial-gradient(50% 50% at 50% 50%, #CFB9FF 0%, rgba(243, 237, 255, 
   }
 
   .search-button:hover {
-    background: var(--color-moradops-600);
+    background: #a074ff97;
   }
 </style>

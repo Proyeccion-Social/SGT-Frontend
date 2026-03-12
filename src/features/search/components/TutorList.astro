@@ -8,8 +8,11 @@ interface Tutor {
 import calendar from "@/features/search/assets/calendar.png";
 ---
 
-<section id="tutor-list-section" class="tutor-list-section" hidden>
-  <h2 class="tutor-list-title">Nuestros Tutores</h2>
+<section id="tutor-list-section" class="tutor-list-section">
+  <div class="tutor-list-header">
+    <h2 class="tutor-list-title">Nuestros tutores</h2>
+    <button id="view-more-btn" class="view-more-btn" hidden type="button">Ver más</button>
+  </div>
   <ul id="tutor-list" class="tutor-list"></ul>
 
   <template id="tutor-item-template">
@@ -18,7 +21,7 @@ import calendar from "@/features/search/assets/calendar.png";
         <img class="tutor-photo" src="" alt="" />
         <div class="tutor-info">
           <span class="tutor-name"></span>
-        <div class="tutor-subjects"></div>
+          <div class="tutor-subjects"></div>
         </div>
         <button data-tutor-id="" class="view-profile-btn" type="button">
           <img src={calendar.src} alt="Ver perfil" class="btn-ver-perfil" />
@@ -34,25 +37,42 @@ import calendar from "@/features/search/assets/calendar.png";
     min-width: 0;
   }
 
+  .tutor-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 200px;
+    margin-top: 60px;
+  }
+
   .tutor-list-title {
-
     color: var(--color-negrops-700);
-    padding-left: 200px;
-    padding-top: 60px;
 
-  
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 24px;
+    /* identical to box height, or 120% */
+    letter-spacing: -0.02em;
 
-font-family: 'Open Sauce Two';
-font-style: normal;
-font-weight: 400;
-font-size: 20px;
-line-height: 24px;
-/* identical to box height, or 120% */
-letter-spacing: -0.02em;
+    color: #3c3c3c;
+  }
 
-color: #3C3C3C;
+  .view-more-btn {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    color: #9f74ff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+  }
 
-
+  .view-more-btn:hover {
+    text-decoration: underline;
   }
 
   .tutor-list {
@@ -85,8 +105,6 @@ color: #3C3C3C;
 
     width: 300px;
     height: 300px;
-
-  
   }
 
   .tutor-list-div:hover {
@@ -107,16 +125,15 @@ color: #3C3C3C;
     align-items: start;
     border-radius: 16px;
     gap: 0.25rem;
-    width:100%;
+    width: 100%;
     height: auto;
     min-height: 80px;
     padding-bottom: 15px;
-    padding-top:15px;
+    padding-top: 15px;
     background: rgba(255, 252, 237, 0.5);
     backdrop-filter: blur(24.5px);
-/* Note: backdrop-filter has minimal browser support */
-
-}
+    /* Note: backdrop-filter has minimal browser support */
+  }
 
   .tutor-photo {
     position: absolute;
@@ -146,34 +163,31 @@ color: #3C3C3C;
     width: 240px;
   }
 
-:global(.subject-tag) {
-  font-size: 8px;
-  background-color: #a074ffa8;;
-  border-color: transparent;
-  backdrop-filter: blur(24px);
-  border-radius: 16px;
-  padding: 0.2rem 0.5rem;
-}
+  :global(.subject-tag) {
+    font-size: 8px;
+    background-color: rgba(250, 233, 183, 1);
+    border-color: transparent;
+    backdrop-filter: blur(24px);
+    border-radius: 16px;
+    padding: 0.2rem 0.5rem;
+  }
 
-.view-profile-btn{
-  width: 40px;
-  height: 40px;
-  padding: 6px;
-  position: absolute;
-  top: 240px;
-  right: 20px;  
+  .view-profile-btn {
+    width: 40px;
+    height: 40px;
+    padding: 6px;
+    position: absolute;
+    top: 240px;
+    right: 20px;
 
+    background: #f3edff;
+    border-radius: 8px;
+    border-color: transparent;
+  }
 
-background: #F3EDFF;
-border-radius: 8px;
-border-color: transparent;
-
-}
-
-.view-profile-btn:focus {
+  .view-profile-btn:focus {
     outline: none;
-}
-
+  }
 </style>
 
 <script is:inline>
@@ -182,14 +196,44 @@ border-color: transparent;
     if (btn) loadTutor(btn.dataset.tutorId);
   });
 
+  document.getElementById("view-more-btn")?.addEventListener("click", () => {
+    // Limpiar filtros antes de buscar todos
+    document.querySelectorAll('input[name="modalities"]:checked').forEach(el => el.checked = false);
+    const nameFilter = document.getElementById("name-filter");
+    if (nameFilter) nameFilter.value = "";
+    const subjectFilter = document.getElementById("subject-filter");
+    if (subjectFilter) subjectFilter.value = "";
+
+    // Ocultar sección del título
+    document.getElementById("title-section")?.classList.add("hide");
+
+    // Aplicar filtros (que ahora están vacíos, por lo que trae todos)
+    if (typeof applyFilters === 'function') {
+      applyFilters();
+    }
+  });
+
   document.addEventListener("tutors-updated", (e) => {
-    const tutors = e.detail;
+    const payload = e.detail;
+    
+    // Soportar tanto { tutors: [...], isInitial: true } como [...] directamente por compatibilidad
+    const tutors = Array.isArray(payload) ? payload : (payload.tutors || []);
+    const isInitial = Array.isArray(payload) ? false : (payload.isInitial || false);
+    
     const section = document.getElementById("tutor-list-section");
     const list = document.getElementById("tutor-list");
     const template = document.getElementById("tutor-item-template");
+    const viewMoreBtn = document.getElementById("view-more-btn");
+    
     if (!list || !template || !section) return;
 
     list.innerHTML = "";
+    
+    // Mostrar u ocultar el botón de 'Ver más'
+    if (viewMoreBtn) {
+        viewMoreBtn.hidden = !isInitial;
+    }
+
     tutors.forEach((tutor) => {
       const clone = template.content.cloneNode(true);
       const card = clone.querySelector(".tutor-list-div");
@@ -197,7 +241,8 @@ border-color: transparent;
       btn.dataset.tutorId = tutor.tutorId || tutor.id;
 
       const img = clone.querySelector(".tutor-photo");
-      img.src = /*tutor.photo||*/ "https://media.istockphoto.com/id/825383494/photo/business-man-pushing-large-stone-up-to-hill-business-heavy-tasks-and-problems-concept.jpg?s=612x612&w=0&k=20&c=wtqvbQ6OIHitRVDPTtoT_1HKUAOgyqa7YzzTMXqGRaQ=";
+      img.src =
+        /*tutor.photo||*/ "https://media.istockphoto.com/id/825383494/photo/business-man-pushing-large-stone-up-to-hill-business-heavy-tasks-and-problems-concept.jpg?s=612x612&w=0&k=20&c=wtqvbQ6OIHitRVDPTtoT_1HKUAOgyqa7YzzTMXqGRaQ=";
       img.alt = tutor.name || "Tutor";
 
       clone.querySelector(".tutor-name").textContent =
@@ -214,6 +259,8 @@ border-color: transparent;
       list.appendChild(clone);
     });
 
-    section.hidden = false;
+    if (tutors.length > 0) {
+        section.hidden = false;
+    }
   });
 </script>

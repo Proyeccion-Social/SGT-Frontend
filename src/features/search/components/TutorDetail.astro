@@ -4,25 +4,79 @@
 <section class="tutor-detail-section" hidden id="tutor-detail-section">
   <h2 class="tutor-detail-title">Información del tutor</h2>
 
-  <div id="tutor-info" class="tutor-detail-placeholder">
+  <div id="tutor-info" class="tutor-detail-card">
+    <button id="close-tutor-detail" class="close-btn" aria-label="Cerrar modal">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+    </button>
     <p id="tutor-empty-msg" class="tutor-detail-empty">
       Selecciona un tutor para ver su información
     </p>
 
     <div id="tutor-content" hidden>
-      <h3 id="tutor-name"></h3>
-      <p><strong>Materias:</strong> <span id="tutor-subjects"></span></p>
-      <p><strong>Calificación:</strong> <span id="tutor-rating"></span></p>
-      <p><strong>Modalidades:</strong> <span id="tutor-modalities"></span></p>
+      <div class="tutor-details-container">
+      <!-- Header con nombre -->
+      <div class="tutor-header">
+        <h3 id="tutor-name"></h3>
+      </div>
 
-      <h4>Disponibilidad</h4>
-      <ul id="tutor-slots"></ul>
+      <!-- Info grid -->
+      <div class="tutor-info-grid">
+        <div class="info-item">
+          <span class="info-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            Materias
+          </span>
+          <span id="tutor-subjects" class="info-value"></span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Calificación
+          </span>
+          <span id="tutor-rating" class="info-value rating-value"></span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            Modalidades
+          </span>
+          <span id="tutor-modalities" class="info-value"></span>
+        </div>
+      </div>
+
+      </div>
+      <div class="tutor-availability-container">
+
+      <!-- Disponibilidad -->
+      <div class="availability-section">
+        <h4 class="availability-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Disponibilidad
+        </h4>
+        <ul id="tutor-slots"></ul>
+      </div>
+      </div>
     </div>
   </div>
 </section>
 
 <script is:inline>
   const el = (id) => document.getElementById(id);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    el("close-tutor-detail")?.addEventListener("click", () => {
+      el("tutor-detail-section").hidden = true;
+    });
+
+    // Permitir cerrar haciendo click en el fondo (overlay)
+    el("tutor-detail-section")?.addEventListener("click", (e) => {
+      if (e.target.id === "tutor-detail-section") {
+        el("tutor-detail-section").hidden = true;
+      }
+    });
+  });
 
   async function loadTutor(id) {
     try {
@@ -39,22 +93,32 @@
 
       const slotsHTML = availableSlots
         .map(slot =>
-          `<li>${slot.dayOfWeek} - ${slot.startTime} a ${slot.endTime} (${slot.modality})</li>`
+          `<li>
+            <span class="slot-day">${slot.dayOfWeek}</span>
+            <span class="slot-time">${slot.startTime} – ${slot.endTime}</span>
+            <span class="slot-modality">${slot.modality}</span>
+          </li>`
         )
         .join("");
 
       el("tutor-name").textContent = tutor.name;
       el("tutor-subjects").textContent = subjects;
       el("tutor-rating").textContent =
-        `${tutor.averageRating} (${tutor.totalRatings} valoraciones)`;
+        `${tutor.averageRating} ★ (${tutor.totalRatings} valoraciones)`;
       el("tutor-modalities").textContent =
         tutor.availableModalities?.join(", ") ?? "N/A";
 
-      el("tutor-slots").innerHTML = slotsHTML;
+      el("tutor-slots").innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
 
       el("tutor-empty-msg").hidden = true;
       el("tutor-content").hidden = false;
       el("tutor-detail-section").hidden = false;
+
+      // Trigger entrance animation
+      const card = el("tutor-info");
+      card.classList.remove("card-enter");
+      void card.offsetWidth; /* reflow */
+      card.classList.add("card-enter");
 
     } catch (error) {
       console.error("Error cargando tutor:", error);
@@ -62,67 +126,280 @@
   }
 </script>
 
-<style>
+<style is:global>
+  /* ───────── Modal / Overlay ───────── */
+
+  .tutor-content {
+    display:flex;
+    flex-direction: row;
+    gap: 20px;
+  }
   .tutor-detail-section {
-    flex: 1.5;
-    min-width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .tutor-detail-section[hidden] {
+    display: none !important;
   }
 
   .tutor-detail-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-negrops-700);
-    margin: 0 0 0.75rem;
+    display: none;
   }
 
-  .tutor-detail-placeholder {
-    background: var(--color-color-white);
-    border: 1px solid var(--color-negrops-100);
-    border-radius: 8px;
-    padding: 1.5rem;
-    min-height: 200px;
+  /* ───────── Card ───────── */
+  .tutor-detail-card {
+    position: relative;
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: rgba(245, 241, 255, 0.85);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(159, 116, 255, 0.18);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
   }
 
+  .tutor-detail-card::-webkit-scrollbar {
+    width: 6px;
+  }
+  .tutor-detail-card::-webkit-scrollbar-thumb {
+    background: rgba(159, 116, 255, 0.4);
+    border-radius: 4px;
+  }
+
+  /* ───────── Close Button ───────── */
+  .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    color: var(--color-negrops-400, #818181);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+  }
+  .close-btn:hover {
+    background: rgba(159, 116, 255, 0.15);
+    color: var(--color-negrops-900, #1a1a1a);
+  }
+
+  /* Entrance animation */
+  .tutor-detail-card.card-enter {
+    animation: cardSlideIn 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  @keyframes cardSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* ───────── Empty state ───────── */
   .tutor-detail-empty {
-    color: var(--color-negrops-400);
+    font-family: 'Open Sauce Two', sans-serif;
+    color: var(--color-negrops-400, #818181);
     font-size: 0.95rem;
+    text-align: center;
+    padding: 3rem 0;
     margin: 0;
   }
 
-  .tutor-detail-placeholder :global(h3) {
-    font-size: 1.25rem;
+  /* ───────── Header ───────── */
+  .tutor-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(159, 116, 255, 0.15);
+  }
+
+  .tutor-detail-card h3 {
+    font-family: 'Open Sauce Two', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-negrops-900, #1a1a1a);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  /* ───────── Info Grid ───────── */
+  .tutor-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.65);
+    border-radius: 12px;
+    border: 1px solid rgba(159, 116, 255, 0.10);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .info-item:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(159, 116, 255, 0.25);
+  }
+
+  .info-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Open Sauce Two', sans-serif;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--color-negrops-700);
-    margin: 0 0 1rem;
+    color: var(--color-moradops-400, #9f74ff);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
-  .tutor-detail-placeholder :global(p) {
-    margin: 0.25rem 0;
+  .info-label svg {
+    flex-shrink: 0;
+    color: var(--color-moradops-400, #9f74ff);
+  }
+
+  .info-value {
+    font-family: 'Open Sauce Two', sans-serif;
     font-size: 0.95rem;
-    color: var(--color-negrops-600);
+    color: var(--color-negrops-700, #3c3c3c);
+    line-height: 1.4;
   }
 
-  .tutor-detail-placeholder :global(h4) {
+  .rating-value {
+    color: var(--color-moradops-500, #8751ff);
+    font-weight: 600;
+  }
+
+  /* ───────── Availability Section ───────── */
+  .availability-section {
+    border-top: 1px solid rgba(159, 116, 255, 0.12);
+    padding-top: 1.25rem;
+  }
+
+  .availability-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Open Sauce Two', sans-serif;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--color-negrops-700);
-    margin: 1.25rem 0 0.5rem;
+    color: var(--color-negrops-700, #3c3c3c);
+    margin: 0 0 0.75rem;
   }
 
-  .tutor-detail-placeholder :global(ul) {
+  .availability-title svg {
+    color: var(--color-moradops-400, #9f74ff);
+  }
+
+  .tutor-detail-card ul {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0.5rem;
   }
 
-  .tutor-detail-placeholder :global(li) {
-    padding: 0.5rem 0.75rem;
-    background: var(--color-moradops-50);
-    border-radius: 6px;
+  .tutor-detail-card li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(159, 116, 255, 0.10);
+    border-radius: 12px;
+    font-family: 'Open Sauce Two', sans-serif;
     font-size: 0.9rem;
-    color: var(--color-negrops-600);
+    color: var(--color-negrops-600, #3c3c3c);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  }
+
+  .tutor-detail-card li:hover {
+    background: var(--color-moradops-50, #f3edff);
+    border-color: rgba(159, 116, 255, 0.25);
+    transform: translateX(4px);
+  }
+
+  .tutor-detail-card .slot-day {
+    display: inline-block;
+    min-width: 75px;
+    padding: 0.2rem 0.6rem;
+    background: var(--color-moradops-400, #9f74ff);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .tutor-detail-card .slot-time {
+    flex: 1;
+    font-size: 0.88rem;
+    color: var(--color-negrops-700, #3c3c3c);
+  }
+
+  .tutor-detail-card .slot-modality {
+    padding: 0.2rem 0.55rem;
+    background: rgba(159, 116, 255, 0.12);
+    color: var(--color-moradops-500, #8751ff);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .tutor-detail-card .no-slots {
+    justify-content: center;
+    color: var(--color-negrops-400, #818181);
+    font-style: italic;
+    background: transparent;
+    border: 1px dashed rgba(159, 116, 255, 0.2);
+  }
+
+  .tutor-detail-card .no-slots:hover {
+    transform: none;
+  }
+
+  /* ───────── Responsive ───────── */
+  @media (max-width: 768px) {
+    .tutor-detail-card {
+      padding: 1.5rem;
+    }
+
+    .tutor-info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tutor-detail-card li {
+      flex-wrap: wrap;
+    }
   }
 </style>

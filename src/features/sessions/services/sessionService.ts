@@ -2,6 +2,18 @@ import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery } f
 
 const API_URL = import.meta.env.PUBLIC_API_URL;
 
+async function handleResponse<T>(res: Response): Promise<T> {
+  if (res.status === 401) {
+    throw new Error('UNAUTHORIZED'); // ← distinguible en el hook
+  }
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message ?? `Error ${res.status}`);
+  }
+  return res.json();
+}
+
+
 function getAuthHeaders(): HeadersInit {
     const token = document.cookie
     .split('; ')

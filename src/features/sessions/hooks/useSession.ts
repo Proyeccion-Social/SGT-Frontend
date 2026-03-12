@@ -22,15 +22,15 @@ export function useSession(): UseSessionReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const user = useAuthStore(state => state.user); // ← aprovecha lo que ya existe
-  const { _hasHydrated } = useAuthStore();
+  const user = useAuthStore(state => state.user);
+  const _hasHydrated = useAuthStore(state => state._hasHydrated);
 
-  // Solo fetches cuando el store ya hidró
   useEffect(() => {
     if (_hasHydrated && user?.id) {
       fetchMySessions();
     }
-  }, [_hasHydrated]);
+  }, [_hasHydrated, user?.id]);
+
 
   const fetchMySessions = useCallback(async () => {
     setLoading(true);
@@ -39,11 +39,16 @@ export function useSession(): UseSessionReturn {
       const data = await getMySessions();
       setSessions(data);
     } catch (e: any) {
-      setError(e.message);
+      if (e.message === 'UNAUTHORIZED') {
+        useAuthStore.getState().clearUser();
+      } else {
+        setError(e.message);
+      }
     } finally {
       setLoading(false);
     }
   }, []);
+
 
   const agendar = useCallback(
     async (data: CreateSessionDTO, modalidadesPermitidas: Modality[]): Promise<boolean> => {

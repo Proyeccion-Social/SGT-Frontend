@@ -8,6 +8,6 @@ export async function getTutorProfile(id: string) {
     if (!response.ok) {
         throw new Error('Failed to fetch tutor profile');
     }
-
+    console.log("Response from getTutorProfile:", await response.clone().json());
     return response.json();
 }

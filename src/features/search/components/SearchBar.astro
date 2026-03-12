@@ -1,160 +1,143 @@
-
 ---
-interface Subject {
-  id: string;
-  name: string;
-}
-
-
-const url = new URL("/api/search", Astro.url);
-const subjectsUrl = new URL("/api/search/subjects", Astro.url);
-const subjectsRes = await fetch(subjectsUrl);
-const subjectsData = await subjectsRes.json();
-const subjects = subjectsData.data ?? [];
-
 import searchIcon from "@/features/search/assets/search.png";
+import filter from "@/features/search/assets/filter.png";
+import arrow from "@/features/search/assets/arrow.png";
 ---
- <section class="title-section" id="title-section">
-  <h1 class="page-title">¡Los mejores de la facultad!</h1>
+
+<section class="title-section" id="title-section">
+  <h1 class="page-title">¡Los<span class="highlight">mejores</span> de la facultad!</h1>
+  <img src={arrow.src} class="arrow"/>
+  <p class="arrow-text">Tutores</p>
+  <div class="bg-difumination"> </div>
 </section>
+
 <section class="search-bar">
   <div class="search-bar-row">
-    <input
-      type="text"
-      id="name-filter"
-      class="search-input"
-      placeholder="Buscar por nombre del tutor"
-    />
-    <button id="search-btn" class="search-button" type="button" ><img src={searchIcon.src} alt="Buscar" /></button>
-
-    <select id="subject-filter" class="search-select">
-      <option value="">Todas las materias</option>
-      {subjects.map((subject) => (
-        <option value={subject.id}>{subject.name}</option>
-      ))}
-    </select>
-
-  </div>
-
-  <div class="search-modalities">
-    <label class="modality-label">
-      <input type="checkbox" name="modalities" value="VIRT" checked />
-      Online
-    </label>
-    <label class="modality-label">
-      <input type="checkbox" name="modalities" value="PRES" checked />
-      Presencial
-    </label>
+    <div class="search-input-container">  
+      <input
+        type="text"
+        id="name-filter"
+        class="search-input"
+        placeholder="Buscar por nombre del tutor"
+      />
+      <button id="search-btn" class="search-button" type="button">
+        <img src={searchIcon.src} alt="Buscar" />
+      </button>
+      <button id="filter-btn" class="filter-button" type="button">
+        <img src={filter.src} alt="Filtrar" />
+      </button>
+    </div>
   </div>
 </section>
 
-
 <script is:inline>
-
-
-  document.getElementById("search-btn")
-    ?.addEventListener("click", () => {
+  document.getElementById("search-btn")?.addEventListener("click", () => {
     applyFilters();
     document.getElementById("title-section")?.classList.add("hide");
   });
-    
-
-
-    
 
   async function applyFilters() {
     const checked = Array.from(
-      document.querySelectorAll('input[name="modalities"]:checked')
-    ).map(el => el.value);
+      document.querySelectorAll('input[name="modalities"]:checked'),
+    ).map((el) => el.value);
 
-    const nameQuery = document.getElementById("name-filter").value.trim().toLowerCase();
+    const nameQuery = document
+      .getElementById("name-filter")
+      .value.trim()
+      .toLowerCase();
+
     const subjectId = document.getElementById("subject-filter").value;
 
-    let tutors;
+    let tutors = [];
+
+    /* ---------------- FETCH TUTORES ---------------- */
 
     if (subjectId) {
-      const res = await fetch(`/api/search/tutors/subject?subjectId=${encodeURIComponent(subjectId)}`);
+      const res = await fetch(
+        `/api/search/tutors/subject?subjectId=${encodeURIComponent(subjectId)}`,
+      );
+
       const data = await res.json();
       tutors = data.data ?? [];
     } else {
-      let url = "/api/search";
-      if (checked.length === 1) url += `?modality=${encodeURIComponent(checked[0])}`;
-      const res = await fetch(url);
-      tutors = await res.json();
+      const res = await fetch("/api/search");
+
+      const data = await res.json();
+      tutors = data.data ?? data ?? [];
     }
 
-    if (checked.length === 1) {
-      tutors = tutors.filter(t => (t.modality || []).includes(checked[0]));
+    /* ---------------- FILTRO MODALIDAD ---------------- */
+
+    if (checked.length > 0) {
+      tutors = tutors.filter((t) => {
+        const modalities = t.modality || t.modalities || [];
+        return checked.some((m) => modalities.includes(m));
+      });
     }
 
-      /*if (checked.length === 0) {
-    document.getElementById("tutor-list").innerHTML = "";
-    return;
-  } */
+    /* ---------------- FILTRO NOMBRE ---------------- */
 
     if (nameQuery) {
-      tutors = tutors.filter(t => {
+      tutors = tutors.filter((t) => {
         const name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
         return name.includes(nameQuery);
       });
     }
 
-    document.dispatchEvent(new CustomEvent("tutors-updated", { detail: tutors }));
+    /* ---------------- TRAER PERFIL COMPLETO ---------------- */
+
+    const profilePromises = tutors.map((t) => {
+      const id = t.tutorId || t.id;
+
+      return fetch(`/api/search/${encodeURIComponent(id)}`)
+        .then((res) => (res.ok ? res.json() : t))
+        .catch(() => t);
+    });
+
+    const enrichedTutors = await Promise.all(profilePromises);
+
+    console.log("Enriched tutors:", enrichedTutors);
+
+    document.dispatchEvent(
+      new CustomEvent("tutors-updated", { detail: enrichedTutors }),
+    );
   }
 </script>
 
 <style>
+  .title-section {
+    margin-top: 220px;
+    margin-bottom: 70px;
+    display: flex;
+    justify-content: center;
+    opacity: 1;
+    transition:
+      margin-top 0.4s ease,
+      margin-bottom 0.4s ease,
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
 
-
-/* Estado normal */
-.title-section {
-  margin-top: 280px;
-  margin-bottom: 100px;
-  opacity: 1;
-
-  /* Animamos espacio + opacidad */
-  transition:
-    margin-top 0.4s ease,
-    margin-bottom 0.4s ease,
-    opacity 0.3s ease,
-    transform 0.3s ease;
-}
-
-/* Cuando desaparece */
-.title-section.hide {
-  margin-top: 0;
-  margin-bottom: 0;
-  opacity: 0;
-  transform: translateY(-10px);
-
-  /* Evita que interfiera con clicks mientras se oculta */
-  pointer-events: none;
-}
+  .title-section.hide {
+    margin-top: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+  }
 
   .page-title {
     text-align: center;
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--color-negrops-900);
-
-    /* ¡Los mejores de la facultad */
-
-
-font-family: 'Open Sauce Two';
-font-style: normal;
-font-weight: 500;
-font-size: 52px;
-line-height: 32px;
-/* identical to box height, or 62% */
-letter-spacing: -0.02em;
-
-color: #1A1A1A;
-
-
+    font-family: "Open Sauce Two";
+    font-size: 52px;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
   }
+
   .search-bar {
     display: flex;
     flex-direction: row;
+    justify-content: center;
     gap: 0.75rem;
   }
 
@@ -165,125 +148,109 @@ color: #1A1A1A;
   }
 
   .search-input {
-    /* Frame 1935 */
     padding-left: 20px;
-
-box-sizing: border-box;
-
-width: 723px;
-height: 60px;
-left: 396px;
-top: 325px;
-
-background: rgba(245, 241, 255, 0.77);
-border: 0.4px solid #A3A3A3;
-border-radius: 8px;
-
+    box-sizing: border-box;
+    width: 723px;
+    height: 72px;
+    background: rgba(245, 241, 255, 0.77);
+    box-shadow: 0px 4px 9px 2px rgba(135, 81, 255, 0.2);
+    border-radius: 40px;
   }
 
-  .search-input::placeholder {
-    color: var(--color-negrops-300);
-  }
-
-  .search-input:focus {
-    border-color: var(--color-moradops-400);
-  }
-
-  .search-select {
-    padding: 0.625rem 0.875rem;
-    border: 1px solid var(--color-negrops-200);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: var(--color-negrops-700);
-    background: var(--color-color-white);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.15s;
-
-            display: flex;
-flex-direction: row;
-align-items: center;
-padding: 10px;
-gap: 10px;
-
-width: 200px;
-height: 60px;
-left: 1410px;
-top: 325px;
-
-background: #58d68d;
-border-radius: 8px;
-  }
-
-  .search-select:focus {
-    border-color: var(--color-moradops-400);
-  }
-
-  .search-modalities {
-        display: flex;
-flex-direction: row;
-align-items: center;
-padding: 10px;
-gap: 10px;
-
-width: 200px;
-height: 60px;
-left: 1210px;
-top: 325px;
-
-background: #58d68d ;
-border-radius: 8px;
-  }
-
-  .modality-label {
+  .search-input-container {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    font-size: 0.9rem;
-    color: var(--color-negrops-600);
-    cursor: pointer;
   }
 
-  .modality-label input[type="checkbox"] {
-    accent-color: var(--color-moradops-500);
-  }
+
 
   .search-button {
-    /* Frame 1936 */
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    left: 660px;
+    padding: 12px;
+    background: #9f74ff;
+    border-radius: 50%;
+    border: none;
+  }
 
-/* Auto layout */
-display: flex;
-flex-direction: row;
-align-items: center;
-padding: 10px;
-gap: 10px;
+  .filter-button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px;
+    gap: 10px;
 
-width: 60px;
-height: 60px;
-left: 1135px;
-top: 325px;
+    position: absolute;
+    width: 28px;
+    left: 620px;
 
-background: #9F74FF;
-border-radius: 8px;
-border-color: transparent;
+    background: #e8e8e8;
+    border-radius: 8px;
+    border-color: transparent;
+  }
+
+  .arrow {
+    /* Tutores */
+
+position: absolute;
+width: 75px;
+
+left: 670px;
+top: 205px;
+
+color: #E8E8E8;
+
+
+  }
+
+  .arrow-text {
+    /* Tutores */
+
+position: absolute;
+width: 80px;
+
+left: 745px;
+top: 180px;
+
+font-family: 'Caveat';
+
+font-size: 32px;
+
+
+color: #E8E8E8;
+
+  }
+
+  .highlight {
+    color: #9f74ff;
+    font-family: 'Caveat';  
+    font-size: 70px;
+    padding: 0 10px;
+  }
+
+  .bg-difumination {
+/* Rectangle 10 */
+
+position: absolute;
+z-index: -1;
+left: 15%;
+right: 10%;
+top: 25%;
+bottom: 10.63%;
+
+background: radial-gradient(50% 50% at 50% 50%, #CFB9FF 0%, rgba(243, 237, 255, 0) 63%);
+
+
 
   }
 
   .search-button:hover {
     background: var(--color-moradops-600);
-  }
-
-  .search-button:focus-visible {
-    outline: 2px solid var(--color-moradops-500);
-    outline-offset: 2px;
-  }
-
-  .search-button:focus:not(:focus-visible) {
-    outline: 2px solid var(--color-moradops-500);
-    background: #9F74FF;
-  }
-
-  .search-button:active {
-    background: #9F74FF;
   }
 </style>

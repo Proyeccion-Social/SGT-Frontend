@@ -30,7 +30,7 @@ export async function getTutorsBySubject(
     if (filters.modality) params.append("modality", filters.modality);
     if (filters.onlyAvailable !== undefined) params.append("onlyAvailable", String(filters.onlyAvailable));
 
-    const url = `${API_URL}/availability/tutors/subject?${params.toString()}`;
+    const url = `${API_URL}/availability/tutors/subject?${params.toString()}&onlyAvailable=true`;
 
     const response = await fetch(url, {
         method: "GET",
@@ -45,6 +45,6 @@ export async function getTutorsBySubject(
         }));
         throw { status: response.status, ...errorBody };
     }
-
+    console.log("Response from getTutorsBySubject:", await response.clone().json());
     return response.json();
 }

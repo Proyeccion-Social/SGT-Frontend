@@ -3,6 +3,7 @@ export const prerender = false;
 
 import Layout from "../../layouts/Layout.astro";
 import SearchBar from "../../features/search/components/SearchBar.astro";
+import DialogFilter from "../../features/search/components/DialogFilter.astro";
 import TutorList from "../../features/search/components/TutorList.astro";
 import TutorDetail from "../../features/search/components/TutorDetail.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
@@ -17,7 +18,7 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 
     <div class="search-page">
       <SearchBar />
-
+      <DialogFilter />
       
         <TutorList />
         <TutorDetail />
@@ -38,6 +39,7 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
     display: flex;
     flex-direction: column;
     padding: 2rem 1.5rem;
+    overflow-y: scroll
 
   }
 

@@ -4,26 +4,183 @@ interface Tutor {
   tutorName?: string;
   name?: string;
 }
+
+import calendar from "@/features/search/assets/calendar.png";
 ---
 
 <section id="tutor-list-section" class="tutor-list-section" hidden>
-  <h2 class="tutor-list-title">Resultados</h2>
+  <h2 class="tutor-list-title">Nuestros Tutores</h2>
   <ul id="tutor-list" class="tutor-list"></ul>
 
   <template id="tutor-item-template">
     <li class="tutor-list-item">
-      <button class="tutor-list-button" data-tutor-id=""></button>
+      <div class="tutor-list-div">
+        <img class="tutor-photo" src="" alt="" />
+        <div class="tutor-info">
+          <span class="tutor-name"></span>
+        <div class="tutor-subjects"></div>
+        </div>
+        <button data-tutor-id="" class="view-profile-btn" type="button">
+          <img src={calendar.src} alt="Ver perfil" class="btn-ver-perfil" />
+        </button>
+      </div>
     </li>
   </template>
 </section>
 
+<style>
+  .tutor-list-section {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tutor-list-title {
+
+    color: var(--color-negrops-700);
+    padding-left: 200px;
+    padding-top: 60px;
+
+  
+
+font-family: 'Open Sauce Two';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 24px;
+/* identical to box height, or 120% */
+letter-spacing: -0.02em;
+
+color: #3C3C3C;
+
+
+  }
+
+  .tutor-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    padding: 25px 200px;
+  }
+
+  .tutor-list-item {
+    margin: 0;
+  }
+
+  .tutor-list-div {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    background: none;
+    border: 1px solid var(--color-negrops-200);
+    border-radius: 16px;
+    cursor: pointer;
+
+    width: 300px;
+    height: 300px;
+
+  
+  }
+
+  .tutor-list-div:hover {
+    background: var(--color-moradops-50);
+    border-color: var(--color-moradops-300);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .tutor-list-div:focus-visible {
+    outline: 2px solid var(--color-moradops-500);
+    outline-offset: 2px;
+  }
+
+  .tutor-info {
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    border-radius: 16px;
+    gap: 0.25rem;
+    width:100%;
+    height: auto;
+    min-height: 80px;
+    padding-bottom: 15px;
+    padding-top:15px;
+    background: rgba(255, 252, 237, 0.5);
+    backdrop-filter: blur(24.5px);
+/* Note: backdrop-filter has minimal browser support */
+
+}
+
+  .tutor-photo {
+    position: absolute;
+    z-index: -1;
+    width: 300px;
+    height: 300px;
+    border-radius: 16px;
+    object-fit: cover;
+    background: var(--color-negrops-100);
+  }
+
+  .tutor-name {
+    padding-left: 15px;
+    font-style: bold;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-negrops-900);
+  }
+
+  .tutor-subjects {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: left;
+    justify-content: left;
+    gap: 0.3rem;
+    padding-left: 15px;
+    width: 240px;
+  }
+
+:global(.subject-tag) {
+  font-size: 8px;
+  background-color: #a074ffa8;;
+  border-color: transparent;
+  backdrop-filter: blur(24px);
+  border-radius: 16px;
+  padding: 0.2rem 0.5rem;
+}
+
+.view-profile-btn{
+  width: 40px;
+  height: 40px;
+  padding: 6px;
+  position: absolute;
+  top: 240px;
+  right: 20px;  
+
+
+background: #F3EDFF;
+border-radius: 8px;
+border-color: transparent;
+
+}
+
+.view-profile-btn:focus {
+    outline: none;
+}
+
+</style>
 
 <script is:inline>
-  document.getElementById("tutor-list")
-    ?.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-tutor-id]");
-      if (btn) loadTutor(btn.dataset.tutorId);
-    });
+  document.getElementById("tutor-list")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-tutor-id]");
+    if (btn) loadTutor(btn.dataset.tutorId);
+  });
 
   document.addEventListener("tutors-updated", (e) => {
     const tutors = e.detail;
@@ -33,66 +190,30 @@ interface Tutor {
     if (!list || !template || !section) return;
 
     list.innerHTML = "";
-    tutors.forEach(tutor => {
+    tutors.forEach((tutor) => {
       const clone = template.content.cloneNode(true);
-      const btn = clone.querySelector(".tutor-list-button");
+      const card = clone.querySelector(".tutor-list-div");
+      const btn = clone.querySelector(".view-profile-btn");
       btn.dataset.tutorId = tutor.tutorId || tutor.id;
-      btn.textContent = tutor.tutorName || tutor.name || tutor.fullName || "Tutor";
+
+      const img = clone.querySelector(".tutor-photo");
+      img.src = /*tutor.photo||*/ "https://media.istockphoto.com/id/825383494/photo/business-man-pushing-large-stone-up-to-hill-business-heavy-tasks-and-problems-concept.jpg?s=612x612&w=0&k=20&c=wtqvbQ6OIHitRVDPTtoT_1HKUAOgyqa7YzzTMXqGRaQ=";
+      img.alt = tutor.name || "Tutor";
+
+      clone.querySelector(".tutor-name").textContent =
+        tutor.tutorName || tutor.name || tutor.fullName || "Tutor";
+
+      const subjectsContainer = clone.querySelector(".tutor-subjects");
+      (tutor.subjects || []).forEach((sub) => {
+        const tag = document.createElement("span");
+        tag.className = "subject-tag";
+        tag.textContent = sub.name || sub;
+        subjectsContainer.appendChild(tag);
+      });
+
       list.appendChild(clone);
     });
 
     section.hidden = false;
   });
 </script>
-
-<style>
-  .tutor-list-section {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .tutor-list-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-negrops-700);
-    margin: 0 0 0.75rem;
-  }
-
-  .tutor-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .tutor-list-item {
-    margin: 0;
-  }
-
-  .tutor-list-button {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    text-align: left;
-    background: var(--color-color-white);
-    border: 1px solid red;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: var(--color-negrops-700);
-    transition: background 0.15s, border-color 0.15s;
-  }
-
-  .tutor-list-button:hover {
-    background: var(--color-moradops-50);
-    border-color: var(--color-moradops-300);
-  }
-
-  .tutor-list-button:focus-visible {
-    outline: 2px solid var(--color-moradops-500);
-    outline-offset: 2px;
-  }
-</style>
-

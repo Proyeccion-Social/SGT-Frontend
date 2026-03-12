@@ -4,7 +4,7 @@ const API_URL = import.meta.env.API_URL;
 // GET /api/v1/subjects (público)
 export async function getAllSubjects() {
     const response = await fetch(`${API_URL}/subjects`);
-
+    
     if (!response.ok) {
         const errorBody = await response.json().catch(() => ({
             message: "Error al obtener las materias",

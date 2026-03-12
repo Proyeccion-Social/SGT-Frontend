@@ -20,6 +20,6 @@ export async function getAllTutors(filters?: {
     if (!response.ok) {
         throw new Error('Failed to fetch tutors');
     }
-
+    console.log("Response from getAllTutors:", await response.clone().json());
     return response.json();
 }

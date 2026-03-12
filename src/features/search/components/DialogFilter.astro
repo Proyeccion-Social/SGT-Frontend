@@ -1,0 +1,252 @@
+---
+interface Subject {
+  id: string;
+  name: string;
+}
+
+const subjectsUrl = new URL("/api/search/subjects", Astro.url);
+const subjectsRes = await fetch(subjectsUrl);
+const subjectsData = await subjectsRes.json();
+const subjects: Subject[] = subjectsData.data ?? [];
+---
+
+<dialog id="filterDialog" class="filter-dialog">
+  <div class="filter-dialog-content">
+    <div class="filter-dialog-header">
+      <h2 class="filter-dialog-title">Filtros</h2>
+      <button class="filter-dialog-close" id="filter-dialog-close" aria-label="Cerrar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-group-label">Materia</label>
+      <select id="subject-filter" class="filter-select">
+        <option value="">Todas las materias</option>
+        {subjects.map((subject) => (
+          <option value={subject.id}>{subject.name}</option>
+        ))}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-group-label">Modalidad</label>
+      <div class="filter-modalities">
+        <label class="modality-option">
+          <input type="checkbox" name="modalities" value="VIRT" checked />
+          <span class="modality-text">Virtual</span>
+        </label>
+        <label class="modality-option">
+          <input type="checkbox" name="modalities" value="PRES" checked />
+          <span class="modality-text">Presencial</span>
+        </label>
+      </div>
+    </div>
+
+    <button id="apply-filters-btn" class="apply-filters-btn" type="button">
+      Aplicar filtros
+    </button>
+  </div>
+</dialog>
+
+<script is:inline>
+  const filterDialog = document.getElementById("filterDialog");
+  const filterBtn = document.getElementById("filter-btn");
+  const closeBtn = document.getElementById("filter-dialog-close");
+  const applyBtn = document.getElementById("apply-filters-btn");
+
+  filterBtn?.addEventListener("click", () => {
+    filterDialog?.showModal();
+  });
+
+  closeBtn?.addEventListener("click", () => {
+    filterDialog?.close();
+  });
+
+  applyBtn?.addEventListener("click", () => {
+    filterDialog?.close();
+    document.getElementById("search-btn")?.click();
+  });
+
+  filterDialog?.addEventListener("click", (e) => {
+    if (e.target === filterDialog) {
+      filterDialog.close();
+    }
+  });
+</script>
+
+<style>
+  .filter-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: auto;
+    max-width: 100vw;
+    max-height: 100dvh;
+    width: 100vw;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-out, visibility 0.2s ease-out;
+  }
+
+  .filter-dialog[open] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .filter-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .filter-dialog-content {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 8px 32px rgba(135, 81, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+    transition:
+      transform 0.25s cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 0.2s ease-out;
+  }
+
+  .filter-dialog[open] .filter-dialog-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  .filter-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .filter-dialog-title {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-negrops-700, #1a1a1a);
+    margin: 0;
+  }
+
+  .filter-dialog-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-negrops-400, #818181);
+    padding: 4px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .filter-dialog-close:hover {
+    color: var(--color-negrops-700, #1a1a1a);
+    background: var(--color-negrops-100, #e8e8e8);
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-group-label {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-negrops-600, #3c3c3c);
+  }
+
+  .filter-select {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border: 2px solid var(--color-negrops-100, #e8e8e8);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-family: "Open Sauce Two", sans-serif;
+    color: var(--color-negrops-700, #1a1a1a);
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%23818181'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+  }
+
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--color-moradops-400, #9f74ff);
+  }
+
+  .filter-modalities {
+    display: flex;
+    gap: 16px;
+  }
+
+  .modality-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 16px;
+    border: 2px solid var(--color-negrops-100, #e8e8e8);
+    border-radius: 12px;
+    flex: 1;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .modality-option:has(input:checked) {
+    border-color: var(--color-moradops-400, #9f74ff);
+    background: var(--color-moradops-50, #f3edff);
+  }
+
+  .modality-option input[type="checkbox"] {
+    accent-color: var(--color-moradops-400, #9f74ff);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  .modality-text {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 0.9rem;
+    color: var(--color-negrops-600, #3c3c3c);
+  }
+
+  .apply-filters-btn {
+    width: 100%;
+    height: 48px;
+    background: var(--color-moradops-400, #9f74ff);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .apply-filters-btn:hover {
+    background: var(--color-moradops-600, #6c41cc);
+  }
+</style>

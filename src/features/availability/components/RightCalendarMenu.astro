@@ -9,42 +9,92 @@ import UserHeader from "@/features/general/components/UserHeader.astro";
 interface Props {
   slots: Slot[];
   baseDate: Date;
+  offset: number;
+  prevOffset: number;
+  nextOffset: number;
 }
 
-const { slots, baseDate } = Astro.props;
+const { slots, baseDate, offset, prevOffset, nextOffset } = Astro.props;
 
-// Helper to get formatted month name
+// Ayuda para obtener el nombre del mes formateado
 const monthName = baseDate.toLocaleString('es-ES', { month: 'long' });
 const year = baseDate.getFullYear();
 
-// Simple mini-calendar logic (just for visual representation logic)
+// Calcular el rango de la semana actual (Lunes a Sábado) para el resaltado
+const currentDay = baseDate.getDay() === 0 ? 6 : baseDate.getDay();
+const monday = new Date(baseDate);
+monday.setDate(baseDate.getDate() - (currentDay - 1));
+const saturday = new Date(monday);
+saturday.setDate(monday.getDate() + 5);
+
+const mondayDate = monday.getDate();
+const saturdayDate = saturday.getDate();
+
+// Lógica del mini-calendario
 const firstDayOfMonth = new Date(year, baseDate.getMonth(), 1);
 const lastDayOfMonth = new Date(year, baseDate.getMonth() + 1, 0);
+const daysInMonth = lastDayOfMonth.getDate();
+const startDayOfWeek = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1; // 0 para el Lunes
 
-// Group slots by day for the bottom list
+// Generar días para la cuadrícula
+const days = [];
+for (let i = 0; i < startDayOfWeek; i++) {
+  days.push({ day: null });
+}
+
+// Coincidencia de semana robusta: un día está en la "semana seleccionada" si su fecha cae entre nuestro lunes y sábado calculados
+const startOfSelectedWeek = new Date(monday);
+startOfSelectedWeek.setHours(0, 0, 0, 0);
+const endOfSelectedWeek = new Date(saturday);
+endOfSelectedWeek.setHours(23, 59, 59, 999);
+
+for (let i = 1; i <= daysInMonth; i++) {
+  const date = new Date(year, baseDate.getMonth(), i);
+  const isSelected = date >= startOfSelectedWeek && date <= endOfSelectedWeek;
+  days.push({ day: i, isSelected, date });
+}
+
+// Agrupar slots por día para la lista inferior
 const slotsByDay = DAYS.map(day => {
+  // 1. Encontrar la fecha exacta de este día para la semana actual
+  // Si el día es Lunes (índice 0 en tu array DAYS), le sumamos 0 días al lunes de esta semana
+  const dayIndex = DAYS.indexOf(day);
+  const actualDate = new Date(monday);
+  actualDate.setDate(monday.getDate() + dayIndex);
+
+  // 2. Formatear la fecha (ej: "15 de Marzo")
+  const dateString = actualDate.toLocaleDateString('es-ES', { 
+    day: 'numeric', 
+    month: 'short' 
+  });
+
+  // 3. Filtrar los slots que pertenecen a este día de la semana
   const daySlots = slots.filter(s => s.dayOfWeek === day.key && !s.isBooked);
+
   return {
     ...day,
-    slots: daySlots,
-    totalHours: daySlots.length // Assuming 1 hour slots for now, or just showing count
+    dateLabel: dateString,
+    slots: daySlots.sort((a, b) => a.startTime.localeCompare(b.startTime)),
+    totalHours: daySlots.length
   };
 }).filter(d => d.slots.length > 0);
 ---
 
 <div class="right-menu-inner">
   <div class="user-profile">
-    <div class="profile-icons">
-       <UserHeader userRole="tutor" />
-    </div>
+    <UserHeader userRole="tutor" />
   </div>
 
   <div class="mini-calendar">
     <div class="calendar-header">
       <h4>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}</h4>
       <div class="calendar-nav">
-        <button class="cal-nav-btn"><Image src={BackArrowIcon} alt="Back" /></button>
-        <button class="cal-nav-btn"><Image src={ForwardArrowIcon} alt="Forward" /></button>
+        <a href={`?offset=${prevOffset}&openMenu=true`} class="cal-nav-btn">
+          <Image src={BackArrowIcon} alt="Back" />
+        </a>
+        <a href={`?offset=${nextOffset}&openMenu=true`} class="cal-nav-btn">
+          <Image src={ForwardArrowIcon} alt="Forward" />
+        </a>
       </div>
     </div>
     
@@ -57,10 +107,14 @@ const slotsByDay = DAYS.map(day => {
       <div class="grid-header">Sa</div>
       <div class="grid-header">Do</div>
       
-      {Array.from({ length: 31 }).map((_, i) => (
-        <div class={`grid-day ${(i + 1) === baseDate.getDate() ? 'selected' : ''}`}>
-          {i + 1}
-        </div>
+      {days.map((item) => (
+        item.day ? (
+          <div class={`grid-day ${item.isSelected ? 'selected' : ''}`}>
+            {item.day}
+          </div>
+        ) : (
+          <div class="grid-day empty"></div>
+        )
       ))}
     </div>
   </div>
@@ -70,14 +124,16 @@ const slotsByDay = DAYS.map(day => {
       {slotsByDay.map(day => (
         <div class="day-slot-card">
           <div class="day-info">
-            <span class="day-name">{day.label}</span>
+            <div class="day-header-row">
+              <span class="day-name">{day.label}</span>
+              <span class="day-date">{day.dateLabel}</span> </div>
             <span class="day-stats">{day.totalHours} {day.totalHours === 1 ? 'hora' : 'horas'} en total</span>
           </div>
           <div class="slots-chips">
             {day.slots.map(slot => (
               <div class="slot-chip">
                 <span>{slot.startTime} - {slot.endTime}</span>
-                <button class="remove-slot">×</button>
+                <button class="remove-slot" data-id={slot.id}>×</button>
               </div>
             ))}
           </div>
@@ -96,28 +152,11 @@ const slotsByDay = DAYS.map(day => {
   }
 
   .user-profile {
+    padding-top: 20px;
+    padding-right: 0px;
     display: flex;
+    align-items: flex-end;
     justify-content: flex-end;
-  }
-
-  .profile-icons {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .dots-grid {
-    color: #cbd5e1;
-    font-size: 24px;
-    letter-spacing: 2px;
-  }
-
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: #f3f4f6;
-    object-fit: contain;
   }
 
   .mini-calendar {
@@ -148,13 +187,18 @@ const slotsByDay = DAYS.map(day => {
     border: none;
     cursor: pointer;
     color: #64748b;
-    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1010;
+    position: relative;
   }
 
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 4px;
     text-align: center;
   }
 
@@ -167,23 +211,36 @@ const slotsByDay = DAYS.map(day => {
 
   .grid-day {
     font-size: 0.85rem;
-    padding: 8px;
+    padding: 8px 4px;
     color: #64748b;
     border-radius: 8px;
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s;
   }
 
-  .grid-day:hover {
-    background: #f1f5f9;
+  .grid-day.selected {
+    background: #D8C7FF !important;
+    color: #9F74FF !important;
+    font-weight: 600;
+    border-radius: 0;
   }
 
-  .grid-day.selected {
-    background: #a78bfa;
-    color: white;
-    font-weight: 600;
-    box-shadow: 0 4px 10px rgba(167, 139, 250, 0.4);
+  .grid-day.selected:nth-child(7n + 1),
+  .grid-day.selected:first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
   }
+
+  .grid-day.selected:nth-child(7n + 6),
+  .grid-day.selected:last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+
+  .grid-day.selected:nth-child(7n+1) { border-radius: 20px 0 0 20px; }
+  .grid-day.selected:nth-child(7n+6) { border-radius: 0 20px 20px 0; }
+  
+  .grid-day.selected:nth-child(7n) { border-radius: 0 20px 20px 0; }
 
   .slots-list-container {
     flex: 1;
@@ -240,6 +297,8 @@ const slotsByDay = DAYS.map(day => {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    overflow-y: auto;
+    max-height: 100px;
   }
 
   .slot-chip {
@@ -267,9 +326,24 @@ const slotsByDay = DAYS.map(day => {
     font-size: 12px;
     cursor: pointer;
     opacity: 0.8;
+    transition: transform 0.2s ease;
   }
 
   .remove-slot:hover {
     opacity: 1;
+    transform: scale(1.2);
+    background: #dc2626;
+  }
+  .day-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .day-date {
+    font-size: 0.8rem;
+    color: #9F74FF; /* Color acento para la fecha */
+    font-weight: 500;
+    text-transform: capitalize;
   }
 </style>

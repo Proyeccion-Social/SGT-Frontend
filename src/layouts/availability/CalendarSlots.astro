@@ -43,8 +43,12 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
                     <div class="week-selector">
                         <h3>Tu Semana</h3>
                         <p>{weekRangeStr}</p>
-                        <a href={`?offset=${prevOffset}`} class="nav-button"><Image src={BackArrowIcon} alt="Back" /></a>
-                        <a href={`?offset=${nextOffset}`} class="nav-button"><Image src={ForwardArrowIcon} alt="Forward" /></a>
+                        <a href={`?offset=${prevOffset}&openMenu=true`} class="nav-button">
+                            <Image src={BackArrowIcon} alt="Back" />
+                        </a>
+                        <a href={`?offset=${nextOffset}&openMenu=true`} class="nav-button">
+                            <Image src={ForwardArrowIcon} alt="Forward" />
+                        </a>
                         <button class="mes-btn" id="right-menu-toggle">Mes <Image src={ArrowUpIcon} alt="Arrow Up" /></button>
                         <UserHeader userRole="tutor" />
                     </div>
@@ -58,7 +62,13 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
 
             <!-- Menu contextual -->
             <div id="right-menu">
-                <RightCalendarMenu slots={Slots} baseDate={today} />
+                <RightCalendarMenu 
+                    slots={Slots} 
+                    baseDate={today} 
+                    offset={weekOffset}
+                    prevOffset={prevOffset}
+                    nextOffset={nextOffset}
+                />
             </div>
         </main>
     </div>
@@ -224,12 +234,13 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
         display: none;
         opacity: 0;
         transition: opacity 0.3s ease;
-        pointer-events: auto;
+        pointer-events: none;
     }
 
     .overlay.active {
         display: block;
         opacity: 1;
+        pointer-events: auto;
     }
 
     .mes-btn {
@@ -249,31 +260,48 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    const setupMenu = () => {
         const toggleButton = document.getElementById('right-menu-toggle');
         const rightMenu = document.getElementById('right-menu');
         const overlay = document.getElementById('menu-overlay');
         const contentWrapper = document.querySelector('.content-wrapper');
 
-        if (toggleButton && rightMenu && overlay && contentWrapper) {
-            toggleButton.addEventListener('click', () => {
-                const isActive = rightMenu.classList.toggle('active');
-                overlay.classList.toggle('active');
-                contentWrapper.classList.toggle('no-scroll', isActive);
+        const openMenu = () => {
+            rightMenu?.classList.add('active');
+            overlay?.classList.add('active');
+            contentWrapper?.classList.add('no-scroll');
+            window.dispatchEvent(new CustomEvent('force-sidebar-expand'));
+        };
 
-                if (isActive) {
-                    window.dispatchEvent(new CustomEvent('force-sidebar-expand'));
-                } else {
-                    window.dispatchEvent(new CustomEvent('force-sidebar-collapse'));
-                }
+        const closeMenu = () => {
+            rightMenu?.classList.remove('active');
+            overlay?.classList.remove('active');
+            contentWrapper?.classList.remove('no-scroll');
+            window.dispatchEvent(new CustomEvent('force-sidebar-collapse'));
+        };
+
+        if (rightMenu && overlay) {
+            // 1. Persistencia: Si la URL dice openMenu=true, abrir inmediatamente
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('openMenu') === 'true') {
+                openMenu();
+            }
+
+            // 2. Click en botón Mes
+            toggleButton?.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openMenu();
             });
 
+            // 3. Click en overlay (única forma de cerrar)
             overlay.addEventListener('click', () => {
-                rightMenu.classList.remove('active');
-                overlay.classList.remove('active');
-                contentWrapper.classList.remove('no-scroll');
-                window.dispatchEvent(new CustomEvent('force-sidebar-collapse'));
+                closeMenu();
             });
         }
-    });
+    };
+
+    // Ejecutar en carga inicial y en navegaciones de Astro
+    document.addEventListener('DOMContentLoaded', setupMenu);
+    document.addEventListener('astro:page-load', setupMenu);
 </script>

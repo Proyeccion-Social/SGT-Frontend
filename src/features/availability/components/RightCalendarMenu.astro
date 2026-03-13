@@ -1,0 +1,275 @@
+---
+import { Image } from "astro:assets";
+import type { Slot } from "@/features/availability/services/availabilityService";
+import { DAYS } from "../utils/calendarConstants";
+import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
+import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+
+interface Props {
+  slots: Slot[];
+  baseDate: Date;
+}
+
+const { slots, baseDate } = Astro.props;
+
+// Helper to get formatted month name
+const monthName = baseDate.toLocaleString('es-ES', { month: 'long' });
+const year = baseDate.getFullYear();
+
+// Simple mini-calendar logic (just for visual representation logic)
+const firstDayOfMonth = new Date(year, baseDate.getMonth(), 1);
+const lastDayOfMonth = new Date(year, baseDate.getMonth() + 1, 0);
+
+// Group slots by day for the bottom list
+const slotsByDay = DAYS.map(day => {
+  const daySlots = slots.filter(s => s.dayOfWeek === day.key && !s.isBooked);
+  return {
+    ...day,
+    slots: daySlots,
+    totalHours: daySlots.length // Assuming 1 hour slots for now, or just showing count
+  };
+}).filter(d => d.slots.length > 0);
+---
+
+<div class="right-menu-inner">
+  <div class="user-profile">
+    <div class="profile-icons">
+       <UserHeader userRole="tutor" />
+    </div>
+  </div>
+
+  <div class="mini-calendar">
+    <div class="calendar-header">
+      <h4>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}</h4>
+      <div class="calendar-nav">
+        <button class="cal-nav-btn"><Image src={BackArrowIcon} alt="Back" /></button>
+        <button class="cal-nav-btn"><Image src={ForwardArrowIcon} alt="Forward" /></button>
+      </div>
+    </div>
+    
+    <div class="calendar-grid">
+      <div class="grid-header">Lu</div>
+      <div class="grid-header">Ma</div>
+      <div class="grid-header">Mi</div>
+      <div class="grid-header">Ju</div>
+      <div class="grid-header">Vi</div>
+      <div class="grid-header">Sa</div>
+      <div class="grid-header">Do</div>
+      
+      {Array.from({ length: 31 }).map((_, i) => (
+        <div class={`grid-day ${(i + 1) === baseDate.getDate() ? 'selected' : ''}`}>
+          {i + 1}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="slots-list-container">
+    <div class="slots-scroll">
+      {slotsByDay.map(day => (
+        <div class="day-slot-card">
+          <div class="day-info">
+            <span class="day-name">{day.label}</span>
+            <span class="day-stats">{day.totalHours} {day.totalHours === 1 ? 'hora' : 'horas'} en total</span>
+          </div>
+          <div class="slots-chips">
+            {day.slots.map(slot => (
+              <div class="slot-chip">
+                <span>{slot.startTime} - {slot.endTime}</span>
+                <button class="remove-slot">×</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .right-menu-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 30px;
+  }
+
+  .user-profile {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .profile-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .dots-grid {
+    color: #cbd5e1;
+    font-size: 24px;
+    letter-spacing: 2px;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    object-fit: contain;
+  }
+
+  .mini-calendar {
+    background: #fff;
+    padding: 10px;
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .calendar-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .calendar-nav {
+    display: flex;
+    gap: 10px;
+  }
+
+  .cal-nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 1.2rem;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+  }
+
+  .grid-header {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  .grid-day {
+    font-size: 0.85rem;
+    padding: 8px;
+    color: #64748b;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .grid-day:hover {
+    background: #f1f5f9;
+  }
+
+  .grid-day.selected {
+    background: #a78bfa;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(167, 139, 250, 0.4);
+  }
+
+  .slots-list-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 15px;
+  }
+
+  .slots-scroll {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px;
+  }
+
+  .slots-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .slots-scroll::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+  }
+
+  .day-slot-card {
+    background: white;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .day-info {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .day-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .day-stats {
+    font-size: 0.7rem;
+    color: #94a3b8;
+  }
+
+  .slots-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .slot-chip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f3edff;
+    color: #a78bfa;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .remove-slot {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .remove-slot:hover {
+    opacity: 1;
+  }
+</style>

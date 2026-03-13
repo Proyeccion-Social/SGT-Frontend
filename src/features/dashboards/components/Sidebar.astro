@@ -19,10 +19,10 @@ interface Props {
 const { userRole } = Astro.props;
 ---
 
-<aside class='sidebar'>
+<aside class='sidebar' id="main-sidebar">
   <div class='navbar-header'>
     <a href='/'><img src='/favicon.svg' alt='Logo' /></a>
-    <button class='collapse-button'>
+    <button class='collapse-button' id="sidebar-toggle">
       <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
     </button>
   </div>
@@ -31,15 +31,19 @@ const { userRole } = Astro.props;
     {
       userRole === "student" && (
         <div class='calendar-container'>
-          <a href='#'>
+          <a href='/availability/student/slots'>
             <Image src={CalendarIcon} alt='Calendar' class='icon' />
+            <span class="nav-label">Calendario</span>
           </a>
         </div>
       )
     }
 
     <div class='dashboard-container'>
-      <a href='/dashboard'><Image src={DashboardIcon} alt='Dashboard' class='icon' /></a>
+      <a href='/dashboard'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
+        <span class="nav-label">Dashboard</span>
+      </a>
     </div>
 
     {
@@ -47,9 +51,11 @@ const { userRole } = Astro.props;
         <>
           <a href='#'>
             <Image src={WindowIcon} alt='Window' class='icon' />
+            <span class="nav-label">Gestión</span>
           </a>
           <a href='#'>
             <Image src={ConfigIcon} alt='Config' class='icon' />
+            <span class="nav-label">Configuración</span>
           </a>
         </>
       )
@@ -60,12 +66,15 @@ const { userRole } = Astro.props;
         <>
           <a href='/availability/tutor/slots'>
             <Image src={WindowIcon} alt='Slots' class='icon' />
+            <span class="nav-label">Tu Disponibilidad</span>
           </a>
           <a href='#'>
             <Image src={ConfigIcon} alt='Config' class='icon' />
+            <span class="nav-label">Configuración</span>
           </a>
           <a href='#'>
             <Image src={HistoryIcon} alt='History' class='icon' />
+            <span class="nav-label">Historial</span>
           </a>
         </>
       )
@@ -76,15 +85,19 @@ const { userRole } = Astro.props;
         <>
           <a href='#'>
             <Image src={SearchIcon} alt='Search' class='icon' />
+            <span class="nav-label">Buscar</span>
           </a>
           <a href='#'>
             <Image src={BinocularIcon} alt='Binocular' class='icon' />
+            <span class="nav-label">Explorar</span>
           </a>
           <a href='#'>
             <Image src={CommunityIcon} alt='Community' class='icon' />
+            <span class="nav-label">Comunidad</span>
           </a>
           <a href='#'>
             <Image src={HistoryIcon} alt='History' class='icon' />
+            <span class="nav-label">Historial</span>
           </a>
         </>
       )
@@ -93,50 +106,67 @@ const { userRole } = Astro.props;
 
   <div class='navbar-footer'>
     <div class='notification-container'>
-      <a href='#'
-        ><Image src={NotificationIcon} alt='Notification' class='icon' /></a
-      >
+      <a href='#'>
+        <Image src={NotificationIcon} alt='Notification' class='icon' />
+        <span class="notification-label">Notificaciones</span>
+      </a>
     </div>
-    <a href='#'><Image src={LogoutIcon} alt='Logout' class='icon' /></a>
+
+    <a href='#'>
+      <Image src={LogoutIcon} alt='Logout' class='icon' />
+      <span class="nav-label">Cerrar Sesión</span>
+    </a>
   </div>
 </aside>
 
 <style>
   .sidebar {
     width: 100px;
-    height: 100%;
+    height: 100vh ;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 30px 0;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 50;
+    background: #F4F0FF;
   }
 
-  img {
-    height: 4rem;
-    width: auto;
-    bottom: 1px;
-    left: 3px;
+  .sidebar.expanded {
+    width: 260px;
+    align-items: flex-start;
+    padding-left: 20px;
+    z-index: 50;
   }
 
+  /* Header y Logo */
   .navbar-header {
     margin-top: -1rem;
     margin-bottom: auto;
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    transition: justify-content 0.4s ease;
   }
 
-  .icon {
-    width: 1.5rem;
-    height: 1.5rem;
+  .sidebar.expanded .navbar-header {
+    justify-content: flex-start;
+    padding-left: 10px;
   }
 
-  .collapse-icon {
-    width: 30px;
-    height: 30px;
+  .navbar-header img {
+    height: 4rem;
+    width: auto;
   }
 
+  /* Botón de Colapso */
   .collapse-button {
     position: absolute;
-    left: 82px;
-    top: 47px;
+    top: 20px;
+    left: 100%;
+    transform: translateX(-50%);
     background: white;
     border: none;
     border-radius: 24px;
@@ -144,123 +174,144 @@ const { userRole } = Astro.props;
     height: 30px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: row;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
+    z-index: 60;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .navbar-items {
+  .collapse-icon {
+    transition: transform 0.4s ease;
+  }
+
+  .sidebar.expanded .collapse-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Contenedores de Navegación */
+  .navbar-items, .navbar-footer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    width: 100%;
     margin-top: auto;
     margin-bottom: auto;
   }
+  
+  .sidebar.expanded .navbar-items,
+  .sidebar.expanded .navbar-footer {
+    align-items: flex-start;
+  }
 
+  /* Estilos generales para enlaces y contenedores de iconos */
   .navbar-items > a,
-  .navbar-footer > a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 10px;
-    transition: all 0.25s ease;
-  }
-
-  .navbar-items > a:hover,
-  .navbar-footer > a:hover {
-    background: rgba(243, 237, 255, 0.45);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    transform: scale(1.06);
-  }
-
-  .calendar-container {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(
-      135deg,
-      rgba(159, 116, 255, 0.6),
-      rgba(130, 80, 255, 0.35)
-    );
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(255, 255, 255, 0.35);
-    box-shadow:
-      0 4px 16px rgba(130, 80, 255, 0.3),
-      inset 0 1px 1px rgba(255, 255, 255, 0.4);
-    transition: all 0.25s ease;
-    margin-bottom: 8px;
-  }
-
-  .calendar-container:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(159, 116, 255, 0.8),
-      rgba(130, 80, 255, 0.5)
-    );
-    box-shadow:
-      0 6px 24px rgba(130, 80, 255, 0.45),
-      inset 0 1px 1px rgba(255, 255, 255, 0.5);
-    transform: scale(1.08);
-  }
-
-  .dashboard-container {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(243, 237, 255, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(130, 80, 255, 0.08);
-    transition: all 0.25s ease;
-  }
-
-  .dashboard-container:hover {
-    background: rgba(243, 237, 255, 0.75);
-    box-shadow: 0 3px 12px rgba(130, 80, 255, 0.15);
-    transform: scale(1.06);
-  }
-
+  .navbar-footer > a,
+  .calendar-container,
+  .dashboard-container,
   .notification-container {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: rgba(230, 255, 199, 0.45);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: 0 2px 8px rgba(120, 180, 60, 0.1);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     transition: all 0.25s ease;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
   }
 
-  .notification-container:hover {
-    background: rgba(230, 255, 199, 0.7);
-    box-shadow: 0 3px 12px rgba(120, 180, 60, 0.2);
-    transform: scale(1.06);
-  }
-
-  .navbar-footer {
-    margin-top: auto;
-    margin-bottom: 0;
+  .calendar-container a,
+  .dashboard-container a,
+  .notification-container a {
     display: flex;
-    flex-direction: column;
-    gap: 24px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar.expanded .navbar-items > a,
+  .sidebar.expanded .navbar-footer > a,
+  .sidebar.expanded .calendar-container,
+  .sidebar.expanded .dashboard-container,
+  .sidebar.expanded .notification-container {
+    width: 90%;
+    justify-content: flex-start;
+    padding-left: 10px;
+    gap: 16px;
+  }
+
+  .sidebar.expanded .calendar-container,
+  .sidebar.expanded .dashboard-container,
+  .sidebar.expanded .notification-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
     align-items: center;
   }
+
+  /* Ajustes específicos de contenedores con fondo */
+  .calendar-container { background: #CDFF8E; }
+  .dashboard-container { background: #E7DCFF; }
+  .notification-container { background: #E6FFC7; }
+
+  /* Re-activar hover sobre el enlace expandido */
+  .navbar-items a:hover, .navbar-footer a:hover {
+    background: rgba(243, 237, 255, 0.45);
+    border-radius: 10px;
+  }
+
+  /* Iconos e imágenes */
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  /* Labels (Texto) */
+  .nav-label, .notification-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 0;
+    display: none; /* No cambiar */
+    transition: opacity 0.3s ease;
+    color: #89878F;
+  }
+
+  .notification-label { color: #9ACC5B; }
+
+  .sidebar.expanded .nav-label,
+  .sidebar.expanded .notification-label {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+  }
+
+  .navbar-footer { margin-bottom: 0; gap: 24px; }
 </style>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const sidebar = document.getElementById('main-sidebar');
+    const toggle = document.getElementById('sidebar-toggle');
+
+    if (sidebar && toggle) {
+      toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('expanded');
+      });
+
+      window.addEventListener('force-sidebar-expand', () => {
+        sidebar.classList.add('expanded');
+      });
+
+      window.addEventListener('force-sidebar-collapse', () => {
+        sidebar.classList.remove('expanded');
+      });
+    }
+  });
+</script>

@@ -3,13 +3,15 @@ import MainLayout from "../Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
+import RightCalendarMenu from "@/features/availability/components/RightCalendarMenu.astro";
 import type { Slot } from "@/features/availability/services/availabilityService";
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
-import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
-import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
 import { Image } from "astro:assets";
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
+import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
+import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
+import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";
 
 const tutorId = getUserIdFromCookie(Astro.cookies);
 
@@ -30,20 +32,20 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
 
 <MainLayout title="Availability">
     <div class="availability-container">
-        <Sidebar userRole="tutor" />
+        <div id="sidebar-container">
+            <Sidebar userRole="tutor" />
+        </div>
 
         <main class="content-wrapper">
+            <div class="overlay" id="menu-overlay"></div>
             <div class="calendar-container">
                 <div class="calendar-header">
                     <div class="week-selector">
                         <h3>Tu Semana</h3>
                         <p>{weekRangeStr}</p>
-                        <a href={`?offset=${prevOffset}`} class="nav-button"
-                            ><Image src={BackArrowIcon} alt="Back" /></a
-                        >
-                        <a href={`?offset=${nextOffset}`} class="nav-button"
-                            ><Image src={ForwardArrowIcon} alt="Forward" /></a
-                        >
+                        <a href={`?offset=${prevOffset}`} class="nav-button"><Image src={BackArrowIcon} alt="Back" /></a>
+                        <a href={`?offset=${nextOffset}`} class="nav-button"><Image src={ForwardArrowIcon} alt="Forward" /></a>
+                        <button class="mes-btn" id="right-menu-toggle">Mes <Image src={ArrowUpIcon} alt="Arrow Up" /></button>
                         <UserHeader userRole="tutor" />
                     </div>
                     <div class="legend">
@@ -53,17 +55,34 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
 
                 <Calendar slots={Slots} baseDate={today} />
             </div>
+
+            <!-- Menu contextual -->
+            <div id="right-menu">
+                <RightCalendarMenu slots={Slots} baseDate={today} />
+            </div>
         </main>
     </div>
 </MainLayout>
 
 <style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden; /* Bloquea scroll vertical y horizontal global */
+        width: 100vw;
+        height: 100vh;
+    }
+
     .availability-container {
         display: flex;
-        width: 100vw;
+        width: 100%;
         height: 100vh;
         background-color: #f3edff;
         padding: 18px 20px 20px 0;
+        box-sizing: border-box;
+        overflow: hidden;
+        align-items: stretch;
+        z-index: 1001;
     }
 
     .content-wrapper {
@@ -76,6 +95,10 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
         justify-content: flex-start;
         overflow-x: hidden;
         overflow-y: auto;
+    }
+
+    .content-wrapper.no-scroll {
+        overflow-y: hidden;
     }
 
     .calendar-container {
@@ -160,4 +183,97 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
         background: #e7dcff;
         border-radius: 10px;
     }
+
+    #sidebar-container {
+        z-index: 1001;
+        top: 0;
+        height: 100%;
+        display: flex;
+        position: relative;
+        margin-top: -1rem;
+        margin-bottom: -1.5rem;
+    }
+    
+    /* Menu contextual */
+    #right-menu {
+        position: absolute;
+        top: 0;
+        right: -300px;
+        width: 300px;
+        height: 100%;
+        background-color: #fff;
+        border-radius: 16px 0 0 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        z-index: 1000;
+        transition: right 0.3s ease-in-out;
+    }
+
+    #right-menu.active {
+        right: 0;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 16px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 900;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: auto;
+    }
+
+    .overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .mes-btn {
+        background-color: #DAFFAA;
+        color: #4D662E;
+        border: none;
+        border-radius: 8px;
+        padding: 0px 4px 0px 8px;
+        font-size: 16px;
+        font-weight: 400;
+        font-style: normal;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleButton = document.getElementById('right-menu-toggle');
+        const rightMenu = document.getElementById('right-menu');
+        const overlay = document.getElementById('menu-overlay');
+        const contentWrapper = document.querySelector('.content-wrapper');
+
+        if (toggleButton && rightMenu && overlay && contentWrapper) {
+            toggleButton.addEventListener('click', () => {
+                const isActive = rightMenu.classList.toggle('active');
+                overlay.classList.toggle('active');
+                contentWrapper.classList.toggle('no-scroll', isActive);
+
+                if (isActive) {
+                    window.dispatchEvent(new CustomEvent('force-sidebar-expand'));
+                } else {
+                    window.dispatchEvent(new CustomEvent('force-sidebar-collapse'));
+                }
+            });
+
+            overlay.addEventListener('click', () => {
+                rightMenu.classList.remove('active');
+                overlay.classList.remove('active');
+                contentWrapper.classList.remove('no-scroll');
+                window.dispatchEvent(new CustomEvent('force-sidebar-collapse'));
+            });
+        }
+    });
+</script>

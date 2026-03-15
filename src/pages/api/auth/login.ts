@@ -10,8 +10,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     cookies.set("access_token", result.accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
       path: "/",
       maxAge: 60 * 15
     });
@@ -20,7 +18,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      path: "/api",
+      path: "/",
       maxAge: 60 * 60 * 24 * 7
     });
 
@@ -34,7 +32,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
 

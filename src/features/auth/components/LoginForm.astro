@@ -23,11 +23,15 @@
 <script>
   import { sileo } from "sileo";
 
-  const form = document.getElementById("login-form");
+  const form = document.getElementById("login-form") as HTMLFormElement | null;
   const passwordField = document.getElementById("password-field");
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const loginCard = document.querySelector(".login-card");
+  const emailInput = document.getElementById(
+    "email",
+  ) as HTMLInputElement | null;
+  const passwordInput = document.getElementById(
+    "password",
+  ) as HTMLInputElement | null;
+  const loginCard = document.querySelector(".login-card") as HTMLElement | null;
   const arrowText = document.querySelector(".arrowText");
 
   let passwordVisible = false;

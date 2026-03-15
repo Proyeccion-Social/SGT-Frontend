@@ -30,10 +30,10 @@ const weekDates = getWeekDates(baseDate);
 const systemToday = new Date();
 ---
 
-<div class="calendar-outer">
-  <div class="calendar-wrapper">
-    <div class="calendar-header">
-      <div class="time-gutter"></div>
+<div class='calendar-outer'>
+  <div class='calendar-wrapper'>
+    <div class='calendar-header'>
+      <div class='time-gutter'></div>
       {
         DAYS.map((day) => {
           const date = weekDates[day.key];
@@ -45,8 +45,8 @@ const systemToday = new Date();
 
           return (
             <div class={`day-header ${isToday ? "today" : ""}`}>
-              <span class="day-name">{day.label}</span>
-              <span class="day-number">
+              <span class='day-name'>{day.label}</span>
+              <span class='day-number'>
                 {date?.getDate().toString().padStart(2, "0")}
               </span>
             </div>
@@ -55,95 +55,97 @@ const systemToday = new Date();
       }
     </div>
 
-    <div class="calendar-body">
-      <div class="time-column">
-        {hours.map((hour) => <div class="time-cell">{hour}:00</div>)}
+    <div class='calendar-body'>
+      <div class='time-column'>
+        {hours.map((hour) => <div class='time-cell'>{hour}:00</div>)}
       </div>
 
       {
         DAYS.map((day) => (
           <div
-            class="day-column"
+            class='day-column'
             style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
             {hours.map((_) => (
-              <div class="hour-cell" />
+              <div class='hour-cell' />
             ))}
 
             {getSlotsByDay(slots, day.key).map((slot) => {
               const startMin = timeToMinutes(slot.startTime);
-              const endMin = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
-              const isHalfHour = 30 >= (endMin - startMin);
+              const endMin = slot.endTime
+                ? timeToMinutes(slot.endTime)
+                : startMin + 60;
+              const isHalfHour = 30 >= endMin - startMin;
 
               return (
-              <div
-                class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
-                style={getSlotStyle(slot)}
-                data-slot-ids={slot.groupedIds.join(",")}
-                data-day={slot.dayOfWeek}
-                data-start={slot.startTime}
-                data-end={slot.endTime}
-                data-modality={slot.modality}
-                data-is-booked={slot.isBooked}
-              >
-                {isHalfHour ? (
-                  <div class="slot-half-hour-content">
-                    <span class="slot-modality-text">
-                      {slot.modality?.toString().toUpperCase() === "VIRT"
-                        ? "Virtual"
-                        : "Presencial"}
-                    </span>
-                    <span class="slot-duration-text-inline">
-                      {formatDuration(slot.startTime, slot.endTime)}
-                    </span>
-                  </div>
-                ) : (
-                  <>
-                    <div class="slot-duration-text">
-                      {formatDuration(slot.startTime, slot.endTime)}
-                    </div>
-                    <div class="slot-info">
-                      <span class="slot-modality-text">
+                <div
+                  class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
+                  style={getSlotStyle(slot)}
+                  data-slot-ids={slot.groupedIds.join(",")}
+                  data-day={slot.dayOfWeek}
+                  data-start={slot.startTime}
+                  data-end={slot.endTime}
+                  data-modality={slot.modality}
+                  data-is-booked={slot.isBooked}
+                >
+                  {isHalfHour ? (
+                    <div class='slot-half-hour-content'>
+                      <span class='slot-modality-text'>
                         {slot.modality?.toString().toUpperCase() === "VIRT"
                           ? "Virtual"
                           : "Presencial"}
                       </span>
-                      <span class="slot-badge-status">
-                        {slot.isBooked ? (
-                          <svg
-                            width="10"
-                            height="10"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          >
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                        ) : (
-                          <svg
-                            width="10"
-                            height="10"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          >
-                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                          </svg>
-                        )}
-                        {slot.isBooked ? "Reservado" : "Disponible"}
+                      <span class='slot-duration-text-inline'>
+                        {formatDuration(slot.startTime, slot.endTime)}
                       </span>
                     </div>
-                  </>
-                )}
-              </div>
-            );
-          })}
+                  ) : (
+                    <>
+                      <div class='slot-duration-text'>
+                        {formatDuration(slot.startTime, slot.endTime)}
+                      </div>
+                      <div class='slot-info'>
+                        <span class='slot-modality-text'>
+                          {slot.modality?.toString().toUpperCase() === "VIRT"
+                            ? "Virtual"
+                            : "Presencial"}
+                        </span>
+                        <span class='slot-badge-status'>
+                          {slot.isBooked ? (
+                            <svg
+                              width='10'
+                              height='10'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              stroke-width='2'
+                              stroke-linecap='round'
+                              stroke-linejoin='round'
+                            >
+                              <polyline points='20 6 9 17 4 12' />
+                            </svg>
+                          ) : (
+                            <svg
+                              width='10'
+                              height='10'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              stroke-width='2'
+                              stroke-linecap='round'
+                              stroke-linejoin='round'
+                            >
+                              <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' />
+                            </svg>
+                          )}
+                          {slot.isBooked ? "Reservado" : "Disponible"}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ))
       }
@@ -169,7 +171,7 @@ const systemToday = new Date();
   .calendar-header {
     display: grid;
     grid-template-columns: 56px repeat(6, 1fr);
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e8e8e8;
     background: #ffffff;
     position: sticky;
     top: 0;
@@ -177,7 +179,7 @@ const systemToday = new Date();
   }
 
   .time-gutter {
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid #e8e8e8;
   }
 
   .day-header {
@@ -185,7 +187,7 @@ const systemToday = new Date();
     flex-direction: column;
     align-items: center;
     padding: 14px 8px 10px;
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid #e8e8e8;
     gap: 3px;
     min-width: 0;
   }
@@ -195,34 +197,31 @@ const systemToday = new Date();
   }
 
   .day-header.today {
-    border: 3px solid #9F74FF;
+    border: 3px solid #9f74ff;
     border-radius: 6px;
     box-sizing: border-box;
   }
 
   .day-name {
-    font-size: 0.72rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: #9ca3af;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
     white-space: nowrap;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
   }
 
   .day-number {
-    font-size: 1.15rem;
+    font-size: 1.20rem;
     font-weight: 700;
-    color: #86efac;
+    color: #9f74ff;
     line-height: 1;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
   }
 
   .calendar-body {
     display: grid;
     grid-template-columns: 56px repeat(6, 1fr);
-    overflow-y: scroll;
-    max-height: 100vh;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
   }
 
   .calendar-body::-webkit-scrollbar {
@@ -230,7 +229,7 @@ const systemToday = new Date();
   }
 
   .time-column {
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid #e8e8e8;
     display: flex;
     flex-direction: column;
   }
@@ -245,13 +244,13 @@ const systemToday = new Date();
     color: #9ca3af;
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e8e8e8;
     white-space: nowrap;
   }
 
   .day-column {
     position: relative;
-    border-right: 1px solid #e5e7ebd8;
+    border-right: 1px solid #e8e8e8d8;
     min-width: 0;
   }
 
@@ -261,16 +260,16 @@ const systemToday = new Date();
 
   .hour-cell {
     height: 64px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e8e8e8;
     flex-shrink: 0;
   }
 
   .slot-block {
     position: absolute;
-    left: 4px;
-    right: 4px;
+    left: 0px;
+    right: 0px;
     border-radius: 8px;
-    padding: 10px;
+    padding: 16px 16px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -313,9 +312,9 @@ const systemToday = new Date();
     opacity: 0.6;
     cursor: not-allowed;
     filter: grayscale(1);
-    background: #e5e7eb;
+    background: #e8e8e8;
     color: #6b7280;
-    border: 1px dashed #A3A3A3;
+    border: 1px dashed #a3a3a3;
   }
 
   .slot-past:hover {
@@ -325,8 +324,8 @@ const systemToday = new Date();
 
   .slot-duration-text {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 16px;
+    right: 16px;
     font-size: 0.65rem;
     font-weight: 500;
     color: var(--day-text-color, inherit);

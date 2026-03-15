@@ -17,7 +17,7 @@ interface Props {
 const { slots, baseDate, offset, prevOffset, nextOffset } = Astro.props;
 
 // Ayuda para obtener el nombre del mes formateado
-const monthName = baseDate.toLocaleString('es-ES', { month: 'long' });
+const monthName = baseDate.toLocaleString("es-ES", { month: "long" });
 const year = baseDate.getFullYear();
 
 // Calcular el rango de la semana actual (Lunes a Sábado) para el resaltado
@@ -34,7 +34,8 @@ const saturdayDate = saturday.getDate();
 const firstDayOfMonth = new Date(year, baseDate.getMonth(), 1);
 const lastDayOfMonth = new Date(year, baseDate.getMonth() + 1, 0);
 const daysInMonth = lastDayOfMonth.getDate();
-const startDayOfWeek = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1; // 0 para el Lunes
+const startDayOfWeek =
+  firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1; // 0 para el Lunes
 
 // Generar días para la cuadrícula
 const days = [];
@@ -48,14 +49,47 @@ startOfSelectedWeek.setHours(0, 0, 0, 0);
 const endOfSelectedWeek = new Date(saturday);
 endOfSelectedWeek.setHours(23, 59, 59, 999);
 
+// Mapear días de la semana a fechas con slots
+const systemToday = new Date();
+systemToday.setHours(0, 0, 0, 0);
+
+const daysWithSlots = new Set<number>();
+DAYS.forEach((day, idx) => {
+  const dayHasSlots = slots.some(
+    (s) => s.dayOfWeek?.toString().toUpperCase() === day.key,
+  );
+  if (dayHasSlots) {
+    const slotDate = new Date(monday);
+    slotDate.setDate(monday.getDate() + idx);
+    daysWithSlots.add(slotDate.getDate());
+  }
+});
+
 for (let i = 1; i <= daysInMonth; i++) {
   const date = new Date(year, baseDate.getMonth(), i);
+  date.setHours(0, 0, 0, 0);
   const isSelected = date >= startOfSelectedWeek && date <= endOfSelectedWeek;
-  days.push({ day: i, isSelected, date });
+  const isToday = date.getTime() === systemToday.getTime();
+  const hasSlots = daysWithSlots.has(i) && isSelected;
+  const isFirstOfWeek =
+    isSelected && date.getTime() === startOfSelectedWeek.getTime();
+  const isLastOfWeek =
+    isSelected &&
+    date.getDate() === endOfSelectedWeek.getDate() &&
+    date.getMonth() === endOfSelectedWeek.getMonth();
+  days.push({
+    day: i,
+    isSelected,
+    isToday,
+    hasSlots,
+    isFirstOfWeek,
+    isLastOfWeek,
+    date,
+  });
 }
 
 // Agrupar slots por día para la lista inferior
-const slotsByDay = DAYS.map(day => {
+const slotsByDay = DAYS.map((day) => {
   // 1. Encontrar la fecha exacta de este día para la semana actual
   // Si el día es Lunes (índice 0 en tu array DAYS), le sumamos 0 días al lunes de esta semana
   const dayIndex = DAYS.indexOf(day);
@@ -63,82 +97,100 @@ const slotsByDay = DAYS.map(day => {
   actualDate.setDate(monday.getDate() + dayIndex);
 
   // 2. Formatear la fecha (ej: "15 de Marzo")
-  const dateString = actualDate.toLocaleDateString('es-ES', { 
-    day: 'numeric', 
-    month: 'short' 
+  const dateString = actualDate.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
   });
 
   // 3. Filtrar los slots que pertenecen a este día de la semana
-  const daySlots = slots.filter(s => s.dayOfWeek === day.key && !s.isBooked);
+  const daySlots = slots.filter((s) => s.dayOfWeek === day.key && !s.isBooked);
 
   return {
     ...day,
     dateLabel: dateString,
     slots: daySlots.sort((a, b) => a.startTime.localeCompare(b.startTime)),
-    totalHours: daySlots.length
+    totalHours: daySlots.length,
   };
-}).filter(d => d.slots.length > 0);
+}).filter((d) => d.slots.length > 0);
 ---
 
-<div class="right-menu-inner">
-  <div class="user-profile">
-    <UserHeader userRole="tutor" />
+<div class='right-menu-inner'>
+  <div class='user-profile'>
+    <UserHeader userRole='tutor' />
   </div>
 
-  <div class="mini-calendar">
-    <div class="calendar-header">
+  <div class='mini-calendar'>
+    <div class='calendar-header'>
       <h4>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}</h4>
-      <div class="calendar-nav">
-        <a href={`?offset=${prevOffset}&openMenu=true`} class="cal-nav-btn">
-          <Image src={BackArrowIcon} alt="Back" />
+      <div class='calendar-nav'>
+        <a href={`?offset=${prevOffset}&openMenu=true`} class='cal-nav-btn'>
+          <Image src={BackArrowIcon} alt='Back' />
         </a>
-        <a href={`?offset=${nextOffset}&openMenu=true`} class="cal-nav-btn">
-          <Image src={ForwardArrowIcon} alt="Forward" />
+        <a href={`?offset=${nextOffset}&openMenu=true`} class='cal-nav-btn'>
+          <Image src={ForwardArrowIcon} alt='Forward' />
         </a>
       </div>
     </div>
-    
-    <div class="calendar-grid">
-      <div class="grid-header">Lu</div>
-      <div class="grid-header">Ma</div>
-      <div class="grid-header">Mi</div>
-      <div class="grid-header">Ju</div>
-      <div class="grid-header">Vi</div>
-      <div class="grid-header">Sa</div>
-      <div class="grid-header">Do</div>
-      
-      {days.map((item) => (
-        item.day ? (
-          <div class={`grid-day ${item.isSelected ? 'selected' : ''}`}>
-            {item.day}
-          </div>
-        ) : (
-          <div class="grid-day empty"></div>
+
+    <div class='calendar-grid'>
+      <div class='grid-header'>Lu</div>
+      <div class='grid-header'>Ma</div>
+      <div class='grid-header'>Mi</div>
+      <div class='grid-header'>Ju</div>
+      <div class='grid-header'>Vi</div>
+      <div class='grid-header'>Sa</div>
+      <div class='grid-header'>Do</div>
+
+      {
+        days.map((item) =>
+          item.day ? (
+            <div
+              class={`grid-day ${item.isSelected ? "selected" : ""} ${item.isFirstOfWeek ? "week-start" : ""} ${item.isLastOfWeek ? "week-end" : ""}`}
+            >
+              <span
+                class={`day-num ${item.isFirstOfWeek || item.isLastOfWeek ? "circle-endpoint" : ""}`}
+              >
+                {item.day}
+              </span>
+            </div>
+          ) : (
+            <div class='grid-day empty' />
+          ),
         )
-      ))}
+      }
     </div>
   </div>
 
-  <div class="slots-list-container">
-    <div class="slots-scroll">
-      {slotsByDay.map(day => (
-        <div class="day-slot-card">
-          <div class="day-info">
-            <div class="day-header-row">
-              <span class="day-name">{day.label}</span>
-              <span class="day-date">{day.dateLabel}</span> </div>
-            <span class="day-stats">{day.totalHours} {day.totalHours === 1 ? 'hora' : 'horas'} en total</span>
-          </div>
-          <div class="slots-chips">
-            {day.slots.map(slot => (
-              <div class="slot-chip">
-                <span>{slot.startTime} - {slot.endTime}</span>
-                <button class="remove-slot" data-id={slot.id}>×</button>
+  <div class='slots-list-container'>
+    <div class='slots-scroll'>
+      {
+        slotsByDay.map((day) => (
+          <div class='day-slot-card'>
+            <div class='day-info'>
+              <div class='day-header-row'>
+                <span class='day-name'>{day.label}</span>
+                <span class='day-date'>{day.dateLabel}</span>{" "}
               </div>
-            ))}
+              <span class='day-stats'>
+                {day.totalHours} {day.totalHours === 1 ? "hora" : "horas"} en
+                total
+              </span>
+            </div>
+            <div class='slots-chips'>
+              {day.slots.map((slot) => (
+                <div class='slot-chip'>
+                  <span>
+                    {slot.startTime} - {slot.endTime}
+                  </span>
+                  <button class='remove-slot' data-id={slot.id}>
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      }
     </div>
   </div>
 </div>
@@ -148,7 +200,6 @@ const slotsByDay = DAYS.map(day => {
     display: flex;
     flex-direction: column;
     height: 100%;
-    gap: 30px;
   }
 
   .user-profile {
@@ -158,10 +209,9 @@ const slotsByDay = DAYS.map(day => {
     align-items: flex-end;
     justify-content: flex-end;
   }
-
   .mini-calendar {
     background: #fff;
-    padding: 10px;
+    padding: 28px 28px 0px 28px;
   }
 
   .calendar-header {
@@ -174,19 +224,20 @@ const slotsByDay = DAYS.map(day => {
   .calendar-header h4 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #334155;
+    color: #818181;
   }
 
   .calendar-nav {
     display: flex;
     gap: 10px;
+    margin-right: 8px;
   }
 
   .cal-nav-btn {
     background: none;
     border: none;
     cursor: pointer;
-    color: #64748b;
+    color: #A3A3A3;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -198,57 +249,70 @@ const slotsByDay = DAYS.map(day => {
   .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
     text-align: center;
   }
 
   .grid-header {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: #1A1A1A;
     font-weight: 500;
     margin-bottom: 5px;
   }
 
   .grid-day {
     font-size: 0.85rem;
-    padding: 8px 4px;
-    color: #64748b;
-    border-radius: 8px;
+    padding: 2px 0;
+    color: #3C3C3C;
     cursor: default;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .day-num {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+    position: relative;
+    z-index: 2;
+  }
+
+  .day-num.circle-endpoint {
+    background-color: #9f74ff;
+    color: #ffffff;
+    font-weight: 700;
   }
 
   .grid-day.selected {
-    background: #D8C7FF !important;
-    color: #9F74FF !important;
-    font-weight: 600;
+    color: #7c5bbf;
+    font-weight: 500;
     border-radius: 0;
   }
 
-  .grid-day.selected:nth-child(7n + 1),
-  .grid-day.selected:first-child {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
+  .grid-day.selected.week-start {
+    border-radius: 50% 0 0 50%;
+    padding-left: 0;
   }
 
-  .grid-day.selected:nth-child(7n + 6),
-  .grid-day.selected:last-child {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+  .grid-day.selected.week-end {
+    border-radius: 0 50% 50% 0;
+    padding-right: 0;
   }
-
-  .grid-day.selected:nth-child(7n+1) { border-radius: 20px 0 0 20px; }
-  .grid-day.selected:nth-child(7n+6) { border-radius: 0 20px 20px 0; }
-  
-  .grid-day.selected:nth-child(7n) { border-radius: 0 20px 20px 0; }
 
   .slots-list-container {
     flex: 1;
     overflow: hidden;
     position: relative;
-    background: #f8fafc;
     border-radius: 20px;
-    padding: 15px;
+    padding: 8px 28px 28px 28px;
+    
   }
 
   .slots-scroll {
@@ -257,7 +321,14 @@ const slotsByDay = DAYS.map(day => {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding-right: 5px;
+    padding: 20px 16px;
+    border: 1px solid #e8e8e8;
+    inset: 0;
+
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    clip-path: inset(0 0 0 0 round 16px);
+
   }
 
   .slots-scroll::-webkit-scrollbar {
@@ -272,7 +343,6 @@ const slotsByDay = DAYS.map(day => {
   .day-slot-card {
     background: white;
     border-radius: 16px;
-    padding: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   }
 
@@ -297,8 +367,6 @@ const slotsByDay = DAYS.map(day => {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    overflow-y: auto;
-    max-height: 100px;
   }
 
   .slot-chip {
@@ -342,7 +410,7 @@ const slotsByDay = DAYS.map(day => {
 
   .day-date {
     font-size: 0.8rem;
-    color: #9F74FF; /* Color acento para la fecha */
+    color: #9f74ff; /* Color acento para la fecha */
     font-weight: 500;
     text-transform: capitalize;
   }

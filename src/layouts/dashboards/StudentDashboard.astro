@@ -14,142 +14,151 @@ const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
 
 const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role.toLowerCase() as 'admin' | 'tutor' | 'student'
+const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 
 const mockSessions = [
-    {
-        id: "1",
-        title: "Introducción a derivadas y definición por límite",
-        description:
-            "En esta tutoría quiero que me expliquen la regla de la cadena",
-        subject: "Cálculo Diferencial",
-        status: "Cerrada",
-        time: "Hoy 3:00 PM",
-        timeLeft: "En 2h",
-    },
-    {
-        id: "2",
-        title: "Límites infinitos",
-        description: "Revisión de asíntotas verticales y horizontales",
-        subject: "Cálculo Diferencial",
-        status: "Pendiente",
-        time: "Mañana 10:00 AM",
-        timeLeft: "En 1d",
-    },
+  {
+    id: "1",
+    title: "Introducción a derivadas y definición por límite",
+    description:
+      "En esta tutoría quiero que me expliquen la regla de la cadena",
+    subject: "Cálculo Diferencial",
+    status: "Cerrada",
+    time: "Hoy 3:00 PM",
+    timeLeft: "En 2h",
+  },
+  {
+    id: "2",
+    title: "Límites infinitos",
+    description: "Revisión de asíntotas verticales y horizontales",
+    subject: "Cálculo Diferencial",
+    status: "Pendiente",
+    time: "Mañana 10:00 AM",
+    timeLeft: "En 1d",
+  },
 ];
 
 const studentStats = { value: 3, text: "Tutorías esta semana" };
 ---
 
-<MainLayout title="Dashboard">
-    <div class="dashboard-container">
-        <Sidebar userRole={userRole} />
+<MainLayout title='Dashboard'>
+  <div class='dashboard-container'>
+    <Sidebar userRole={userRole} />
 
-        <main class="content-wrapper">
-            <div class="dashboard-content">
-                <UserHeader userRole={userRole} />
+    <main class='content-wrapper'>
+      <div class='dashboard-content'>
+        <UserHeader userRole={userRole} />
 
-                <WelcomeBanner client:only="react" />
+        <div class='welcome-banner-slot'>
+          <WelcomeBanner client:only='react' />
+        </div>
 
-                <div class="cards-container">
-                    <div class="left-side">
-                        <div class="incoming-sessions-container">
-                            <IncomingSessionsCard sessions={mockSessions} role={userRole as 'tutor' | 'student'} />
-                        </div>
-
-                        <div class="green-photo-space">
-                            <Image src={ImageIcon} alt="Image" />
-                        </div>
-                    </div>
-                    <div class="stats-container">
-                        <StatCard
-                            value={studentStats.value}
-                            description={studentStats.text}
-                        />
-                    </div>
-                </div>
+        <div class='cards-container'>
+          <div class='left-side'>
+            <div class='incoming-sessions-container'>
+              <IncomingSessionsCard
+                sessions={mockSessions}
+                role={userRole as "tutor" | "student"}
+              />
             </div>
-        </main>
-    </div>
+
+            <div class='green-photo-space'>
+              <Image src={ImageIcon} alt='Image' />
+            </div>
+          </div>
+          <div class='stats-container'>
+            <StatCard
+              value={studentStats.value}
+              description={studentStats.text}
+            />
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </MainLayout>
 
 <style>
-    .dashboard-container {
-        display: flex;
-        width: 100%;
-        height: 100vh;
-        background-color: #f3edff;
-        padding: 18px 20px 20px 0;
-        box-sizing: border-box;
-    }
+  .dashboard-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: #f3edff;
+    padding: 18px 20px 20px 0;
+    box-sizing: border-box;
+  }
 
-    .content-wrapper {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background-color: #fff;
-        border-radius: 16px;
-        position: relative;
-        justify-content: flex-start;
-        overflow: hidden;
-        overflow-y: auto;
-        clip-path: inset(0 0 0 0 round 16px);
-    }
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 16px;
+    position: relative;
+    justify-content: flex-start;
+    overflow: hidden;
+    overflow-y: auto;
+    clip-path: inset(0 0 0 0 round 16px);
+  }
 
-    .content-wrapper::-webkit-scrollbar {
-        width: 6px;
-    }
+  .content-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
 
-    .content-wrapper::-webkit-scrollbar-thumb {
-        background: #e8e8e8;
-        border-radius: 10px;
-    }
+  .content-wrapper::-webkit-scrollbar-thumb {
+    background: #e8e8e8;
+    border-radius: 10px;
+  }
 
-    .dashboard-content {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        gap: 1.5rem;
-        box-sizing: border-box;
-        padding-top: 0.5rem;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1.5rem;
+    box-sizing: border-box;
+    padding-top: 0.5rem;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  }
 
-    .welcome-container {
-        display: flex;
-        flex-direction: row;
-        font-size: clamp(2rem, 5vw, 4rem);
-        font-weight: bold;
-        flex-shrink: 0;
-        padding: 0 10rem;
-        color: #3c3c3c;
-    }
+  .welcome-banner-slot {
+    min-height: 72px;
+  }
 
-    .cards-container {
-        display: grid;
-        grid-template-columns: 64fr 36fr;
-        gap: clamp(15px, 3vw, 40px);
-        margin: 0 10rem;
-        width: auto;
-        align-items: start;
-        min-height: 0;
-        height: auto;
-        margin-bottom: 2rem;
-    }
+  .welcome-container {
+    display: flex;
+    flex-direction: row;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: bold;
+    flex-shrink: 0;
+    padding: 0 10rem;
+    color: #3c3c3c;
+  }
 
-    .left-side {
-        display: flex;
-        flex-direction: column;
-        gap: clamp(15px, 3vw, 40px);
-    }
+  .cards-container {
+    display: grid;
+    grid-template-columns: 64fr 36fr;
+    gap: clamp(15px, 3vw, 40px);
+    margin: 0 10rem;
+    width: auto;
+    align-items: start;
+    min-height: 0;
+    height: auto;
+    margin-bottom: 2rem;
+  }
 
-    .green-photo-space {
-        background-color: #cdff8e;
-        border-radius: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 280px;
-        width: 100%;
-    }
+  .left-side {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(15px, 3vw, 40px);
+  }
+
+  .green-photo-space {
+    background-color: #cdff8e;
+    border-radius: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 280px;
+    width: 100%;
+  }
 </style>

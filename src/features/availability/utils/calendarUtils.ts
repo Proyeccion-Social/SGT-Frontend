@@ -57,7 +57,7 @@ export function getSlotStyle(slot: Slot): string {
     const endMin = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
     const calStartMin = HOUR_START * 60;
     const top = ((startMin - calStartMin) / 60) * HOUR_HEIGHT;
-    const height = ((endMin - startMin) / 60) * HOUR_HEIGHT - 4;
+    const height = ((endMin - startMin) / 60) * HOUR_HEIGHT;
     return `top: ${top}px; height: ${height}px;`;
 }
 

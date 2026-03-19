@@ -17,6 +17,7 @@ interface Props {
 }
 
 const { userRole } = Astro.props;
+const currentPath = Astro.url.pathname;
 ---
 
 <aside class='sidebar'>
@@ -38,8 +39,12 @@ const { userRole } = Astro.props;
       )
     }
 
-    <div class='dashboard-container'>
-      <a href='#'><Image src={DashboardIcon} alt='Dashboard' class='icon' /></a>
+    <div
+      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+    >
+      <a href='/dashboard'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
+      </a>
     </div>
 
     {
@@ -74,7 +79,9 @@ const { userRole } = Astro.props;
     {
       userRole === "student" && (
         <>
-          <a href='#'>
+          <a 
+            href="/search"
+          >
             <Image src={SearchIcon} alt='Search' class='icon' />
           </a>
           <a href='#'>

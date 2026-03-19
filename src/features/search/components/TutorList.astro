@@ -1,30 +1,97 @@
 ---
-interface Tutor {
-  tutorId: string;
-  tutorName?: string;
-  name?: string;
-}
-
 import calendar from "@/features/search/assets/calendar.png";
 ---
 
-<section id="tutor-list-section" class="tutor-list-section">
-  <div class="tutor-list-header">
-    <h2 class="tutor-list-title">Nuestros tutores</h2>
-    <button id="view-more-btn" class="view-more-btn" hidden type="button">Ver más</button>
+<section id='tutor-list-section' class='tutor-list-section' hidden>
+  <div class='tutor-list-header'>
+    <h2 class='tutor-list-title'>Nuestros tutores</h2>
+    <div class='header-controls'>
+      <button
+        id='slider-prev'
+        class='slider-arrow'
+        type='button'
+        aria-label='Anterior'
+        disabled
+      >
+        <svg
+          width='20'
+          height='20'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2.5'
+          stroke-linecap='round'
+          stroke-linejoin='round'><path d='M15 18l-6-6 6-6'></path></svg
+        >
+      </button>
+      <button
+        id='slider-next'
+        class='slider-arrow'
+        type='button'
+        aria-label='Siguiente'
+        disabled
+      >
+        <svg
+          width='20'
+          height='20'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          stroke-width='2.5'
+          stroke-linecap='round'
+          stroke-linejoin='round'><path d='M9 18l6-6-6-6'></path></svg
+        >
+      </button>
+      <button id='view-more-btn' class='view-more-btn' hidden type='button'
+        >Ver más</button
+      >
+    </div>
   </div>
-  <ul id="tutor-list" class="tutor-list"></ul>
 
-  <template id="tutor-item-template">
-    <li class="tutor-list-item">
-      <div class="tutor-list-div">
-        <img class="tutor-photo" src="" alt="" />
-        <div class="tutor-info">
-          <span class="tutor-name"></span>
-          <div class="tutor-subjects"></div>
+  <div class='tutor-slider-wrapper'>
+    <div class='tutor-slider-viewport'>
+      <ul id='tutor-list' class='tutor-list'></ul>
+    </div>
+  </div>
+
+  <!-- Modal de todos los tutores -->
+  <div id='all-tutors-modal' class='all-tutors-modal'>
+    <div class='modal-backdrop' id='modal-backdrop'></div>
+    <div class='modal-body'>
+      <div class='modal-header'>
+        <h2 class='modal-title'>Todos los tutores</h2>
+        <button
+          id='close-modal-btn'
+          class='close-modal-btn'
+          type='button'
+          aria-label='Cerrar'
+        >
+          <svg
+            width='24'
+            height='24'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'><path d='M18 6L6 18M6 6l12 12'></path></svg
+          >
+        </button>
+      </div>
+      <ul id='all-tutors-list' class='all-tutors-grid'></ul>
+    </div>
+  </div>
+
+  <template id='tutor-item-template'>
+    <li class='tutor-list-item'>
+      <div class='tutor-list-div'>
+        <img class='tutor-photo' src='' alt='' />
+        <div class='tutor-info'>
+          <span class='tutor-name'></span>
+          <div class='tutor-subjects'></div>
         </div>
-        <button data-tutor-id="" class="view-profile-btn" type="button">
-          <img src={calendar.src} alt="Ver perfil" class="btn-ver-perfil" />
+        <button data-tutor-id='' class='view-profile-btn' type='button'>
+          <img src={calendar.src} alt='Ver perfil' class='btn-ver-perfil' />
         </button>
       </div>
     </li>
@@ -45,17 +112,19 @@ import calendar from "@/features/search/assets/calendar.png";
     margin-top: 60px;
   }
 
-  .tutor-list-title {
-    color: var(--color-negrops-700);
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
+  .tutor-list-title {
     font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 400;
     font-size: 20px;
     line-height: 24px;
-    /* identical to box height, or 120% */
     letter-spacing: -0.02em;
-
     color: #3c3c3c;
   }
 
@@ -75,23 +144,62 @@ import calendar from "@/features/search/assets/calendar.png";
     text-decoration: underline;
   }
 
+  /* ─── Slider ─── */
+  .tutor-slider-wrapper {
+    padding: 25px 200px;
+  }
+
+  .tutor-slider-viewport {
+    overflow: hidden;
+  }
+
+  .slider-arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--color-negrops-200);
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background 0.2s,
+      opacity 0.2s;
+  }
+
+  .slider-arrow:hover:not(:disabled) {
+    background: var(--color-moradops-50);
+    border-color: var(--color-moradops-300);
+  }
+
+  .slider-arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
   .tutor-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    display: flex;
     gap: 40px;
-    padding: 25px 200px;
+    transition: transform 0.4s ease;
+  }
+
+  .tutor-list > .tutor-list-item {
+    flex: 0 0 300px;
   }
 
   .tutor-list-item {
     margin: 0;
   }
 
+  /* ─── Card ─── */
   .tutor-list-div {
     position: relative;
-    width: 100%;
+    width: 300px;
+    height: 300px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -102,9 +210,6 @@ import calendar from "@/features/search/assets/calendar.png";
     border: 1px solid var(--color-negrops-200);
     border-radius: 16px;
     cursor: pointer;
-
-    width: 300px;
-    height: 300px;
   }
 
   .tutor-list-div:hover {
@@ -132,7 +237,6 @@ import calendar from "@/features/search/assets/calendar.png";
     padding-top: 15px;
     background: rgba(255, 252, 237, 0.5);
     backdrop-filter: blur(24.5px);
-    /* Note: backdrop-filter has minimal browser support */
   }
 
   .tutor-photo {
@@ -179,7 +283,6 @@ import calendar from "@/features/search/assets/calendar.png";
     position: absolute;
     top: 240px;
     right: 20px;
-
     background: #f3edff;
     border-radius: 8px;
     border-color: transparent;
@@ -188,59 +291,100 @@ import calendar from "@/features/search/assets/calendar.png";
   .view-profile-btn:focus {
     outline: none;
   }
+
+  /* ─── Modal ─── */
+  .all-tutors-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .all-tutors-modal.active {
+    display: flex;
+  }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(207, 185, 255, 0.5);
+    backdrop-filter: blur(7.5px);
+  }
+
+  .modal-body {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 1100px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .modal-title {
+    font-family: "Open Sauce Two";
+    font-weight: 400;
+    font-size: 20px;
+    color: #3c3c3c;
+  }
+
+  .close-modal-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+
+  .close-modal-btn:hover {
+    background: var(--color-negrops-100);
+  }
+
+  .all-tutors-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 300px);
+    justify-content: center;
+    gap: 24px;
+  }
 </style>
 
 <script is:inline>
-  document.getElementById("tutor-list")?.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-tutor-id]");
-    if (btn) loadTutor(btn.dataset.tutorId);
-  });
+  (function () {
+    var currentSlide = 0;
+    var currentTutors = [];
+    var VISIBLE = 3;
+    var GAP = 40;
 
-  document.getElementById("view-more-btn")?.addEventListener("click", () => {
-    // Limpiar filtros antes de buscar todos
-    document.querySelectorAll('input[name="modalities"]:checked').forEach(el => el.checked = false);
-    const nameFilter = document.getElementById("name-filter");
-    if (nameFilter) nameFilter.value = "";
-    const subjectFilter = document.getElementById("subject-filter");
-    if (subjectFilter) subjectFilter.value = "";
+    // Limpiar listeners de navegación anterior (View Transitions)
+    if (window.__tutorsCleanup) window.__tutorsCleanup();
 
-    // Ocultar sección del título
-    document.getElementById("title-section")?.classList.add("hide");
+    function createTutorCard(tutor) {
+      var template = document.getElementById("tutor-item-template");
+      if (!template) return null;
 
-    // Aplicar filtros (que ahora están vacíos, por lo que trae todos)
-    if (typeof applyFilters === 'function') {
-      applyFilters();
-    }
-  });
-
-  document.addEventListener("tutors-updated", (e) => {
-    const payload = e.detail;
-    
-    // Soportar tanto { tutors: [...], isInitial: true } como [...] directamente por compatibilidad
-    const tutors = Array.isArray(payload) ? payload : (payload.tutors || []);
-    const isInitial = Array.isArray(payload) ? false : (payload.isInitial || false);
-    
-    const section = document.getElementById("tutor-list-section");
-    const list = document.getElementById("tutor-list");
-    const template = document.getElementById("tutor-item-template");
-    const viewMoreBtn = document.getElementById("view-more-btn");
-    
-    if (!list || !template || !section) return;
-
-    list.innerHTML = "";
-    
-    // Mostrar u ocultar el botón de 'Ver más'
-    if (viewMoreBtn) {
-        viewMoreBtn.hidden = !isInitial;
-    }
-
-    tutors.forEach((tutor) => {
-      const clone = template.content.cloneNode(true);
-      const card = clone.querySelector(".tutor-list-div");
-      const btn = clone.querySelector(".view-profile-btn");
+      var clone = template.content.cloneNode(true);
+      var btn = clone.querySelector(".view-profile-btn");
       btn.dataset.tutorId = tutor.tutorId || tutor.id;
 
-      const img = clone.querySelector(".tutor-photo");
+      var img = clone.querySelector(".tutor-photo");
       img.src =
         /*tutor.photo||*/ "https://media.istockphoto.com/id/825383494/photo/business-man-pushing-large-stone-up-to-hill-business-heavy-tasks-and-problems-concept.jpg?s=612x612&w=0&k=20&c=wtqvbQ6OIHitRVDPTtoT_1HKUAOgyqa7YzzTMXqGRaQ=";
       img.alt = tutor.name || "Tutor";
@@ -248,19 +392,156 @@ import calendar from "@/features/search/assets/calendar.png";
       clone.querySelector(".tutor-name").textContent =
         tutor.tutorName || tutor.name || tutor.fullName || "Tutor";
 
-      const subjectsContainer = clone.querySelector(".tutor-subjects");
-      (tutor.subjects || []).forEach((sub) => {
-        const tag = document.createElement("span");
+      var subjectsContainer = clone.querySelector(".tutor-subjects");
+      (tutor.subjects || []).forEach(function (sub) {
+        var tag = document.createElement("span");
         tag.className = "subject-tag";
         tag.textContent = sub.name || sub;
         subjectsContainer.appendChild(tag);
       });
 
-      list.appendChild(clone);
-    });
-
-    if (tutors.length > 0) {
-        section.hidden = false;
+      return clone;
     }
-  });
+
+    function getSlideOffset() {
+      var item = document.querySelector("#tutor-list .tutor-list-item");
+      if (!item) return 0;
+      return item.offsetWidth + GAP;
+    }
+
+    function updateSliderButtons() {
+      var total = currentTutors.length;
+      var prevBtn = document.getElementById("slider-prev");
+      var nextBtn = document.getElementById("slider-next");
+      if (prevBtn) prevBtn.disabled = currentSlide <= 0;
+      if (nextBtn)
+        nextBtn.disabled = total <= VISIBLE || currentSlide >= total - VISIBLE;
+    }
+
+    function slideToIndex(index) {
+      var list = document.getElementById("tutor-list");
+      if (!list) return;
+      currentSlide = Math.max(
+        0,
+        Math.min(index, currentTutors.length - VISIBLE),
+      );
+      var offset = currentSlide * getSlideOffset();
+      list.style.transform = "translateX(-" + offset + "px)";
+      updateSliderButtons();
+    }
+
+    function renderSlider(tutors) {
+      var list = document.getElementById("tutor-list");
+      if (!list) return;
+      list.innerHTML = "";
+      currentSlide = 0;
+      tutors.forEach(function (tutor) {
+        var card = createTutorCard(tutor);
+        if (card) list.appendChild(card);
+      });
+      list.style.transform = "translateX(0)";
+      updateSliderButtons();
+    }
+
+    function renderModalGrid(tutors) {
+      var grid = document.getElementById("all-tutors-list");
+      if (!grid) return;
+      grid.innerHTML = "";
+      tutors.forEach(function (tutor) {
+        var card = createTutorCard(tutor);
+        if (card) grid.appendChild(card);
+      });
+    }
+
+    function openModal() {
+      var modal = document.getElementById("all-tutors-modal");
+      if (!modal) return;
+      renderModalGrid(currentTutors);
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal() {
+      var modal = document.getElementById("all-tutors-modal");
+      if (!modal) return;
+      modal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+
+    // ── Evento: tutors-updated ──
+    function onTutorsUpdated(e) {
+      var payload = e.detail;
+      var tutors = Array.isArray(payload) ? payload : payload.tutors || [];
+      currentTutors = tutors;
+
+      var section = document.getElementById("tutor-list-section");
+      var viewMoreBtn = document.getElementById("view-more-btn");
+
+      if (section) section.hidden = tutors.length === 0;
+      if (viewMoreBtn) viewMoreBtn.hidden = tutors.length <= VISIBLE;
+
+      renderSlider(tutors);
+    }
+
+    function onKeyDown(e) {
+      var modal = document.getElementById("all-tutors-modal");
+      if (e.key === "Escape" && modal && modal.classList.contains("active")) {
+        closeModal();
+      }
+    }
+
+    document.addEventListener("tutors-updated", onTutorsUpdated);
+    document.addEventListener("keydown", onKeyDown);
+
+    // Click en tarjeta del slider
+    document
+      .getElementById("tutor-list")
+      ?.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-tutor-id]");
+        if (btn) loadTutor(btn.dataset.tutorId);
+      });
+
+    // Click en tarjeta del modal
+    document
+      .getElementById("all-tutors-list")
+      ?.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-tutor-id]");
+        if (btn) {
+          closeModal();
+          loadTutor(btn.dataset.tutorId);
+        }
+      });
+
+    // Flechas del slider
+    document
+      .getElementById("slider-prev")
+      ?.addEventListener("click", function () {
+        slideToIndex(currentSlide - 1);
+      });
+
+    document
+      .getElementById("slider-next")
+      ?.addEventListener("click", function () {
+        slideToIndex(currentSlide + 1);
+      });
+
+    // Ver más → abrir modal
+    document
+      .getElementById("view-more-btn")
+      ?.addEventListener("click", openModal);
+
+    // Cerrar modal
+    document
+      .getElementById("close-modal-btn")
+      ?.addEventListener("click", closeModal);
+    document
+      .getElementById("modal-backdrop")
+      ?.addEventListener("click", closeModal);
+
+    // Cleanup para View Transitions
+    window.__tutorsCleanup = function () {
+      document.removeEventListener("tutors-updated", onTutorsUpdated);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  })();
 </script>

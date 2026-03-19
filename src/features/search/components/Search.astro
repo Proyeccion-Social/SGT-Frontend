@@ -1,0 +1,71 @@
+---
+export const prerender = false;
+
+import Layout from "@/layouts/Layout.astro";
+import SearchBar from "@/features/search/components/SearchBar.astro";
+import DialogFilter from "@/features/search/components/DialogFilter.astro";
+import TutorList from "@/features/search/components/TutorList.astro";
+import TutorDetail from "@/features/search/components/TutorDetail.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+---
+
+<Layout title='Explorar tutores'>
+  <div class='page-wrapper-search'>
+    <div id='sidebar-container'>
+      <Sidebar userRole='student' />
+    </div>
+
+    <div class='search-page'>
+      <SearchBar />
+      <DialogFilter />
+      <TutorList />
+      <TutorDetail />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  #sidebar-container {
+    z-index: 1001;
+    top: 0;
+    height: 100%;
+    display: flex;
+    position: relative;
+    margin-top: -1rem;
+    margin-bottom: -1.5rem;
+  }
+  .page-wrapper-search {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    background-color: #f3edff;
+    padding: 18px 20px 20px 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    align-items: stretch;
+    z-index: 1001;
+  }
+
+  .search-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    justify-content: flex-start;
+    border-radius: 16px;
+    overflow: hidden;
+    z-index: 1000;
+  }
+
+  .search-content {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .search-content {
+      flex-direction: column;
+    }
+  }
+</style>

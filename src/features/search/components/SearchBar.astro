@@ -4,27 +4,29 @@ import filter from "@/features/search/assets/filter.png";
 import arrow from "@/features/search/assets/arrow.png";
 ---
 
-<section class="title-section" id="title-section">
-  <h1 class="page-title">¡Los<span class="highlight">mejores</span> de la facultad!</h1>
-  <img src={arrow.src} class="arrow"/>
-  <p class="arrow-text">Tutores</p>
-  <div class="bg-difumination"> </div>
+<section class='title-section' id='title-section'>
+  <h1 class='page-title'>
+    ¡Los<span class='highlight'>mejores</span> de la facultad!
+  </h1>
+  <img src={arrow.src} class='arrow' />
+  <p class='arrow-text'>Tutores</p>
+  <div class='bg-difumination'></div>
 </section>
 
-<section class="search-bar">
-  <div class="search-bar-row">
-    <div class="search-input-container">  
+<section class='search-bar'>
+  <div class='search-bar-row'>
+    <div class='search-input-container'>
       <input
-        type="text"
-        id="name-filter"
-        class="search-input"
-        placeholder="Buscar por nombre del tutor"
+        type='text'
+        id='name-filter'
+        class='search-input'
+        placeholder='Buscar por nombre del tutor'
       />
-      <button id="search-btn" class="search-button" type="button">
-        <img src={searchIcon.src} alt="Buscar" />
+      <button id='search-btn' class='search-button' type='button'>
+        <img src={searchIcon.src} alt='Buscar' />
       </button>
-      <button id="filter-btn" class="filter-button" type="button">
-        <img src={filter.src} alt="Filtrar" />
+      <button id='filter-btn' class='filter-button' type='button'>
+        <img src={filter.src} alt='Filtrar' />
       </button>
     </div>
   </div>
@@ -37,9 +39,8 @@ import arrow from "@/features/search/assets/arrow.png";
   });
 
   /**
-   * Carga todos los tutores del backend una sola vez,
-   * los enriquece con su perfil completo, y los cachea
-   * en window.__allTutors para filtrado client-side.
+   * Carga todos los tutores del backend una sola vez.
+   * Retorna los datos básicos de inmediato y enriquece en segundo plano.
    */
   async function loadAllTutors() {
     if (window.__allTutors) return window.__allTutors;
@@ -48,34 +49,44 @@ import arrow from "@/features/search/assets/arrow.png";
     const data = await res.json();
     const tutors = data.data ?? data ?? [];
 
-    // Enriquecer cada tutor con su perfil completo
-    const profilePromises = tutors.map((t) => {
-      const id = t.tutorId || t.id;
-      return fetch(`/api/search/${encodeURIComponent(id)}`)
-        .then((res) => (res.ok ? res.json() : t))
-        .catch(() => t);
-    });
+    // Enriquecer cada tutor en segundo plano (no bloquea la carga inicial)
+    if (!window.__enrichPromise) {
+      window.__enrichPromise = Promise.all(
+        tutors.map((t) => {
+          const id = t.tutorId || t.id;
+          return fetch(`/api/search/${encodeURIComponent(id)}`)
+            .then((r) => (r.ok ? r.json() : t))
+            .catch(() => t);
+        }),
+      ).then((enriched) => {
+        window.__allTutors = enriched;
+        return enriched;
+      });
+    }
 
-    const enriched = await Promise.all(profilePromises);
-    window.__allTutors = enriched;
-    return enriched;
+    return tutors;
   }
 
   async function applyFilters(isInitial = false) {
-    // Leer filtros del UI
     const checked = Array.from(
       document.querySelectorAll('input[name="modalities"]:checked'),
     ).map((el) => el.value);
 
-    const nameQuery = document
-      .getElementById("name-filter")
-      .value.trim()
+    const nameQuery = (document.getElementById("name-filter")?.value || "")
+      .trim()
       .toLowerCase();
-
     const subjectId = document.getElementById("subject-filter")?.value || "";
 
-    // Cargar tutores (usa caché si ya se cargaron)
-    let tutors = await loadAllTutors();
+    let tutors;
+
+    // Usar datos enriquecidos para búsquedas filtradas, básicos para carga inicial
+    if (window.__allTutors) {
+      tutors = window.__allTutors;
+    } else if (!isInitial && window.__enrichPromise) {
+      tutors = await window.__enrichPromise;
+    } else {
+      tutors = await loadAllTutors();
+    }
 
     /* ---------------- FILTRO MATERIA (client-side) ---------------- */
     if (subjectId) {
@@ -91,7 +102,8 @@ import arrow from "@/features/search/assets/arrow.png";
     /* ---------------- FILTRO MODALIDAD (client-side) ---------------- */
     if (checked.length > 0) {
       tutors = tutors.filter((t) => {
-        const modalities = t.availableModalities || t.modality || t.modalities || [];
+        const modalities =
+          t.availableModalities || t.modality || t.modalities || [];
         return checked.some((m) => modalities.includes(m));
       });
     }
@@ -104,18 +116,17 @@ import arrow from "@/features/search/assets/arrow.png";
       });
     }
 
-    if (isInitial) {
-        tutors = tutors.slice(0, 3);
-    }
-
     document.dispatchEvent(
       new CustomEvent("tutors-updated", { detail: { tutors, isInitial } }),
     );
   }
 
-  // Cargar tutores iniciales
-  document.addEventListener("DOMContentLoaded", () => {
-      applyFilters(true);
+  // Inicializar con astro:page-load (soporta View Transitions, incluyendo carga inicial)
+  document.addEventListener("astro:page-load", function () {
+    if (!document.getElementById("tutor-list")) return;
+    window.__allTutors = null;
+    window.__enrichPromise = null;
+    applyFilters(true);
   });
 </script>
 
@@ -180,8 +191,6 @@ import arrow from "@/features/search/assets/arrow.png";
     align-items: center;
   }
 
-
-
   .search-button {
     position: absolute;
     display: flex;
@@ -215,56 +224,53 @@ import arrow from "@/features/search/assets/arrow.png";
   .arrow {
     /* Tutores */
 
-position: absolute;
-width: 75px;
+    position: absolute;
+    width: 75px;
 
-left: 670px;
-top: 105px;
+    left: 670px;
+    top: 105px;
 
-color: #E8E8E8;
-
-
+    color: #e8e8e8;
   }
 
   .arrow-text {
     /* Tutores */
 
-position: absolute;
-width: 80px;
+    position: absolute;
+    width: 80px;
 
-left: 745px;
-top: 80px;
+    left: 745px;
+    top: 80px;
 
-font-family: 'Caveat';
+    font-family: "Caveat";
 
-font-size: 32px;
+    font-size: 32px;
 
-
-color: #E8E8E8;
-
+    color: #e8e8e8;
   }
 
   .highlight {
     color: #9f74ff;
-    font-family: 'Caveat';  
+    font-family: "Caveat";
     font-size: 70px;
     padding: 0 10px;
   }
 
   .bg-difumination {
-/* Rectangle 10 */
+    /* Rectangle 10 */
 
-position: absolute;
-z-index: -1;
-left: 15%;
-right: 10%;
-top: 15%;
-bottom: 20.63%;
+    position: absolute;
+    z-index: -1;
+    left: 15%;
+    right: 10%;
+    top: 15%;
+    bottom: 20.63%;
 
-background: radial-gradient(50% 50% at 50% 50%, #CFB9FF 0%, rgba(243, 237, 255, 0) 63%);
-
-
-
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      #cfb9ff 0%,
+      rgba(243, 237, 255, 0) 63%
+    );
   }
 
   .search-button:hover {

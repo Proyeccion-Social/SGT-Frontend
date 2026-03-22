@@ -239,7 +239,7 @@ export interface CreateSessionDTO {
   duration: number;
   title: string;
   description: string;
-  modalidad: Modality;
+  modality: Modality;
   type?: SessionType;
   subjectId?: string;
 }

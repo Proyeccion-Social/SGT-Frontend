@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { SchedulingWizard } from '../../features/sessions/components/schedulling/SchedulingWizard';
+const token = Astro.cookies.get('access_token')?.value;
+if (!token) {
+return Astro.redirect('/');
+}
+---
+<Layout title="Agendar nueva tutoría">
+    <section class="mx-auto max-w-5xl py-8">
+        <SchedulingWizard client:load  modalidadesPermitidas={['VIRT', 'PRES']}  />
+    </section>
+</Layout>

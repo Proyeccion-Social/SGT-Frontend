@@ -103,7 +103,7 @@ const initialDataJson = JSON.stringify(initialData);
     'modality',
   ];
 
-  const root = document.getElementById('wizard-root') as HTMLElement | null;
+  const root = document.getElementById('wizard-root') as HTMLElement;
   const stepIndicator = document.getElementById('wizard-step-indicator') as HTMLParagraphElement | null;
   const stepElems = Array.from(
     document.querySelectorAll<HTMLElement>('.wizard-step'),

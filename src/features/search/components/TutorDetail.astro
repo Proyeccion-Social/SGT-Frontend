@@ -1,80 +1,75 @@
 ---
+import { Image } from "astro:assets";
+import profile from "@/features/search/assets/profile.png";
+
+import star from "@/features/search/assets/star-simple.svg";
+import fullStar from "@/features/search/assets/star-full.svg";
+import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
+import starSimpleUnfilled from "@/features/search/assets/star-simple-unfilled.svg";
+import active from "@/features/search/assets/active.svg"
+
+import arrow from "@/features/search/assets/arrow-detail.svg"
+import closeSvg from "@/features/search/assets/close.svg"
 ---
 
-<section class="tutor-detail-section" hidden id="tutor-detail-section">
-  <h2 class="tutor-detail-title">Información del tutor</h2>
-
-  <div id="tutor-info" class="tutor-detail-card">
-    <button id="close-tutor-detail" class="close-btn" aria-label="Cerrar modal">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-    </button>
-    <p id="tutor-empty-msg" class="tutor-detail-empty">
-      Selecciona un tutor para ver su información
-    </p>
-
-    <div id="tutor-content" hidden>
-      <div class="tutor-details-container">
-      <!-- Header con nombre -->
-      <div class="tutor-header">
-        <h3 id="tutor-name"></h3>
-      </div>
-
-      <!-- Info grid -->
-      <div class="tutor-info-grid">
-        <div class="info-item">
-          <span class="info-label">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-            Materias
-          </span>
-          <span id="tutor-subjects" class="info-value"></span>
-        </div>
-
-        <div class="info-item">
-          <span class="info-label">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            Calificación
-          </span>
-          <span id="tutor-rating" class="info-value rating-value"></span>
-        </div>
-
-        <div class="info-item">
-          <span class="info-label">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
-            Modalidades
-          </span>
-          <span id="tutor-modalities" class="info-value"></span>
-        </div>
-      </div>
-
-      </div>
-      <div class="tutor-availability-container">
-
-      <!-- Disponibilidad -->
-      <div class="availability-section">
-        <h4 class="availability-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Disponibilidad
-        </h4>
-        <ul id="tutor-slots"></ul>
-      </div>
+<dialog id="tutor-detail-section"
+  data-star={star.src}
+  data-star-full={fullStar.src}
+  data-star-unfilled={starUnfilled.src}
+  data-star-simple-unfilled={starSimpleUnfilled.src}
+>
+  <button id="close-dialog-btn" class="closeDialogBtn" aria-label="Cerrar">
+    <Image src={closeSvg} alt="Cerrar modal" />
+  </button>
+  <section class="upSectionDetail">
+    <div class="leftSideDetail">
+      <Image src={profile} alt="" class="profileImgShadow" />
+      <Image src={profile} alt="" class="profileImg" />
+      <div class="badgeActive">
+        <Image src={active} alt="" class="activeIcon" />
+        <p>Activo</p>
       </div>
     </div>
-  </div>
-</section>
+    <div class="rightSideDetail">
+      <p class="informativeText">
+        Racha de 15 semanas dando al menos una tutoría
+      </p>
+      <h2 class="tutorName" id="tutor-name"></h2>
+      <div class="containerTutorSubjects" id="tutor-subjects"></div>
+      <div class="tutorRating">
+        <div class="stars" id="tutor-stars">
+
+        </div>
+        <div class="totalRatings">
+          <Image src={arrow} alt="" class="arrowRatings" />
+          <p class="labelTotalRatings" id="tutor-total-ratings"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="downSectionDetail">
+    <div class="tutor-slots-container">
+      <h3 class="section-title">Horarios disponibles</h3>
+      <ul id="tutor-slots" class="slots-list"></ul>
+    </div>
+  </section>  
+</dialog>
 
 <script is:inline>
   const el = (id) => document.getElementById(id);
+  const dialog = el("tutor-detail-section");
 
   document.addEventListener("DOMContentLoaded", () => {
-    el("close-tutor-detail")?.addEventListener("click", () => {
-      el("tutor-detail-section").hidden = true;
+    // Cerrar haciendo click en el fondo (overlay) nativo del dialog
+    dialog?.addEventListener("click", (e) => {
+      // e.target is the dialog itself when clicking exactly on the backdrop
+      if (e.target === dialog) {
+        dialog.close();
+      }
     });
 
-    // Permitir cerrar haciendo click en el fondo (overlay)
-    el("tutor-detail-section")?.addEventListener("click", (e) => {
-      if (e.target.id === "tutor-detail-section") {
-        el("tutor-detail-section").hidden = true;
-      }
+    el("close-dialog-btn")?.addEventListener("click", () => {
+      dialog.close();
     });
   });
 
@@ -88,8 +83,13 @@
       const tutor = await profileRes.json();
       const { availableSlots = [] } = await slotsRes.json();
 
-      const subjects =
-        tutor.subjects?.map(s => s.name).join(", ") ?? "Sin materias";
+      const subjectsHTML = tutor.subjects?.map(s => `
+        <div class="tutorSubjects">
+          <div class="subjectName" style="padding: 2.8px 8.4px; background: #E6FFC7; border-radius: 22.4px;">
+            <p>${s.name}</p>
+          </div>
+        </div>
+      `).join("") ?? "";
 
       const slotsHTML = availableSlots
         .map(slot =>
@@ -102,23 +102,37 @@
         .join("");
 
       el("tutor-name").textContent = tutor.name;
-      el("tutor-subjects").textContent = subjects;
-      el("tutor-rating").textContent =
-        `${tutor.averageRating} ★ (${tutor.totalRatings} valoraciones)`;
-      el("tutor-modalities").textContent =
-        tutor.availableModalities?.join(", ") ?? "N/A";
+      el("tutor-subjects").innerHTML = subjectsHTML;
+      el("tutor-total-ratings").textContent = `${tutor.totalRatings} valoraciones`;
 
+      const rating = Math.round(tutor.averageRating ?? 0);
+      let starsHTML = '';
+      
+      const starSrc = dialog.getAttribute("data-star");
+      const starFullSrc = dialog.getAttribute("data-star-full");
+      const starUnfilledSrc = dialog.getAttribute("data-star-unfilled");
+      const starSimpleUnfilledSrc = dialog.getAttribute("data-star-simple-unfilled");
+
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+          if (i === 5) {
+            starsHTML += `<img src="${starFullSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+          } else {
+            starsHTML += `<img src="${starSrc}" alt="star" style="width: 31px; height: 29px; align-self: center; />`;
+          }
+        } else {
+          if (i === 5) {
+            starsHTML += `<img src="${starUnfilledSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+          } else {
+            starsHTML += `<img src="${starSimpleUnfilledSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
+          }
+        }
+      }
+
+      el("tutor-stars").innerHTML = starsHTML;
       el("tutor-slots").innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
 
-      el("tutor-empty-msg").hidden = true;
-      el("tutor-content").hidden = false;
-      el("tutor-detail-section").hidden = false;
-
-      // Trigger entrance animation
-      const card = el("tutor-info");
-      card.classList.remove("card-enter");
-      void card.offsetWidth; /* reflow */
-      card.classList.add("card-enter");
+      dialog.showModal();
 
     } catch (error) {
       console.error("Error cargando tutor:", error);
@@ -126,91 +140,48 @@
   }
 </script>
 
-<style is:global>
-  /* ───────── Modal / Overlay ───────── */
-
-  .tutor-content {
-    display:flex;
-    flex-direction: row;
-    gap: 20px;
+<style>
+  #tutor-detail-section {
+    width: 980px;
+    padding: 40px;
+    border-radius: 22.4px;
+    border: none;
+    outline: none;
+    position: relative; /* Para el boton de cerrar */
   }
-  .tutor-detail-section {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    z-index: 9999;
+
+  /* ── Boton Cerrar ── */
+  .closeDialogBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  .tutor-detail-section[hidden] {
-    display: none !important;
-  }
-
-  .tutor-detail-title {
-    display: none;
-  }
-
-  /* ───────── Card ───────── */
-  .tutor-detail-card {
-    position: relative;
-    width: 100%;
-    max-width: 650px;
-    max-height: 90vh;
-    overflow-y: auto;
-    background: rgba(245, 241, 255, 0.85);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(159, 116, 255, 0.18);
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
-  }
-
-  .tutor-detail-card::-webkit-scrollbar {
-    width: 6px;
-  }
-  .tutor-detail-card::-webkit-scrollbar-thumb {
-    background: rgba(159, 116, 255, 0.4);
-    border-radius: 4px;
-  }
-
-  /* ───────── Close Button ───────── */
-  .close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
     background: transparent;
     border: none;
-    color: var(--color-negrops-400, #818181);
     cursor: pointer;
-    padding: 8px;
     border-radius: 50%;
+    transition: background 0.2s, transform 0.2s;
+    z-index: 10;
+  }
+  .closeDialogBtn:hover {
+    transform: scale(1.1);
+  }
+
+  #tutor-detail-section[open] {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, color 0.2s;
-  }
-  .close-btn:hover {
-    background: rgba(159, 116, 255, 0.15);
-    color: var(--color-negrops-900, #1a1a1a);
+    flex-direction: column;
+    margin: auto;
+    animation: modalFadeIn 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
 
-  /* Entrance animation */
-  .tutor-detail-card.card-enter {
-    animation: cardSlideIn 0.4s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-  }
-
-  @keyframes cardSlideIn {
+  @keyframes modalFadeIn {
     from {
       opacity: 0;
-      transform: translateY(12px) scale(0.98);
+      transform: translateY(20px) scale(0.98);
     }
     to {
       opacity: 1;
@@ -218,188 +189,199 @@
     }
   }
 
-  /* ───────── Empty state ───────── */
-  .tutor-detail-empty {
-    font-family: 'Open Sauce Two', sans-serif;
-    color: var(--color-negrops-400, #818181);
-    font-size: 0.95rem;
-    text-align: center;
-    padding: 3rem 0;
-    margin: 0;
+  #tutor-detail-section::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
   }
 
-  /* ───────── Header ───────── */
-  .tutor-header {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(159, 116, 255, 0.15);
+  #tutor-detail-section[open]::backdrop {
+    animation: backdropFadeIn 0.3s ease forwards;
   }
 
-  .tutor-detail-card h3 {
-    font-family: 'Open Sauce Two', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-negrops-900, #1a1a1a);
-    margin: 0;
-    letter-spacing: -0.01em;
+  @keyframes backdropFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
-  /* ───────── Info Grid ───────── */
-  .tutor-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .info-item {
+  .upSectionDetail {
+    width: 100%;
+    border: 1px solid #e7dcff;
+    border-bottom: none;
+    border-radius: 22.4px;
     display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.65);
-    border-radius: 12px;
-    border: 1px solid rgba(159, 116, 255, 0.10);
-    transition: background 0.2s ease, border-color 0.2s ease;
+    gap: 22px;
+    padding: 20px 20px 40px; /* added bottom padding to clear the border */
+    background: rgba(255, 252, 237, 0.5);
+    backdrop-filter: blur(34.3px);
+    position: relative;
   }
 
-  .info-item:hover {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(159, 116, 255, 0.25);
+  .upSectionDetail::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #FFFFFF 0%, rgba(0, 0, 0, 0) 54%, #FFFFFF 100%);
+    border-radius: 0 0 22.4px 22.4px;
   }
 
-  .info-label {
+  .leftSideDetail {
+    width: 260px;
+    height: 225px;
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: 'Open Sauce Two', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-moradops-400, #9f74ff);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    position: relative;
   }
 
-  .info-label svg {
-    flex-shrink: 0;
-    color: var(--color-moradops-400, #9f74ff);
+  .profileImgShadow {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 22.4px;
+    filter: blur(28px);
+    opacity: 0.8;
+    z-index: 0;
   }
 
-  .info-value {
-    font-family: 'Open Sauce Two', sans-serif;
-    font-size: 0.95rem;
-    color: var(--color-negrops-700, #3c3c3c);
-    line-height: 1.4;
+  .profileImg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 22.4px;
+    z-index: 1;
   }
 
-  .rating-value {
-    color: var(--color-moradops-500, #8751ff);
-    font-weight: 600;
-  }
-
-  /* ───────── Availability Section ───────── */
-  .availability-section {
-    border-top: 1px solid rgba(159, 116, 255, 0.12);
-    padding-top: 1.25rem;
-  }
-
-  .availability-title {
+  .badgeActive {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: 'Open Sauce Two', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--color-negrops-700, #3c3c3c);
-    margin: 0 0 0.75rem;
-  }
-
-  .availability-title svg {
-    color: var(--color-moradops-400, #9f74ff);
-  }
-
-  .tutor-detail-card ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .tutor-detail-card li {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 1rem;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(159, 116, 255, 0.10);
-    border-radius: 12px;
-    font-family: 'Open Sauce Two', sans-serif;
-    font-size: 0.9rem;
-    color: var(--color-negrops-600, #3c3c3c);
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-  }
-
-  .tutor-detail-card li:hover {
-    background: var(--color-moradops-50, #f3edff);
-    border-color: rgba(159, 116, 255, 0.25);
-    transform: translateX(4px);
-  }
-
-  .tutor-detail-card .slot-day {
-    display: inline-block;
-    min-width: 75px;
-    padding: 0.2rem 0.6rem;
-    background: var(--color-moradops-400, #9f74ff);
-    color: #fff;
-    border-radius: 8px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-align: center;
-    letter-spacing: 0.02em;
-  }
-
-  .tutor-detail-card .slot-time {
-    flex: 1;
-    font-size: 0.88rem;
-    color: var(--color-negrops-700, #3c3c3c);
-  }
-
-  .tutor-detail-card .slot-modality {
-    padding: 0.2rem 0.55rem;
-    background: rgba(159, 116, 255, 0.12);
-    color: var(--color-moradops-500, #8751ff);
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-  }
-
-  .tutor-detail-card .no-slots {
+    flex-direction: row;
     justify-content: center;
-    color: var(--color-negrops-400, #818181);
-    font-style: italic;
-    background: transparent;
-    border: 1px dashed rgba(159, 116, 255, 0.2);
+    align-items: center;
+    padding: 2.8px 5.6px;
+    gap: 2.8px;
+    background: #FFFFFF;
+    border-radius: 22.4px;
+    position: absolute;
+    margin: 8px;
+    z-index: 2;
   }
 
-  .tutor-detail-card .no-slots:hover {
-    transform: none;
+  .activeIcon {
+    width: 11.2px;
+    height: 11.2px;
   }
 
-  /* ───────── Responsive ───────── */
-  @media (max-width: 768px) {
-    .tutor-detail-card {
-      padding: 1.5rem;
-    }
-
-    .tutor-info-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .tutor-detail-card li {
-      flex-wrap: wrap;
-    }
+  .badgeActive p {
+    font-family: 'Cabinet Grotesk Variable';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16.8px;
+    line-height: 22px;
+    letter-spacing: -0.02em;
+    color: var(--text-headings);
   }
+
+  .rightSideDetail {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .informativeText {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #C6C6C6;
+    margin-bottom: 2px;
+  }
+
+  .tutorName {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 34px;
+    letter-spacing: -0.02em;
+    color: #1A1A1A;
+  }
+
+  .containerTutorSubjects {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tutorSubjects {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 2.8px 8.4px;
+    background: #FAE9B7;
+    border-radius: 22.4px;
+  }
+
+  .tutorSubjects p {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16.8px;
+    line-height: 21px;
+    color: #3C3C3C;
+  }
+
+  .tutorRating {
+    display: flex;
+    width: 100%
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .stars {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    gap: 4px;
+    background: #F3EDFF;
+    border-radius: 16px;
+  }
+
+  .totalRatings {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .totalRatings p {
+    position: relative;
+    top: -10px;
+    left: 4px;
+    font-family: 'Caveat';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #9F74FF;
+  }
+
+  .downSectionDetail {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    display: none;
+  }
+
+
 </style>

@@ -1,16 +1,19 @@
 ---
-import searchIcon from "@/features/search/assets/search.png";
-import filter from "@/features/search/assets/filter.png";
+import searchIcon from "@/features/search/assets/search.svg";
 import arrow from "@/features/search/assets/arrow.png";
+import { Image } from "astro:assets";
+import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
 ---
 
+<div class='bg-difumination'></div>
 <section class='title-section' id='title-section'>
   <h1 class='page-title'>
     ¡Los<span class='highlight'>mejores</span> de la facultad!
   </h1>
-  <img src={arrow.src} class='arrow' />
-  <p class='arrow-text'>Tutores</p>
-  <div class='bg-difumination'></div>
+  <article class='arrowTutores'>
+    <img src={arrow.src} class='arrow' />
+    <p class='arrow-text'>Tutores</p>
+  </article>
 </section>
 
 <section class='search-bar'>
@@ -23,19 +26,39 @@ import arrow from "@/features/search/assets/arrow.png";
         placeholder='Buscar por nombre del tutor'
       />
       <button id='search-btn' class='search-button' type='button'>
-        <img src={searchIcon.src} alt='Buscar' />
+        <Image src={searchIcon} alt='Buscar' />
       </button>
-      <button id='filter-btn' class='filter-button' type='button'>
-        <img src={filter.src} alt='Filtrar' />
-      </button>
+      <div class='filters-row'>
+        <TutorFilters client:only='react' />
+      </div>
     </div>
   </div>
 </section>
-
 <script is:inline>
+  // Real-time search: filter on every keystroke
+  (function () {
+    var debounceTimer = null;
+    var input = document.getElementById("name-filter");
+    if (input) {
+      input.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          applyFilters();
+        }, 200);
+      });
+    }
+  })();
+
+  // Keep search button working too
   document.getElementById("search-btn")?.addEventListener("click", () => {
     applyFilters();
-    document.getElementById("title-section")?.classList.add("hide");
+  });
+
+  // Listen for filter changes from the React TutorFilters component
+  var __reactFilters = {};
+  document.addEventListener("react-filters-changed", function (e) {
+    __reactFilters = e.detail || {};
+    applyFilters();
   });
 
   /**
@@ -68,14 +91,9 @@ import arrow from "@/features/search/assets/arrow.png";
   }
 
   async function applyFilters(isInitial = false) {
-    const checked = Array.from(
-      document.querySelectorAll('input[name="modalities"]:checked'),
-    ).map((el) => el.value);
-
     const nameQuery = (document.getElementById("name-filter")?.value || "")
       .trim()
       .toLowerCase();
-    const subjectId = document.getElementById("subject-filter")?.value || "";
 
     let tutors;
 
@@ -88,31 +106,60 @@ import arrow from "@/features/search/assets/arrow.png";
       tutors = await loadAllTutors();
     }
 
-    /* ---------------- FILTRO MATERIA (client-side) ---------------- */
-    if (subjectId) {
-      tutors = tutors.filter((t) => {
-        const subjects = t.subjects || [];
-        return subjects.some((s) => {
-          const sId = s.id || s._id || "";
-          return sId === subjectId;
+    // Read filters from React component
+    var rf = __reactFilters || {};
+
+    /* ---------------- FILTRO MATERIA ---------------- */
+    var subjectIds = rf["subject"] || [];
+    if (subjectIds.length > 0) {
+      tutors = tutors.filter(function (t) {
+        var subjects = t.subjects || [];
+        return subjects.some(function (s) {
+          return subjectIds.indexOf(s.id || s._id || "") !== -1;
         });
       });
     }
 
-    /* ---------------- FILTRO MODALIDAD (client-side) ---------------- */
-    if (checked.length > 0) {
-      tutors = tutors.filter((t) => {
-        const modalities =
-          t.availableModalities || t.modality || t.modalities || [];
-        return checked.some((m) => modalities.includes(m));
+    /* ---------------- FILTRO MODALIDAD ---------------- */
+    var mods = rf["modality"] || [];
+    if (mods.length > 0) {
+      tutors = tutors.filter(function (t) {
+        var modalities = t.availableModalities || [];
+        return mods.some(function (m) {
+          return modalities.indexOf(m) !== -1;
+        });
       });
     }
 
-    /* ---------------- FILTRO NOMBRE (client-side) ---------------- */
+    /* ---------------- FILTRO CALIFICACIÓN ---------------- */
+    var ratingArr = rf["rating"] || [];
+    if (ratingArr.length > 0) {
+      var minRating = parseFloat(ratingArr[0]);
+      if (!isNaN(minRating)) {
+        tutors = tutors.filter(function (t) {
+          return (t.averageRating || 0) >= minRating;
+        });
+      }
+    }
+
+    /* ---------------- FILTRO DISPONIBILIDAD (día) ---------------- */
+    var days = rf["availability"] || [];
+    if (days.length > 0) {
+      tutors = tutors.filter(function (t) {
+        var slots = t.availableSlots || [];
+        return days.some(function (d) {
+          return slots.some(function (slot) {
+            return slot.dayOfWeek === d;
+          });
+        });
+      });
+    }
+
+    /* ---------------- FILTRO NOMBRE ---------------- */
     if (nameQuery) {
-      tutors = tutors.filter((t) => {
-        const name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
-        return name.includes(nameQuery);
+      tutors = tutors.filter(function (t) {
+        var name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
+        return name.indexOf(nameQuery) !== -1;
       });
     }
 
@@ -123,7 +170,7 @@ import arrow from "@/features/search/assets/arrow.png";
 
   // Inicializar con astro:page-load (soporta View Transitions, incluyendo carga inicial)
   document.addEventListener("astro:page-load", function () {
-    if (!document.getElementById("tutor-list")) return;
+    if (!document.getElementById("accordion-container")) return;
     window.__allTutors = null;
     window.__enrichPromise = null;
     applyFilters(true);
@@ -132,39 +179,27 @@ import arrow from "@/features/search/assets/arrow.png";
 
 <style>
   .title-section {
-    margin-top: 120px;
-    margin-bottom: 70px;
+    margin-top: 40px;
     display: flex;
     justify-content: center;
     opacity: 1;
-    transition:
-      margin-top 0.4s ease,
-      margin-bottom 0.4s ease,
-      opacity 0.3s ease,
-      transform 0.3s ease;
-  }
-
-  .title-section.hide {
-    height: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    opacity: 0;
-    transform: translateY(-10px);
-    pointer-events: none;
+    position: relative;
   }
 
   .page-title {
     text-align: center;
     font-family: "Open Sauce Two";
-    font-size: 52px;
     letter-spacing: -0.02em;
     color: #1a1a1a;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 48px;
   }
 
   .search-bar {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     gap: 0.75rem;
   }
 
@@ -172,6 +207,15 @@ import arrow from "@/features/search/assets/arrow.png";
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
+    margin-top: 36px;
+  }
+
+  .filters-row {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    right: 72px;
+
   }
 
   .search-input {
@@ -179,10 +223,21 @@ import arrow from "@/features/search/assets/arrow.png";
     box-sizing: border-box;
     width: 723px;
     height: 72px;
-    background: rgba(245, 241, 255, 0.77);
     box-shadow: 0px 4px 9px 2px rgba(135, 81, 255, 0.2);
     border-radius: 40px;
-    border-color: #9f74ff;
+    border: 0.4px solid #e7dcff;
+    outline: none;
+    background: rgba(256, 256, 256, 0.6);
+  }
+
+  .search-input::placeholder {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+    color: #a3a3a3;
   }
 
   .search-input-container {
@@ -205,71 +260,48 @@ import arrow from "@/features/search/assets/arrow.png";
     border: none;
   }
 
-  .filter-button {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 5px;
-    gap: 10px;
-
+  .arrowTutores {
     position: absolute;
-    width: 28px;
-    left: 620px;
-
-    background: #e8e8e8;
-    border-radius: 8px;
-    border-color: transparent;
+    width: 75px;
+    left: 250px;
+    top: -40px;
+    color: #e8e8e8;
   }
 
   .arrow {
-    /* Tutores */
-
-    position: absolute;
-    width: 75px;
-
-    left: 670px;
-    top: 105px;
-
-    color: #e8e8e8;
+    width: 70%;
   }
 
   .arrow-text {
-    /* Tutores */
-
+    top: -24px;
+    left: 52px;
     position: absolute;
-    width: 80px;
-
-    left: 745px;
-    top: 80px;
-
     font-family: "Caveat";
-
     font-size: 32px;
-
     color: #e8e8e8;
+    letter-spacing: -0.02em;
   }
 
   .highlight {
     color: #9f74ff;
     font-family: "Caveat";
-    font-size: 70px;
-    padding: 0 10px;
+    font-size: 52px;
+    font-weight: 600;
+    padding: 0 8px;
   }
 
   .bg-difumination {
-    /* Rectangle 10 */
-
     position: absolute;
-    z-index: -1;
-    left: 15%;
+    z-index: 0;
+    left: 10%;
     right: 10%;
-    top: 15%;
+    top: 0%;
     bottom: 20.63%;
 
     background: radial-gradient(
       50% 50% at 50% 50%,
-      #cfb9ff 0%,
-      rgba(243, 237, 255, 0) 63%
+      #e7dcff 0%,
+      rgba(243, 237, 255, 0) 60%
     );
   }
 

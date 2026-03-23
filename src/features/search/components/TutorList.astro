@@ -1,121 +1,57 @@
 ---
-import calendar from "@/features/search/assets/calendar.png";
+
 ---
 
 <section id='tutor-list-section' class='tutor-list-section' hidden>
-  <div class='tutor-list-header'>
-    <h2 class='tutor-list-title'>Nuestros tutores</h2>
-    <div class='header-controls'>
-      <button
-        id='slider-prev'
-        class='slider-arrow'
-        type='button'
-        aria-label='Anterior'
-        disabled
-      >
-        <svg
-          width='20'
-          height='20'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          stroke-width='2.5'
-          stroke-linecap='round'
-          stroke-linejoin='round'><path d='M15 18l-6-6 6-6'></path></svg
-        >
-      </button>
-      <button
-        id='slider-next'
-        class='slider-arrow'
-        type='button'
-        aria-label='Siguiente'
-        disabled
-      >
-        <svg
-          width='20'
-          height='20'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          stroke-width='2.5'
-          stroke-linecap='round'
-          stroke-linejoin='round'><path d='M9 18l6-6-6-6'></path></svg
-        >
-      </button>
-      <button id='view-more-btn' class='view-more-btn' hidden type='button'
-        >Ver más</button
-      >
-    </div>
+  <div id='accordion-container' class='accordion-container'></div>
+
+  <!-- Empty state -->
+  <div id='tutor-empty-state' class='tutor-empty-state' hidden>
+    <svg
+      width='48'
+      height='48'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='#a3a3a3'
+      stroke-width='1.5'
+      stroke-linecap='round'
+      stroke-linejoin='round'
+    >
+      <circle cx='11' cy='11' r='8'></circle>
+      <path d='m21 21-4.3-4.3'></path>
+    </svg>
+    <p class='empty-title'>No se encontraron tutores</p>
+    <p class='empty-subtitle'>Intenta con otro nombre o ajusta los filtros</p>
   </div>
 
-  <div class='tutor-slider-wrapper'>
-    <div class='tutor-slider-viewport'>
-      <ul id='tutor-list' class='tutor-list'></ul>
-    </div>
-  </div>
-
-  <!-- Modal de todos los tutores -->
-  <div id='all-tutors-modal' class='all-tutors-modal'>
-    <div class='modal-backdrop' id='modal-backdrop'></div>
-    <div class='modal-body'>
-      <div class='modal-header'>
-        <h2 class='modal-title'>Todos los tutores</h2>
-        <button
-          id='close-modal-btn'
-          class='close-modal-btn'
-          type='button'
-          aria-label='Cerrar'
-        >
-          <svg
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            stroke-width='2'
-            stroke-linecap='round'
-            stroke-linejoin='round'><path d='M18 6L6 18M6 6l12 12'></path></svg
-          >
-        </button>
+  <template id='accordion-panel-template'>
+    <div class='accordion-panel' data-tutor-id='' tabindex='0'>
+      <img class='panel-photo' src='' alt='' />
+      <div class='panel-overlay'></div>
+      <div class='panel-content'>
+        <h1 class='panel-tutor-name'></h1>
+        <button class='panel-cta' type='button'>Ver perfil completo</button>
       </div>
-      <ul id='all-tutors-list' class='all-tutors-grid'></ul>
     </div>
-  </div>
-
-  <template id='tutor-item-template'>
-    <li class='tutor-list-item'>
-      <div class='tutor-list-div'>
-        <img class='tutor-photo' src='' alt='' />
-        <div class='tutor-info'>
-          <span class='tutor-name'></span>
-          <div class='tutor-subjects'></div>
-        </div>
-        <button data-tutor-id='' class='view-profile-btn' type='button'>
-          <img src={calendar.src} alt='Ver perfil' class='btn-ver-perfil' />
-        </button>
-      </div>
-    </li>
   </template>
 </section>
 
 <style>
   .tutor-list-section {
-    flex: 1;
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
   }
 
   .tutor-list-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 200px;
-    margin-top: 60px;
-  }
-
-  .header-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    margin-top: 48px;
+    margin-bottom: 24px;
+    max-width: 1000px;
+    width: 100%;
   }
 
   .tutor-list-title {
@@ -128,344 +64,258 @@ import calendar from "@/features/search/assets/calendar.png";
     color: #3c3c3c;
   }
 
-  .view-more-btn {
-    font-family: "Open Sauce Two";
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    color: #9f74ff;
-    background: none;
-    border: none;
+  /* ─── Accordion Container ─── */
+  .accordion-container {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 1000px;
+    height: 250px;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  /* ─── Individual Panel ─── */
+  .accordion-panel {
+    position: relative;
+    flex: 0.6;
+    min-width: 0;
+    height: 100%;
+    border-radius: 16px;
+    overflow: hidden;
     cursor: pointer;
-    text-decoration: none;
+    transition: flex 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .view-more-btn:hover {
-    text-decoration: underline;
+  .accordion-panel.active {
+    flex: 4;
   }
 
-  /* ─── Slider ─── */
-  .tutor-slider-wrapper {
-    padding: 25px 200px;
+  /* ─── Photo ─── */
+  .panel-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+    background: var(--color-negrops-100, #e8e8e8);
   }
 
-  .tutor-slider-viewport {
+  /* ─── Dark gradient overlay (active panel, bottom) ─── */
+  .panel-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.35) 40%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .accordion-panel.active .panel-overlay {
+    opacity: 1;
+  }
+
+  /* Subtle darkening on collapsed panels */
+  .accordion-panel:not(.active)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.35) 0%,
+      rgba(0, 0, 0, 0.1) 40%,
+      transparent 60%
+    );
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  /* ─── Empty State ─── */
+  .tutor-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    height: 250px;
+    border-radius: 20px;
+    border: 1px dashed var(--color-negrops-200, #d4d4d4);
+    background: rgba(243, 237, 255, 0.25);
+    gap: 8px;
+  }
+
+  .empty-title {
+    font-family: "Open Sauce Two";
+    font-weight: 600;
+    font-size: 16px;
+    color: #3c3c3c;
+    margin: 0;
+  }
+
+  .empty-subtitle {
+    font-family: "Open Sauce Two";
+    font-weight: 400;
+    font-size: 14px;
+    color: #a3a3a3;
+    margin: 0;
+  }
+
+  /* ─── Content (only visible on active panel) ─── */
+  .panel-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
     overflow: hidden;
   }
 
-  .slider-arrow {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 1px solid var(--color-negrops-200);
+  .accordion-panel.active .panel-content {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ─── Tutor Name ─── */
+  .panel-tutor-name {
+    font-family: "Open Sauce Two";
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 26px;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :global(.panel-subject-tag) {
+    font-family: "Open Sauce Two";
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 16px;
+    color: #1a1a1a;
+    background: rgba(250, 233, 183, 0.9);
+    border: none;
+    border-radius: 999px;
+    padding: 3px 12px;
+    backdrop-filter: blur(8px);
+    white-space: nowrap;
+  }
+
+  /* ─── CTA Button ─── */
+  .panel-cta {
+    align-self: flex-start;
+    font-family: "Open Sauce Two";
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+    color: #1a1a1a;
     background: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 7px 18px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition:
       background 0.2s,
-      opacity 0.2s;
+      transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   }
 
-  .slider-arrow:hover:not(:disabled) {
-    background: var(--color-moradops-50);
-    border-color: var(--color-moradops-300);
+  .panel-cta:hover {
+    background: var(--color-verdeps-100);
+    transform: scale(1.02);
   }
 
-  .slider-arrow:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-
-  .tutor-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 40px;
-    transition: transform 0.4s ease;
-  }
-
-  .tutor-list > .tutor-list-item {
-    flex: 0 0 300px;
-  }
-
-  .tutor-list-item {
-    margin: 0;
-  }
-
-  /* ─── Card ─── */
-  .tutor-list-div {
-    position: relative;
-    width: 300px;
-    height: 300px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0.5rem;
-    text-align: center;
-    background: none;
-    border: 1px solid var(--color-negrops-200);
-    border-radius: 16px;
-    cursor: pointer;
-  }
-
-  .tutor-list-div:hover {
-    background: var(--color-moradops-50);
-    border-color: var(--color-moradops-300);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  }
-
-  .tutor-list-div:focus-visible {
-    outline: 2px solid var(--color-moradops-500);
-    outline-offset: 2px;
-  }
-
-  .tutor-info {
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    border-radius: 16px;
-    gap: 0.25rem;
-    width: 100%;
-    height: auto;
-    min-height: 80px;
-    padding-bottom: 15px;
-    padding-top: 15px;
-    background: rgba(255, 252, 237, 0.5);
-    backdrop-filter: blur(24.5px);
-  }
-
-  .tutor-photo {
-    position: absolute;
-    z-index: -1;
-    width: 300px;
-    height: 300px;
-    border-radius: 16px;
-    object-fit: cover;
-    background: var(--color-negrops-100);
-  }
-
-  .tutor-name {
-    padding-left: 15px;
-    font-style: bold;
-    font-weight: 600;
-    font-size: 1rem;
-    color: var(--color-negrops-900);
-  }
-
-  .tutor-subjects {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: left;
-    justify-content: left;
-    gap: 0.3rem;
-    padding-left: 15px;
-    width: 240px;
-  }
-
-  :global(.subject-tag) {
-    font-size: 8px;
-    background-color: rgba(250, 233, 183, 1);
-    border-color: transparent;
-    backdrop-filter: blur(24px);
-    border-radius: 16px;
-    padding: 0.2rem 0.5rem;
-  }
-
-  .view-profile-btn {
-    width: 40px;
-    height: 40px;
-    padding: 6px;
-    position: absolute;
-    top: 240px;
-    right: 20px;
-    background: #f3edff;
-    border-radius: 8px;
-    border-color: transparent;
-  }
-
-  .view-profile-btn:focus {
-    outline: none;
-  }
-
-  /* ─── Modal ─── */
-  .all-tutors-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .all-tutors-modal.active {
-    display: flex;
-  }
-
-  .modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(207, 185, 255, 0.5);
-    backdrop-filter: blur(7.5px);
-  }
-
-  .modal-body {
-    position: relative;
-    z-index: 1;
-    background: #fff;
-    border-radius: 24px;
-    padding: 32px;
-    max-width: 1100px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-
-  .modal-title {
-    font-family: "Open Sauce Two";
-    font-weight: 400;
-    font-size: 20px;
-    color: #3c3c3c;
-  }
-
-  .close-modal-btn {
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-  }
-
-  .close-modal-btn:hover {
-    background: var(--color-negrops-100);
-  }
-
-  .all-tutors-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 300px);
-    justify-content: center;
-    gap: 24px;
+  .panel-cta:active {
+    transform: scale(0.98);
   }
 </style>
 
 <script is:inline>
   (function () {
-    var currentSlide = 0;
     var currentTutors = [];
-    var VISIBLE = 3;
-    var GAP = 40;
+    var MAX_PANELS = 9;
 
-    // Limpiar listeners de navegación anterior (View Transitions)
     if (window.__tutorsCleanup) window.__tutorsCleanup();
 
-    function createTutorCard(tutor) {
-      var template = document.getElementById("tutor-item-template");
+    function createAccordionPanel(tutor, isActive) {
+      var template = document.getElementById("accordion-panel-template");
       if (!template) return null;
 
       var clone = template.content.cloneNode(true);
-      var btn = clone.querySelector(".view-profile-btn");
-      btn.dataset.tutorId = tutor.tutorId || tutor.id;
+      var panel = clone.querySelector(".accordion-panel");
+      panel.dataset.tutorId = tutor.tutorId || tutor.id;
 
-      var img = clone.querySelector(".tutor-photo");
+      if (isActive) panel.classList.add("active");
+
+      var img = panel.querySelector(".panel-photo");
       img.src =
-        /*tutor.photo||*/ "https://media.istockphoto.com/id/825383494/photo/business-man-pushing-large-stone-up-to-hill-business-heavy-tasks-and-problems-concept.jpg?s=612x612&w=0&k=20&c=wtqvbQ6OIHitRVDPTtoT_1HKUAOgyqa7YzzTMXqGRaQ=";
-      img.alt = tutor.name || "Tutor";
+        tutor.photo || "https://avatars.githubusercontent.com/u/150485576?v=4";
+      img.alt = tutor.tutorName || tutor.name || "Tutor";
 
-      clone.querySelector(".tutor-name").textContent =
+      panel.querySelector(".panel-tutor-name").textContent =
         tutor.tutorName || tutor.name || tutor.fullName || "Tutor";
-
-      var subjectsContainer = clone.querySelector(".tutor-subjects");
-      (tutor.subjects || []).forEach(function (sub) {
-        var tag = document.createElement("span");
-        tag.className = "subject-tag";
-        tag.textContent = sub.name || sub;
-        subjectsContainer.appendChild(tag);
-      });
 
       return clone;
     }
 
-    function getSlideOffset() {
-      var item = document.querySelector("#tutor-list .tutor-list-item");
-      if (!item) return 0;
-      return item.offsetWidth + GAP;
-    }
-
-    function updateSliderButtons() {
-      var total = currentTutors.length;
-      var prevBtn = document.getElementById("slider-prev");
-      var nextBtn = document.getElementById("slider-next");
-      if (prevBtn) prevBtn.disabled = currentSlide <= 0;
-      if (nextBtn)
-        nextBtn.disabled = total <= VISIBLE || currentSlide >= total - VISIBLE;
-    }
-
-    function slideToIndex(index) {
-      var list = document.getElementById("tutor-list");
-      if (!list) return;
-      currentSlide = Math.max(
-        0,
-        Math.min(index, currentTutors.length - VISIBLE),
-      );
-      var offset = currentSlide * getSlideOffset();
-      list.style.transform = "translateX(-" + offset + "px)";
-      updateSliderButtons();
-    }
-
-    function renderSlider(tutors) {
-      var list = document.getElementById("tutor-list");
-      if (!list) return;
-      list.innerHTML = "";
-      currentSlide = 0;
-      tutors.forEach(function (tutor) {
-        var card = createTutorCard(tutor);
-        if (card) list.appendChild(card);
+    function setActivePanel(container, targetPanel) {
+      var panels = container.querySelectorAll(".accordion-panel");
+      panels.forEach(function (p) {
+        p.classList.remove("active");
       });
-      list.style.transform = "translateX(0)";
-      updateSliderButtons();
+      targetPanel.classList.add("active");
     }
 
-    function renderModalGrid(tutors) {
-      var grid = document.getElementById("all-tutors-list");
-      if (!grid) return;
-      grid.innerHTML = "";
-      tutors.forEach(function (tutor) {
-        var card = createTutorCard(tutor);
-        if (card) grid.appendChild(card);
+    function renderAccordion(tutors) {
+      var container = document.getElementById("accordion-container");
+      if (!container) return;
+      container.innerHTML = "";
+
+      var displayed = tutors.slice(0, MAX_PANELS);
+
+      displayed.forEach(function (tutor, index) {
+        var panel = createAccordionPanel(tutor, index === 0);
+        if (panel) container.appendChild(panel);
       });
-    }
 
-    function openModal() {
-      var modal = document.getElementById("all-tutors-modal");
-      if (!modal) return;
-      renderModalGrid(currentTutors);
-      modal.classList.add("active");
-      document.body.style.overflow = "hidden";
-    }
+      // Click / hover handlers
+      container.querySelectorAll(".accordion-panel").forEach(function (panel) {
+        panel.addEventListener("click", function () {
+          setActivePanel(container, panel);
+        });
+        panel.addEventListener("mouseenter", function () {
+          setActivePanel(container, panel);
+        });
+      });
 
-    function closeModal() {
-      var modal = document.getElementById("all-tutors-modal");
-      if (!modal) return;
-      modal.classList.remove("active");
-      document.body.style.overflow = "";
+      // CTA button → loadTutor
+      container.querySelectorAll(".panel-cta").forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var panel = btn.closest(".accordion-panel");
+          if (panel && panel.dataset.tutorId) {
+            loadTutor(panel.dataset.tutorId);
+          }
+        });
+      });
     }
 
     // ── Evento: tutors-updated ──
@@ -475,73 +325,27 @@ import calendar from "@/features/search/assets/calendar.png";
       currentTutors = tutors;
 
       var section = document.getElementById("tutor-list-section");
-      var viewMoreBtn = document.getElementById("view-more-btn");
+      var container = document.getElementById("accordion-container");
+      var emptyState = document.getElementById("tutor-empty-state");
 
-      if (section) section.hidden = tutors.length === 0;
-      if (viewMoreBtn) viewMoreBtn.hidden = tutors.length <= VISIBLE;
+      // Always show the section once loaded
+      if (section) section.hidden = false;
 
-      renderSlider(tutors);
-    }
-
-    function onKeyDown(e) {
-      var modal = document.getElementById("all-tutors-modal");
-      if (e.key === "Escape" && modal && modal.classList.contains("active")) {
-        closeModal();
+      if (tutors.length === 0) {
+        if (container) container.hidden = true;
+        if (emptyState) emptyState.hidden = false;
+      } else {
+        if (container) container.hidden = false;
+        if (emptyState) emptyState.hidden = true;
+        renderAccordion(tutors);
       }
     }
 
     document.addEventListener("tutors-updated", onTutorsUpdated);
-    document.addEventListener("keydown", onKeyDown);
-
-    // Click en tarjeta del slider
-    document
-      .getElementById("tutor-list")
-      ?.addEventListener("click", function (e) {
-        var btn = e.target.closest("[data-tutor-id]");
-        if (btn) loadTutor(btn.dataset.tutorId);
-      });
-
-    // Click en tarjeta del modal
-    document
-      .getElementById("all-tutors-list")
-      ?.addEventListener("click", function (e) {
-        var btn = e.target.closest("[data-tutor-id]");
-        if (btn) {
-          closeModal();
-          loadTutor(btn.dataset.tutorId);
-        }
-      });
-
-    // Flechas del slider
-    document
-      .getElementById("slider-prev")
-      ?.addEventListener("click", function () {
-        slideToIndex(currentSlide - 1);
-      });
-
-    document
-      .getElementById("slider-next")
-      ?.addEventListener("click", function () {
-        slideToIndex(currentSlide + 1);
-      });
-
-    // Ver más → abrir modal
-    document
-      .getElementById("view-more-btn")
-      ?.addEventListener("click", openModal);
-
-    // Cerrar modal
-    document
-      .getElementById("close-modal-btn")
-      ?.addEventListener("click", closeModal);
-    document
-      .getElementById("modal-backdrop")
-      ?.addEventListener("click", closeModal);
 
     // Cleanup para View Transitions
     window.__tutorsCleanup = function () {
       document.removeEventListener("tutors-updated", onTutorsUpdated);
-      document.removeEventListener("keydown", onKeyDown);
     };
   })();
 </script>

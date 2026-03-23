@@ -3,7 +3,6 @@ export const prerender = false;
 
 import Layout from "@/layouts/Layout.astro";
 import SearchBar from "@/features/search/components/SearchBar.astro";
-import DialogFilter from "@/features/search/components/DialogFilter.astro";
 import TutorList from "@/features/search/components/TutorList.astro";
 import TutorDetail from "@/features/search/components/TutorDetail.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
@@ -16,17 +15,20 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
     </div>
 
     <div class='search-page'>
-      <SearchBar />
-      <DialogFilter />
-      <TutorList />
-      <TutorDetail />
+      <article class="searchContent">
+        <SearchBar />
+      </article>
+      <article class="tutorListContent">
+        <TutorList />
+        <TutorDetail />
+      </article>
     </div>
   </div>
 </Layout>
 
 <style>
   #sidebar-container {
-    z-index: 1001;
+    z-index: 10;
     top: 0;
     height: 100%;
     display: flex;
@@ -34,6 +36,19 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
     margin-top: -1rem;
     margin-bottom: -1.5rem;
   }
+
+  .containerGeneralSearch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .tutorListContent {
+    width: 723px;
+  }
+
   .page-wrapper-search {
     display: flex;
     height: 100vh;
@@ -43,7 +58,6 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
     box-sizing: border-box;
     overflow: hidden;
     align-items: stretch;
-    z-index: 1001;
   }
 
   .search-page {
@@ -53,8 +67,11 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
     background: #fff;
     justify-content: flex-start;
     border-radius: 16px;
-    overflow: hidden;
-    z-index: 1000;
+    overflow-y: auto;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    width: 100%;
   }
 
   .search-content {

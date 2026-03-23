@@ -1,0 +1,325 @@
+---
+import type { CreateSessionDTO, Modality } from '../../types/session.types';
+
+interface Props {
+  data: Partial<CreateSessionDTO>;
+}
+
+const { data } = Astro.props;
+
+const DURATIONS = [1, 1.5, 2];
+const DEFAULT_MODALITY: Modality = (data.modality ?? 'ONLINE') as Modality;
+const DEFAULT_DURATION = data.duration ?? DURATIONS[0];
+---
+
+<div
+  id="availability-step"
+  class="space-y-4"
+  data-tutor-id={data.tutorId ?? ''}
+  data-date={data.date ?? ''}
+  data-modality={DEFAULT_MODALITY}
+  data-duration={DEFAULT_DURATION}
+>
+  <h3 class="text-lg font-semibold">Selecciona fecha, hora y modalidad</h3>
+
+  <!-- Controles superiores -->
+  <div class="flex flex-wrap items-center gap-4">
+    <!-- Fecha -->
+    <div class="flex flex-col gap-1">
+      <label for="availability-date" class="text-xs font-medium text-gray-700">
+        Fecha
+      </label>
+      <input
+        id="availability-date"
+        type="date"
+        class="rounded-md border border-gray-300 px-3 py-2 text-sm"
+      />
+    </div>
+
+    <!-- Modalidad -->
+    <div class="flex flex-col gap-1">
+      <span class="text-xs font-medium text-gray-700">Modalidad</span>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="modality-online"
+          class="rounded-full px-3 py-1 text-xs"
+        >
+          Online
+        </button>
+        <button
+          type="button"
+          id="modality-inperson"
+          class="rounded-full px-3 py-1 text-xs"
+        >
+          Presencial
+        </button>
+      </div>
+    </div>
+
+    <!-- Duración -->
+    <div class="flex flex-col gap-1">
+      <span class="text-xs font-medium text-gray-700">Duración</span>
+      <div class="flex items-center gap-2">
+        {DURATIONS.map((d) => (
+          <button
+            type="button"
+            class="availability-duration-chip rounded-full px-3 py-1 text-xs"
+            data-duration={d}
+          >
+            {d} h
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista / grid de slots -->
+  <div class="mt-4 rounded-lg border border-gray-200 p-4">
+    <p
+      id="availability-status"
+      class="text-sm text-gray-500"
+    >
+      Selecciona una fecha para ver la disponibilidad.
+    </p>
+
+    <div
+      id="availability-slots"
+      class="mt-3 grid gap-2 md:grid-cols-3"
+    >
+      <!-- Aquí se insertan los botones de slots desde el script -->
+    </div>
+  </div>
+
+  <!-- Navegación -->
+  <div class="flex justify-between">
+    <button
+      id="availability-back"
+      type="button"
+      class="rounded-md border border-gray-300 px-4 py-2 text-sm"
+    >
+      Atrás
+    </button>
+    <button
+      id="availability-next"
+      type="button"
+      class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+      disabled
+    >
+      Continuar
+    </button>
+  </div>
+</div>
+
+<script>
+  type Modality = 'ONLINE' | 'IN_PERSON';
+  type AvailabilitySlot = {
+    start: string;
+    end: string;
+    availability: boolean;
+  };
+
+  const root = document.getElementById('availability-step') as HTMLElement | null;
+  const dateInput = document.getElementById('availability-date') as HTMLInputElement | null;
+  const statusEl = document.getElementById('availability-status') as HTMLParagraphElement | null;
+  const slotsContainer = document.getElementById('availability-slots') as HTMLDivElement | null;
+  const backBtn = document.getElementById('availability-back') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('availability-next') as HTMLButtonElement | null;
+  const modalityOnlineBtn = document.getElementById('modality-online') as HTMLButtonElement | null;
+  const modalityInPersonBtn = document.getElementById('modality-inperson') as HTMLButtonElement | null;
+  const durationChips = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('.availability-duration-chip'),
+  );
+
+  const tutorId = root?.dataset.tutorId || '';
+  let selectedDate = root?.dataset.date || '';
+  let modality: Modality = (root?.dataset.modality as Modality) || 'ONLINE';
+  let duration = Number(root?.dataset.duration) || 1;
+
+  let slots: AvailabilitySlot[] = [];
+  let selectedSlotIndex: number | null = null;
+
+  function setStatus(message: string, isError = false) {
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    statusEl.className = isError ? 'text-sm text-red-600' : 'text-sm text-gray-500';
+  }
+
+  function updateModalityButtons() {
+    if (!modalityOnlineBtn || !modalityInPersonBtn) return;
+
+    modalityOnlineBtn.className =
+      'rounded-full px-3 py-1 text-xs ' +
+      (modality === 'ONLINE'
+        ? 'bg-indigo-600 text-white'
+        : 'bg-gray-100 text-gray-700');
+
+    modalityInPersonBtn.className =
+      'rounded-full px-3 py-1 text-xs ' +
+      (modality === 'IN_PERSON'
+        ? 'bg-indigo-600 text-white'
+        : 'bg-gray-100 text-gray-700');
+  }
+
+  function updateDurationChips() {
+    durationChips.forEach((chip) => {
+      const d = Number(chip.dataset.duration);
+      chip.className =
+        'availability-duration-chip rounded-full px-3 py-1 text-xs ' +
+        (d === duration
+          ? 'bg-indigo-600 text-white'
+          : 'bg-gray-100 text-gray-700');
+    });
+  }
+
+  function renderSlots() {
+    if (!slotsContainer) return;
+    slotsContainer.innerHTML = '';
+
+    if (!slots.length) {
+      setStatus('No hay disponibilidad para la fecha seleccionada.');
+      return;
+    }
+
+    setStatus('Selecciona un horario disponible.');
+
+    slots.forEach((slot, index) => {
+      if (!slot.availability) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className =
+        'rounded-md border px-3 py-2 text-left text-xs ' +
+        (selectedSlotIndex === index
+          ? 'border-indigo-600 bg-indigo-50'
+          : 'border-gray-200 bg-gray-50 hover:border-indigo-300');
+      btn.textContent = `Inicio: ${slot.start} · Fin: ${slot.end}`;
+
+      btn.addEventListener('click', () => {
+        selectedSlotIndex = index;
+        renderSlots();
+        updateNextButtonState();
+      });
+
+      slotsContainer.appendChild(btn);
+    });
+  }
+
+  async function fetchAvailabilityForCurrentSelection() {
+    if (!tutorId || !selectedDate || !modality) {
+      slots = [];
+      selectedSlotIndex = null;
+      renderSlots();
+      return;
+    }
+
+    setStatus('Cargando disponibilidad…');
+    slots = [];
+    selectedSlotIndex = null;
+    renderSlots();
+
+    try {
+      const params = new URLSearchParams({
+        tutorId,
+        date: selectedDate,
+        modality,
+      });
+
+      const res = await fetch(`/sessions/availability?${params.toString()}`, {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        setStatus('Error al cargar disponibilidad.', true);
+        return;
+      }
+
+      const data = (await res.json()) as AvailabilitySlot[];
+      slots = Array.isArray(data) ? data : [];
+      renderSlots();
+    } catch (e) {
+      setStatus('Error de red al consultar disponibilidad.', true);
+    }
+  }
+
+  function updateNextButtonState() {
+    const canContinue =
+      Boolean(tutorId) &&
+      Boolean(selectedDate) &&
+      selectedSlotIndex !== null &&
+      Boolean(modality) &&
+      Boolean(duration);
+
+    if (nextBtn) {
+      nextBtn.disabled = !canContinue;
+    }
+  }
+
+  // Inicializar valores desde dataset si vienen precargados
+  if (dateInput && selectedDate) {
+    dateInput.value = selectedDate;
+  }
+  updateModalityButtons();
+  updateDurationChips();
+  updateNextButtonState();
+
+  // Listeners
+  dateInput?.addEventListener('change', () => {
+    selectedDate = dateInput.value;
+    fetchAvailabilityForCurrentSelection();
+  });
+
+  modalityOnlineBtn?.addEventListener('click', () => {
+    modality = 'ONLINE';
+    updateModalityButtons();
+    fetchAvailabilityForCurrentSelection();
+  });
+
+  modalityInPersonBtn?.addEventListener('click', () => {
+    modality = 'IN_PERSON';
+    updateModalityButtons();
+    fetchAvailabilityForCurrentSelection();
+  });
+
+  durationChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const d = Number(chip.dataset.duration);
+      duration = d;
+      updateDurationChips();
+      updateNextButtonState();
+    });
+  });
+
+  backBtn?.addEventListener('click', () => {
+    root?.dispatchEvent(
+      new CustomEvent('wizard:go-to-step', {
+        detail: { step: 1 },
+        bubbles: true,
+      }),
+    );
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    if (nextBtn.disabled || !selectedDate || selectedSlotIndex === null) return;
+    const slot = slots[selectedSlotIndex];
+    if (!slot) return;
+
+    const combinedDateTime = `${selectedDate}T${slot.start}`;
+
+    root?.dispatchEvent(
+      new CustomEvent('wizard:step2-completed', {
+        detail: {
+          date: combinedDateTime,
+          duration,
+          modality,
+        },
+        bubbles: true,
+      }),
+    );
+  });
+
+  // Si ya había una fecha/modo inicial, cargar disponibilidad al montar
+  if (selectedDate && tutorId) {
+    fetchAvailabilityForCurrentSelection();
+  }
+</script>

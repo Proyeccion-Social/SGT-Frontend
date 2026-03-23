@@ -1,0 +1,172 @@
+---
+import type { CreateSessionDTO } from '../../types/session.types';
+
+interface Props {
+  data: Partial<CreateSessionDTO>;
+}
+
+const { data } = Astro.props;
+
+const MAX_TITLE = 100;
+const MAX_DESCRIPTION = 500;
+---
+
+<div
+  id="details-step"
+  class="space-y-4"
+  data-title={data.title ?? ''}
+  data-description={data.description ?? ''}
+>
+  <h3 class="text-lg font-semibold">Detalles de la tutoría</h3>
+
+  <!-- Título -->
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">
+      Título
+    </label>
+    <input
+      id="details-title"
+      type="text"
+      class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      value={data.title ?? ''}
+      maxlength={MAX_TITLE + 50}
+    />
+    <div class="flex justify-between text-xs">
+      <span
+        id="details-title-counter"
+        class="text-gray-500"
+      >
+        {(data.title?.length ?? 0)}/{MAX_TITLE} caracteres
+      </span>
+    </div>
+  </div>
+
+  <!-- Descripción -->
+  <div class="space-y-2">
+    <label class="block text-sm font-medium text-gray-700">
+      Descripción
+    </label>
+    <textarea
+      id="details-description"
+      class="min-h-[120px] w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      maxlength={MAX_DESCRIPTION + 100}
+    >{data.description ?? ''}</textarea>
+    <div class="flex justify-between text-xs">
+      <span
+        id="details-description-counter"
+        class="text-gray-500"
+      >
+        {(data.description?.length ?? 0)}/{MAX_DESCRIPTION} caracteres
+      </span>
+    </div>
+  </div>
+
+  <!-- Navegación -->
+  <div class="flex justify-between">
+    <button
+      id="details-back"
+      type="button"
+      class="rounded-md border border-gray-300 px-4 py-2 text-sm"
+    >
+      Atrás
+    </button>
+    <button
+      id="details-next"
+      type="button"
+      class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+    >
+      Continuar
+    </button>
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('details-step') as HTMLElement | null;
+  const titleInput = document.getElementById('details-title') as HTMLInputElement | null;
+  const descInput = document.getElementById('details-description') as HTMLTextAreaElement | null;
+  const titleCounter = document.getElementById('details-title-counter') as HTMLSpanElement | null;
+  const descCounter = document.getElementById('details-description-counter') as HTMLSpanElement | null;
+  const backBtn = document.getElementById('details-back') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('details-next') as HTMLButtonElement | null;
+
+  const MAX_TITLE = 100;
+  const MAX_DESCRIPTION = 500;
+
+  let title = root?.dataset.title ?? '';
+  let description = root?.dataset.description ?? '';
+
+  function updateStateFromInputs() {
+    if (titleInput) title = titleInput.value;
+    if (descInput) description = descInput.value;
+  }
+
+  function updateUI() {
+    const titleLen = title.length;
+    const descLen = description.length;
+
+    const titleTooLong = titleLen > MAX_TITLE;
+    const descTooLong = descLen > MAX_DESCRIPTION;
+    const canContinue =
+      titleLen > 0 &&
+      descLen > 0 &&
+      !titleTooLong &&
+      !descTooLong;
+
+    if (titleCounter) {
+      titleCounter.textContent = `${titleLen}/${MAX_TITLE} caracteres`;
+      titleCounter.className = titleTooLong ? 'text-red-600' : 'text-gray-500';
+    }
+
+    if (descCounter) {
+      descCounter.textContent = `${descLen}/${MAX_DESCRIPTION} caracteres`;
+      descCounter.className = descTooLong ? 'text-red-600' : 'text-gray-500';
+    }
+
+    if (nextBtn) {
+      nextBtn.disabled = !canContinue;
+    }
+  }
+
+  titleInput?.addEventListener('input', () => {
+    updateStateFromInputs();
+    updateUI();
+  });
+
+  descInput?.addEventListener('input', () => {
+    updateStateFromInputs();
+    updateUI();
+  });
+
+  backBtn?.addEventListener('click', () => {
+    root?.dispatchEvent(
+      new CustomEvent('wizard:go-to-step', {
+        detail: { step: 2 },
+        bubbles: true,
+      }),
+    );
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    updateStateFromInputs();
+    const titleLen = title.length;
+    const descLen = description.length;
+    const titleTooLong = titleLen > MAX_TITLE;
+    const descTooLong = descLen > MAX_DESCRIPTION;
+    const canContinue =
+      titleLen > 0 &&
+      descLen > 0 &&
+      !titleTooLong &&
+      !descTooLong;
+
+    if (!canContinue) return;
+
+    root?.dispatchEvent(
+      new CustomEvent('wizard:step3-completed', {
+        detail: { title, description },
+        bubbles: true,
+      }),
+    );
+  });
+
+  updateUI();
+</script>

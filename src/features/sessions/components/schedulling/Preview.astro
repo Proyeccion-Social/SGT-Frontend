@@ -1,0 +1,114 @@
+---
+import type { CreateSessionDTO } from '../../types/session.types';
+
+interface Props {
+  data: Partial<CreateSessionDTO>;
+  isSubmitting?: boolean;
+}
+
+const { data, isSubmitting = false } = Astro.props;
+---
+
+<div
+  id="preview-step"
+  class="space-y-4"
+>
+  <h3 class="text-lg font-semibold">Revisa y confirma tu tutoría</h3>
+
+  <div class="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Tutor</span>
+      <span class="text-gray-900">{data.tutorId ?? '—'}</span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Materia</span>
+      <span class="text-gray-900">{data.subjectId ?? '—'}</span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Fecha</span>
+      <span class="text-gray-900">{data.date ?? '—'}</span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Hora de inicio</span>
+      <span class="text-gray-900">
+        {data.duration ?? '—'}
+      </span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Duración</span>
+      <span class="text-gray-900">
+        {data.duration ? `${data.duration} h` : '—'}
+      </span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="font-medium text-gray-700">Modalidad</span>
+      <span class="text-gray-900">
+        {data.modality ?? '—'}
+      </span>
+    </div>
+
+    <div class="mt-3 border-t pt-3">
+      <p class="text-xs font-medium text-gray-700">Título</p>
+      <p class="text-sm text-gray-900">{data.title ?? '—'}</p>
+    </div>
+
+    <div class="mt-3">
+      <p class="text-xs font-medium text-gray-700">Descripción</p>
+      <p class="whitespace-pre-line text-sm text-gray-900">
+        {data.description ?? '—'}
+      </p>
+    </div>
+  </div>
+
+  <div class="flex justify-between">
+    <button
+      id="preview-edit"
+      type="button"
+      class="rounded-md border border-gray-300 px-4 py-2 text-sm"
+    >
+      Editar detalles
+    </button>
+
+    <button
+      id="preview-confirm"
+      type="button"
+      class="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+      disabled={isSubmitting}
+    >
+      {isSubmitting ? 'Confirmando…' : 'Confirmar sesión'}
+    </button>
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('preview-step') as HTMLElement | null;
+  const editBtn = document.getElementById('preview-edit') as HTMLButtonElement | null;
+  const confirmBtn = document.getElementById('preview-confirm') as HTMLButtonElement | null;
+
+  // Volver al paso 3 (detalles)
+  editBtn?.addEventListener('click', () => {
+    root?.dispatchEvent(
+      new CustomEvent('wizard:go-to-step', {
+        detail: { step: 3 },
+        bubbles: true,
+      }),
+    );
+  });
+
+  // Confirmar sesión (el contenedor del wizard hará el POST real)
+  confirmBtn?.addEventListener('click', () => {
+    if (confirmBtn.disabled) return;
+
+    root?.dispatchEvent(
+      new CustomEvent('wizard:confirm-session', {
+        detail: {},
+        bubbles: true,
+      }),
+    );
+  });
+</script>

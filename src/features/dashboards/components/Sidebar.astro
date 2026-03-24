@@ -100,6 +100,9 @@ const currentPath = Astro.url.pathname;
         <>
           <a 
             href="/search"
+            class={
+              currentPath.startsWith("/search") ? "active-link" : ""
+            }
           >
             <Image src={SearchIcon} alt='Search' class='icon' />
             <span class='nav-label'>Buscar</span>

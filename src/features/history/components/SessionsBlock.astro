@@ -1,0 +1,73 @@
+---
+import Section from "./Section.astro";
+import FilterCard from "./FilterCard.astro";
+import SessionCard from "./SessionCard.astro";
+
+const { data } = Astro.props;
+
+const sections = [
+  { id: "scheduled", title: "Próximas sesiones", data: data.scheduled },
+  { id: "completed", title: "Completadas", data: data.completed },
+  { id: "cancelled", title: "Canceladas", data: data.cancelled },
+  { id: "noshow", title: "Inasistencias", data: data.noShow }
+];
+
+console.log(data);
+---
+
+<div class="container">
+  <FilterCard />
+  <div class="sections-container">
+    {sections.map((section) => (
+        section.data.map((session) => (
+                <div class="history-section hidden" data-section-id={section.id} >
+
+        <SessionCard session={session} />
+              </div>
+      ))
+    ))}
+  </div>
+</div>
+
+<style>
+  .history-section{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+        
+    }
+    .sections-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        justify-content: center;
+        padding-bottom: 4rem;
+        overflow-y: scroll;
+        padding: 1rem;
+        background-color: #8851ffd0;
+        border-radius: 16px;
+          align-items: stretch; /* 👈 clave */
+
+
+    }
+
+    .hidden {
+  display: none;
+}
+    
+
+    
+</style>
+
+<script>
+    
+</script>

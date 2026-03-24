@@ -1,0 +1,313 @@
+---
+const { session } = Astro.props;
+
+// Obtener los datos del cuestionario del endpoint BFF usando las cookies de la petición
+const res = await fetch(new URL("/api/history/evaluation-questions", Astro.url), {
+  headers: Astro.request.headers
+});
+
+let questionnaire = null;
+if (res.ok) {
+  const data = await res.json();
+  questionnaire = data.questionnaire;
+}
+---
+
+{questionnaire && (
+  <div class="evaluation-card">
+    <form class="evaluation-form" data-session-id={session.sessionId || session.id}>
+      <div class="evaluation-card-header">
+        <h3>Evaluar Sesión</h3>
+        <button type="button" class="btn-close-dialog" aria-label="Cerrar">&times;</button>
+      </div>
+      <p style="margin-bottom: 2rem; margin-top: 0;">Ayúdanos a mejorar calificando esta sesión.</p>
+
+      <div class="questions-grid">
+      {questionnaire.questions.map((q: any) => (
+        <div class="form-group aspect-group">
+          <label class="aspect-label">
+            {q.label}
+            {q.required && <span class="required">*</span>}
+          </label>
+          <p class="aspect-description" style="margin-bottom: 0.5rem;">{q.description}</p>
+
+          <div class="rating-options">
+            {Array.from({ length: q.ratingScale.max - q.ratingScale.min + 1 }, (_, i) => i + q.ratingScale.min).map((val) => (
+              <label class="rating-radio">
+                <input 
+                  type="radio" 
+                  name={`aspect_${q.aspect.toLowerCase()}`} 
+                  value={val} 
+                  required={q.required} 
+                />
+                <span class="radio-label">{val}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+      </div>
+
+      {questionnaire.comments?.enabled && (
+        <div class="form-group">
+          <label for={`comments_${session.sessionId || session.id}`}>
+            {questionnaire.comments.label}
+          </label>
+          <textarea 
+            id={`comments_${session.sessionId || session.id}`}
+            name="comments"
+            placeholder={questionnaire.comments.placeholder}
+            maxlength={questionnaire.comments.maxLength}
+            rows="3"
+            required={questionnaire.comments.required}
+          ></textarea>
+        </div>
+      )}
+
+      <div class="form-actions" style="margin-top: 1rem;">
+        <button type="submit" class="submit-btn" id={`submit-eval-${session.sessionId || session.id}`}>
+          Enviar Evaluación
+        </button>
+      </div>
+      <div class="form-message" id={`message-${session.sessionId || session.id}`}></div>
+    </form>
+  </div>
+)}
+
+<style>
+  .evaluation-card {
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    border: 1px solid #e2e8f0;
+    padding: 1.25rem;
+    border-radius: 18px;
+    background-color: #f8fafc;
+    max-height: 90vh; /* Restrict height to avoid page overflow */
+    overflow-y: hidden; /* Avoid internal vertical overflow as requested */
+    display: flex;
+    flex-direction: column;
+  }
+  .evaluation-card-header {
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .evaluation-card-header h3 {
+    padding: 5px 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+  }
+  .btn-close-dialog {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0;
+    line-height: 1;
+  }
+  .btn-close-dialog:hover {
+    color: #0f172a;
+  }
+  .evaluation-card p {
+        text-align: left;
+
+    color: #64748b;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .questions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .form-group {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    gap: 0.4rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .aspect-label {
+        text-align: left;
+
+    display: block;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.25rem;
+  }
+  .required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+  }
+  .aspect-description {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+  .rating-options {
+    display: flex;
+    gap: 1rem;
+  }
+  .rating-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+  }
+  textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 16px;
+    font-family: inherit;
+    resize: none;
+  }
+  .form-actions {
+    margin-top: 0.5rem;
+  }
+  .submit-btn {
+    background-color: rgba(159, 116, 255, 1);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .submit-btn:hover {
+    background-color: rgba(205, 255, 142, 1);
+    color: #1e293b;
+  }
+  .submit-btn:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+  }
+  .form-message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    display: none;
+  }
+  .form-message.success {
+    display: block;
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+  .form-message.error {
+    display: block;
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+</style>
+
+<script>
+  const forms = document.querySelectorAll('.evaluation-form');
+
+  // Close dialog buttons
+  document.querySelectorAll('.btn-close-dialog').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const dialog = (e.target as HTMLElement).closest('dialog');
+      if (dialog) dialog.close();
+    });
+  });
+
+  forms.forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formEl = e.target as HTMLFormElement;
+      const sessionId = formEl.dataset.sessionId;
+      const submitBtn = formEl.querySelector('.submit-btn') as HTMLButtonElement;
+      const messageEl = formEl.querySelector('.form-message') as HTMLDivElement;
+      
+      if (!sessionId) return;
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      messageEl.className = 'form-message'; // reset state
+
+      const formData = new FormData(formEl);
+      const ratings: Record<string, number> = {};
+      let comments = '';
+
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('aspect_')) {
+          const aspectName = key.replace('aspect_', '');
+          ratings[aspectName] = Number(value);
+        } else if (key === 'comments') {
+          comments = value.toString();
+        }
+      }
+
+      try {
+        const response = await fetch('/api/history/send-evaluation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sessionId,
+            ratings,
+            comments
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          messageEl.textContent = '¡Evaluación enviada con éxito! Gracias por tu retroalimentación.';
+          messageEl.className = 'form-message success';
+          
+          formEl.querySelectorAll('.form-group, .form-actions').forEach(el => {
+            (el as HTMLElement).style.display = 'none';
+          });
+          
+          const evalSection = formEl.closest('.evaluation-section');
+          
+          // Ocultar el botón submit inmediatamente para que no se presione de nuevo
+          submitBtn.style.display = 'none';
+
+          // Ocultar el botón inmediatamente para que no aparezca "Cancelar Calificación" durante la espera
+          if (evalSection) {
+            const toggleBtn = evalSection.querySelector('.btn-toggle-eval') as HTMLButtonElement | null;
+            if (toggleBtn) {
+              toggleBtn.style.display = 'none';
+            }
+          }
+
+          // Solución elegante: inyectar el resultado y remover el formulario en el cliente tras un breve retardo
+          setTimeout(() => {
+            const dialog = formEl.closest('dialog');
+            if (dialog) dialog.close();
+
+            if (evalSection && evalSection.parentNode) {
+              const ratingEl = document.createElement('p');
+              // Extraemos el overallRating si la API lo manda, o calculamos un fallback si llega ausente
+              const finalRating = result.overallRating || 'Enviado';
+              ratingEl.innerHTML = `⭐ ${finalRating}`;
+              
+              evalSection.parentNode.insertBefore(ratingEl, evalSection);
+              evalSection.remove();
+            }
+          }, 3000); // 3s para que lean el mensaje de éxito
+
+        } else {
+          messageEl.textContent = result.error || 'Error al enviar la evaluación.';
+          messageEl.className = 'form-message error';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Enviar Evaluación';
+        }
+      } catch (error) {
+        messageEl.textContent = 'Error de conexión al enviar la evaluación.';
+        messageEl.className = 'form-message error';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Evaluación';
+      }
+    });
+  });
+</script>

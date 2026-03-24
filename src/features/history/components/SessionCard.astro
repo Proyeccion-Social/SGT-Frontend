@@ -1,0 +1,320 @@
+---
+import SessionEvaluationCard from "./SessionEvaluationCard.astro";
+
+const { session } = Astro.props;
+---
+
+<div class="card">
+  <div class="info-session">
+    <div class="bar-session-1">
+      <div class="status">
+        {/* 🔹 Estado */}
+        <p class={`status status-${session.status.toLowerCase()}`}>
+          {session.status === "COMPLETED" ? "Completada" : session.status === "CANCELLED" ? "Cancelada" : session.status === "NO_SHOW" ? "No asistió" : "Programada"}
+        </p>
+      </div>
+
+      <div class="date-time">
+        {/* 🔹 Fecha y hora */}
+        <p>
+          {session.date}
+          <br />
+          {session.time}
+        </p>
+        {
+          session.status === "SCHEDULED" && (
+            <>
+              <hr />
+              <p class="countdown">Empieza en {session.timeUntilSession}</p>
+            </>
+          )
+        }
+      </div>
+
+      <div class="duration-session">
+        {/* 🔹 Duración */}
+        <p><strong>Duración:</strong> {session.duration} h</p>
+      </div>
+
+      <div>
+        {
+          session.status === "COMPLETED" && !session.rating.canRate && (
+            <div class="rating">
+              <p>
+                <strong>Tu calificación:</strong> {session.rating.overall} ⭐
+              </p>
+            </div>
+          )
+        }
+
+        {
+          session.status === "COMPLETED" && session.rating.canRate && (
+            <div class="evaluation-section">
+              <button
+                class="btn-open-eval"
+                data-session-id={session.sessionId || session.id}
+              >
+                <strong>Calificar Sesión</strong>
+              </button>
+              <dialog
+                id={`eval-dialog-${session.sessionId || session.id}`}
+                class="eval-dialog"
+              >
+                <SessionEvaluationCard session={session} />
+              </dialog>
+            </div>
+          )
+        }
+      </div>
+    </div>
+    <div class="bar-session-2">
+      {/* 🔹 Titulo */}
+      {session.title && <h3 class="title">{session.title}</h3>}
+      {/* 🔹 Descripción */}
+      {
+        session.description && (
+          <p class="description">
+            <strong>Descripcion:</strong> {session.description}
+          </p>
+        )
+      }
+
+      {/* 🔹 Materia */}
+      <p>
+        <strong>Materia:</strong>
+        {session.subject?.name}
+        {session.subject?.code && ` (${session.subject.code})`}
+      </p>
+
+      {/* 🔹 Modalidad */}
+      <p>
+        <strong>Modalidad:</strong>
+        {session.modality}
+      </p>
+
+      {/* 🔹 Ubicación (solo presencial) */}
+      {
+        session.modality === "PRESENCIAL" && session.location && (
+          <p>
+            <strong>Ubicación:</strong> {session.location}
+          </p>
+        )
+      }
+    </div>
+  </div>
+  <div class="tutor-info">
+    {/* 🔹 Header */}
+    <div class="header">
+      <img
+        src={session.tutor?.profilePhoto ?? "/default-avatar.png"}
+        alt="Tutor"
+        class="avatar"
+      />
+      <div class="tutor-name">
+        <!-- <h3>{session.title ?? "Sesión"}</h3> -->
+        <p><strong>Tutor:</strong> {session.tutor?.fullName}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const openBtns = document.querySelectorAll(".btn-open-eval");
+  openBtns.forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const sessionId = (e.currentTarget as HTMLButtonElement).dataset
+        .sessionId;
+      const dialog = document.getElementById(
+        `eval-dialog-${sessionId}`,
+      ) as HTMLDialogElement;
+      if (dialog) {
+        dialog.showModal();
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+  const status = document.querySelectorAll('.status');
+
+  status.forEach(s => {
+    if (s.textContent.trim() === 'Completada') {
+      s.style.color = 'rgba(23, 42, 255, 0.85)';
+      s.style.borderColor = 'rgba(23, 42, 255, 0.85)';
+      s.style.borderRadius = '16px';
+    }
+    if (s.textContent.trim() === 'Cancelada') {
+      s.style.color = 'rgba(255, 202, 45, 1)';
+      s.style.borderColor = 'rgba(255, 202, 45, 1)';
+      s.style.borderRadius = '16px';
+    }
+    if (s.textContent.trim() === 'No asistió') {
+      s.style.color = 'rgba(255, 80, 80, 1)';
+      s.style.borderColor = 'rgba(255, 80, 80, 1)';
+      s.style.borderRadius = '16px';
+    }
+    if (s.textContent.trim() === 'Programada') {
+      s.style.color = 'rgba(135, 81, 255, 1)';
+      s.style.borderColor = 'rgba(135, 81, 255, 1)';
+      s.style.borderRadius = '16px';
+    }
+  });
+});
+</script>
+
+<style>
+  .card {
+    padding: 1rem;
+    border-radius: 16px;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    gap: 0.5rem;
+    width: auto;
+    justify-content: space-evenly;
+    background-color: rgba(255,255,255,0.8);
+    padding: 0.5rem 1rem;
+    border-radius: 18px;
+    color: #334155;
+    transition: background-color 0.2s;
+  }
+
+  .info-session {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    gap: 0.5rem;
+    justify-content: start;
+  }
+  .bar-session-1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    width: 150px;
+    padding: 0.5rem 1rem;
+  }
+  .status {
+    width: 150px;
+  }
+  .status > p {
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #334155;
+    transition: background-color 0.2s;
+    width: 150px;
+  }
+
+  .date-time {
+    background-color: rgba(218, 255, 170, 0.886);
+    border: 1px solid rgba(218, 255, 170, 0.886);
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #334155;
+    transition: background-color 0.2s;
+    width: 150px;
+    hr {
+      border: 1px solid rgb(114, 114, 114);
+    }
+  }
+  .duration-session {
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #334155;
+    transition: background-color 0.2s;
+    width: 150px;
+  }
+
+  .rating {
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #334155;
+    transition: background-color 0.2s;
+    width: 150px;
+  }
+
+  .btn-open-eval {
+    background-color: rgba(205, 255, 142, 1);
+    border: none;
+    padding: 0.7rem 0.5rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 155px;
+    color: #334155;
+    transition: background-color 0.2s;
+  }
+
+  .bar-session-2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+    width: 280px;
+  }
+
+  .title {
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-open-eval:hover {
+    background-color: rgba(159, 116, 255, 1);
+    color: white;
+  }
+  .tutor-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.5rem 0;
+    border-radius: 16px;
+    font-weight: 500;
+    color: #334155;
+    transition: background-color 0.2s;
+  }
+  .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 16px;
+  }
+  .eval-dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    background: transparent;
+    max-width: 90vw;
+    width: 600px;
+    margin: auto; /* Centrar universalmente */
+  }
+  .eval-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+</style>

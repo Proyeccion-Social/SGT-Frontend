@@ -133,32 +133,7 @@ const { session } = Astro.props;
     });
   });
 
-  document.addEventListener('DOMContentLoaded', () => {
-  const status = document.querySelectorAll('.status');
 
-  status.forEach(s => {
-    if (s.textContent.trim() === 'Completada') {
-      s.style.color = 'rgba(23, 42, 255, 0.85)';
-      s.style.borderColor = 'rgba(23, 42, 255, 0.85)';
-      s.style.borderRadius = '16px';
-    }
-    if (s.textContent.trim() === 'Cancelada') {
-      s.style.color = 'rgba(255, 202, 45, 1)';
-      s.style.borderColor = 'rgba(255, 202, 45, 1)';
-      s.style.borderRadius = '16px';
-    }
-    if (s.textContent.trim() === 'No asistió') {
-      s.style.color = 'rgba(255, 80, 80, 1)';
-      s.style.borderColor = 'rgba(255, 80, 80, 1)';
-      s.style.borderRadius = '16px';
-    }
-    if (s.textContent.trim() === 'Programada') {
-      s.style.color = 'rgba(135, 81, 255, 1)';
-      s.style.borderColor = 'rgba(135, 81, 255, 1)';
-      s.style.borderRadius = '16px';
-    }
-  });
-});
 </script>
 
 <style>
@@ -199,13 +174,13 @@ const { session } = Astro.props;
     width: 150px;
   }
   .status > p {
-    background-color: #f8fafc;
-    border: 1px solid #cbd5e1;
+    background-color: #f8fafc7d;
+    border-style: solid;
+    border-width: 1px;
     padding: 0.5rem 1rem;
     border-radius: 16px;
     cursor: pointer;
     font-weight: bold;
-    color: #334155;
     transition: background-color 0.2s;
     width: 150px;
   }
@@ -316,5 +291,22 @@ const { session } = Astro.props;
   .eval-dialog::backdrop {
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
+  }
+
+  :global(.status-completed) {
+    color: rgba(23, 42, 255, 0.85);
+    border-color: rgba(23, 42, 255, 0.85);
+  }
+  :global(.status-cancelled) {
+    color: rgba(255, 202, 45, 1);
+    border-color: rgba(255, 202, 45, 1);
+  }
+  :global(.status-no_show) {
+    color: rgba(255, 80, 80, 1);
+    border-color: rgba(255, 80, 80, 1);
+  }
+  :global(.status-scheduled) {
+    color: rgba(135, 81, 255, 1);
+    border-color: rgba(135, 81, 255, 1);
   }
 </style>

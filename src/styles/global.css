@@ -173,7 +173,6 @@ html {
 
 body {
   min-height: 100vh;
-  line-height: 1.5;
   font-family:
     var(--type-font-family-primary),
     system-ui,

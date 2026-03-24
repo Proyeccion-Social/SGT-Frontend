@@ -4,7 +4,7 @@ import '../../../styles/badge.css';
 
 export const WelcomeBanner = () => {
   const user = useAuthStore((state) => state.user);
-  if (!user) return null;
+  if (!user) return <div className="welcome-container" style={{ minHeight: '72px' }} />;
 
   const isAdmin = user.role.toLowerCase() === 'admin';
 

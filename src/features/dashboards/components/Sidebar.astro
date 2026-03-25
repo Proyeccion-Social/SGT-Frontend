@@ -18,6 +18,7 @@ interface Props {
 
 const { userRole } = Astro.props;
 const currentPath = Astro.url.pathname;
+const currentPath = Astro.url.pathname;
 ---
 
 <aside class='sidebar' id='main-sidebar'>
@@ -46,6 +47,12 @@ const currentPath = Astro.url.pathname;
       <a href='/dashboard'>
         <Image src={DashboardIcon} alt='Dashboard' class='icon' />
         <span class='nav-label'>Dashboard</span>
+      </a>
+    <div
+      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+    >
+      <a href='/dashboard'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
       </a>
     </div>
 
@@ -91,7 +98,12 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <>
-          <a href='#'>
+          <a 
+            href="/search"
+            class={
+              currentPath.startsWith("/search") ? "active-link" : ""
+            }
+          >
             <Image src={SearchIcon} alt='Search' class='icon' />
             <span class='nav-label'>Buscar</span>
           </a>

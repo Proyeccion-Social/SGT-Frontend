@@ -371,3 +371,28 @@ const systemToday = new Date();
     white-space: nowrap;
   }
 </style>
+
+<script>
+  document.querySelectorAll('.slot-block:not(.slot-booked):not(.slot-past)').forEach((slotElement) => {
+    slotElement.addEventListener('click', (event) => {
+      // Cast explícito
+      const slotBlock = slotElement as HTMLElement;
+      
+      const slotData = {
+        id: slotBlock.dataset.slotIds?.split(',')[0] || '',
+        dayOfWeek: slotBlock.dataset.day as string,
+        startTime: slotBlock.dataset.start as string,
+        endTime: slotBlock.dataset.end as string,
+        modality: slotBlock.dataset.modality as string,
+      };
+
+      document.dispatchEvent(
+        new CustomEvent('slot:clicked', {
+          detail: slotData,
+          bubbles: true,
+        }),
+      );
+    });
+  });
+</script>
+

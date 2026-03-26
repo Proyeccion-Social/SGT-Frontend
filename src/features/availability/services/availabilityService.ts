@@ -282,3 +282,54 @@ export async function getTutorWorkload(): Promise<{
 
     return handleResponse(response);
 }
+
+/**
+ * Versión SSR de getTutorSlots — úsala desde frontmatter de Astro.
+ * Recibe el token directamente en lugar de leerlo de document.cookie.
+ */
+/**
+ * GET /api/v1/availability/tutors/slots
+ * Obtiene los slots de todos los tutores disponibles.
+ * Endpoint público — úsala desde frontmatter de Astro (SSR).
+ */
+export async function getAllTutorSlotsSSR(
+    query?: GetAvailabilityQueryDto,
+): Promise<Slot[]> {
+    const params = new URLSearchParams();
+
+    if (query?.onlyAvailable !== undefined) params.append('onlyAvailable', query.onlyAvailable.toString());
+    if (query?.onlyFuture !== undefined) params.append('onlyFuture', query.onlyFuture.toString());
+    if (query?.modality !== undefined) params.append('modality', query.modality);
+
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+
+    const response = await fetch(
+        `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots${queryString}`,
+        { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const result = await handleResponse<any>(response);
+
+    let rawSlots: any[] = [];
+    if (result.groupedByDay) {
+        Object.values(result.groupedByDay).forEach((s: any) => rawSlots.push(...s));
+    } else {
+        rawSlots = result.availableSlots || (Array.isArray(result) ? result : []);
+    }
+
+    const dayMap: Record<string, DayOfWeek> = {
+        'MONDAY': 'LUNES', 'TUESDAY': 'MARTES', 'WEDNESDAY': 'MIERCOLES',
+        'THURSDAY': 'JUEVES', 'FRIDAY': 'VIERNES', 'SATURDAY': 'SABADO',
+    };
+
+    return rawSlots.map((s: any) => ({
+        id: s.slotId || s.id,
+        dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
+        startTime: s.startTime?.substring(0, 5),
+        endTime: s.endTime?.substring(0, 5),
+        modality: s.modality,
+        location: s.location,
+        platform: s.platform,
+        isBooked: s.isAvailable === false ? true : (s.isBooked || false),
+    }));
+}

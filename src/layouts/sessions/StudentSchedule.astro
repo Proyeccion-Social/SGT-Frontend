@@ -1,0 +1,186 @@
+---
+import MainLayout from "../../layouts/Layout.astro";
+import Sidebar from "../../features/dashboards/components/Sidebar.astro";
+import WeeklyCalendar from "../../features/availability/components/Calendar.astro";
+import { getAllTutorSlotsSSR } from "../../features/availability/services/availabilityService";
+import type { Slot } from "../../features/availability/services/availabilityService";
+import { Image } from "astro:assets";
+import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
+
+// Sin redirects aquí — el token ya fue validado en la página
+const token = Astro.cookies.get("access_token")?.value!;
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
+
+// const slots = await getAllTutorSlotsSSR().catch(() => []);
+
+const slots: Slot[] = [
+  // Lunes - slot 1
+  {
+    id: "mock-1",
+    dayOfWeek: "LUNES",
+    startTime: "09:00",
+    endTime: "11:00",
+    modality: "PRES",
+  },
+  // Lunes - slot 2 (mismo día y hora que mock-1 → deben agruparse)
+  {
+    id: "mock-2",
+    dayOfWeek: "LUNES",
+    startTime: "09:00",
+    endTime: "11:00",
+    modality: "VIRT",
+  },
+  // Lunes - slot 3 (diferente hora)
+  {
+    id: "mock-3",
+    dayOfWeek: "LUNES",
+    startTime: "13:00",
+    endTime: "15:00",
+    modality: "PRES",
+  },
+  // Martes
+  {
+    id: "mock-4",
+    dayOfWeek: "MARTES",
+    startTime: "09:00",
+    endTime: "16:00",
+    modality: "VIRT",
+  },
+  // Miercoles
+  {
+    id: "mock-5",
+    dayOfWeek: "MIERCOLES",
+    startTime: "09:00",
+    endTime: "11:00",
+    modality: "PRES",
+  },
+  // Viernes
+  {
+    id: "mock-6",
+    dayOfWeek: "VIERNES",
+    startTime: "11:00",
+    endTime: "13:00",
+    modality: "VIRT",
+  },
+];
+
+const today = new Date();
+const startOfWeek = new Date(today);
+startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lunes
+const endOfWeek = new Date(startOfWeek);
+endOfWeek.setDate(startOfWeek.getDate() + 5); // Sábado
+
+const formatDay = (date: Date) =>
+  date.toLocaleDateString("es-CO", { day: "2-digit", month: "long" });
+---
+
+<MainLayout title="Agendamiento">
+  <div class="dashboard-container">
+    <Sidebar userRole={userRole} />
+    <main class="content-wrapper">
+      <div class="dashboard-content">
+        <div class="schedule-header">
+          <div class="header-left">
+            <div class="header-title">
+              <h1>Tu Semana</h1>
+              <span class="date-range">
+                {formatDay(startOfWeek)} - {formatDay(endOfWeek)}
+              </span>
+            </div>
+            <span class="badge">Espacios disponibles para tutoría</span>
+          </div>
+
+          <button class="avatar">
+            <Image src={UserIcon} alt="User" />
+          </button>
+        </div>
+
+        <WeeklyCalendar slots={slots} />
+      </div>
+    </main>
+  </div>
+</MainLayout>
+
+<style>
+  @import "@/styles/variables.css";
+
+  .schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    padding: 24px 32px 0 32px;
+    box-sizing: border-box;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .header-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .header-title h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-moradops-400);
+    margin: 0;
+  }
+
+  .date-range {
+    font-size: 14px;
+    color: #6b7280;
+    font-weight: 400;
+  }
+
+  .badge {
+    display: inline-block;
+    background-color: #E2D5FF;
+    color: #3C3C3C;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+
+  .avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .dashboard-container {
+    display: flex;
+    width: 100vw;
+    height: 100%;
+    overflow-x: hidden;
+    background-color: #f3edff;
+  }
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    padding: 0 20px 20px 0;
+    min-width: 0;
+  }
+  .dashboard-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 16px;
+    overflow-y: auto;
+    margin-top:19px;
+  }
+</style>

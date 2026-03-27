@@ -40,21 +40,12 @@ const currentPath = Astro.url.pathname;
       )
     }
 
-    <div
-      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
-    >
+    <div class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}>
       <a href='/dashboard'>
         <Image src={DashboardIcon} alt='Dashboard' class='icon' />
         <span class='nav-label'>Dashboard</span>
       </a>
-    <div
-      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
-    >
-      <a href='/dashboard'>
-        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
-      </a>
     </div>
-
     {
       userRole === "admin" && (
         <>
@@ -131,10 +122,12 @@ const currentPath = Astro.url.pathname;
       </a>
     </div>
 
-    <button type="button" id='logout-button'>
-      <Image src={LogoutIcon} alt='Logout' class='icon' />
-      <span class='nav-label'>Cerrar Sesión</span>
-    </button>
+    <div class='logout-container'>
+      <button type="button" id='logout-button'>
+        <Image src={LogoutIcon} alt='Logout' class='icon' />
+        <span class='nav-label'>Cerrar Sesión</span>
+      </button>
+    </div>
   </div>
 </aside>
 
@@ -211,15 +204,23 @@ const currentPath = Astro.url.pathname;
   }
 
   /* Contenedores de Navegación */
-  .navbar-items,
+  .navbar-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: auto;
+    transition: align-items 0s;
+  }
+
   .navbar-footer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
     width: 100%;
-    margin-top: auto;
-    margin-bottom: auto;
+    margin-bottom: 2rem;
     transition: align-items 0s;
   }
 
@@ -250,7 +251,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container,
   .dashboard-container,
-  .notification-container {
+  .notification-container,
+  .logout-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -269,7 +271,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container a,
   .dashboard-container a,
-  .notification-container a {
+  .notification-container a,
+  .logout-container button {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -282,7 +285,8 @@ const currentPath = Astro.url.pathname;
   .sidebar.expanded .navbar-footer > a,
   .sidebar.expanded .calendar-container,
   .sidebar.expanded .dashboard-container,
-  .sidebar.expanded .notification-container {
+  .sidebar.expanded .notification-container,
+  .sidebar.expanded .logout-container {
     width: 90%;
     justify-content: flex-start;
     padding-left: 10px;
@@ -291,7 +295,8 @@ const currentPath = Astro.url.pathname;
 
   .sidebar.expanded .calendar-container a,
   .sidebar.expanded .dashboard-container a,
-  .sidebar.expanded .notification-container a {
+  .sidebar.expanded .notification-container a,
+  .sidebar.expanded .logout-container button {
     justify-content: flex-start;
   }
 
@@ -299,6 +304,7 @@ const currentPath = Astro.url.pathname;
   .calendar-container {
     background: #cdff8e;
   }
+
   .notification-container {
     background: #e6ffc7;
   }
@@ -335,11 +341,6 @@ const currentPath = Astro.url.pathname;
     opacity: 1;
     pointer-events: auto;
     transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
-  }
-
-  .navbar-footer {
-    margin-bottom: 0;
-    gap: 24px;
   }
 
   /* Active link highlight */

@@ -131,10 +131,10 @@ const currentPath = Astro.url.pathname;
       </a>
     </div>
 
-    <a href='#'>
+    <button type="button" id='logout-button'>
       <Image src={LogoutIcon} alt='Logout' class='icon' />
       <span class='nav-label'>Cerrar Sesión</span>
-    </a>
+    </button>
   </div>
 </aside>
 
@@ -373,5 +373,42 @@ const currentPath = Astro.url.pathname;
         sidebar.classList.remove("expanded");
       });
     }
+  });
+
+  import { sileo } from "sileo";
+  const logoutButton = document.getElementById("logout-button");
+  logoutButton?.addEventListener("click", async () => {
+    await sileo.promise(
+      async () => {
+        const authUserStr = sessionStorage.getItem("auth_user");
+        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
+        const userId = authUser?.user?.id;
+
+        if (!userId) {
+          throw new Error("No hay sesión activa");
+        }
+
+        const res = await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ id: userId }),
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Error al cerrar sesión");
+        }
+
+        sessionStorage.removeItem("auth_user");
+      },
+      {
+        loading: { title: "Cerrando sesión...", fill: "#8751ff" },
+        success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
+        error: { title: "Error al cerrar sesión", fill: "#f35761" },
+      },
+    );
+    window.location.href = "/";
   });
 </script>

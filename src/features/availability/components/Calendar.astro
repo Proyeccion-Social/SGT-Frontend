@@ -518,7 +518,7 @@ const systemToday = new Date();
       // Actualizar label de tiempo en tiempo real
       const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
       if (timeLabel) {
-        timeLabel.textContent = `${minutesToTime(dragStartMinutes)} → ${minutesToTime(clampedEndMinutes)}`;
+        timeLabel.textContent = "";
       }
     });
 

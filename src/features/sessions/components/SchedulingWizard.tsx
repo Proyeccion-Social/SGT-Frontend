@@ -103,6 +103,42 @@ setTimeout(() => {
     };
   }, [slots]);
 
+  useEffect(() => {
+  const shouldLock = open || !!popover;
+
+  if (!shouldLock) return;
+
+  const scrollY = window.scrollY;
+  const scrollX = window.scrollX;
+
+  const previousStyle = {
+    position: document.body.style.position,
+    top: document.body.style.top,
+    left: document.body.style.left,
+    right: document.body.style.right,
+    width: document.body.style.width,
+    overflow: document.body.style.overflow,
+  };
+
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.left = `-${scrollX}px`;
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    document.body.style.position = previousStyle.position;
+    document.body.style.top = previousStyle.top;
+    document.body.style.left = previousStyle.left;
+    document.body.style.right = previousStyle.right;
+    document.body.style.width = previousStyle.width;
+    document.body.style.overflow = previousStyle.overflow;
+
+    window.scrollTo(scrollX, scrollY);
+  };
+}, [open, popover]);
+
   const handleSubjectSelect = (subject: string) => {
   const matchingSlot = slots.find(
     (s) =>

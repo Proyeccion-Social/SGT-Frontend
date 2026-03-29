@@ -1,3 +1,5 @@
+import {DAY_BORDER_COLORS} from "../../../availability/utils/calendarConstants.ts"
+
 interface Props {
   subjects: string[];
   anchorRect: DOMRect;
@@ -13,6 +15,8 @@ const BADGE_COLORS = [
   { bg: "#e9d5ff", text: "#6b21a8" },
 ];
 
+
+
 const dayLabels: Record<string, string> = {
   LUNES: "Lunes", MARTES: "Martes", MIERCOLES: "Miércoles",
   JUEVES: "Jueves", VIERNES: "Viernes", SABADO: "Sábado",
@@ -21,7 +25,7 @@ const dayLabels: Record<string, string> = {
 export default function SlotPopover({ subjects, anchorRect, slotData, onSelect }: Props) {
   const top = anchorRect.bottom + 8;
   const left = anchorRect.left;
-
+  const dayColor = (DAY_BORDER_COLORS[slotData.dayOfWeek as string] ?? "#7c3aed").slice(0, 7) + "CC";
   const today = new Date();
   const dateLabel = `${dayLabels[slotData.dayOfWeek]}, ${today.getDate()} de ${today.toLocaleDateString("es-CO", { month: "long" })}`;
 
@@ -85,13 +89,13 @@ export default function SlotPopover({ subjects, anchorRect, slotData, onSelect }
         zIndex: 93,
         pointerEvents: "none",
         backgroundImage: `repeating-linear-gradient(
-            90deg, #7c3aed 0px, #7c3aed 6px, transparent 6px, transparent 12px
+            90deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
         ), repeating-linear-gradient(
-            180deg, #7c3aed 0px, #7c3aed 6px, transparent 6px, transparent 12px
+            180deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
         ), repeating-linear-gradient(
-            90deg, #7c3aed 0px, #7c3aed 6px, transparent 6px, transparent 12px
+            90deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
         ), repeating-linear-gradient(
-            180deg, #7c3aed 0px, #7c3aed 6px, transparent 6px, transparent 12px
+            180deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
         )`,
         backgroundSize: "12px 2px, 2px 12px, 12px 2px, 2px 12px",
         backgroundPosition: "0 0, 100% 0, 0 100%, 0 0",

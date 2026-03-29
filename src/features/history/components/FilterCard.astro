@@ -1,29 +1,30 @@
 ---
+const { currentStatus = "all"} = Astro.props;
 ---
 
 <div class="filter-wrapper">
   <div>
     <h2 class="title">Tu <span> historial</span> de sesiones</h2>
   </div>
-  <div class="segmented-control">
-    <label class="segment-label active" data-filter="all">
-      <input type="radio" name="history_filter" checked value="all" />
+ <div class="segmented-control">
+    <label class={`segment-label ${currentStatus === 'all' ? 'active' : ''}`} data-filter="all">
+      <input type="radio" name="history_filter" checked={currentStatus === 'all'} value="all" />
       <span>Todas</span>
     </label>
-    <label class="segment-label" data-filter="scheduled">
-      <input type="radio" name="history_filter" value="scheduled" />
+    <label class={`segment-label ${currentStatus === 'SCHEDULED' ? 'active' : ''}`} data-filter="scheduled">
+      <input type="radio" name="history_filter" checked={currentStatus === 'SCHEDULED'} value="SCHEDULED" />
       <span>Proximas</span>
     </label>
-    <label class="segment-label" data-filter="completed">
-      <input type="radio" name="history_filter" value="completed" />
+    <label class={`segment-label ${currentStatus === 'COMPLETED' ? 'active' : ''}`} data-filter="completed">
+      <input type="radio" name="history_filter" checked={currentStatus === 'COMPLETED'} value="COMPLETED" />
       <span>Completadas</span>
     </label>
-    <label class="segment-label" data-filter="cancelled">
-      <input type="radio" name="history_filter" value="cancelled" />
+    <label class={`segment-label ${currentStatus === 'CANCELLED' ? 'active' : ''}`} data-filter="cancelled">
+      <input type="radio" name="history_filter" checked={currentStatus === 'CANCELLED'} value="CANCELLED" />
       <span>Canceladas</span>
     </label>
-    <label class="segment-label" data-filter="noshow">
-      <input type="radio" name="history_filter" value="noshow" />
+    <label class={`segment-label ${currentStatus === 'NO_SHOW' ? 'active' : ''}`} data-filter="noshow">
+      <input type="radio" name="history_filter" checked={currentStatus === 'NO_SHOW'} value="NO_SHOW" />
       <span>No asistió</span>
     </label>
   </div>
@@ -41,7 +42,6 @@
 }
 
 .segmented-control {
-  width: 643px;
   display: inline-flex;
   border: 1px solid rgba(231, 220, 255, 1);
   border-radius: 18px;
@@ -95,36 +95,34 @@
 </style>
 
 <script>
-  const labels = document.querySelectorAll('.segment-label');
-  const radios = document.querySelectorAll('input[name="history_filter"]');
-  
-  radios.forEach((radio) => {
-    radio.addEventListener('change', (e) => {
-      const target = e.target as HTMLInputElement;
-      const filterValue = target.value;
+  import { navigate } from "astro:transitions/client";
 
-      // Actualizar estilo activo
-      labels.forEach(label => {
-        if (label.contains(target)) {
-          label.classList.add('active');
-        } else {
-          label.classList.remove('active');
-        }
+  // Envolvemos todo en el evento astro:page-load
+  document.addEventListener('astro:page-load', () => {
+    
+    const labels = document.querySelectorAll('.segment-label');
+    const radios = document.querySelectorAll('input[name="history_filter"]');
+    
+    radios.forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        const filterValue = target.value;
+        console.log(filterValue);
+        
+        labels.forEach(label => {
+          if (label.contains(target)) {
+            label.classList.add('active');
+          } else {
+            label.classList.remove('active');
+          }
+        });
+        
+        navigate(`?limit=10&status=${filterValue}`);
       });
-
-      // Notificar a Blocks u ocultarlos directamente
-      const sections = document.querySelectorAll('.history-section');
-
-sections.forEach(section => {
-const sectionId = (section as HTMLElement).dataset.sectionId;
-  if (filterValue === 'all' || sectionId === filterValue) {
-    section.classList.remove('hidden');
-  } else {
-    section.classList.add('hidden');
-  }
-});
     });
+
   });
 </script>
+
 
 

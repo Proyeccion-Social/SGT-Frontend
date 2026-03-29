@@ -1,50 +1,8 @@
 ---
-import SessionsBlock from "@/features/history/components/SessionsBlock.astro";
-import Layout from "@/layouts/Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
-
-
-
-
-const res = await fetch(new URL("/api/history", Astro.url), {
-  headers: Astro.request.headers // 👈 Pasamos las cabeceras (incluyendo cookies) a tu API
-});
-const history = await res.json();
-
+import HistoryView from "@/features/history/components/HistoryView.astro";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
-
-const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 ---
-<Layout title="Historial de sesiones">
-  <div class="container">
-    <Sidebar userRole={userRole} />
-    <div class="search-page">
 
-    <SessionsBlock data={history} />
-    </div>
-  </div>
-</Layout>
-
-<style>
-    .container {
-        display: flex;
-        height: 100vh;
-        overflow-y:hidden;
-        
-
-    }
-    .search-page {
-      position: relative;
-    display: flex;
-    justify-content: start;
-    width: 100%;
-    padding: 0.5rem 1.5rem;
-    overflow-y:hidden;
-    overflow-x:hidden;
-
-  }
-
-</style>
+<HistoryView token={token} />

@@ -206,6 +206,7 @@ if (res.ok) {
 </style>
 
 <script>
+  document.addEventListener('astro:page-load', () => {
   const forms = document.querySelectorAll('.evaluation-form');
 
   // Close dialog buttons
@@ -310,4 +311,5 @@ if (res.ok) {
       }
     });
   });
+});
 </script>

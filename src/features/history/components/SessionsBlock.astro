@@ -1,73 +1,179 @@
 ---
-import Section from "./Section.astro";
 import FilterCard from "./FilterCard.astro";
 import SessionCard from "./SessionCard.astro";
+import arrow1 from "../assets/arrow1.png";
+import { SessionsPagination } from "./SessionsPagination.tsx";
 
-const { data } = Astro.props;
+const { data, currentStatus } = Astro.props;
 
-const sections = [
-  { id: "scheduled", title: "Próximas sesiones", data: data.scheduled },
-  { id: "completed", title: "Completadas", data: data.completed },
-  { id: "cancelled", title: "Canceladas", data: data.cancelled },
-  { id: "noshow", title: "Inasistencias", data: data.noShow }
-];
+const sessions = data.data;
+const statistics = data.statistics;
+const pagination = data.meta;
 
-console.log(data);
+console.log(sessions);
+console.log(pagination);
 ---
 
-<div class="container">
-  <FilterCard />
+<div class="block-container">
+  <FilterCard currentStatus={currentStatus} />
   <div class="sections-container">
-    {sections.map((section) => (
-        section.data.map((session) => (
-                <div class="history-section " data-section-id={section.id} >
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Titulo</th>
+          <th>Descripcion</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          sessions.map((session) => (
+            <tr
+              class="history-section"
+              data-section-id={session.status}
+              data-session-id={session.id}
+            >
+              <td>{session.scheduledDate}</td>
+              <td class="title-column">
+                <span class="subject-name">{session.subject.name}</span>{" "}
+                {session.title}
+              </td>
+              <td>{session.description}</td>
+              <td>
+                {session.status === "COMPLETED"
+                  ? "Completada"
+                  : session.status === "CANCELLED"
+                    ? "Cancelada"
+                    : session.status === "NO_SHOW"
+                      ? "No asistió"
+                      : session.status === "SCHEDULED"
+                        ? "Programada"
+                        : session.status} {/* Mostramos el estado real si no es ninguno de estos */}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
 
-        <SessionCard session={session} />
-              </div>
-      ))
-    ))}
+    <div class="pagination-container">
+      <SessionsPagination
+        currentPage={pagination.page}
+        totalPages={pagination.totalPages}
+        currentUrl={Astro.url.href}
+        client:load
+      />
+    </div>
+    {sessions.map((session) => <SessionCard session={session} />)}
   </div>
 </div>
 
 <style>
-  .history-section{
+  .sections-container {
+    position: relative;
+  }
+  .pagination-container {
+    display: flex;
+    justify-content: end;
+    margin-top: 1rem;
+  }
+  .subject-name {
+    font-size: 12px;
+    border-radius: 16px;
+    background-color: rgba(183, 151, 255, 1);
+    color: rgb(25, 25, 25);
+    padding: 4px 10px;
+  }
+
+  table {
+    width: 1250px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #5100ff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow:
+      0 4px 6px -1px #8851ff58,
+      0 2px 4px -1px #8851ff58;
+  }
+
+  th:nth-child(1) {
+    width: 12%;
+  }
+  th:nth-child(2) {
+    width: 26%;
+  }
+  th:nth-child(3) {
+    width: 40%;
+  }
+  th:nth-child(4) {
+    width: 17%;
+  }
+ 
+  th,
+  td {
+    background-color: #ffffff;
+    padding: 10px 20px;
+    text-align: left;
+    border-bottom: 1px solid #5100ff;
+    color: #334155;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 50px;
+  }
+
+  th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+  }
+
+  /* Remove bottom border from the last row */
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background-color: #8851ff33;
+    cursor: pointer;
+  }
+  .block-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: start;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
   }
-    .container {
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 1rem;
-        
-    }
-    .sections-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
-        justify-content: center;
-        padding-bottom: 4rem;
-        overflow-y: scroll;
-        padding: 1rem;
-        background-color: #8851ffb0;
-        border-radius: 16px;
-          align-items: stretch; /* 👈 clave */
 
-
-    }
-
-    .hidden {
-  display: none;
-}
-    
-
-    
+  .hidden {
+    display: none;
+  }
 </style>
-
 <script>
-    
+  // ✔️ Usamos SOLO astro:page-load
+  document.addEventListener("astro:page-load", () => {
+    // Asignar clics a las filas de la tabla
+    document.querySelectorAll(".history-section").forEach((row) => {
+      row.addEventListener("click", (e) => {
+        const id = (e.currentTarget as HTMLElement).dataset.sessionId;
+        if (id) {
+          const dialog = document.getElementById(
+            `session-dialog-${id}`,
+          ) as HTMLDialogElement;
+          if (dialog) {
+            dialog.showModal();
+          } else {
+            console.error("No dialog found for session ID:", id);
+          }
+        }
+      });
+    });
+  });
 </script>

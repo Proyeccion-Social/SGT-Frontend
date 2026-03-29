@@ -1,0 +1,56 @@
+---
+import SessionsBlock from "./SessionsBlock.astro";
+import Layout from "@/layouts/Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+
+interface Props {
+  token: string;
+}
+
+const { token } = Astro.props;
+
+const currentStatus = Astro.url.searchParams.get("status") || "all";
+const page = Astro.url.searchParams.get("page") || "1";
+const limit = Astro.url.searchParams.get("limit");
+
+const apiUrl = new URL("/api/history", Astro.url);
+if (currentStatus !== "all") {
+  apiUrl.searchParams.append("status", currentStatus);
+}
+apiUrl.searchParams.append("page", page);
+apiUrl.searchParams.append("limit", limit || "10");
+
+const res = await fetch(apiUrl, {
+  headers: Astro.request.headers,
+});
+const history = await res.json();
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
+---
+
+<Layout title="Historial de sesiones">
+  <div class="history-layout">
+    <Sidebar userRole={userRole} />
+    <div class="search-page">
+      <SessionsBlock data={history} currentStatus={currentStatus} />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .history-layout {
+    display: flex;
+    height: 100vh;
+    overflow-y: hidden;
+  }
+  .search-page {
+    position: relative;
+    display: flex;
+    justify-content: start;
+    width: 100%;
+    padding: 0.5rem 1.5rem;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+</style>

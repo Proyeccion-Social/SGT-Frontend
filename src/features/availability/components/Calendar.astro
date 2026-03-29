@@ -373,26 +373,181 @@ const systemToday = new Date();
 </style>
 
 <script>
-  document.querySelectorAll('.slot-block:not(.slot-booked):not(.slot-past)').forEach((slotElement) => {
-    slotElement.addEventListener('click', (event) => {
-      // Cast explícito
-      const slotBlock = slotElement as HTMLElement;
-      
-      const slotData = {
-        id: slotBlock.dataset.slotIds?.split(',')[0] || '',
-        dayOfWeek: slotBlock.dataset.day as string,
-        startTime: slotBlock.dataset.start as string,
-        endTime: slotBlock.dataset.end as string,
-        modality: slotBlock.dataset.modality as string,
-      };
 
+  const HOUR_HEIGHT = 64;
+  const SLOT_INTERVAL = 30;
+
+  function minutesToTime(minutes: number): string {
+    const h = Math.floor(minutes / 60).toString().padStart(2, "0");
+    const m = (minutes % 60).toString().padStart(2, "0");
+    return `${h}:${m}`;
+  }
+
+  function timeToMinutes(time: string): number {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function pixelsToMinutes(px: number): number {
+    return (px / HOUR_HEIGHT) * 60;
+  }
+
+  function formatModalityLabel(modality: string | undefined): string {
+    if (!modality || modality === "null") return "Presencial o Virtual";
+    return modality.toUpperCase() === "VIRT" ? "Virtual" : "Presencial";
+  }
+
+  function createOverlay(): HTMLElement {
+    const overlay = document.createElement("div");
+    overlay.id = "drag-overlay";
+    overlay.style.cssText = `
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 8px;
+      background: rgba(124, 58, 237, 0.18);
+      border: 2px solid #7c3aed;
+      pointer-events: none;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      overflow: hidden;
+    `;
+
+    // Etiqueta de franja horaria
+    const timeLabel = document.createElement("span");
+    timeLabel.id = "drag-time-label";
+    timeLabel.style.cssText = `
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #7c3aed;
+      font-family: 'Cabinet Grotesk Variable', sans-serif;
+    `;
+
+    // Etiqueta de modalidad
+    const modalityLabel = document.createElement("span");
+    modalityLabel.id = "drag-modality-label";
+    modalityLabel.style.cssText = `
+      font-size: 0.65rem;
+      font-weight: 500;
+      color: #7c3aed;
+      background: rgba(124, 58, 237, 0.12);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-family: 'Cabinet Grotesk Variable', sans-serif;
+    `;
+
+    overlay.appendChild(timeLabel);
+    overlay.appendChild(modalityLabel);
+    return overlay;
+  }
+
+  document.querySelectorAll<HTMLElement>('.slot-block:not(.slot-booked):not(.slot-past)').forEach((slotBlock) => {
+    let isDragging = false;
+    let dragStartY = 0;
+    let dragStartMinutes = 0;
+    let overlay: HTMLElement | null = null;
+
+    const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
+    const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
+    const slotTopPx = slotBlock.offsetTop;
+    const modality = slotBlock.dataset.modality;
+
+    slotBlock.addEventListener("mousedown", (e: MouseEvent) => {
+      e.preventDefault();
+      isDragging = true;
+
+      const relativeY = e.clientY - slotBlock.getBoundingClientRect().top;
+      const clickedMinutes = pixelsToMinutes(relativeY);
+      const roundedOffset = Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+      dragStartMinutes = slotStartMin + roundedOffset;
+      dragStartY = e.clientY;
+
+      overlay = createOverlay();
+      const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+      overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+      overlay.style.height = `${HOUR_HEIGHT / 2}px`;
+      slotBlock.parentElement?.appendChild(overlay);
+
+      // Inicializar labels
+      const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
+      const modalityLabel = overlay.querySelector("#drag-modality-label") as HTMLElement;
+      if (timeLabel) timeLabel.textContent = `${minutesToTime(dragStartMinutes)} → ${minutesToTime(dragStartMinutes + SLOT_INTERVAL)}`;
+      if (modalityLabel) modalityLabel.textContent = formatModalityLabel(modality);
+    });
+
+    document.addEventListener("mousemove", (e: MouseEvent) => {
+      if (!isDragging || !overlay) return;
+
+      const deltaY = e.clientY - dragStartY;
+      const deltaMinutes = pixelsToMinutes(deltaY);
+      const roundedDelta = Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+      const rawEndMinutes = dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
+      const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
+
+      const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+      const durationPx = ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
+      overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+      overlay.style.height = `${durationPx}px`;
+      overlay.dataset.endMinutes = clampedEndMinutes.toString();
+
+      // Actualizar label de tiempo en tiempo real
+      const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
+      if (timeLabel) {
+        timeLabel.textContent = `${minutesToTime(dragStartMinutes)} → ${minutesToTime(clampedEndMinutes)}`;
+      }
+    });
+
+    document.addEventListener("mouseup", (e: MouseEvent) => {
+      if (!isDragging || !overlay) return;
+      isDragging = false;
+
+      const endMinutes = parseInt(overlay.dataset.endMinutes || "") || (dragStartMinutes + SLOT_INTERVAL);
+
+      // Guardar rect del overlay ANTES de removerlo
+      const overlayRect = overlay.getBoundingClientRect();
+
+      overlay.remove();
+      overlay = null;
+
+      if (endMinutes <= dragStartMinutes) return;
+
+      const startTime = minutesToTime(dragStartMinutes);
+      const endTime = minutesToTime(endMinutes);
+      const modalityLabel = formatModalityLabel(modality);
+
+      console.log("Intentando mostrar sileo:", { startTime, endTime, modalityLabel });
+
+      // Disparar evento con el rect del overlay para posicionar el popover
       document.dispatchEvent(
-        new CustomEvent('slot:clicked', {
-          detail: slotData,
+        new CustomEvent("slot:clicked", {
+          detail: {
+            id: slotBlock.dataset.slotIds?.split(",")[0] || "",
+            dayOfWeek: slotBlock.dataset.day,
+            startTime,
+            endTime,
+            modality,
+            overlayRect: {
+              top: overlayRect.top,
+              bottom: overlayRect.bottom,
+              left: overlayRect.left,
+              right: overlayRect.right,
+              width: overlayRect.width,
+              height: overlayRect.height,
+            },
+          },
           bubbles: true,
-        }),
+        })
       );
     });
+  });
+
+  document.addEventListener("mouseleave", () => {
+    const overlay = document.getElementById("drag-overlay");
+    if (overlay) overlay.remove();
   });
 </script>
 

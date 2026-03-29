@@ -2,17 +2,31 @@ import type { Slot } from "@/features/availability/services/availabilityService"
 import { HOUR_START, HOUR_HEIGHT } from "./calendarConstants";
 
 export function getWeekDates(base: Date): Record<string, Date> {
-    const dayOfWeek = base.getDay() || 7;
-    const monday = new Date(base);
-    monday.setDate(base.getDate() - (dayOfWeek - 1));
-    const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
-    const result: Record<string, Date> = {};
-    keys.forEach((key, i) => {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        result[key] = d;
-    });
-    return result;
+  const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Día de la semana actual (1=Lunes ... 6=Sábado, 0=Domingo)
+  const todayDow = today.getDay() === 0 ? 7 : today.getDay(); // 1-7
+
+  const result: Record<string, Date> = {};
+
+  keys.forEach((key, i) => {
+    const keyDow = i + 1; // LUNES=1, MARTES=2, ... SABADO=6
+    const d = new Date(today);
+
+    if (keyDow >= todayDow) {
+      // Mismo día o días futuros de esta semana → fecha actual o siguiente
+      d.setDate(today.getDate() + (keyDow - todayDow));
+    } else {
+      // Días que ya pasaron esta semana → saltar a la próxima semana
+      d.setDate(today.getDate() + (7 - todayDow + keyDow));
+    }
+
+    result[key] = d;
+  });
+
+  return result;
 }
 
 export function isSlotInPast(slot: Slot, weekDates: Record<string, Date>): boolean {

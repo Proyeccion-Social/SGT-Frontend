@@ -3,6 +3,7 @@ import "@/styles/global.css";
 import { ViewTransitions } from "astro:transitions";
 import AuthHydrator from "@/store/AuthHydrator";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sileo";
 
 interface Props {
   title: string;
@@ -26,5 +27,6 @@ const { title } = Astro.props;
     <TooltipProvider>
       <slot />
     </TooltipProvider>
+    <Toaster client:only="react" position="top-center" offset={24} />
   </body>
 </html>

@@ -6,6 +6,7 @@ import SessionTypeStep from "./scheduling/SessionType";
 import ModalityStep from "./scheduling/Modality";
 import SlotPopover from "./scheduling/SlotPopover";
 import type { Slot } from "../../../features/availability/services/availabilityService";
+import { sileo } from "sileo";
 
 export interface WizardData {
   slot: Slot | null;
@@ -30,7 +31,8 @@ interface Props {
 export default function SchedulingWizard({ slots }: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
-  const [popover, setPopover] = useState<PopoverData | null>(null);
+  const [popover, setPopover] = useState<PopoverData | null>(null); // control visual
+  const [slotContext, setSlotContext] = useState<any>(null); // datos persistentes durante todo el wizard
   const [data, setData] = useState<WizardData>({
     slot: null,
     tutorId: "",
@@ -44,15 +46,14 @@ export default function SchedulingWizard({ slots }: Props) {
   useEffect(() => {
   const handler = (e: Event) => {
     const custom = e as CustomEvent;
+    console.log("detail completo:", custom.detail);
 
-    // Buscar TODOS los slots que coincidan en día y hora
     const matchingSlots = slots.filter(
       (s) =>
         s.dayOfWeek === custom.detail.dayOfWeek &&
-        s.startTime === custom.detail.startTime
+        s.startTime <= custom.detail.startTime &&
+        (s.endTime ?? "23:59") >= custom.detail.endTime
     );
-
-    console.log("Matching slots:", matchingSlots); // debug temporal
 
     if (matchingSlots.length === 0) return;
 
@@ -60,19 +61,31 @@ export default function SchedulingWizard({ slots }: Props) {
       ...new Set(matchingSlots.map((s) => s.subject).filter(Boolean)),
     ] as string[];
 
-    console.log("Subjects found:", subjects); // debug temporal
-
     if (subjects.length === 0) return;
 
-    const slotElement = document.querySelector(
-    `[data-slot-ids*="${custom.detail.id}"]`
-  ) as HTMLElement | null;
+    // Usar el rect del overlay seleccionado, no del slot completo
+    const rect = custom.detail.overlayRect as DOMRect;
 
-    const rect = slotElement
-      ? slotElement.getBoundingClientRect()
-      : { bottom: 200, left: 200 } as DOMRect;
+    
 
-    setPopover({ subjects, anchorRect: rect, slotData: custom.detail });
+  // Mostrar sileo primero
+sileo.action({
+  title: "Franja seleccionada",
+  description: `${custom.detail.startTime} → ${custom.detail.endTime} · ${
+    !custom.detail.modality || custom.detail.modality === "null"
+      ? "Presencial o Virtual"
+      : custom.detail.modality.toUpperCase() === "VIRT"
+      ? "Virtual"
+      : "Presencial"
+  }`,
+  fill: "#7c3aed",
+  styles: { badge: "#ffffff" },
+});
+
+// Pequeño delay antes de mostrar el popover
+setTimeout(() => {
+  setPopover({ subjects, anchorRect: rect, slotData: custom.detail });
+}, 8);
   };
 
     const closePopover = (e: MouseEvent) => {
@@ -91,27 +104,33 @@ export default function SchedulingWizard({ slots }: Props) {
   }, [slots]);
 
   const handleSubjectSelect = (subject: string) => {
-    const matchingSlot = slots.find(
-      (s) =>
-        s.dayOfWeek === popover?.slotData.dayOfWeek &&
-        s.startTime === popover?.slotData.startTime &&
-        s.subject === subject
-    );
+  const matchingSlot = slots.find(
+    (s) =>
+      s.dayOfWeek === popover?.slotData.dayOfWeek &&
+      s.startTime <= popover?.slotData.startTime &&
+      (s.endTime ?? "23:59") >= popover?.slotData.endTime &&
+      s.subject === subject
+  );
 
-    setData((prev) => ({ ...prev, slot: matchingSlot || null, subject }));
-    setPopover(null);
-    setStep(1);
-    setOpen(true);
-  };
+  // Guardar contexto completo para todo el wizard
+  setSlotContext(popover?.slotData);
+  
+  setData((prev) => ({ ...prev, slot: matchingSlot || null, subject }));
+  setPopover(null); // solo cierra visualmente
+  setStep(1);
+  setOpen(true);
+};
 
-  const handleClose = () => {
-    setOpen(false);
-    setStep(1);
-    setData({
-      slot: null, tutorId: "", subject: "",
-      title: "", description: "", sessionType: null, modality: null,
-    });
-  };
+// Y en handleClose también limpia slotContext
+const handleClose = () => {
+  setOpen(false);
+  setStep(1);
+  setSlotContext(null); // limpiar al finalizar o cancelar
+  setData({
+    slot: null, tutorId: "", subject: "",
+    title: "", description: "", sessionType: null, modality: null,
+  });
+};
 
   // Tutores disponibles para el slot y materia seleccionados
   const availableSlots = slots.filter(

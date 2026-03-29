@@ -64,7 +64,7 @@ const systemToday = new Date();
         DAYS.map((day) => (
           <div
             class='day-column'
-            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
+            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: #9ACC5B;`}
           >
             {hours.map((_) => (
               <div class='hour-cell' />
@@ -214,7 +214,7 @@ const systemToday = new Date();
   .day-number {
     font-size: 1.20rem;
     font-weight: 700;
-    color: #9f74ff;
+    color: #9ACC5B;
     line-height: 1;
     font-family: "Cabinet Grotesk Variable", sans-serif;
   }

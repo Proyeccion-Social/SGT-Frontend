@@ -2,6 +2,7 @@
 import MainLayout from "../../layouts/Layout.astro";
 import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import WeeklyCalendar from "../../features/availability/components/Calendar.astro";
+import SchedulingWizard from "../../features/sessions/components/SchedulingWizard";
 import { getAllTutorSlotsSSR } from "../../features/availability/services/availabilityService";
 import type { Slot } from "../../features/availability/services/availabilityService";
 import { Image } from "astro:assets";
@@ -15,53 +16,59 @@ const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 // const slots = await getAllTutorSlotsSSR().catch(() => []);
 
 const slots: Slot[] = [
-  // Lunes - slot 1
   {
     id: "mock-1",
     dayOfWeek: "LUNES",
     startTime: "09:00",
     endTime: "11:00",
     modality: "PRES",
+    tutorIds: ["tutor-1", "tutor-2"],
+    subject: "Integral",
   },
-  // Lunes - slot 2 (mismo día y hora que mock-1 → deben agruparse)
   {
     id: "mock-2",
     dayOfWeek: "LUNES",
     startTime: "09:00",
     endTime: "11:00",
     modality: "VIRT",
+    tutorIds: ["tutor-3"],
+    subject: "Diferencial",   // misma hora, distinta materia → aparecen 2 badges en el popover
   },
-  // Lunes - slot 3 (diferente hora)
   {
     id: "mock-3",
     dayOfWeek: "LUNES",
     startTime: "13:00",
     endTime: "15:00",
-    modality: "PRES",
+    modality: null,            // null → activará el paso 4 de modalidad
+    tutorIds: ["tutor-1"],
+    subject: "Multi",
   },
-  // Martes
   {
     id: "mock-4",
     dayOfWeek: "MARTES",
     startTime: "09:00",
     endTime: "16:00",
     modality: "VIRT",
+    tutorIds: ["tutor-2", "tutor-3"],
+    subject: "Integral",
   },
-  // Miercoles
   {
     id: "mock-5",
-    dayOfWeek: "MIERCOLES",
+    dayOfWeek: "SABADO",
     startTime: "09:00",
     endTime: "11:00",
     modality: "PRES",
+    tutorIds: ["tutor-1"],
+    subject: "Diferencial",
   },
-  // Viernes
   {
     id: "mock-6",
-    dayOfWeek: "VIERNES",
+    dayOfWeek: "SABADO",
     startTime: "11:00",
     endTime: "13:00",
-    modality: "VIRT",
+    modality: null,            // null → activará el paso 4
+    tutorIds: ["tutor-2"],
+    subject: "Multi",
   },
 ];
 
@@ -97,6 +104,7 @@ const formatDay = (date: Date) =>
         </div>
 
         <WeeklyCalendar slots={slots} />
+        <SchedulingWizard client:only="react" slots={slots} />
       </div>
     </main>
   </div>

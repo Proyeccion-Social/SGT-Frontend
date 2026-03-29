@@ -1,4 +1,4 @@
-export type Modality = 'VIRT' | 'PRES';
+export type Modality = 'VIRT' | 'PRES' | "";
 
 export type SessionType = 'INDIVIDUAL' | 'COLLABORATIVE';
 

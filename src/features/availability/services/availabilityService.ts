@@ -20,11 +20,13 @@ export interface Slot {
     id: string;
     dayOfWeek: DayOfWeek;
     startTime: string;
-    modality: Modality;
+    modality: Modality | null;
     endTime?: string;
     location?: string;
     platform?: string;
     isBooked?: boolean;
+    tutorIds?: string[];      // array de tutores disponibles en este slot
+    subject?: string;
 }
 
 export interface GetAvailabilityQueryDto {

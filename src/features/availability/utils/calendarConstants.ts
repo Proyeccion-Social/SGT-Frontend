@@ -13,9 +13,9 @@ export const DAYS = [
 ];
 
 export const DAY_COLORS: Record<string, string> = {
-    LUNES: "#F7DF94",
-    MARTES: "#ABEBC6",
-    MIERCOLES: "#DAFFAA",
+    LUNES: "#CFB9FF99",
+    MARTES: "#ABEBC699",
+    MIERCOLES: "#DAFFAA99",
     JUEVES: "#A5D8FF",
     VIERNES: "#CFB9FF",
     SABADO: "#FFD2A1",

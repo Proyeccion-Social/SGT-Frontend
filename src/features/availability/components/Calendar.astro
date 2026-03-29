@@ -4,9 +4,10 @@ import type { Slot } from "@/features/availability/services/availabilityService"
 interface Props {
   slots: Slot[];
   baseDate?: Date;
+  mode?: "tutor" | "student"
 }
 
-const { slots: rawSlots, baseDate = new Date() } = Astro.props;
+const { slots: rawSlots, baseDate = new Date(), mode = "tutor" } = Astro.props;
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
 import {
@@ -22,10 +23,16 @@ import {
   formatDuration,
   getSlotStyle,
   getSlotsByDay,
+  getSlotsByDayStudent,
   timeToMinutes,
 } from "../utils/calendarUtils";
 
 const weekDates = getWeekDates(baseDate);
+
+const getSlotsForDay = (dayKey: string) =>
+  mode === "student"
+    ? getSlotsByDayStudent(slots, dayKey)
+    : getSlotsByDay(slots, dayKey);
 
 const systemToday = new Date();
 ---
@@ -70,7 +77,7 @@ const systemToday = new Date();
               <div class='hour-cell' />
             ))}
 
-            {getSlotsByDay(slots, day.key).map((slot) => {
+            {getSlotsForDay( day.key).map((slot) => {
               const startMin = timeToMinutes(slot.startTime);
               const endMin = slot.endTime
                 ? timeToMinutes(slot.endTime)
@@ -88,12 +95,19 @@ const systemToday = new Date();
                   data-modality={slot.modality}
                   data-is-booked={slot.isBooked}
                 >
-                  {isHalfHour ? (
+                  {mode === "student" ? (
+                    <div class="slot-student-info">
+                      <span class="slot-tutor-count">
+                        Tutorías disponibles: {mode === "student" ? slot.tutorCount : slot.groupedIds.length}
+                      </span>
+                      <span class="slot-time-range">
+                        {slot.startTime} → {slot.endTime}
+                      </span>
+                    </div>
+                  ) : isHalfHour ? (
                     <div class='slot-half-hour-content'>
                       <span class='slot-modality-text'>
-                        {slot.modality?.toString().toUpperCase() === "VIRT"
-                          ? "Virtual"
-                          : "Presencial"}
+                        {slot.modality?.toString().toUpperCase() === "VIRT" ? "Virtual" : "Presencial"}
                       </span>
                       <span class='slot-duration-text-inline'>
                         {formatDuration(slot.startTime, slot.endTime)}
@@ -106,35 +120,17 @@ const systemToday = new Date();
                       </div>
                       <div class='slot-info'>
                         <span class='slot-modality-text'>
-                          {slot.modality?.toString().toUpperCase() === "VIRT"
-                            ? "Virtual"
-                            : "Presencial"}
+                          {slot.modality?.toString().toUpperCase() === "VIRT" ? "Virtual" : "Presencial"}
                         </span>
                         <span class='slot-badge-status'>
                           {slot.isBooked ? (
-                            <svg
-                              width='10'
-                              height='10'
-                              viewBox='0 0 24 24'
-                              fill='none'
-                              stroke='currentColor'
-                              stroke-width='2'
-                              stroke-linecap='round'
-                              stroke-linejoin='round'
-                            >
+                            <svg width='10' height='10' viewBox='0 0 24 24' fill='none'
+                              stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
                               <polyline points='20 6 9 17 4 12' />
                             </svg>
                           ) : (
-                            <svg
-                              width='10'
-                              height='10'
-                              viewBox='0 0 24 24'
-                              fill='none'
-                              stroke='currentColor'
-                              stroke-width='2'
-                              stroke-linecap='round'
-                              stroke-linejoin='round'
-                            >
+                            <svg width='10' height='10' viewBox='0 0 24 24' fill='none'
+                              stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
                               <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' />
                             </svg>
                           )}
@@ -154,6 +150,31 @@ const systemToday = new Date();
 </div>
 
 <style>
+  .slot-student-info {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.slot-tutor-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #1f2937;
+}
+
+.slot-time-range {
+  font-size: 0.70rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
   .calendar-outer {
     width: 100%;
     height: 100%;

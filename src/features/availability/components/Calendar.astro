@@ -493,11 +493,11 @@ const systemToday = new Date();
       overlay.style.height = `${HOUR_HEIGHT / 2}px`;
       slotBlock.parentElement?.appendChild(overlay);
 
-      // Inicializar labels
-      const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
-      const modalityLabel = overlay.querySelector("#drag-modality-label") as HTMLElement;
-      if (timeLabel) timeLabel.textContent = `${minutesToTime(dragStartMinutes)} → ${minutesToTime(dragStartMinutes + SLOT_INTERVAL)}`;
-      if (modalityLabel) modalityLabel.textContent = formatModalityLabel(modality);
+      // // Inicializar labels
+      // const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
+      // const modalityLabel = overlay.querySelector("#drag-modality-label") as HTMLElement;
+      // if (timeLabel) timeLabel.textContent = `${minutesToTime(dragStartMinutes)} → ${minutesToTime(dragStartMinutes + SLOT_INTERVAL)}`;
+      // if (modalityLabel) modalityLabel.textContent = formatModalityLabel(modality);
     });
 
     document.addEventListener("mousemove", (e: MouseEvent) => {
@@ -516,10 +516,10 @@ const systemToday = new Date();
       overlay.dataset.endMinutes = clampedEndMinutes.toString();
 
       // Actualizar label de tiempo en tiempo real
-      const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
-      if (timeLabel) {
-        timeLabel.textContent = "";
-      }
+      // const timeLabel = overlay.querySelector("#drag-time-label") as HTMLElement;
+      // if (timeLabel) {
+      //   timeLabel.textContent = "";
+      // }
     });
 
     document.addEventListener("mouseup", (e: MouseEvent) => {

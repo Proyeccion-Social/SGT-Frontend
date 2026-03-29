@@ -1,0 +1,51 @@
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #00000040;
+}
+
+.drawer-content {
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px;
+    height: 96%;
+    margin-top: 24px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+}
+
+.drawer-wrapper {
+    padding: 1rem;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+}
+
+.drawer-header {
+    margin-left: 16rem;
+    margin-top: 5rem;
+}
+
+.drawer-title {
+    font-family: Open Sauce Two;
+    font-weight: 600;
+    font-style: SemiBold;
+    font-size: 52px;
+    line-height: 64px;
+    letter-spacing: -2%;
+    color: #1A1A1A;
+}
+
+.drawer-description {
+    font-family: Open Sauce Two;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 20px;
+    line-height: 24px;
+    letter-spacing: 0px;
+    color: #3C3C3C;
+}

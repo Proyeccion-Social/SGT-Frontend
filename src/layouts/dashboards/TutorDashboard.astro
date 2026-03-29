@@ -7,6 +7,7 @@ import IncomingSessionsCard from "../../features/dashboards/components/IncomingS
 import StatCard from "../../features/dashboards/components/StatCard.astro";
 import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
+import VaulDrawer from "../../components/ui/drawer";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
@@ -98,13 +99,15 @@ const usedPercent = Math.min(
           <div class='incoming-sessions-container'>
             <IncomingSessionsCard
               sessions={mockSessions}
-              role={userRole as "tutor" | "student"}
+              role={userRole as "tutor"}
             />
           </div>
-
+          
           <div class='stats-container'>
             <StatCard value={tutorStats.value} description={tutorStats.text} />
           </div>
+
+          <VaulDrawer client:only="react" />
         </div>
       </div>
     </main>

@@ -71,13 +71,17 @@ export default function SchedulingWizard({ slots }: Props) {
   // Mostrar sileo primero
 sileo.action({
   title: "Franja seleccionada",
-  description: `${custom.detail.startTime} → ${custom.detail.endTime} · ${
-    !custom.detail.modality || custom.detail.modality === "null"
-      ? "Presencial o Virtual"
-      : custom.detail.modality.toUpperCase() === "VIRT"
-      ? "Virtual"
-      : "Presencial"
-  }`,
+  description: (
+    <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+      {`${custom.detail.startTime} → ${custom.detail.endTime} · ${
+        !custom.detail.modality || custom.detail.modality === "null"
+          ? "Presencial o Virtual"
+          : custom.detail.modality.toUpperCase() === "VIRT"
+          ? "Virtual"
+          : "Presencial"
+      }`}
+    </span>
+  ),
   fill: "#7c3aed",
   styles: { badge: "#ffffff" },
 });

@@ -60,6 +60,8 @@
     flex-shrink: 0;
     background: #fff;
     z-index: 10;
+    position: relative;
+    margin-top: 2rem;
 }
 
 /* ─── Two-column layout ────────────────────────────────────── */
@@ -181,6 +183,29 @@
     color: var(--neutral-700);
     margin-bottom: 0.4rem;
     text-align: center;
+    position: relative;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drawer-title-text {
+    position: relative;
+    z-index: 2; /* Texto siempre al frente */
+}
+
+.drawer-background {
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1; /* Fondo por debajo del texto (z-index 2) */
+    pointer-events: none;
+    height: 87%;
+    object-fit: contain;
 }
 
 .drawer-description {

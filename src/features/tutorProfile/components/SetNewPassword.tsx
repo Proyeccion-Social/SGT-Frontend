@@ -42,12 +42,13 @@ function EyeIcon({ open }: { open: boolean }) {
     );
 }
 
-export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitting }: { onNext: (password: string) => void; onSkip: () => void; isMandatory?: boolean; isSubmitting?: boolean }) {
+export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitting }: { onNext: (password: string, phone: string) => void; onSkip: () => void; isMandatory?: boolean; isSubmitting?: boolean }) {
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
+    const [phone, setPhone] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [touched, setTouched] = useState({ password: false, confirm: false });
+    const [touched, setTouched] = useState({ password: false, confirm: false, phone: false });
 
     const strength = getStrength(password);
 
@@ -56,8 +57,9 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
     const lengthOk = password.length >= MIN_LENGTH && password.length <= MAX_LENGTH;
     const mismatch = confirm.length > 0 && password !== confirm;
     const matchOk  = confirm.length > 0 && password === confirm && lengthOk;
+    const phoneOk  = phone.trim().length >= 10; // Simple validation for phone
 
-    const canContinue = lengthOk && matchOk;
+    const canContinue = lengthOk && matchOk && phoneOk;
 
     const passwordInputClass = [
         "password-input",
@@ -72,6 +74,12 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
         touched.confirm && matchOk   ? "password-input--success" : "",
     ].filter(Boolean).join(" ");
 
+    const phoneInputClass = [
+        "password-input",
+        touched.phone && !phoneOk ? "password-input--error" : "",
+        touched.phone && phoneOk  ? "password-input--success" : "",
+    ].filter(Boolean).join(" ");
+
     return (
         <>
             <div className="drawer-body">
@@ -83,6 +91,27 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
                 </div>
 
                 <div className="password-form">
+                    {/* ── Teléfono ── */}
+                    <div className="password-field">
+                        <label className="password-label" htmlFor="phone">
+                            Número de teléfono
+                        </label>
+                        <div className="password-input-wrapper">
+                            <input
+                                id="phone"
+                                type="tel"
+                                className={phoneInputClass}
+                                placeholder="Ingresa tu número de teléfono"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} // Only numbers
+                                onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                            />
+                        </div>
+                        {touched.phone && !phoneOk && (
+                            <p className="password-error">Ingresa un número válido</p>
+                        )}
+                    </div>
+
                     {/* ── Nueva contraseña ── */}
                     <div className="password-field">
                         <label className="password-label" htmlFor="new-password">
@@ -176,14 +205,14 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
                         )}
                     </div>
                 </div>
-
+                
                 <div className="button-row">
                     <Button className="skip-button" onClick={onSkip} disabled={isMandatory}>
                         Omitir
                     </Button>
                     <Button
                         className="next-button"
-                        onClick={() => onNext(password)}
+                        onClick={() => onNext(password, phone)}
                         disabled={!canContinue || isSubmitting}
                     >
                         {isSubmitting ? "Guardando..." : "Continuar"}

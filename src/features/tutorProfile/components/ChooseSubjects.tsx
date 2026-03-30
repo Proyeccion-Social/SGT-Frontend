@@ -3,14 +3,14 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const SUBJECTS = [
-    { id: 1, name: "Diferencial", color: "#E8D5FF" },
-    { id: 3, name: "Avanzada", color: "#FFE5D5" },
-    { id: 4, name: "POO", color: "#D5FFE8" },
-    { id: 5, name: "Integral", color: "#FFD5D5" },
-    { id: 6, name: "Ecuaciones", color: "#D5F5D5" },
-    { id: 7, name: "Física 1", color: "#E0D5FF" },
-    { id: 9, name: "POO", color: "#D5EEFF" },
-    { id: 10, name: "Básica", color: "#D5FFF5" },
+    { id: 1, name: "Diferencial", color: "#E8D5FF", borderColor: "#D1C4F5" },
+    { id: 3, name: "Avanzada", color: "#FFE5D5", borderColor: "#FFCCBB" },
+    { id: 4, name: "POO", color: "#D5FFE8", borderColor: "#BBE9D1" },
+    { id: 5, name: "Integral", color: "#FFD5D5", borderColor: "#FFBBBB" },
+    { id: 6, name: "Ecuaciones", color: "#D5F5D5", borderColor: "#BBEBB1" },
+    { id: 7, name: "Física 1", color: "#E0D5FF", borderColor: "#C9BBFF" },
+    { id: 9, name: "POO", color: "#D5EEFF", borderColor: "#BBDEFF" },
+    { id: 10, name: "Básica", color: "#D5FFF5", borderColor: "#BBFFEE" },
 ];
 
 const MAX_SELECTIONS = 3;
@@ -43,7 +43,7 @@ export default function ChooseSubjects({ onNext, onSkip, isMandatory, isSubmitti
     };
 
     const lastSelectedId = selected.length > 0 ? selected[selected.length - 1] : null;
-    const canContinue = selected.length > 0 && phone.length === 10;
+    const canContinue = selected.length;
 
     return (
         <>
@@ -51,24 +51,6 @@ export default function ChooseSubjects({ onNext, onSkip, isMandatory, isSubmitti
                 <div className="body-header">
                     <p className="body-header-title">Escoge las materias que vas a dar como tutor</p>
                     <p className="body-header-subtitle">Máximo: {MAX_SELECTIONS} materias</p>
-                </div>
-
-                <div className="phone-input-container" style={{ padding: "0 3.375rem 1rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    <label htmlFor="phone" style={{ fontSize: "0.875rem", fontWeight: "500", color: "#374151" }}>Teléfono (10 dígitos)</label>
-                    <input
-                        id="phone"
-                        type="tel"
-                        maxLength={10}
-                        placeholder="Ej: 3001234567"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                        style={{
-                            padding: "0.75rem",
-                            borderRadius: "8px",
-                            border: "1px solid #D1D5DB",
-                            fontSize: "1rem"
-                        }}
-                    />
                 </div>
                 
                 <div className="body-content">
@@ -85,7 +67,8 @@ export default function ChooseSubjects({ onNext, onSkip, isMandatory, isSubmitti
                                     backgroundColor: subject.color,
                                     top: pos.top,
                                     left: pos.left,
-                                    "--subject-color": subject.color // Variable CSS para el borde dinámico
+                                    "--subject-color": subject.color,
+                                    "--subject-border": subject.borderColor
                                 } as React.CSSProperties}
                                 onClick={() => toggleSubject(subject.id)}
                             >
@@ -106,4 +89,4 @@ export default function ChooseSubjects({ onNext, onSkip, isMandatory, isSubmitti
             </div>
         </>
     );
-}
+}

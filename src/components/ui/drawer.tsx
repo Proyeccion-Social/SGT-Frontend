@@ -16,6 +16,7 @@ import numberOne from "./images/number-one.png";
 import numberTwo from "./images/number-two.png";
 import numberThree from "./images/number-three.png";
 import numberFour from "./images/number-four.png";
+import background from "./images/titleBackground.png";
 
 const STEPS = [
     { id: 1, label: 'Materias',          shortLabel: '01' },
@@ -122,7 +123,10 @@ export default function VaulDrawer() {
                     {/* Header */}
                     <div className="drawer-header">
                         <Drawer.Title className="drawer-title">
-                            {requiresProfileCompletion ? 'Completemos tu perfil' : 'Actualizar perfil'}
+                            <img src={background.src} alt="Background" className="drawer-background" />
+                            <span className="drawer-title-text">
+                                {requiresProfileCompletion ? 'Completar perfil' : 'Actualizar perfil'}
+                            </span>
                         </Drawer.Title>
                         <Drawer.Description className="drawer-description">
                             {requiresProfileCompletion 
@@ -199,7 +203,10 @@ export default function VaulDrawer() {
                                 )}
                                 {step === 4 && (
                                     <SetNewPassword
-                                        onNext={(pwd) => handleSubmit(pwd)}
+                                        onNext={(pwd, phone) => {
+                                            setFormData(prev => ({ ...prev, phone }));
+                                            handleSubmit(pwd);
+                                        }}
                                         onSkip={() => handleSubmit()}
                                         isMandatory={requiresProfileCompletion}
                                         isSubmitting={isSubmitting}

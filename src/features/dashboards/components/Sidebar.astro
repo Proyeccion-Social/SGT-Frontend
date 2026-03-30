@@ -73,10 +73,10 @@ const currentPath = Astro.url.pathname;
             <Image src={WindowIcon} alt='Slots' class='icon' />
             <span class='nav-label'>Tu Disponibilidad</span>
           </a>
-          <a href='#'>
+          <button type="button" id="config-drawer-trigger">
             <Image src={ConfigIcon} alt='Config' class='icon' />
             <span class='nav-label'>Configuración</span>
-          </a>
+          </button>
           <a href='#'>
             <Image src={HistoryIcon} alt='History' class='icon' />
             <span class='nav-label'>Historial</span>
@@ -343,6 +343,40 @@ const currentPath = Astro.url.pathname;
     transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
   }
 
+  /* Config drawer trigger — style as nav link */
+  #config-drawer-trigger {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    transition:
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 0.2s ease;
+    gap: 10px;
+    white-space: nowrap;
+    color: inherit;
+  }
+
+  .sidebar.expanded #config-drawer-trigger {
+    width: 90%;
+    justify-content: flex-start;
+    padding-left: 10px;
+    gap: 16px;
+  }
+
+  #config-drawer-trigger:hover {
+    background: #e7dcff;
+  }
+
   /* Active link highlight */
   .active-link,
   .dashboard-container.active-link {
@@ -374,6 +408,12 @@ const currentPath = Astro.url.pathname;
         sidebar.classList.remove("expanded");
       });
     }
+
+    // Open the profile drawer when the config button is clicked
+    const configBtn = document.getElementById("config-drawer-trigger");
+    configBtn?.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("open-profile-drawer"));
+    });
   });
 
   import { sileo } from "sileo";

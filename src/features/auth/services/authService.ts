@@ -110,3 +110,20 @@ export const logout = async (data: LogoutDto, accessToken: string) => {
 
   return body;
 };
+
+export const changePassword = async (data: any, accessToken: string) => {
+  const response = await fetch(`${API_URL}/auth/password/change`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(body?.message ?? "Password change failed");
+  }
+  return body;
+};

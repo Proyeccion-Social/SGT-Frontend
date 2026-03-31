@@ -5,7 +5,7 @@ export const mockEvaluationQuestionnaire = {
     questions: [
       {
         aspect: "CLARITY",
-        key: "clarity", // 🔥 clave para backend
+        key: "clarity", //  clave para backend
         label: "Claridad de explicación",
         description: "¿Qué tan claro fue el tutor?",
         ratingScale: { min: 1, max: 5 },
@@ -32,14 +32,6 @@ export const mockEvaluationQuestionnaire = {
         key: "knowledge",
         label: "Dominio del tema",
         description: "¿Dominaba el tema?",
-        ratingScale: { min: 1, max: 5 },
-        required: true
-      },
-      {
-        aspect: "USEFULNESS",
-        key: "usefulness",
-        label: "Utilidad de la sesión",
-        description: "¿Fue útil?",
         ratingScale: { min: 1, max: 5 },
         required: true
       }

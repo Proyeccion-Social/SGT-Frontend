@@ -15,14 +15,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
   } catch (error: any) {
-    return new Response(
-      JSON.stringify({
-        error: error.message || "Failed to send evaluation"
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-  }
+  return new Response(
+    JSON.stringify({
+      error: error.message,
+    }),
+    {
+      status: 400
+    }
+  );
+}
 };

@@ -7,12 +7,11 @@ export interface EvaluationPayload {
     patience: number;
     punctuality: number;
     knowledge: number;
-    usefulness: number;
   };
   overallRating?: number;
   comments?: string;
 }
-const USE_MOCK = true;
+const USE_MOCK = false;
     
 export async function sendSessionEvaluation(
   sessionId: string,
@@ -20,7 +19,7 @@ export async function sendSessionEvaluation(
   token?: string
 ) {
   if (USE_MOCK) {
-    // 🔥 simulamos delay real
+    //  simulamos delay real
     await new Promise((res) => setTimeout(res, 800));
 
     return mockSendEvaluation(sessionId, payload);
@@ -43,6 +42,5 @@ export async function sendSessionEvaluation(
   if (!response.ok) {
     throw new Error(data.message || "Error sending evaluation");
   }
-
   return data;
 }

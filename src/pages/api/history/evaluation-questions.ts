@@ -22,5 +22,5 @@ export const GET: APIRoute = async ({ cookies }) => {
         headers: { "Content-Type": "application/json" }
       }
     );
-  }
+}
 };

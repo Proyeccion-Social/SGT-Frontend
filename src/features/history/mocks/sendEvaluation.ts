@@ -12,5 +12,5 @@ export function mockSendEvaluation(sessionId: string, payload: any) {
         Object.keys(payload.ratings).length,
     comments: payload.comments || "",
     evaluatedAt: new Date().toISOString()
-  };
+};
 }

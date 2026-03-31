@@ -1,4 +1,7 @@
 ---
+import MultiStepDialog from "@/features/history/components/MultiStepRating.tsx";
+
+
 const { session } = Astro.props;
 
 // Obtener los datos del cuestionario del endpoint BFF usando las cookies de la petición
@@ -11,307 +14,383 @@ if (res.ok) {
   const data = await res.json();
   questionnaire = data.questionnaire;
 }
+
+console.log(questionnaire);
+
+
+
 ---
 
 {questionnaire && (
-  <div class="evaluation-card">
-    <button type="button" class="btn-close-dialog" aria-label="Cerrar">&times;</button>
-      <div class="evaluation-card-header">
-        <h3>Estas calificando a {session.tutor.name}</h3>
-        <p>{session.title}</p>
-      </div>
-    <form class="evaluation-form" data-session-id={session.sessionId || session.id}>
-      <div class="questions-grid">
-      {questionnaire.questions.map((q: any) => (
-        <div class="form-group aspect-group">
-          <label class="aspect-label">
-            {q.label}
-            {q.required && <span class="required">*</span>}
-          </label>
-          <p class="aspect-description" style="margin-bottom: 0.5rem;">{q.description}</p>
+      
+      <MultiStepDialog questionnaire={questionnaire} session={session} client:only="react"/>
 
-          <div class="rating-options">
-            {Array.from({ length: q.ratingScale.max - q.ratingScale.min + 1 }, (_, i) => i + q.ratingScale.min).map((val) => (
-              <label class="rating-radio">
-                <input 
-                  type="radio" 
-                  name={`aspect_${q.aspect.toLowerCase()}`} 
-                  value={val} 
-                  required={q.required} 
-                />
-                <span class="radio-label">{val}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      ))}
-      </div>
-
-      {questionnaire.comments?.enabled && (
-        <div class="form-group">
-          <label for={`comments_${session.sessionId || session.id}`}>
-            {questionnaire.comments.label}
-          </label>
-          <textarea 
-            id={`comments_${session.sessionId || session.id}`}
-            name="comments"
-            placeholder={questionnaire.comments.placeholder}
-            maxlength={questionnaire.comments.maxLength}
-            rows="3"
-            required={questionnaire.comments.required}
-          ></textarea>
-        </div>
-      )}
-
-      <div class="form-actions" style="margin-top: 1rem;">
-        <button type="submit" class="submit-btn" id={`submit-eval-${session.sessionId || session.id}`}>
-          Enviar Evaluación
-        </button>
-      </div>
-      <div class="form-message" id={`message-${session.sessionId || session.id}`}></div>
-    </form>
-  </div>
+    
+    
 )}
 
-<style>
-  .evaluation-card {
-    position: relative;
-    font-family: "Open Sauce Two", system-ui, sans-serif;
-    border: 1px solid #e2e8f0;
-    padding: 1.25rem;
-    border-radius: 18px;
-    background-color: #f8fafc;
+<style is:global>
+
+
+
+
+  /* Estilos de MultiStepDialog */
+.eval-dialog {
+  border: none;
+    border-radius: 16px;
+    padding: 0;
+    background: transparent;
+    background-color: transparent;
+    backdrop-filter: blur(3px);
+
+    margin: auto; 
+}
+  .container-dialog {
+        background-color: transparent;
+        
+    }
+
+
+  .evaluation-card-header {
+    display: flex;
+    flex-direction: row;
+    gap: 200px;
+    text-align: left;
+    height: 104px;
     width: 827px;
-    height:611px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid #C6C6C6;
+    background-color: #ffffff;
+  }
+
+  .evaluation-card-header-title {
+    padding-top: 3px;
+    padding-left: 15px;
+  }
+
+  .evaluation-card-header-title h3 , .evaluation-card-header-title span{
+    font-family: Open Sauce Two;
+    font-weight: 600;
+    font-style: SemiBold;
+    font-size: 28px;
+    line-height: 32px;
+    letter-spacing: -2%;
+    color: #3C3C3C;
+  }
+  .evaluation-card-header-title span {
+    color: #9F74FF;
+    font-size: 28px;
+    font-weight: 500;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+  }
+
+  .evaluation-card-header-title p {
+    font-family: "Cabinet Grotesk Variable";
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -2%;
+    color: #3C3C3C;
+    padding-top: 5px;
+  }
+
+
+
+  .evaluation-card-body {
     display: flex;
     flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    align-items: center;  
+    height: auto;
+    width: 827px;
+    border-radius: 16px;
+        border: 1px solid #C6C6C6;
+
+    background-color: #ffffff;
   }
-  .evaluation-card-header {
+
+  .evaluation-card-body-question-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    height: 498px ;
+    border-radius: 16px;
+    background-color: #ffffff;
+  }
+
+  .evaluation-card-body-question {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background-color: #ffffff;
+  }
+
+  .evaluation-card-body-question-item {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 0.8rem 1.25rem;
+    border-radius: 16px;
+    border: 1px dashed #b3b2b2;
+    height: 170px;
+    width: 350px;
+  }
+
+  .evaluation-card-body-question-item-buttons {
+    display: flex;
+    flex-direction: row;
+    height: 75px;
+    min-height: 75px;
+    width: 288px;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    background-color: #F3EDFF;
+    padding: 0.5rem;
+    border-radius: 16px;
+  }
+
+  .evaluation-card-body-comment-container {
     display: flex;
     flex-direction: column;
     text-align: left;
-    margin-bottom: 3rem;
+    justify-content: center;
+    height: 261px ;
+    border-radius: 16px;
+    background-color: #ffffff;
   }
-  .evaluation-card-header h3 {
-    color: #1e293b;
-    font-size: 1.25rem;
-  }
-  .btn-close-dialog {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #64748b;
-    padding: 0;
-    line-height: 1;
-  }
-  .btn-close-dialog:hover {
-    color: #0f172a;
-  }
-  .evaluation-card p {
-        text-align: left;
 
-    color: #64748b;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+  .comment-textarea {
+
+width: 746px;
+height: 97px;
+border: 1px solid #C6C6C6;
+border-radius: 8px;
+color: #3C3C3C;
+font-family: Open Sauce Two;
+font-weight: 400;
+font-style: Regular;
+font-size: 12px;
+line-height: 24px;
+letter-spacing: -2%;
+padding: 10px;
+
   }
-  .questions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-  .form-group {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    gap: 0.4rem;
+
+  .evaluation-card-body-final-container {
     display: flex;
     flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    height: 380px ;
+    border-radius: 16px;
+    gap: 2.5rem;
+    background-color: #ffffff;
   }
-  .aspect-label {
-        text-align: left;
 
-    display: block;
-    font-weight: 600;
-    color: #334155;
-    margin-bottom: 0.25rem;
-  }
-  .required {
-    color: #ef4444;
-    margin-left: 0.25rem;
-  }
-  .aspect-description {
-    font-size: 0.875rem;
-    color: #64748b;
-    margin-bottom: 0.5rem;
-  }
-  .rating-options {
+  .checked-icon-container {
+
     display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .btn-rating {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+  }
+
+  .final-message {
+    position: relative;
+    color: #000000;
+    z-index: 100;
+    font-size: 28px;
+    font-weight: 600;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+  }
+
+  .tutor-name-container {
+    position: relative;
+    color: #000000;
+    z-index: 100;
+    font-size: 28px;
+    font-weight: 600;
+    padding:  10px 20px;
+    margin: 0;
+
+  display: inline-block; /* 🔑 importante */
+  padding: 5px 20px;
+  background-size: 90% 90%; /* 🔥 clave */
+  background-repeat: no-repeat;
+  background-position: center;
+  white-space: nowrap; /* opcional: evita saltos de línea */
+
+  }
+
+  .final-message-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+
+  .question-title {
+    color: #3C3C3C;
+    font-size: 20px;
+    font-weight: 500;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+  }
+  .question-description {
+    color: #3C3C3C;
+    font-size: 11px;
+    padding: 0;
+    margin: 4px 0 10px 0;
+    text-align: left;
+  }
+
+  .btn-continue {
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 12px;
+    gap: 10px;
+
+    position: absolute;
+    width: 110px;
+    height: 36px;
+    left: 674px;
+    top: 34px;
+
+    background: #9F74FF;
+    border-radius: 8px;
+
+    /* Continuar */
+
+
+  font-family: 'Cabinet Grotesk Variable';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+
+  color: #FFFFFF;
+
+
+  }
+
+  .checked-icon {
+    width: 48px;
+  }
+
+
+  .vector-inicial-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    height: 380px ;
+    width: 827px;
+    border-radius: 16px;
+    gap: 2rem;
+    border: 1px solid #C6C6C6;
+    background-color: #ffffff;
+
+    p {
+
+
+      font-family: 'Open Sauce Two';
+      font-style: normal;
+      font-weight: 600;
+      font-size: 28px;
+      line-height: 32px;
+      letter-spacing: -0.02em;
+      color: #3C3C3C;
+
+
+    }
+  }
+
+  .vector-inicial {
+    align-self: center;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+  }
+
+  .buttons-container-inicial {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
     gap: 1rem;
   }
-  .rating-radio {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    cursor: pointer;
+
+  .btn-yes {
+    color: #4D662E;
+    font-family: Open Sauce Two;
+font-weight: 500;
+font-style: Medium;
+font-size: 16px;
+line-height: 24px;
+letter-spacing: -2%;
+    padding: 8px 12px;
+    gap: 10px;
+
+    width: 126px;
+    height: 36px;
+
+    background: #DAFFAA;
+    border-radius: 8px;
+
+
   }
-  textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    font-family: inherit;
-    resize: none;
+
+  .btn-no {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #8751FF;
+    padding: 8px 12px;
+    gap: 10px;
+    width: 126px;
+    height: 36px;
+    background: #CFB9FF;
+    border-radius: 8px;
+
+
+
   }
-  .form-actions {
-    margin-top: 0.5rem;
+
+  .star-description {
+    color: #8751FF;
   }
-  .submit-btn {
-    background-color: rgba(159, 116, 255, 1);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  .submit-btn:hover {
-    background-color: rgba(205, 255, 142, 1);
-    color: #1e293b;
-  }
-  .submit-btn:disabled {
-    background-color: #94a3b8;
-    cursor: not-allowed;
-  }
-  .form-message {
-    margin-top: 1rem;
-    padding: 0.75rem;
-    border-radius: 6px;
-    display: none;
-  }
-  .form-message.success {
-    display: block;
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
-  }
-  .form-message.error {
-    display: block;
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fecaca;
-  }
+
 </style>
-
-<script>
-  document.addEventListener('astro:page-load', () => {
-  const forms = document.querySelectorAll('.evaluation-form');
-
-  // Close dialog buttons
-  document.querySelectorAll('.btn-close-dialog').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const dialog = (e.target as HTMLElement).closest('dialog');
-      if (dialog) dialog.close();
-    });
-  });
-
-  forms.forEach(form => {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const formEl = e.target as HTMLFormElement;
-      const sessionId = formEl.dataset.sessionId;
-      const submitBtn = formEl.querySelector('.submit-btn') as HTMLButtonElement;
-      const messageEl = formEl.querySelector('.form-message') as HTMLDivElement;
-      
-      if (!sessionId) return;
-      
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Enviando...';
-      messageEl.className = 'form-message'; // reset state
-
-      const formData = new FormData(formEl);
-      const ratings: Record<string, number> = {};
-      let comments = '';
-
-      for (const [key, value] of formData.entries()) {
-        if (key.startsWith('aspect_')) {
-          const aspectName = key.replace('aspect_', '');
-          ratings[aspectName] = Number(value);
-        } else if (key === 'comments') {
-          comments = value.toString();
-        }
-      }
-
-      try {
-        const response = await fetch('/api/history/send-evaluation', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sessionId,
-            ratings,
-            comments
-          })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          messageEl.textContent = '¡Evaluación enviada con éxito! Gracias por tu retroalimentación.';
-          messageEl.className = 'form-message success';
-          
-          formEl.querySelectorAll('.form-group, .form-actions').forEach(el => {
-            (el as HTMLElement).style.display = 'none';
-          });
-          
-          const evalSection = formEl.closest('.evaluation-section');
-          
-          // Ocultar el botón submit inmediatamente para que no se presione de nuevo
-          submitBtn.style.display = 'none';
-
-          // Ocultar el botón inmediatamente para que no aparezca "Cancelar Calificación" durante la espera
-          if (evalSection) {
-            const toggleBtn = evalSection.querySelector('.btn-toggle-eval') as HTMLButtonElement | null;
-            if (toggleBtn) {
-              toggleBtn.style.display = 'none';
-            }
-          }
-
-          // Solución elegante: inyectar el resultado y remover el formulario en el cliente tras un breve retardo
-          setTimeout(() => {
-            const dialog = formEl.closest('dialog');
-            if (dialog) dialog.close();
-
-            if (evalSection && evalSection.parentNode) {
-              const ratingEl = document.createElement('p');
-              // Extraemos el overallRating si la API lo manda, o calculamos un fallback si llega ausente
-              const finalRating = result.overallRating || 'Enviado';
-              ratingEl.innerHTML = `⭐ ${finalRating}`;
-              
-              evalSection.parentNode.insertBefore(ratingEl, evalSection);
-              evalSection.remove();
-            }
-          }, 3000); // 3s para que lean el mensaje de éxito
-
-        } else {
-          messageEl.textContent = result.error || 'Error al enviar la evaluación.';
-          messageEl.className = 'form-message error';
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Enviar Evaluación';
-        }
-      } catch (error) {
-        messageEl.textContent = 'Error de conexión al enviar la evaluación.';
-        messageEl.className = 'form-message error';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Enviar Evaluación';
-      }
-    });
-  });
-});
-</script>

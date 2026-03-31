@@ -1,7 +1,7 @@
 import { mockEvaluationQuestionnaire } from "@/features/history/mocks/evaluationQuestionnaire";
 
 const API_URL = import.meta.env.API_URL;
-const USE_MOCK = true; // 🔥 cambia a false cuando tengas backend
+const USE_MOCK = false; //  cambia a false cuando tengas backend
 
 export async function getEvaluationQuestions(token?: string) {
 

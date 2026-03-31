@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Slot } from "../../../availability/services/availabilityService";
 import { Rotate } from "@hugeicons/core-free-icons";
 
@@ -9,18 +9,83 @@ interface TutorInfo {
   modality: string;
   type: string;
   subjects: { id: string; name: string }[];
+  
 }
 
 interface Props {
   tutorIds: string[];
   slot: Slot | null;
   subject: string;
+  token:String;
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: Props) {
+export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, token }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [tutors, setTutors] = useState<Record<string, TutorInfo>>({});
+  const [loading, setLoading] = useState(false);
+
+  // Cargar info de tutores desde el BFF
+  useEffect(() => {
+    if (!tutorIds || tutorIds.length === 0) {
+      setTutors({});
+      return;
+    }
+
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      try {
+        const results = await Promise.all(
+          tutorIds.map(async (id) => {
+            const res = await fetch(
+      `/api/sessions/scheduleapi?tutorId=${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+            console.log("STATUS BACKEND /tutors:", res.status);
+
+            if (!res.ok) {
+              const body = await res.text();
+              console.error("BODY BACKEND /tutors:", body);
+              throw new Error("No se pudo obtener el tutor");
+            }
+            const t = (await res.json()) as TutorInfo;
+            return t;
+          })
+        );
+
+        if (cancelled) return;
+
+        const byId: Record<string, TutorInfo> = {};
+        for (const t of results) {
+          byId[t.id] = t;
+        }
+
+        // DEBUG opcional
+        console.log("TUTORES CARGADOS:", byId);
+
+        setTutors(byId);
+      } catch (e) {
+        console.error("Error cargando tutores", e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [tutorIds]);
+
+  const handleContinue = () => {
+    if (selected) onSelect(selected);
+  };
 
   return (
     <div>
@@ -44,7 +109,7 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: 
           flexWrap: "wrap", justifyContent: "center",
         }}>
           {tutorIds.map((tutorId) => {
-            const info = tutors[tutorId]; // viene de la carga previa
+            const info = tutors[tutorId];
 
             return (
               <button
@@ -120,7 +185,7 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: 
                   {subject}
                 </div>
 
-                {/* Foto – ahora usando la URL que llega desde el BFF */}
+                {/* Foto */}
                 <div
                   style={{
                     width: "100%",
@@ -150,7 +215,7 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: 
                   )}
                 </div>
 
-                {/* Nombre sobre la foto – ahora con tutorName */}
+                {/* Nombre sobre la foto */}
                 <div
                   style={{
                     background: "rgba(0,0,0,0.5)",
@@ -187,7 +252,8 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: 
                       fontStyle: "italic",
                     }}
                   >
-                    <strong>Tipo:</strong> {info?.type ?? "Virtual o integral"}
+                    <strong>Tipo:</strong>{" "}
+                    {info?.type ?? "Virtual o integral"}
                   </p>
                 </div>
               </button>

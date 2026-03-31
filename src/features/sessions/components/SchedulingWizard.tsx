@@ -372,6 +372,7 @@ console.log("SESION CREADA:", result);
                 {step === 1 && <AvailabilityStep tutorIds={tutorIds}
                             slot={data.slot}
                             subject={data.subject}
+                            token={token}
                             onSelect={(tutorId) => {
                               setData((prev) => ({ ...prev, tutorId }));
                               setStep(2);

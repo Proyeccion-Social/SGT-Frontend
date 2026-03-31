@@ -12,13 +12,19 @@ export async function getTutorInfo(
   authHeader?: string
 ): Promise<TutorInfo> {
   const res = await fetch(
-    `${import.meta.env.API_URL}/api/v1/tutors/${tutorId}`,
+    `${import.meta.env.API_URL}/tutors/${tutorId}`,
     {
       headers: authHeader
         ? { authorization: authHeader }
         : undefined,
     }
   );
+const baseUrl = import.meta.env.API_URL;
+  console.log("API_URL:", baseUrl);   // Si imprime "undefined", ese es el problema
+  console.log("tutorId recibido:", tutorId);
+
+  const url = `${baseUrl}/api/v1/tutors/${tutorId}`;
+  console.log("URL FINAL:", url);
 
   if (!res.ok) {
     throw new Error("No se pudo obtener el tutor");

@@ -15,6 +15,7 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const authHeader = request.headers.get("authorization") || undefined;
+    console.log("TOKEN RECIBIDO EN BFF (GET):", authHeader);
 
     const tutor = await getTutorInfo(tutorId, authHeader);
 

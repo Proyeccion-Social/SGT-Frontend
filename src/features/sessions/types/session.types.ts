@@ -235,13 +235,14 @@ export interface AvailabilitySlot {
 
 export interface CreateSessionDTO {
   tutorId: string;
-  date: string;
-  duration: number;
+  availabilityId : string;
+  scheduledDate : string;
   title: string;
   description: string;
   modality: Modality;
   type?: SessionType;
   subjectId?: string;
+  durationHours: number;
 }
 
 // ─── Errores del API ─────────────────────────────────────────

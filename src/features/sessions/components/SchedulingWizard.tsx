@@ -11,6 +11,8 @@ import { sileo } from "sileo";
 export interface WizardData {
   slot: Slot | null;
   tutorId: string;
+  tutorName:string;
+  subjectId: string;
   subject: string;
   title: string;
   description: string;
@@ -26,9 +28,10 @@ interface PopoverData {
 
 interface Props {
   slots: Slot[];
+  token : String;
 }
 
-export default function SchedulingWizard({ slots }: Props) {
+export default function SchedulingWizard({ slots, token }: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [popover, setPopover] = useState<PopoverData | null>(null); // control visual
@@ -36,7 +39,9 @@ export default function SchedulingWizard({ slots }: Props) {
   const [data, setData] = useState<WizardData>({
     slot: null,
     tutorId: "",
+    tutorName: "",
     subject: "",
+    subjectId:"",
     title: "",
     description: "",
     sessionType: null,
@@ -143,20 +148,25 @@ setTimeout(() => {
   };
 }, [open, popover]);
 
-  const handleSubjectSelect = (subject: string) => {
+const handleSubjectSelect = (subject: string) => {
+  const currentSlotData = popover!.slotData;
+
   const matchingSlot = slots.find(
     (s) =>
-      s.dayOfWeek === popover?.slotData.dayOfWeek &&
-      s.startTime <= popover?.slotData.startTime &&
-      (s.endTime ?? "23:59") >= popover?.slotData.endTime &&
+      s.dayOfWeek === currentSlotData.dayOfWeek &&
+      s.startTime <= currentSlotData.startTime &&
+      (s.endTime ?? "23:59") >= currentSlotData.endTime &&
       s.subject === subject
   );
 
-  // Guardar contexto completo para todo el wizard
-  setSlotContext(popover?.slotData);
-  
-  setData((prev) => ({ ...prev, slot: matchingSlot || null, subject }));
-  setPopover(null); // solo cierra visualmente
+  setSlotContext(currentSlotData);
+  setData((prev) => ({
+    ...prev,
+    slot: matchingSlot || null,
+    subject,
+    subjectId: matchingSlot?.subjectId ?? "", 
+  }));
+  setPopover(null);
   setStep(1);
   setOpen(true);
 };
@@ -168,8 +178,107 @@ const handleClose = () => {
   setSlotContext(null); // limpiar al finalizar o cancelar
   setData({
     slot: null, tutorId: "", subject: "",
-    title: "", description: "", sessionType: null, modality: null,
+    title: "", description: "", sessionType: null,tutorName: "",
+subjectId:"", modality: null,
   });
+};
+
+const handleSubmit = async () => {
+  try {
+    const dayMap: Record<string, number> = {
+  LUNES: 1,
+  MARTES: 2,
+  MIERCOLES: 3,
+  JUEVES: 4,
+  VIERNES: 5,
+  SABADO: 6,
+  DOMINGO: 7, // Agregado para evitar errores de undefined
+};
+
+// 1. Obtenemos el día del contexto o fallback a LUNES
+const rawDay = slotContext?.dayOfWeek ?? "LUNES";
+
+// 2. Normalizamos el texto (Pasar a MAYÚSCULAS y quitar tildes como "MIÉRCOLES")
+const normalizedDay = rawDay
+  .toUpperCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "");
+
+const today = new Date();
+const todayDow = today.getDay() === 0 ? 7 : today.getDay();
+
+// 3. Obtenemos el target o fallback a LUNES si el input no coincide con el mapa
+const targetDow = dayMap[normalizedDay] ?? 1;
+
+// 4. Cálculo de la diferencia de días
+const diff = targetDow >= todayDow
+  ? targetDow - todayDow
+  : 7 - todayDow + targetDow;
+
+// 5. Creación de la nueva fecha
+const scheduledDate = new Date(today);
+scheduledDate.setDate(today.getDate() + diff);
+
+// 6. Generación del string (Formato YYYY-MM-DD en UTC)
+const scheduledDateStr = scheduledDate.toISOString().split("T")[0];
+
+console.log(scheduledDateStr); // "2026-03-30"
+
+    const [startH, startM] = (slotContext?.startTime ?? "00:00").split(":").map(Number);
+    const [endH, endM] = (slotContext?.endTime ?? "00:00").split(":").map(Number);
+    const durationHours = Math.round(((endH * 60 + endM) - (startH * 60 + startM)) / 60 * 2) / 2;
+    // Ejemplo: 09:00 → 10:30 = 1.5 horas
+
+    const sessionData = {
+      tutorId: data.tutorId,
+      subjectId: data.subjectId,
+      availabilityId: data.slot?.id,
+      scheduledDate: scheduledDateStr, 
+      modality: data.modality ?? slotContext?.modality ?? "PRES",
+      durationHours: durationHours,
+      title: data.title,
+      description: data.description,
+    };
+
+// Imprime el objeto completo para ver qué se envía realmente
+console.log("ENVIANDO SESION:", JSON.stringify(sessionData, null, 2));
+
+
+const res = await fetch('/api/sessions/scheduleapi', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  },
+  body: JSON.stringify(sessionData),
+});
+
+if (!res.ok) {
+  const error = await res.json();
+  throw new Error(error.message || 'Error al agendar sesión');
+}
+
+const result = await res.json();
+console.log("SESION CREADA:", result);
+
+    sileo.action({
+      title: "Tutoría agendada",
+      description: "Tu espacio ha sido reservado exitosamente.",
+      fill: "#058c42",
+      styles: { badge: "#ffffff" } ,
+    });
+
+    handleClose();
+
+  } catch (error) {
+    console.error("Error al crear la sesión:", error);
+    sileo.action({
+      title: "Error al agendar",
+      description: "No se pudo reservar el espacio. Intenta de nuevo.",
+      fill: "#f35761",
+      styles: { badge: "#ffffff" },
+    });
+  }
 };
 
   // Tutores disponibles para el slot y materia seleccionados
@@ -257,12 +366,12 @@ const handleClose = () => {
                 {step === 3 && <SessionTypeStep onNext={(sessionType) => {
                               setData((prev) => ({ ...prev, sessionType }));
                               if (needsModality) setStep(4);
-                              else handleClose(); // aquí irá el submit final
+                              else handleSubmit()
                             }}
                             onBack={() => setStep(2)} />}
                 {step === 4 && needsModality && <ModalityStep onNext={(modality) => {
                               setData((prev) => ({ ...prev, modality }));
-                              handleClose(); // aquí irá el submit final
+                              handleSubmit()
                             }}
                             onBack={() => setStep(3)} />}
               </div>

@@ -26,17 +26,21 @@ function getAuthHeaders(): HeadersInit {
   };
 }
 
-// ─── Crear sesión ───────────────────────────────────────────
-export async function createSession(data: CreateSessionDTO): Promise<Session> {
-  const res = await fetch(`${API_URL}/sessions`, {
+export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/scheduling/sessions/individual`, { 
     method: 'POST',
-    headers: getAuthHeaders(),
+    headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
     body: JSON.stringify(data),
   });
 
   if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message ?? 'Error al crear la sesión');
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const error = await res.json();
+      throw new Error(error.message ?? 'Error al crear la sesión');
+    } else {
+      throw new Error(`Error crítico del servidor: Código ${res.status}`);
+    }
   }
 
   return res.json();

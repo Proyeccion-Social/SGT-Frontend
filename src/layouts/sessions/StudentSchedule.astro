@@ -15,62 +15,7 @@ const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 
 // const slots = await getAllTutorSlotsSSR().catch(() => []);
 
-const slots: Slot[] = [
-  {
-    id: "mock-1",
-    dayOfWeek: "LUNES",
-    startTime: "09:00",
-    endTime: "11:00",
-    modality: "PRES",
-    tutorIds: ["tutor-1", "tutor-2"],
-    subject: "Integral",
-  },
-  {
-    id: "mock-2",
-    dayOfWeek: "LUNES",
-    startTime: "09:00",
-    endTime: "11:00",
-    modality: "VIRT",
-    tutorIds: ["tutor-3"],
-    subject: "Diferencial",   // misma hora, distinta materia → aparecen 2 badges en el popover
-  },
-  {
-    id: "mock-3",
-    dayOfWeek: "LUNES",
-    startTime: "13:00",
-    endTime: "15:00",
-    modality: null,            // null → activará el paso 4 de modalidad
-    tutorIds: ["tutor-1"],
-    subject: "Multi",
-  },
-  {
-    id: "mock-4",
-    dayOfWeek: "MARTES",
-    startTime: "09:00",
-    endTime: "16:00",
-    modality: "VIRT",
-    tutorIds: ["tutor-2", "tutor-3"],
-    subject: "Integral",
-  },
-  {
-    id: "mock-5",
-    dayOfWeek: "SABADO",
-    startTime: "09:00",
-    endTime: "11:00",
-    modality: "PRES",
-    tutorIds: ["tutor-1"],
-    subject: "Diferencial",
-  },
-  {
-    id: "mock-6",
-    dayOfWeek: "SABADO",
-    startTime: "11:00",
-    endTime: "13:00",
-    modality: "PRES",            // null → activará el paso 4
-    tutorIds: ["tutor-2"],
-    subject: "Multi",
-  },
-];
+const slots = await getAllTutorSlotsSSR({ onlyAvailable: true }).catch(() => []);
 
 const today = new Date();
 const startOfWeek = new Date(today);
@@ -104,7 +49,7 @@ const formatDay = (date: Date) =>
         </div>
 
         <WeeklyCalendar slots={slots} mode = "student" />
-        <SchedulingWizard client:only="react" slots={slots} />
+        <SchedulingWizard client:only="react" slots={slots} token={token} />
       </div>
     </main>
   </div>

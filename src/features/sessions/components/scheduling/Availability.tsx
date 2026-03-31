@@ -7,6 +7,8 @@ interface TutorInfo {
   name: string;
   photoUrl: string | null; // TODO: reemplazar con método de fetch real
   modality: string;
+  type: string;
+  subjects: { id: string; name: string }[];
 }
 
 interface Props {
@@ -14,6 +16,21 @@ interface Props {
   slot: Slot | null;
   subject: string;
   onSelect: (tutorId: string) => void;
+}
+
+async function fetchTutorInfo(tutorId: string): Promise<TutorInfo> {
+  const response = await fetch(
+    `${import.meta.env.API_URL}/api/v1/tutors/${tutorId}`
+  );
+  const data = await response.json();
+  return {
+    id: data.id,
+    name: data.name,
+    photoUrl: data.photo ?? null,
+    modality: data.availableModalities?.join(" o ") || "Presencial o virtual",
+    type: "Virtual o integral",
+    subjects: data.subjectsId ?? [],
+  };
 }
 
 export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: Props) {

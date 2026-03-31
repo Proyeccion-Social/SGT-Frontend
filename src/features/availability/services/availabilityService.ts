@@ -17,16 +17,17 @@ export type SlotStatus = 'AVAILABLE' | 'BOOKED';
 // Interfaces
 //===============================================================
 export interface Slot {
-    id: string;
-    dayOfWeek: DayOfWeek;
-    startTime: string;
-    modality: Modality | null;
-    endTime?: string;
-    location?: string;
-    platform?: string;
-    isBooked?: boolean;
-    tutorIds?: string[];      // array de tutores disponibles en este slot
-    subject?: string;
+  id: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  modality: Modality | null;
+  endTime?: string;
+  location?: string;
+  platform?: string;
+  isBooked?: boolean;
+  tutorIds?: string[];
+  subject?: string;
+  subjectId?: string;
 }
 
 export interface GetAvailabilityQueryDto {
@@ -285,53 +286,78 @@ export async function getTutorWorkload(): Promise<{
     return handleResponse(response);
 }
 
-/**
- * Versión SSR de getTutorSlots — úsala desde frontmatter de Astro.
- * Recibe el token directamente en lugar de leerlo de document.cookie.
- */
-/**
- * GET /api/v1/availability/tutors/slots
- * Obtiene los slots de todos los tutores disponibles.
- * Endpoint público — úsala desde frontmatter de Astro (SSR).
- */
+export async function getAllTutorsSSR(): Promise<{ tutorId: string; tutorName: string; modalities: Modality[] }[]> {
+  const response = await fetch(
+    `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots`,
+    { method: "GET", headers: { "Content-Type": "application/json" } }
+  );
+  const result = await handleResponse<any[]>(response);
+  return result.map((t: any) => ({
+    tutorId: t.tutorId,
+    tutorName: t.tutorName,
+    modalities: t.modalities ?? [],
+  }));
+}
+
 export async function getAllTutorSlotsSSR(
-    query?: GetAvailabilityQueryDto,
+  query?: GetAvailabilityQueryDto
 ): Promise<Slot[]> {
-    const params = new URLSearchParams();
+  const tutors = await getAllTutorsSSR();
 
-    if (query?.onlyAvailable !== undefined) params.append('onlyAvailable', query.onlyAvailable.toString());
-    if (query?.onlyFuture !== undefined) params.append('onlyFuture', query.onlyFuture.toString());
-    if (query?.modality !== undefined) params.append('modality', query.modality);
+  const params = new URLSearchParams();
+  if (query?.onlyAvailable !== undefined) params.append("onlyAvailable", query.onlyAvailable.toString());
+  if (query?.onlyFuture !== undefined) params.append("onlyFuture", query.onlyFuture.toString());
+  if (query?.modality !== undefined) params.append("modality", query.modality);
+  const queryString = params.toString() ? `?${params.toString()}` : "";
 
-    const queryString = params.toString() ? `?${params.toString()}` : '';
+  const dayMap: Record<string, DayOfWeek> = {
+    MONDAY: "LUNES", TUESDAY: "MARTES", WEDNESDAY: "MIERCOLES",
+    THURSDAY: "JUEVES", FRIDAY: "VIERNES", SATURDAY: "SABADO",
+  };
 
-    const response = await fetch(
-        `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots${queryString}`,
-        { method: 'GET', headers: { 'Content-Type': 'application/json' } }
-    );
+  const allSlotsNested = await Promise.all(
+    tutors.map(async (tutor: { tutorId: string; tutorName: string; modalities: Modality[] }) => {
+      // Fetch paralelo: slots + info del tutor (para obtener subjects)
+      const [slotsResponse, tutorResponse] = await Promise.all([
+        fetch(
+          `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/${tutor.tutorId}/slots${queryString}`,
+          { method: "GET", headers: { "Content-Type": "application/json" } }
+        ),
+        fetch(
+          `${import.meta.env.API_URL}/tutors/${tutor.tutorId}`,
+          { method: "GET", headers: { "Content-Type": "application/json" } }
+        ),
+      ]);
 
-    const result = await handleResponse<any>(response);
+      const slotsResult = await handleResponse<any>(slotsResponse);
+      const tutorInfo = await handleResponse<any>(tutorResponse);
 
-    let rawSlots: any[] = [];
-    if (result.groupedByDay) {
-        Object.values(result.groupedByDay).forEach((s: any) => rawSlots.push(...s));
-    } else {
-        rawSlots = result.availableSlots || (Array.isArray(result) ? result : []);
-    }
+      // Extraer slots del groupedByDay
+      let rawSlots: any[] = [];
+      if (slotsResult.groupedByDay) {
+        Object.values(slotsResult.groupedByDay).forEach((s: any) => rawSlots.push(...s));
+      } else {
+        rawSlots = slotsResult.availableSlots || (Array.isArray(slotsResult) ? slotsResult : []);
+      }
 
-    const dayMap: Record<string, DayOfWeek> = {
-        'MONDAY': 'LUNES', 'TUESDAY': 'MARTES', 'WEDNESDAY': 'MIERCOLES',
-        'THURSDAY': 'JUEVES', 'FRIDAY': 'VIERNES', 'SATURDAY': 'SABADO',
-    };
+      const subjects: { id: string; name: string }[] = tutorInfo.subjects ?? [];
 
-    return rawSlots.map((s: any) => ({
-        id: s.slotId || s.id,
-        dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
-        startTime: s.startTime?.substring(0, 5),
-        endTime: s.endTime?.substring(0, 5),
-        modality: s.modality,
-        location: s.location,
-        platform: s.platform,
-        isBooked: s.isAvailable === false ? true : (s.isBooked || false),
-    }));
+      // Generar un slot por cada combinación slot+subject
+      return rawSlots.flatMap((s: any) =>
+        subjects.map((subject) => ({
+          id: s.slotId,                                          // availabilityId real
+          dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
+          startTime: s.startTime?.substring(0, 5),
+          endTime: s.endTime?.substring(0, 5),
+          modality: s.modality ?? null,
+          isBooked: s.isAvailable === false,
+          tutorIds: [tutor.tutorId],
+          subject: subject.name,
+          subjectId: subject.id,                                 // guardamos subjectId
+        }))
+      );
+    })
+  );
+
+  return allSlotsNested.flat();
 }

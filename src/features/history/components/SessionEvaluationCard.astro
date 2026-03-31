@@ -2,20 +2,22 @@
 import MultiStepDialog from "@/features/history/components/MultiStepRating.tsx";
 
 
-const { session } = Astro.props;
+const { session, questionnaire: questionnaireProp } = Astro.props;
 
-// Obtener los datos del cuestionario del endpoint BFF usando las cookies de la petición
-const res = await fetch(new URL("/api/history/evaluation-questions", Astro.url), {
-  headers: Astro.request.headers
-});
+let questionnaire = questionnaireProp;
 
-let questionnaire = null;
-if (res.ok) {
-  const data = await res.json();
-  questionnaire = data.questionnaire;
+if (!questionnaire) {
+  // Obtener los datos del cuestionario del endpoint BFF usando las cookies de la petición
+  const res = await fetch(new URL("/api/history/evaluation-questions", Astro.url), {
+    headers: Astro.request.headers
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    questionnaire = data.questionnaire;
+  }
 }
 
-console.log(questionnaire);
 
 
 
@@ -23,7 +25,7 @@ console.log(questionnaire);
 
 {questionnaire && (
       
-      <MultiStepDialog questionnaire={questionnaire} session={session} client:only="react"/>
+      <MultiStepDialog questionnaire={questionnaire} session={session} />
 
     
     

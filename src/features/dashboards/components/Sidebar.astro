@@ -32,7 +32,10 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <div class='calendar-container'>
-          <a href='/availability/student/slots'>
+          <a href="/sessions"
+            class={
+              currentPath.startsWith("/sessions") ? "active-link" : ""
+            }>
             <Image src={CalendarIcon} alt='Calendar' class='icon' />
             <span class='nav-label'>Calendario</span>
           </a>

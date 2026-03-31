@@ -15,13 +15,12 @@ if (res.ok) {
 
 {questionnaire && (
   <div class="evaluation-card">
-    <form class="evaluation-form" data-session-id={session.sessionId || session.id}>
+    <button type="button" class="btn-close-dialog" aria-label="Cerrar">&times;</button>
       <div class="evaluation-card-header">
-        <h3>Evaluar Sesión</h3>
-        <button type="button" class="btn-close-dialog" aria-label="Cerrar">&times;</button>
+        <h3>Estas calificando a {session.tutor.name}</h3>
+        <p>{session.title}</p>
       </div>
-      <p style="margin-bottom: 2rem; margin-top: 0;">Ayúdanos a mejorar calificando esta sesión.</p>
-
+    <form class="evaluation-form" data-session-id={session.sessionId || session.id}>
       <div class="questions-grid">
       {questionnaire.questions.map((q: any) => (
         <div class="form-group aspect-group">
@@ -76,28 +75,31 @@ if (res.ok) {
 
 <style>
   .evaluation-card {
+    position: relative;
     font-family: "Open Sauce Two", system-ui, sans-serif;
     border: 1px solid #e2e8f0;
     padding: 1.25rem;
     border-radius: 18px;
     background-color: #f8fafc;
-    max-height: 90vh; /* Restrict height to avoid page overflow */
-    overflow-y: hidden; /* Avoid internal vertical overflow as requested */
+    width: 827px;
+    height:611px;
     display: flex;
     flex-direction: column;
   }
   .evaluation-card-header {
-    
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 3rem;
   }
   .evaluation-card-header h3 {
-    padding: 5px 0;
     color: #1e293b;
     font-size: 1.25rem;
   }
   .btn-close-dialog {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     background: none;
     border: none;
     font-size: 1.5rem;

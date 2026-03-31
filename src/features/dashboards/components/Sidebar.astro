@@ -20,42 +20,38 @@ const { userRole } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
-<aside class='sidebar' id='main-sidebar'>
-  <div class='navbar-header'>
-    <a href='/'><img src='/favicon.svg' alt='Logo' /></a>
+<aside class="sidebar" id="main-sidebar">
+  <div class="navbar-header">
+    <a href="/"><img src="/favicon.svg" alt="LogoSideBar" /></a>
+    <button class="collapse-button" id="sidebar-toggle">
+      <Image src={CollapseIcon} alt="Collapse" class="collapse-icon" />
+    </button>
   </div>
-  <button class='collapse-button' id='sidebar-toggle'>
-    <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
-  </button>
 
-  <div class='navbar-items'>
+  <div class="navbar-items">
     {
       userRole === "student" && (
-        <div class='calendar-container'>
-          <a href='/availability/student/slots'>
-            <Image src={CalendarIcon} alt='Calendar' class='icon' />
-            <span class='nav-label'>Calendario</span>
+        <div class="calendar-container">
+          <a href="/availability/student/slots">
+            <Image src={CalendarIcon} alt="Calendar" class="icon" />
+            <span class="nav-label">Calendario</span>
           </a>
         </div>
       )
     }
 
     <div class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}>
-      <a href='/dashboard'>
-        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
-        <span class='nav-label'>Dashboard</span>
+      <a href="/dashboard">
+        <Image src={DashboardIcon} alt="Dashboard" class="icon" />
+        <span class="nav-label">Dashboard</span>
       </a>
     </div>
     {
       userRole === "admin" && (
         <>
-          <a href='#'>
-            <Image src={WindowIcon} alt='Window' class='icon' />
-            <span class='nav-label'>Gestión</span>
-          </a>
-          <a href='#'>
-            <Image src={ConfigIcon} alt='Config' class='icon' />
-            <span class='nav-label'>Configuración</span>
+          <a href="#">
+            <Image src={ConfigIcon} alt="Config" class="icon" />
+            <span class="nav-label">Configuración</span>
           </a>
         </>
       )
@@ -65,21 +61,21 @@ const currentPath = Astro.url.pathname;
       userRole === "tutor" && (
         <>
           <a
-            href='/availability/tutor/slots'
+            href="/availability/tutor/slots"
             class={
               currentPath.startsWith("/availability/tutor") ? "active-link" : ""
             }
           >
-            <Image src={WindowIcon} alt='Slots' class='icon' />
-            <span class='nav-label'>Tu Disponibilidad</span>
+            <Image src={WindowIcon} alt="Slots" class="icon" />
+            <span class="nav-label">Tu Disponibilidad</span>
           </a>
           <button type="button" id="config-drawer-trigger">
-            <Image src={ConfigIcon} alt='Config' class='icon' />
-            <span class='nav-label'>Configuración</span>
+            <Image src={ConfigIcon} alt="Config" class="icon" />
+            <span class="nav-label">Configuración</span>
           </button>
-          <a href='#'>
-            <Image src={HistoryIcon} alt='History' class='icon' />
-            <span class='nav-label'>Historial</span>
+          <a href="#">
+            <Image src={HistoryIcon} alt="History" class="icon" />
+            <span class="nav-label">Historial</span>
           </a>
         </>
       )
@@ -88,44 +84,42 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <>
-          <a 
+          <a
             href="/search"
-            class={
-              currentPath.startsWith("/search") ? "active-link" : ""
-            }
+            class={currentPath.startsWith("/search") ? "active-link" : ""}
           >
-            <Image src={SearchIcon} alt='Search' class='icon' />
-            <span class='nav-label'>Buscar</span>
+            <Image src={SearchIcon} alt="Search" class="icon" />
+            <span class="nav-label">Buscar</span>
           </a>
-          <a href='#'>
-            <Image src={BinocularIcon} alt='Binocular' class='icon' />
-            <span class='nav-label'>Explorar</span>
+          <a href="#">
+            <Image src={BinocularIcon} alt="Binocular" class="icon" />
+            <span class="nav-label">Explorar</span>
           </a>
-          <a href='#'>
-            <Image src={CommunityIcon} alt='Community' class='icon' />
-            <span class='nav-label'>Comunidad</span>
+          <a href="#">
+            <Image src={CommunityIcon} alt="Community" class="icon" />
+            <span class="nav-label">Comunidad</span>
           </a>
-          <a href='#'>
-            <Image src={HistoryIcon} alt='History' class='icon' />
-            <span class='nav-label'>Historial</span>
+          <a href="#">
+            <Image src={HistoryIcon} alt="History" class="icon" />
+            <span class="nav-label">Historial</span>
           </a>
         </>
       )
     }
   </div>
 
-  <div class='navbar-footer'>
-    <div class='notification-container'>
-      <a href='#'>
-        <Image src={NotificationIcon} alt='Notification' class='icon' />
-        <span class='notification-label'>Notificaciones</span>
+  <div class="navbar-footer">
+    <div class="notification-container">
+      <a href="#">
+        <Image src={NotificationIcon} alt="Notification" class="icon" />
+        <span class="notification-label">Notificaciones</span>
       </a>
     </div>
 
-    <div class='logout-container'>
-      <button type="button" id='logout-button'>
-        <Image src={LogoutIcon} alt='Logout' class='icon' />
-        <span class='nav-label'>Cerrar Sesión</span>
+    <div class="logout-container">
+      <button type="button" id="logout-button">
+        <Image src={LogoutIcon} alt="Logout" class="icon" />
+        <span class="nav-label">Cerrar Sesión</span>
       </button>
     </div>
   </div>
@@ -157,19 +151,19 @@ const currentPath = Astro.url.pathname;
 
   /* Header y Logo */
   .navbar-header {
-    margin-top: -1rem;
     margin-bottom: auto;
     position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
     padding-left: 0;
     transition: padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   .sidebar.expanded .navbar-header {
     padding-left: 10px;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .navbar-header img {
@@ -192,7 +186,7 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 60;
+    z-index: 900;
   }
 
   .collapse-icon {
@@ -414,42 +408,43 @@ const currentPath = Astro.url.pathname;
     configBtn?.addEventListener("click", () => {
       window.dispatchEvent(new CustomEvent("open-profile-drawer"));
     });
+
+    const logoutButton = document.getElementById("logout-button");
+    logoutButton?.addEventListener("click", async () => {
+      await sileo.promise(
+        async () => {
+          const authUserStr = sessionStorage.getItem("auth_user");
+          const authUser = authUserStr ? JSON.parse(authUserStr) : null;
+          const userId = authUser?.user?.id;
+
+          if (!userId) {
+            throw new Error("No hay sesión activa");
+          }
+
+          const res = await fetch("/api/auth/logout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ id: userId }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.message || "Error al cerrar sesión");
+          }
+
+          sessionStorage.removeItem("auth_user");
+        },
+        {
+          loading: { title: "Cerrando sesión...", fill: "#8751ff" },
+          success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
+          error: { title: "Error al cerrar sesión", fill: "#f35761" },
+        },
+      );
+      window.location.href = "/";
+    });
   });
 
   import { sileo } from "sileo";
-  const logoutButton = document.getElementById("logout-button");
-  logoutButton?.addEventListener("click", async () => {
-    await sileo.promise(
-      async () => {
-        const authUserStr = sessionStorage.getItem("auth_user");
-        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
-        const userId = authUser?.user?.id;
-
-        if (!userId) {
-          throw new Error("No hay sesión activa");
-        }
-
-        const res = await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ id: userId }),
-        });
-        
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.message || "Error al cerrar sesión");
-        }
-
-        sessionStorage.removeItem("auth_user");
-      },
-      {
-        loading: { title: "Cerrando sesión...", fill: "#8751ff" },
-        success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
-        error: { title: "Error al cerrar sesión", fill: "#f35761" },
-      },
-    );
-    window.location.href = "/";
-  });
 </script>

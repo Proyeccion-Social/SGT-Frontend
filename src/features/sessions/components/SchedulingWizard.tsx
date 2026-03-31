@@ -56,8 +56,8 @@ export default function SchedulingWizard({ slots, token }: Props) {
     const matchingSlots = slots.filter(
       (s) =>
         s.dayOfWeek === custom.detail.dayOfWeek &&
-        s.startTime <= custom.detail.startTime &&
-        (s.endTime ?? "23:59") >= custom.detail.endTime
+        s.startTime >= custom.detail.startTime &&
+        (s.endTime ?? "23:59") <= custom.detail.endTime
     );
 
     if (matchingSlots.length === 0) return;
@@ -151,21 +151,30 @@ setTimeout(() => {
 const handleSubjectSelect = (subject: string) => {
   const currentSlotData = popover!.slotData;
 
-  const matchingSlot = slots.find(
+  // Todos los slots de ese día, materia y dentro del rango seleccionado
+  const rangeSlots = slots.filter(
     (s) =>
       s.dayOfWeek === currentSlotData.dayOfWeek &&
-      s.startTime <= currentSlotData.startTime &&
-      (s.endTime ?? "23:59") >= currentSlotData.endTime &&
-      s.subject === subject
+      s.subject === subject &&
+      s.startTime >= currentSlotData.startTime &&
+      (s.endTime ?? "23:59") <= currentSlotData.endTime
   );
 
-  setSlotContext(currentSlotData);
+  const baseSlot = rangeSlots[0] ?? null;
+
+  // Guardas todo el contexto del rango (por si luego quieres usar rangeSlots)
+  setSlotContext({
+    ...currentSlotData,
+    rangeSlots,
+  });
+
   setData((prev) => ({
     ...prev,
-    slot: matchingSlot || null,
+    slot: baseSlot,
     subject,
-    subjectId: matchingSlot?.subjectId ?? "", 
+    subjectId: baseSlot?.subjectId ?? "",
   }));
+
   setPopover(null);
   setStep(1);
   setOpen(true);
@@ -282,14 +291,23 @@ console.log("SESION CREADA:", result);
 };
 
   // Tutores disponibles para el slot y materia seleccionados
-  const availableSlots = slots.filter(
-    (s) =>
-      s.dayOfWeek === data.slot?.dayOfWeek &&
-      s.startTime === data.slot?.startTime &&
-      s.subject === data.subject
-  );
+  const availableSlots =
+    slotContext && data.subject
+      ? slots.filter(
+          (s) =>
+            s.dayOfWeek === slotContext.dayOfWeek &&
+            s.subject === data.subject &&
+            s.startTime >= slotContext.startTime &&
+            (s.endTime ?? "23:59") <= slotContext.endTime
+        )
+      : [];
 
-  const tutorIds = [...new Set(availableSlots.flatMap((s) => s.tutorIds || []))];
+  const tutorIds = [
+    ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
+  ];
+
+  // Si cualquier slot tiene modality null, pides el paso de modalidad;
+  // en tu modelo original ya dependías de data.slot.modality.
   const needsModality = data.slot?.modality === null;
 
   // Calcular paso máximo según condicional

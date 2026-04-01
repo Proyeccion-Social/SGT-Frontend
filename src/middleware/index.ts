@@ -5,7 +5,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const protectedRoutes = ['/dashboard'];
 
-  // Si va a "/" y tiene token válido, redirigir al dashboard directamente
   if (url.pathname === '/' && !url.searchParams.has('session') && token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -14,7 +13,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
         return context.redirect('/dashboard');
       }
     } catch {
-      // Token inválido, dejar que cargue la landing
     }
   }
 
@@ -28,7 +26,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const isExpired = payload.exp * 1000 < Date.now();
 
       if (isExpired) {
-        // Intenta renovar con el refresh token
         const refreshToken = context.cookies.get('refresh_token')?.value;
 
         if (!refreshToken) {
@@ -51,7 +48,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
         const data = await res.json();
 
-        // Renueva la cookie con el nuevo token
         context.cookies.set('access_token', data.accessToken, {
           httpOnly: true,
           path: '/',

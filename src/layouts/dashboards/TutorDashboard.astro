@@ -1,17 +1,15 @@
 ---
-import { Image } from "astro:assets";
-import MainLayout from "../Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
-import UserHeader from "../../features/general/components/UserHeader.astro";
-import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
-import StatCard from "../../features/dashboards/components/StatCard.astro";
-import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
+import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
+
+import MainLayout from "../Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
+import StatCard from "@/features/dashboards/components/StatCard.astro";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
-
-const payload = JSON.parse(atob(token.split(".")[1]));
 
 let userName = "";
 const { userRole = "tutor" } = Astro.props;
@@ -24,7 +22,7 @@ try {
   }
 } catch (e) {}
 
-// TODO: Replace with API call
+
 const mockSessions = [
   {
     id: "1",
@@ -52,6 +50,7 @@ const mockWorkload = {
   scheduledHours: 2,
   weeklyLimit: 8,
 };
+
 const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
 const usedPercent = Math.min(
   (mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100,

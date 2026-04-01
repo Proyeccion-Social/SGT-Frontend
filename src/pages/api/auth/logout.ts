@@ -2,6 +2,8 @@ import type { APIRoute } from "astro";
 import { logout } from "@/features/auth/services/authService";
 import { jwtDecode } from "jwt-decode";
 
+export const prerender = false;
+
 export const POST: APIRoute = async ({ request, cookies }) => {
     try {
         const data = await request.json();
@@ -11,7 +13,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
         //Validar si la sesión se encuentra activa (las cookies existen)
         if (!refreshToken || !accessToken) {
-            throw new Error("Acceso no autorizado");
+            return new Response(JSON.stringify({ message: "Acceso no autorizado" }), {
+                status: 401,
+            });
         }
 
         try {

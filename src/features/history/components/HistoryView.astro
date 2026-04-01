@@ -25,6 +25,16 @@ const res = await fetch(apiUrl, {
 });
 const history = await res.json();
 
+// Fetch the questionnaire once for all sessions
+const questionnaireRes = await fetch(new URL("/api/history/evaluation-questions", Astro.url), {
+  headers: Astro.request.headers,
+});
+let questionnaire = null;
+if (questionnaireRes.ok) {
+  const data = await questionnaireRes.json();
+  questionnaire = data.questionnaire;
+}
+
 const payload = JSON.parse(atob(token.split(".")[1]));
 const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 ---
@@ -33,7 +43,7 @@ const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
   <div class="history-layout">
     <Sidebar userRole={userRole} />
     <div class="search-page">
-      <SessionsBlock data={history} currentStatus={currentStatus} />
+      <SessionsBlock data={history} currentStatus={currentStatus} questionnaire={questionnaire} />
     </div>
   </div>
 </Layout>

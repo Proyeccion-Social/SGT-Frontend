@@ -1,7 +1,8 @@
 ---
 import SessionEvaluationCard from "./SessionEvaluationCard.astro";
 
-const { session } = Astro.props;
+const { session, questionnaire } = Astro.props;
+console.log(session);
 ---
 
 <dialog
@@ -70,16 +71,13 @@ const { session } = Astro.props;
               <div class="evaluation-section">
                 <button
                   class="btn-open-eval"
-                  data-session-id={session.sessionId || session.id}
+                  data-session-id={session.id}
                 >
                   <strong>Calificar Sesión</strong>
                 </button>
-                <dialog
-                  id={`eval-dialog-${session.sessionId || session.id}`}
-                  class="eval-dialog"
-                >
-                  <SessionEvaluationCard session={session} />
-                </dialog>
+                <div >
+                  <SessionEvaluationCard session={session} questionnaire={questionnaire} />
+                </div>
               </div>
             )
           }
@@ -134,6 +132,8 @@ const { session } = Astro.props;
           src={session.tutor?.photo ?? "/default-avatar.png"}
           alt="Tutor"
           class="avatar"
+          loading="lazy"
+          decoding="async"
         />
         <div class="tutor-name">
           <!-- <h3>{session.title ?? "Sesión"}</h3> -->
@@ -145,20 +145,30 @@ const { session } = Astro.props;
 </dialog>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
-    const openBtns = document.querySelectorAll(".btn-open-eval");
-    openBtns.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const sessionId = (e.currentTarget as HTMLButtonElement).dataset
-          .sessionId;
-        const dialog = document.getElementById(
-          `eval-dialog-${sessionId}`,
-        ) as HTMLDialogElement;
-        if (dialog) {
-          dialog.showModal();
-        }
-      });
-    });
+  let controller;
+
+document.addEventListener("astro:page-load", () => {
+
+
+    controller?.abort(); // limpia el listener anterior
+  controller = new AbortController();
+
+
+  document.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+
+    const btn = target.closest(".btn-open-eval") as HTMLButtonElement;
+    if (!btn) return;
+
+    const sessionId = btn.dataset.sessionId;
+    if (!sessionId) return;
+
+    const dialog = document.getElementById(
+      `eval-dialog-${sessionId}`
+    ) as HTMLDialogElement;
+
+    dialog?.showModal();
+  }, { signal: controller.signal });
 
     const closeBtns = document.querySelectorAll(".close-sessioncard-btn");
     closeBtns.forEach((btn) => {
@@ -169,7 +179,7 @@ const { session } = Astro.props;
         if (dialog) {
           dialog.close();
         }
-      });
+      }, { signal: controller.signal });
     });
   });
 </script>
@@ -362,8 +372,6 @@ const { session } = Astro.props;
     border-radius: 8px;
     padding: 0;
     background: transparent;
-    max-width: 90vw;
-    width: 600px;
     margin: auto; /* Centrar universalmente */
   }
   .eval-dialog::backdrop {

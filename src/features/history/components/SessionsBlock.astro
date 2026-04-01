@@ -4,7 +4,7 @@ import SessionCard from "./SessionCard.astro";
 import arrow1 from "../assets/arrow1.png";
 import { SessionsPagination } from "./SessionsPagination.tsx";
 
-const { data, currentStatus } = Astro.props;
+const { data, currentStatus, questionnaire } = Astro.props;
 
 const sessions = data.data;
 const statistics = data.statistics;
@@ -65,7 +65,7 @@ console.log(pagination);
         client:load
       />
     </div>
-    {sessions.map((session) => <SessionCard session={session} />)}
+    {sessions.map((session) => <SessionCard session={session} questionnaire={questionnaire} />)}
   </div>
 </div>
 
@@ -157,23 +157,25 @@ console.log(pagination);
   }
 </style>
 <script>
-  // ✔️ Usamos SOLO astro:page-load
+  // ✔️ Usamos event delegation para mejor rendimiento
   document.addEventListener("astro:page-load", () => {
-    // Asignar clics a las filas de la tabla
-    document.querySelectorAll(".history-section").forEach((row) => {
-      row.addEventListener("click", (e) => {
-        const id = (e.currentTarget as HTMLElement).dataset.sessionId;
-        if (id) {
-          const dialog = document.getElementById(
-            `session-dialog-${id}`,
-          ) as HTMLDialogElement;
-          if (dialog) {
-            dialog.showModal();
-          } else {
-            console.error("No dialog found for session ID:", id);
-          }
+    const tableBody = document.querySelector("tbody");
+    
+    tableBody?.addEventListener("click", (e) => {
+      const row = (e.target as HTMLElement).closest(".history-section") as HTMLElement;
+      if (!row) return;
+
+      const id = row.dataset.sessionId;
+      if (id) {
+        const dialog = document.getElementById(
+          `session-dialog-${id}`,
+        ) as HTMLDialogElement;
+        if (dialog) {
+          dialog.showModal();
+        } else {
+          console.error("No dialog found for session ID:", id);
         }
-      });
+      }
     });
   });
 </script>

@@ -4,7 +4,7 @@ import SessionCard from "./SessionCard.astro";
 import arrow1 from "../assets/arrow1.png";
 import { SessionsPagination } from "./SessionsPagination.tsx";
 
-const { data, currentStatus, questionnaire } = Astro.props;
+const { data, currentStatus, questionnaire, userId } = Astro.props;
 
 const sessions = data.data;
 const statistics = data.statistics;
@@ -41,15 +41,19 @@ console.log(pagination);
               </td>
               <td>{session.description}</td>
               <td>
-                {session.status === "COMPLETED"
-                  ? "Completada"
-                  : session.status === "CANCELLED"
-                    ? "Cancelada"
-                    : session.status === "NO_SHOW"
-                      ? "No asistió"
-                      : session.status === "SCHEDULED"
-                        ? "Programada"
-                        : session.status} {/* Mostramos el estado real si no es ninguno de estos */}
+                {
+                  (() => {
+                    if (session.status === "CANCELLED") return "Cancelada";
+                    if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
+                    if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
+                    if (session.participants.find((participant) => participant.id === userId)?.status === "ABSENT") return "Completada - No asistió";
+                    if (session.status === "COMPLETED") return "Completada";
+                    if (session.status === "SCHEDULED") return "Programada";
+                    if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente de confirmación por el tutor";
+                    if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente de confirmación por el estudiante";
+                    return session.status;
+                  })()
+                }
               </td>
             </tr>
           ))
@@ -65,7 +69,7 @@ console.log(pagination);
         client:load
       />
     </div>
-    {sessions.map((session) => <SessionCard session={session} questionnaire={questionnaire} />)}
+    {sessions.map((session) => <SessionCard session={session} questionnaire={questionnaire} userId={userId} />)}
   </div>
 </div>
 
@@ -106,10 +110,10 @@ console.log(pagination);
     width: 26%;
   }
   th:nth-child(3) {
-    width: 40%;
+    width: 37%;
   }
   th:nth-child(4) {
-    width: 17%;
+    width: 20%;
   }
  
   th,

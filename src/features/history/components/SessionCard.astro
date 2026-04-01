@@ -1,7 +1,7 @@
 ---
 import SessionEvaluationCard from "./SessionEvaluationCard.astro";
 
-const { session, questionnaire } = Astro.props;
+const { session, questionnaire, userId } = Astro.props;
 console.log(session);
 ---
 
@@ -17,17 +17,25 @@ console.log(session);
       <div class="bar-session-1">
         <div class="status">
           {/* 🔹 Estado */}
-          <p class={`status status-${session.status.toLowerCase()}`}>
+          <p class={`status `}>
             {
-              session.status === "COMPLETED"
-                ? "Completada"
-                : session.status === "CANCELLED"
-                  ? "Cancelada"
-                  : session.status === "NO_SHOW"
-                    ? "No asistió"
-                    : session.status === "SCHEDULED"
-                      ? "Programada"
-                      : session.status  
+              session.status === "CANCELLED"
+                ? "Cancelada"
+                : session.status === "CANCELLED_BY_STUDENT"
+                  ? "Cancelada por el estudiante"
+                  : session.status === "CANCELLED_BY_TUTOR"
+                    ? "Cancelada por el tutor"
+                    : session.participants.find((participant) => participant.id === userId)?.status === "ABSENT"
+                      ? "No asistió"
+                      : session.status === "COMPLETED"
+                        ? "Completada"
+                        : session.status === "SCHEDULED"
+                          ? "Programada"
+                          : session.status === "PENDING_TUTOR_CONFIRMATION"
+                            ? "Pendiente de confirmación por el tutor"
+                            : session.status === "PENDING_STUDENT_CONFIRMATION"
+                              ? "Pendiente de confirmación por el estudiante"
+                              : session.status
             }
           </p>
         </div>
@@ -56,30 +64,32 @@ console.log(session);
 
         <div>
           {
-            session.status === "COMPLETED" && session.rating?.overall !== undefined && (
-              <div class="rating">
-                <p>
-                  <strong>Tu calificación:</strong> {session.rating.overall} ⭐
-                </p>
-              </div>
-            )
-            
+            session.status === "COMPLETED" &&
+              session.rating?.overall !== undefined && (
+                <div class="rating">
+                  <p>
+                    <strong>Tu calificación:</strong> {session.rating.overall}{" "}
+                    ⭐
+                  </p>
+                </div>
+              )
           }
 
           {
-            session.status === "COMPLETED" && (!session.rating || session.rating.canRate) && (
-              <div class="evaluation-section">
-                <button
-                  class="btn-open-eval"
-                  data-session-id={session.id}
-                >
-                  <strong>Calificar Sesión</strong>
-                </button>
-                <div >
-                  <SessionEvaluationCard session={session} questionnaire={questionnaire} />
+            session.status === "COMPLETED" && session.participants.find((participant) => participant.id === userId)?.status === "ATTENDED" && (
+                <div class="evaluation-section">
+                  <button class="btn-open-eval" data-session-id={session.id}>
+                    <strong>Calificar Sesión</strong>
+                  </button>
+                  <div>
+                    <SessionEvaluationCard
+                      session={session}
+                      questionnaire={questionnaire}
+                      userId={userId}
+                    />
+                  </div>
                 </div>
-              </div>
-            )
+              )
           }
         </div>
       </div>
@@ -147,39 +157,46 @@ console.log(session);
 <script>
   let controller;
 
-document.addEventListener("astro:page-load", () => {
-
-
+  document.addEventListener("astro:page-load", () => {
     controller?.abort(); // limpia el listener anterior
-  controller = new AbortController();
+    controller = new AbortController();
 
+    
 
-  document.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
+    document.addEventListener(
+      "click",
+      (e) => {
+        const target = e.target as HTMLElement;
 
-    const btn = target.closest(".btn-open-eval") as HTMLButtonElement;
-    if (!btn) return;
+        const btn = target.closest(".btn-open-eval") as HTMLButtonElement;
+        if (!btn) return;
 
-    const sessionId = btn.dataset.sessionId;
-    if (!sessionId) return;
+        const sessionId = btn.dataset.sessionId;
+        if (!sessionId) return;
 
-    const dialog = document.getElementById(
-      `eval-dialog-${sessionId}`
-    ) as HTMLDialogElement;
+        const dialog = document.getElementById(
+          `eval-dialog-${sessionId}`,
+        ) as HTMLDialogElement;
 
-    dialog?.showModal();
-  }, { signal: controller.signal });
+        dialog?.showModal();
+      },
+      { signal: controller.signal },
+    );
 
     const closeBtns = document.querySelectorAll(".close-sessioncard-btn");
     closeBtns.forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const dialog = (e.currentTarget as HTMLElement).closest(
-          "dialog.sessionCard-dialog",
-        ) as HTMLDialogElement;
-        if (dialog) {
-          dialog.close();
-        }
-      }, { signal: controller.signal });
+      btn.addEventListener(
+        "click",
+        (e) => {
+          const dialog = (e.currentTarget as HTMLElement).closest(
+            "dialog.sessionCard-dialog",
+          ) as HTMLDialogElement;
+          if (dialog) {
+            dialog.close();
+          }
+        },
+        { signal: controller.signal },
+      );
     });
   });
 </script>

@@ -8,73 +8,73 @@ import checkedIcon from "@/features/history/assets/checked.png";
 import vectorFinal from "@/features/history/assets/vectorfinal.png";
 import vectorInicial from "@/features/history/assets/vectorInicial.png";
 
-export default function MultiStepDialog( {questionnaire, session}: {questionnaire: any, session: any}) {
-const [step, setStep] = useState(0);
+export default function MultiStepDialog( {questionnaire, session, canRate}: {questionnaire: any, session: any, canRate: boolean}) {
+  const [step, setStep] = useState(canRate ? 0 : 3);
 
 
-const description1 = {
+  const description1 = {
     CLARITY: "Nada claro",
     PATIENCE: "Mala actitud",
     PUNCTUALITY: "No fue puntual",
     KNOWLEDGE: "Sin dominio",
-}
-const description2 = {
+  }
+  const description2 = {
     CLARITY: "Muy claro",
     PATIENCE: "Excelente actitud",
     PUNCTUALITY: "Fue puntual",
     KNOWLEDGE: "Dominio total",
-}
+  }
 
-const initialAnswers = Object.fromEntries(
+    const initialAnswers = Object.fromEntries(
   questionnaire.questions.map((q) => [q.aspect, 1])
-);
+    );
 
 const [formData, setFormData] = useState({
-  answers: initialAnswers,
-  comment: "",
-  overallRating: 1 // 🔥 importante
-});
+      answers: initialAnswers,
+      comment: "",
+      overallRating: 1 // 🔥 importante
+  });
 
 const updateAnswer = (aspect, value) => {
-  setFormData((prev) => {
-    const updatedAnswers = {
-      ...prev.answers,
-      [aspect]: value
-    };
+    setFormData((prev) => {
+      const updatedAnswers = {
+        ...prev.answers,
+        [aspect]: value
+      };
 
-    const values = Object.values(updatedAnswers);
+      const values = Object.values(updatedAnswers);
 
-    const average = values.length
+      const average = values.length
       ? values.reduce((a, b) => a + b, 0) / values.length
-      : 0;
+        : 0;
 
-    return {
-      ...prev,
-      answers: updatedAnswers,
-      overallRating: average
-    };
-  });
-};
+      return {
+        ...prev,
+        answers: updatedAnswers,
+        overallRating: average
+      };
+    });
+  };
 
-const steps = [
-  {
-    title: "Inicio",
-    content: "botones de si asistio o no"
-  },
-  {
-    title: "Evaluación",
-    questions: questionnaire.questions
-  },
-  {
-    title: "Comentarios",
-    comments: questionnaire.comments
-  },
-  {
-    title: "Final",
-    content: "Has calificado a " + session.tutor.name 
-  }
-];
-const current = steps[step];
+  const steps = [
+    {
+      title: "Inicio",
+      content: "botones de si asistio o no"
+    },
+    {
+      title: "Evaluación",
+      questions: questionnaire.questions
+    },
+    {
+      title: "Comentarios",
+      comments: questionnaire.comments
+    },
+    {
+      title: "Final",
+      content: "Has calificado a " + session.tutor.name 
+    }
+  ];
+  const current = steps[step];
 
   const next = () => setStep((s) => s + 1);
   const prev = () => setStep((s) => s - 1);
@@ -89,7 +89,7 @@ const handleClose = () => {
 };
 
 useEffect(() => {
-  if (current.title === "Final") {
+  if (current.title === "Final" || !canRate) {
     const timer = setTimeout(() => {
       handleClose(); // cierra el modal después de X segundos
     }, 3000); // ⏱️ 4 segundos (puedes cambiarlo)
@@ -143,7 +143,7 @@ const submitEvaluation = async () => {
     
     
     
-
+    
 
   return (
     <dialog
@@ -239,8 +239,17 @@ const submitEvaluation = async () => {
     <div className="evaluation-card-body-final-container">
         <div className="checked-icon-container"><img src={checkedIcon.src} alt="checked" className="checked-icon" /></div>
         <div className="final-message-container">
-            <p className="final-message">Has calificado a </p> 
-            <div className="tutor-name-container" style={{backgroundImage: `url(${vectorFinal.src})`}}><span className="tutor-name-final">{session.tutor.name}</span></div>
+            {canRate ? (
+                <>
+                <p className="final-message">Has calificado a </p> 
+                <div className="tutor-name-container" style={{backgroundImage: `url(${vectorFinal.src})`}}><span className="tutor-name-final">{session.tutor.name}</span></div>
+                </>
+            ) : (
+                <>
+                <p className="final-message">Ya has calificado a </p> 
+                <div className="tutor-name-container" style={{backgroundImage: `url(${vectorFinal.src})`}}><span className="tutor-name-final">{session.tutor.name}</span></div>
+                </>
+            )}
         </div>
     </div>
 )}

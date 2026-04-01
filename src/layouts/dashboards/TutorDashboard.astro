@@ -1,11 +1,11 @@
 ---
+import TutorLayout from "../TutorLayout.astro";
 import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import UserHeader from "../../features/general/components/UserHeader.astro";
 import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "../../features/dashboards/components/StatCard.astro";
 import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
-import VaulDrawer from "../../components/ui/drawer";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
@@ -36,12 +36,13 @@ const usedPercent = Math.min(
 );
 ---
 
-<div class='dashboard-container'>
-  <Sidebar userRole={userRole} />
-  
-  <main class='content-wrapper'>
-    <div class='dashboard-content'>
-      <UserHeader userRole={userRole} />
+<TutorLayout title='Dashboard'>
+  <div class='dashboard-container'>
+    <Sidebar userRole={userRole} />
+    
+    <main class='content-wrapper'>
+      <div class='dashboard-content'>
+        <UserHeader userRole={userRole} />
 
       <!-- Nombre y rol desde Zustand store -->
       <div class='welcome-banner-slot'>
@@ -81,8 +82,6 @@ const usedPercent = Math.min(
         <div class='stats-container'>
           <StatCard value={tutorStats.value} description={tutorStats.text} />
         </div>
-
-        <VaulDrawer client:only="react" />
       </div>
     </div>
   </main>

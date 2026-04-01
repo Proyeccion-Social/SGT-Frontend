@@ -137,7 +137,7 @@ const currentPath = Astro.url.pathname;
       width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
       padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     position: relative;
-    z-index: 50;
+    z-index: 10;
     background: #f4f0ff;
     overflow: visible;
   }
@@ -186,7 +186,6 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 900;
   }
 
   .collapse-icon {
@@ -385,66 +384,81 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
+  import { sileo } from "sileo";
+
+  const setupSidebar = () => {
     const sidebar = document.getElementById("main-sidebar");
     const toggle = document.getElementById("sidebar-toggle");
+    const configBtn = document.getElementById("config-drawer-trigger");
+    const logoutButton = document.getElementById("logout-button");
 
-    if (sidebar && toggle) {
-      toggle.addEventListener("click", () => {
+    if (!sidebar) return;
+
+    // --- 1. Control de Expansión Manual ---
+    if (toggle) {
+      toggle.onclick = () => {
         sidebar.classList.toggle("expanded");
-      });
-
-      window.addEventListener("force-sidebar-expand", () => {
-        sidebar.classList.add("expanded");
-      });
-
-      window.addEventListener("force-sidebar-collapse", () => {
-        sidebar.classList.remove("expanded");
-      });
+      };
     }
 
-    // Open the profile drawer when the config button is clicked
-    const configBtn = document.getElementById("config-drawer-trigger");
-    configBtn?.addEventListener("click", () => {
-      window.dispatchEvent(new CustomEvent("open-profile-drawer"));
-    });
+    // --- 2. Sincronización con Menús Externos (Eventos Globales) ---
+    // Escuchamos los eventos que lanzan otros componentes (como el RightAvailabilityMenu)
+    const handleExpand = () => sidebar.classList.add("expanded");
+    const handleCollapse = () => sidebar.classList.remove("expanded");
 
-    const logoutButton = document.getElementById("logout-button");
-    logoutButton?.addEventListener("click", async () => {
-      await sileo.promise(
-        async () => {
+    window.addEventListener("force-sidebar-expand", handleExpand);
+    window.addEventListener("force-sidebar-collapse", handleCollapse);
+
+    // --- 3. Trigger del Menú de Configuración/Perfil ---
+    if (configBtn) {
+      configBtn.onclick = () => {
+        window.dispatchEvent(new CustomEvent("open-profile-drawer"));
+      };
+    }
+
+    // --- 4. Lógica de Logout ---
+    if (logoutButton) {
+      logoutButton.onclick = async () => {
+        try {
           const authUserStr = sessionStorage.getItem("auth_user");
           const authUser = authUserStr ? JSON.parse(authUserStr) : null;
           const userId = authUser?.user?.id;
 
           if (!userId) {
-            throw new Error("No hay sesión activa");
+            window.location.replace("/");
+            return;
           }
 
-          const res = await fetch("/api/auth/logout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          await sileo.promise(
+            async () => {
+              const res = await fetch("/api/auth/logout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: userId }),
+              });
+
+              if (!res.ok) throw new Error("Error en la petición");
+              sessionStorage.removeItem("auth_user");
             },
-            body: JSON.stringify({ id: userId }),
-          });
+            {
+              loading: { title: "Cerrando sesión...", fill: "#8751ff" },
+              success: { title: "Sesión cerrada", fill: "#58d68d" },
+              error: { title: "Error al cerrar sesión", fill: "#f35761" },
+            }
+          );
 
-          const data = await res.json();
-          if (!res.ok) {
-            throw new Error(data.message || "Error al cerrar sesión");
-          }
-
+          // Redirección limpia
+          window.location.replace("/");
+        } catch (error) {
+          console.error("Logout error:", error);
+          // Si falla el fetch pero queremos forzar salida:
           sessionStorage.removeItem("auth_user");
-        },
-        {
-          loading: { title: "Cerrando sesión...", fill: "#8751ff" },
-          success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
-          error: { title: "Error al cerrar sesión", fill: "#f35761" },
-        },
-      );
-      window.location.href = "/";
-    });
-  });
+          window.location.replace("/");
+        }
+      };
+    }
+  };
 
-  import { sileo } from "sileo";
+  // Inicialización en cada carga de página (soporta View Transitions)
+  document.addEventListener("astro:page-load", setupSidebar);
 </script>

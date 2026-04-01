@@ -1,5 +1,5 @@
 ---
-import MainLayout from "../Layout.astro";
+import TutorLayout from "../TutorLayout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
@@ -9,7 +9,6 @@ import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
 import { Image } from "astro:assets";
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
-import CollapseIcon from "@/features/dashboards/components/icons/CollapseIcon.svg";
 import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";
 
 const tutorId = getUserIdFromCookie(Astro.cookies);
@@ -25,15 +24,16 @@ if (tutorId) {
 const offsetParam = Astro.url.searchParams.get("offset");
 const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-const { today, prevOffset, nextOffset, weekRangeStr } =
-  getWeekRangeFromOffset(weekOffset);
+const { today, prevOffset, nextOffset, weekRangeStr } = getWeekRangeFromOffset(weekOffset);
 
 const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
 ---
 
-<MainLayout title='Availability'>
+<TutorLayout title='Availability'>
   <div class='availability-container'>
-    <Sidebar userRole='tutor' />
+    <div class="main-sidebar">
+      <Sidebar userRole='tutor' />
+    </div>
 
     <main class={`content-wrapper ${isMenuOpen ? "no-scroll" : ""}`}>
       <div class={`overlay ${isMenuOpen ? "active" : ""}`} id='menu-overlay'>
@@ -65,7 +65,7 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
       </div>
     </main>
   </div>
-</MainLayout>
+</TutorLayout>
 
 <style>
   body {
@@ -101,6 +101,10 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
 
   .content-wrapper.no-scroll {
     overflow-y: hidden;
+  }
+
+  .main-sidebar {
+    z-index: 1000;
   }
 
   .calendar-container {

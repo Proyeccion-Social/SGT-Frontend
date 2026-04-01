@@ -7,11 +7,18 @@
     background-color: rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(2px);
     animation: overlay-in 0.25s ease;
+    z-index: 1002;
+    view-transition-name: drawer-overlay;
 }
 
 @keyframes overlay-in {
     from { opacity: 0; }
-    to   { opacity: 1; }
+    to { opacity: 1; }
+}
+
+@keyframes overlay-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 /* ─── Content shell ────────────────────────────────────────── */
@@ -27,8 +34,15 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 50;
+    z-index: 1003;
     overflow: hidden;
+    view-transition-name: drawer-content;
+}
+
+::view-transition-old(drawer-content),
+::view-transition-new(drawer-content) {
+    animation: none;
+    mix-blend-mode: normal;
 }
 
 .drawer-content-container {

@@ -54,6 +54,17 @@ export default function VaulDrawer() {
         return () => window.removeEventListener('open-profile-drawer', handler);
     }, []);
 
+    useEffect(() => {
+        const handlePageTransition = () => {
+            if (isOpen) {
+                console.log("Manteniendo drawer abierto tras transición");
+            }
+        };
+
+        document.addEventListener('astro:after-swap', handlePageTransition);
+        return () => document.removeEventListener('astro:after-swap', handlePageTransition);
+    }, [isOpen]);
+
     const goToStep = (s: number) => {
         setStep(s);
     };
@@ -105,17 +116,21 @@ export default function VaulDrawer() {
 
     const isFinishStep = step === 5;
 
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
     return (
+        <div ref={containerRef}>
         <Drawer.Root
             dismissible={!requiresProfileCompletion}
             open={isOpen}
+            modal={true}
             onOpenChange={(open) => {
                 if (requiresProfileCompletion && !open) return;
                 setIsOpen(open);
             }}
         >
-            <Drawer.Portal>
-                <Drawer.Overlay className="drawer-overlay" />
+            <Drawer.Portal container={containerRef.current}>
+                <Drawer.Overlay className="drawer-overlay" data-state={isOpen ? "open" : "closed"} />
                 <Drawer.Content className="drawer-content">
                     {/* Drag handle */}
                     <div aria-hidden className="drawer-handle" />
@@ -183,7 +198,7 @@ export default function VaulDrawer() {
                                             if (blob) {
                                                 // TODO: Implement actual image upload
                                                 // For now using a placeholder to allow profile completion
-                                                nextStep({ url_image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" });
+                                                nextStep();
                                             } else {
                                                 nextStep();
                                             }
@@ -242,5 +257,6 @@ export default function VaulDrawer() {
                 </Drawer.Content>
             </Drawer.Portal>
         </Drawer.Root>
+        </div>
     );
 }

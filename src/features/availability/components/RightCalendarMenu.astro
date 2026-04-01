@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import type { Slot } from "@/features/availability/services/availabilityService";
 import { DAYS } from "../utils/calendarConstants";
 import UserHeader from "@/features/general/components/UserHeader.astro";
@@ -195,6 +194,7 @@ const slotsByDay = DAYS.map((day) => {
     align-items: flex-end;
     justify-content: flex-end;
   }
+
   .mini-calendar {
     background: #fff;
     padding: 28px 28px 0px 28px;

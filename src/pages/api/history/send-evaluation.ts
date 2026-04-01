@@ -20,7 +20,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       error: error.message,
     }),
     {
-      status: 400
+      status: error.status || 400,
+      headers: { "Content-Type": "application/json" }
     }
   );
 }

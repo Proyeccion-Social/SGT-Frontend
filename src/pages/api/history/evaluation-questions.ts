@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ cookies }) => {
         error: error.message || "Failed to fetch evaluation questions"
       }),
       {
-        status: 500,
+        status: error.status || 500,
         headers: { "Content-Type": "application/json" }
       }
     );

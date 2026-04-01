@@ -19,8 +19,10 @@ export async function getEvaluationQuestions(token?: string) {
   );
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Error fetching questionnaire");
+    const errorJson = await response.json();
+    const error = new Error(errorJson.message || "Error fetching questionnaire") as any;
+    error.status = response.status;
+    throw error;
   }
 
   return await response.json();

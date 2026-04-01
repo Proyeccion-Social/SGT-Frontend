@@ -123,6 +123,10 @@ const submitEvaluation = async () => {
     const result = await response.json();
 
     if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = "/";
+          return;
+        }
         throw new Error(result.error || 'Error al enviar');
     }
 
@@ -136,7 +140,9 @@ const submitEvaluation = async () => {
         alert("Error enviando la evaluación");
     }
     };
-
+    
+    
+    
 
 
   return (

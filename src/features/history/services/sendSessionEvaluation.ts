@@ -40,7 +40,9 @@ export async function sendSessionEvaluation(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "Error sending evaluation");
+    const error = new Error(data.message || "Error sending evaluation") as any;
+    error.status = response.status;
+    throw error;
   }
   return data;
 }

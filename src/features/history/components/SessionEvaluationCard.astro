@@ -12,6 +12,10 @@ if (!questionnaire) {
     headers: Astro.request.headers
   });
 
+  if (res.status === 401) {
+    return Astro.redirect('/');
+  }
+
   if (res.ok) {
     const data = await res.json();
     questionnaire = data.questionnaire;
@@ -25,7 +29,7 @@ if (!questionnaire) {
 
 {questionnaire && (
       
-      <MultiStepDialog questionnaire={questionnaire} session={session} />
+      <MultiStepDialog client:load questionnaire={questionnaire} session={session} />
 
     
     

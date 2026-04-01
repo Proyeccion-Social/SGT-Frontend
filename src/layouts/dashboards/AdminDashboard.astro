@@ -1,13 +1,13 @@
 ---
 import { Image } from "astro:assets";
-import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
+import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import OptionButton from "@/features/dashboards/components/OptionButton.astro";
 
-import MainLayout from "../Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
-import OptionButton from "../../features/dashboards/components/OptionButton.astro";
+import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
+import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 
-import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
-import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
+import MainLayout from "@/layouts/Layout.astro";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
@@ -15,8 +15,7 @@ if (!token) return Astro.redirect("/");
 const payload = JSON.parse(atob(token.split(".")[1]));
 const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 ---
-
-<MainLayout title='Dashboard'>
+<MainLayout title="Dashboard - Admin | Atlas">
   <div class='dashboard-container'>
     <Sidebar userRole={userRole} />
 
@@ -94,7 +93,6 @@ const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
     overflow-y: auto;
     align-items: center;
     justify-content: center;
-    margin-top: 30px;
   }
 
   .welcome-banner-slot {

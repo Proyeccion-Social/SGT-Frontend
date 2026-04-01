@@ -1,0 +1,18 @@
+---
+import MainLayout from "./Layout.astro";
+import VaulDrawer from "@/components/ui/drawer";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<MainLayout title={title}>
+  <div class='tutor-layout'>
+    <slot />
+    <VaulDrawer client:load transition:persist />
+  </div>
+</MainLayout>
+

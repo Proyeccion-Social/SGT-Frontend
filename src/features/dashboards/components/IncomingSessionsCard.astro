@@ -25,43 +25,55 @@ const { sessions, role } = Astro.props;
 
   <div class='cards-stack'>
     {
-      sessions.map((session) => (
-        <div
-          class='session-card-wrapper'
-          style={"view-transition-name: session-card-${session.id}"}
-        >
-          <div class='session-card'>
-            <div class='card-content'>
-              <div class='card-header'>
-                <h3>{session.title}</h3>
-                <span class='badge-time'>{session.timeLeft}</span>
-              </div>
-
-              <p class='description'>{session.description}</p>
-
-              <div class='card-footer'>
-                <div class='tags'>
-                  <span class='tag-subject'>{session.subject}</span>
-                  <span class='tag-status'>{session.status}</span>
+      sessions && sessions.length > 0 ? (
+        sessions.map((session) => (
+          <div
+            class='session-card-wrapper'
+            style={`view-transition-name: session-card-${session.id}`}
+          >
+            <div class='session-card'>
+              <div class='card-content'>
+                <div class='card-header'>
+                  <h3>{session.title}</h3>
+                  <span class='badge-time'>{session.timeLeft}</span>
                 </div>
-                <span class='time-label'>{session.time}</span>
-              </div>
-            </div>
 
-            {role === "tutor" && (
-              <div class='actions'>
-                <button class='btn-details'>Detalles</button>
-                <button class='btn-cancel'>Cancelar</button>
+                <p class='description'>{session.description}</p>
+
+                <div class='card-footer'>
+                  <div class='tags'>
+                    <span class='tag-subject'>{session.subject}</span>
+                    <span class='tag-status'>{session.status}</span>
+                  </div>
+                  <span class='time-label'>{session.time}</span>
+                </div>
               </div>
-            )}
+
+              {role === 'tutor' && (
+                <div class='actions'>
+                  <button class='btn-details'>Detalles</button>
+                  <button class='btn-cancel'>Cancelar</button>
+                </div>
+              )}
+            </div>
           </div>
+        ))
+      ) : (
+        <div class='empty-state'>
+          <p>No tienes ninguna tutoría pendiente</p>
         </div>
-      ))
+      )
     }
 
-    <div class='bottom-overlay'>
-      <a href='#' class='view-more'>Ver más ↗</a>
-    </div>
+    {
+      sessions && sessions.length > 0 && (
+        <div class='bottom-overlay'>
+          <a href='#' class='view-more'>
+            Ver más
+          </a>
+        </div>
+      )
+    }
   </div>
 </article>
 
@@ -211,6 +223,27 @@ const { sessions, role } = Astro.props;
     color: #a3a3a3;
     font-size: 12px;
     font-weight: 300;
+  }
+
+  .empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    min-height: 120px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-state p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    margin: 0;
   }
 
   .actions {

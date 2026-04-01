@@ -1,0 +1,363 @@
+@import "../../../styles/variables.css";
+
+/* ─── Overlay ─────────────────────────────────────────────── */
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    animation: overlay-in 0.25s ease;
+    z-index: 1002;
+    view-transition-name: drawer-overlay;
+}
+
+@keyframes overlay-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes overlay-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ─── Content shell ────────────────────────────────────────── */
+.drawer-content {
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    height: 96%;
+    margin-top: 24px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1003;
+    overflow: hidden;
+    view-transition-name: drawer-content;
+}
+
+::view-transition-old(drawer-content),
+::view-transition-new(drawer-content) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+.drawer-content-container {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* ─── Drag handle ──────────────────────────────────────────── */
+.drawer-handle {
+    margin: 14px auto 0;
+    width: 48px;
+    height: 5px;
+    border-radius: 999px;
+    background: #d1c4f5;
+    flex-shrink: 0;
+}
+
+/* ─── Header ─────────────────────────────────────────────── */
+.drawer-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem 0.75rem;
+    border-bottom: 1px solid #ede8ff;
+    flex-shrink: 0;
+    background: #fff;
+    z-index: 10;
+    position: relative;
+    margin-top: 2rem;
+}
+
+/* ─── Two-column layout ────────────────────────────────────── */
+.drawer-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+    background: #fff;
+}
+
+.drawer-content-container {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* ─── Internal step sidebar ────────────────────────────────── */
+.drawer-step-nav {
+    width: 280px;
+    min-width: 240px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    border-right: 1px solid #ede8ff;
+    background: #faf8ff;
+    overflow-y: auto;
+}
+
+/* ─── Main content area ────────────────────────────────────── */
+.drawer-main {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #fff;
+    padding-bottom: 0; /* No padding needed here as footer is external */
+}
+
+/* ─── Fixed Footer ─────────────────────────────────────────── */
+.drawer-fixed-footer {
+    display: flex;
+    position: fixed;
+    background: #FFFFFF;
+    border-top: 1px solid #ede8ff;
+    align-items: center;
+    justify-content: center;
+    z-index: 70;
+    width: 100%;
+    gap: 0.5rem;
+    bottom: 0;
+    padding: 0.75rem 0;
+}
+
+.drawer-footer-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.drawer-footer-step-text {
+    font-family: "Open Sauce Two", sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+    color: #3C3C3C;
+}
+
+.drawer-footer-step-img {
+    width: 24px;
+    height: 24px;
+    rotate: 20deg;
+}
+
+/* ─── Custom Scrollbar ─────────────────────────────────────── */
+.drawer-main::-webkit-scrollbar,
+.drawer-step-nav::-webkit-scrollbar {
+    width: 8px;
+}
+
+.drawer-main::-webkit-scrollbar-track,
+.drawer-step-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.drawer-main::-webkit-scrollbar-thumb,
+.drawer-step-nav::-webkit-scrollbar-thumb {
+    background: #e7dcff;
+    border-radius: 10px;
+}
+
+.drawer-main::-webkit-scrollbar-thumb:hover,
+.drawer-step-nav::-webkit-scrollbar-thumb:hover {
+    background: #d1c4f5;
+}
+
+/* Firefox */
+.drawer-main,
+.drawer-step-nav {
+    scrollbar-width: thin;
+    scrollbar-color: #e7dcff transparent;
+}
+
+/* ─── Step Sidebar Header ──────────────────────────────────── */
+.drawer-step-nav-header {
+    margin-bottom: 2rem;
+}
+
+.drawer-title {
+    font-family: var(--type-font-family-primary);
+    font-weight: 600;
+    font-size: var(--fontsize-heading-h2m);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--neutral-700);
+    margin-bottom: 0.4rem;
+    text-align: center;
+    position: relative;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drawer-title-text {
+    position: relative;
+    z-index: 2; /* Texto siempre al frente */
+}
+
+.drawer-background {
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1; /* Fondo por debajo del texto (z-index 2) */
+    pointer-events: none;
+    height: 87%;
+    object-fit: contain;
+}
+
+.drawer-description {
+    font-family: var(--type-font-family-primary);
+    font-weight: var(--type-font-weight-regular);
+    font-size: var(--fontsize-heading-h6);
+    line-height: 1.4;
+    color: var(--neutral-600);
+    text-align: center;
+}
+
+.drawer-step-nav .drawer-description {
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+/* ─── Step list ────────────────────────────────────────────── */
+.drawer-step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.drawer-step-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    color: #89878f;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.drawer-step-item:hover {
+    background: #f3edff;
+    color: #5a3ea8;
+}
+
+.drawer-step-item--active {
+    background: #e7dcff;
+    color: #7c3aed;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+}
+
+.drawer-step-item--done {
+    color: #6b7280;
+}
+
+.drawer-step-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    background: #e7dcff;
+    color: #7c3aed;
+    border-radius: 6px;
+    padding: 0.25rem 0.5rem;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+    min-width: 28px;
+    text-align: center;
+}
+
+.drawer-step-item--active .drawer-step-number {
+    background: #7c3aed;
+    color: #fff;
+}
+
+.drawer-step-item--done .drawer-step-number {
+    background: #d1fae5;
+    color: #029a6a;
+}
+
+.drawer-step-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.drawer-step-check {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: #059669;
+    font-weight: 700;
+}
+
+/* ─── Skip button ──────────────────────────────────────────── */
+.skip-button {
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1.5px solid #d1c4f5;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: #7c3aed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.skip-button:hover {
+    background: #f0ebff;
+    border-color: #a78bfa;
+}
+
+/* ─── Primary action button ────────────────────────────────── */
+.next-button {
+    border-radius: 8px;
+    background-color: #9F74FF;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    padding: 0.75rem 2rem;
+    color: #FFFFFF;
+    border: none;
+    transition: all 0.18s ease;
+}
+
+.next-button:hover:not(:disabled) {
+    background-color: #8751ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(159, 116, 255, 0.2);
+}
+
+.next-button:disabled {
+    background-color: #ddd6fe;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

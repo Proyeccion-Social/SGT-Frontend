@@ -2,7 +2,8 @@
 import { Image } from "astro:assets";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 
-import MainLayout from "../Layout.astro";
+import MainLayout from "@layouts/Layout.astro";
+
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "@/features/dashboards/components/StatCard.astro";
@@ -39,19 +40,18 @@ const mockSessions = [
 
 const studentStats = { value: 3, text: "Tutorías esta semana" };
 ---
-
-<MainLayout title='Dashboard'>
+<MainLayout title="Dashboard - Estudiante | Atlas">
   <div class='dashboard-container'>
     <Sidebar userRole={userRole} />
-
+  
     <main class='content-wrapper'>
       <div class='dashboard-content'>
         <UserHeader userRole={userRole} />
-
+  
         <div class='welcome-banner-slot'>
           <WelcomeBanner client:only='react' />
         </div>
-
+  
         <div class='cards-container'>
           <div class='left-side'>
             <div class='incoming-sessions-container'>
@@ -60,7 +60,7 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
                 role={userRole as "tutor" | "student"}
               />
             </div>
-
+  
             <div class='green-photo-space'>
               <Image src={ImageIcon} alt='Image' />
             </div>

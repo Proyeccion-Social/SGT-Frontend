@@ -19,6 +19,10 @@ export type RegisterDto = {
   confirmPassword: string;
 };
 
+export type LogoutDto = {
+  id: string;
+  refreshToken: string;
+};
 
 export const validateEmail = async (email: string) => {
   try {
@@ -54,7 +58,6 @@ export const login = async (
   });
 
   const body = await response.json().catch(() => null);
-  console.log('Respuesta backend login:', body);
 
   if (!response.ok) {
     throw new Error(body?.message ?? "Authentication failed");
@@ -81,11 +84,46 @@ export const register = async (data: RegisterDto) => {
   });
 
   const body = await response.json().catch(() => null);
-  console.log('Respuesta backend register:', body);
 
   if (!response.ok) {
     throw new Error(body?.message ?? "Registration failed");
   }
 
+  return body;
+};
+
+export const logout = async (data: LogoutDto, accessToken: string) => {
+  const response = await fetch(`${API_URL}/auth/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(data),
+  });
+
+  const body = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(body?.message ?? "Logout failed");
+  }
+
+  return body;
+};
+
+export const changePassword = async (data: any, accessToken: string) => {
+  const response = await fetch(`${API_URL}/auth/password/change`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(body?.message ?? "Password change failed");
+  }
   return body;
 };

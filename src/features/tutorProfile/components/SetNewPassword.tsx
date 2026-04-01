@@ -132,7 +132,6 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
                                 className="password-eye-btn"
                                 type="button"
                                 onClick={() => setShowPassword((v) => !v)}
-                                tabIndex={-1}
                                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                             >
                                 <EyeIcon open={showPassword} />

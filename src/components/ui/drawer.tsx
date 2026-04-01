@@ -32,18 +32,20 @@ export default function VaulDrawer() {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     
     // Data collection state
-    const [formData, setFormData] = React.useState<Partial<CompleteTutorProfileDto>>({
-        phone: '',
-        url_image: '',
-        max_weekly_hours: 8, // Default
-        subject_ids: [],
-        availabilities: [],
-    });
+    const [formData, setFormData] = React.useState<Partial<CompleteTutorProfileDto>>({});
 
     // Initial check for profile completion
     useEffect(() => {
         if (requiresProfileCompletion) {
             setIsOpen(true);
+            // Initialize defaults only when completing profile for the first time
+            setFormData({
+                phone: '',
+                url_image: '',
+                max_weekly_hours: 8, // Default
+                subject_ids: [],
+                availabilities: [],
+            });
         }
     }, [requiresProfileCompletion]);
 

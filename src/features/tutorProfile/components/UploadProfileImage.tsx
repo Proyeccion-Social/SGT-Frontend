@@ -156,7 +156,11 @@ export default function UploadProfileImage({ onNext, onBack, onSkip, isMandatory
                     onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
                 >
                     <div className="upload-icon-container">
-                        <img src={uploadImageIcon.src} className="upload-icon" />
+                        <img
+                          src={uploadImageIcon.src}
+                          className="upload-icon"
+                          alt="Icono para subir una imagen de perfil"
+                        />
                     </div>
                     {isDragging && (
                         <p className="upload-dropzone-drag-msg">Suelta la imagen aquí</p>

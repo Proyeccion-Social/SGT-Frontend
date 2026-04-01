@@ -5,6 +5,15 @@ export const GET: APIRoute = async ({ cookies }) => {
   try {
     const token = cookies.get("access_token")?.value;
 
+    if (!token) {
+            return new Response(JSON.stringify({
+                error: "Token not found"
+            }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
     const data = await getEvaluationQuestions(token);
 
     return new Response(JSON.stringify(data), {

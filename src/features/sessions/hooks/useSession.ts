@@ -13,10 +13,10 @@ interface UseSessionReturn {
   error: string | null;
   fetchMySessions: () => Promise<void>;
   agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
-  cancelar: (sessionId: string) => Promise<boolean>;
+  cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
 }
 
-export function useSession(): UseSessionReturn {
+export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,18 +35,21 @@ export function useSession(): UseSessionReturn {
     setLoading(true);
     setError(null);
     try {
-      const data = await getMySessions();
-      setSessions(data);
-    } catch (e: any) {
-      if (e.message === 'UNAUTHORIZED') {
-        useAuthStore.getState().clearUser();
-      } else {
-        setError(e.message);
+      const res = await fetch(`/api/sessions/my-sessions?role=${role}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
       }
+      const json = await res.json();
+      // Backend wraps response in { data: [...] }
+      setSessions(json.data ?? json);
+    } catch (err) {
+      console.error('[useSessions] error:', err);
+      setError(err instanceof Error ? err.message : 'Error fetching sessions');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [role]);
 
 
   const agendar = useCallback(
@@ -68,11 +71,11 @@ export function useSession(): UseSessionReturn {
 );
 
 
-  const cancelar = useCallback(async (sessionId: string): Promise<boolean> => {
+  const cancelar = useCallback(async (sessionId: string, reason: string, token : string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
-      await cancelSession(sessionId);
+      await cancelSession(sessionId, reason, token);
       setSessions(prev =>
         prev.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
       );

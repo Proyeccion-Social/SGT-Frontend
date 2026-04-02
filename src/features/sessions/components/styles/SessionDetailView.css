@@ -1,0 +1,371 @@
+
+/* ── Design tokens ── */
+:root {
+  --sdv-white:        #ffffff;
+  --sdv-bg:           #f5f4fb;          /* lavender tint backdrop         */
+  --sdv-surface:      #f0eefa;          /* header card background         */
+  --sdv-border:       #dcd6f7;          /* dashed card border             */
+
+  --sdv-violet:       #7c3aed;          /* primary icon / accent          */
+  --sdv-violet-light: #ede9fe;          /* tag background                 */
+  --sdv-violet-text:  #5b21b6;
+
+  --sdv-yellow:       #fef3c7;
+  --sdv-yellow-text:  #92400e;
+
+  --sdv-gray-tag:     #f1f5f9;
+  --sdv-gray-text:    #64748b;
+  --sdv-gray-dark:    #1e293b;
+
+  --sdv-lime:         #d9f99d;
+  --sdv-lime-border:  #65a30d;
+  --sdv-lime-text:    #365314;
+
+  --sdv-coral:        #fb7185;
+  --sdv-coral-dark:   #e11d48;
+  --sdv-coral-text:   #fff1f2;
+
+  --sdv-radius-modal: 24px;
+  --sdv-radius-card:  14px;
+  --sdv-radius-pill:  999px;
+  --sdv-shadow:       0 8px 40px 0 rgba(124, 58, 237, 0.13),
+                      0 2px 8px 0 rgba(0,0,0,.06);
+  --sdv-font:        'DM Sans', sans-serif;
+}
+
+/* ── Modal wrapper (full-screen overlay) ── */
+.sdv-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 10, 35, 0);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: sdv-fade-in 0.22s ease;
+}
+
+/* ── Main container ── */
+.sdv {
+  font-family: var(--sdv-font);
+  background: var(--sdv-white);
+  border-radius: var(--sdv-radius-modal);
+  box-shadow: var(--sdv-shadow);
+  width: 100%;
+  max-width: 480px;
+  padding: 24px 24px 72px 24px;   /* bottom padding leaves room for buttons */
+  position: relative;
+  animation: sdv-slide-up 0.28s cubic-bezier(.22,.68,0,1.2);
+  overflow: visible;
+}
+
+/* ── Close button ── */
+.sdv__close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sdv-white);
+  border: 1.5px solid var(--sdv-border);
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--sdv-gray-text);
+  font-size: 18px;
+  line-height: 1;
+  transition: color .15s, transform .15s;
+  z-index: 10;
+}
+.sdv__close:hover {
+  color: var(--sdv-coral-dark);
+  transform: scale(1.12);
+}
+
+/* ══════════════════════════════
+   1. TOP – avatar + title + desc
+   ══════════════════════════════ */
+.sdv__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--sdv-surface);
+  border-radius: var(--sdv-radius-card);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+/* Avatar */
+.sdv-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--sdv-violet-light);
+}
+
+/* Fallback avatar (initials) */
+.sdv-avatar-fallback {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--sdv-violet);
+  color: #fff;
+  font-family: var(--sdv-font);
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -.5px;
+  border: 2px solid var(--sdv-violet-light);
+}
+
+.sdv__header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sdv__title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sdv-gray-dark);
+  line-height: 1.3;
+  letter-spacing: -.3px;
+}
+
+.sdv__description {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--sdv-gray-text);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* ══════════════════════════════
+   2. TAGS ROW
+   ══════════════════════════════ */
+.sdv__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.sdv-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--sdv-radius-pill);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .1px;
+  white-space: nowrap;
+}
+
+/* Subject tag – yellow pastel */
+.sdv-tag--subject {
+  background: var(--sdv-yellow);
+  color: var(--sdv-yellow-text);
+}
+
+/* Tutor tag – lavender */
+.sdv-tag--tutor {
+  background: var(--sdv-violet-light);
+  color: var(--sdv-violet-text);
+}
+
+/* Status tag – neutral gray */
+.sdv-tag--status {
+  background: var(--sdv-gray-tag);
+  color: var(--sdv-gray-text);
+}
+
+/* Link tag – violet outline */
+.sdv-tag--link {
+  background: var(--sdv-white);
+  color: var(--sdv-violet);
+  border: 1.5px solid var(--sdv-border);
+  text-decoration: none;
+  transition: background .15s;
+}
+.sdv-tag--link:hover {
+  background: var(--sdv-violet-light);
+}
+
+/* Dot decoration inside tutor tag */
+.sdv-tag__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.sdv-tag__dot--purple { background: var(--sdv-violet); }
+
+/* ══════════════════════════════
+   3. INFO CARDS GRID
+   ══════════════════════════════ */
+.sdv__cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sdv-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  border-radius: var(--sdv-radius-card);
+  border: 1.5px dashed var(--sdv-border);
+  background: var(--sdv-white);
+  text-align: center;
+  transition: border-color .18s, box-shadow .18s;
+}
+.sdv-card:hover {
+  border-color: var(--sdv-violet);
+  box-shadow: 0 2px 12px rgba(124,58,237,.10);
+}
+
+/* Icon circle */
+.sdv-card__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sdv-card__icon--blue   { background: #eff6ff; color: #2563eb; }
+.sdv-card__icon--purple { background: var(--sdv-violet-light); color: var(--sdv-violet); }
+
+/* Icon SVG inherits color */
+.sdv-card__icon svg {
+  color: inherit;
+  stroke: currentColor;
+  width: 20px;
+  height: 20px;
+}
+
+.sdv-card__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sdv-gray-dark);
+  line-height: 1.4;
+}
+
+.sdv-card__sublabel {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--sdv-gray-text);
+}
+
+/* ══════════════════════════════
+   4. FOOTER BUTTONS
+   ══════════════════════════════ */
+.sdv__footer {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: calc(100% - 48px);
+}
+
+.sdv-btn {
+  flex: 1;
+  padding: 11px 16px;
+  border-radius: var(--sdv-radius-pill);
+  font-family: var(--sdv-font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: .1px;
+  transition: transform .14s, box-shadow .14s, filter .14s;
+  border: none;
+  white-space: nowrap;
+}
+.sdv-btn:hover  { transform: translateY(-2px); }
+.sdv-btn:active { transform: translateY(0);    }
+
+/* Propose – lime */
+.sdv-btn--propose {
+  background: var(--sdv-lime);
+  color: var(--sdv-lime-text);
+  border: 2px solid var(--sdv-lime-border);
+  box-shadow: 0 4px 16px rgba(101,163,13,.20);
+}
+.sdv-btn--propose:hover {
+  box-shadow: 0 6px 20px rgba(101,163,13,.30);
+  filter: brightness(1.04);
+}
+
+/* Edit – violet (tutor only) */
+.sdv-btn--edit {
+  background: var(--sdv-violet-light);
+  color: var(--sdv-violet-text);
+  border: 2px solid var(--sdv-violet);
+  box-shadow: 0 4px 16px rgba(124,58,237,.15);
+}
+.sdv-btn--edit:hover {
+  box-shadow: 0 6px 20px rgba(124,58,237,.25);
+}
+
+/* Cancel – coral */
+.sdv-btn--cancel {
+  background: var(--sdv-coral);
+  color: var(--sdv-coral-text);
+  border: 2px solid var(--sdv-coral-dark);
+  box-shadow: 0 4px 16px rgba(225,29,72,.20);
+}
+.sdv-btn--cancel:hover {
+  box-shadow: 0 6px 20px rgba(225,29,72,.30);
+  filter: brightness(1.04);
+}
+
+/* ══════════════════════════════
+   Keyframes
+   ══════════════════════════════ */
+@keyframes sdv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sdv-slide-up {
+  from { opacity: 0; transform: translateY(24px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+
+/* ══════════════════════════════
+   Responsive
+   ══════════════════════════════ */
+@media (max-width: 540px) {
+  .sdv {
+    padding: 20px 16px 72px 16px;
+    border-radius: 18px;
+  }
+  .sdv__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sdv__footer {
+    flex-direction: column;
+    width: calc(100% - 32px);
+  }
+  .sdv-btn {
+    flex: unset;
+    width: 100%;
+  }
+}

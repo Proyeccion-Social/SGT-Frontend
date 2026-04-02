@@ -264,3 +264,30 @@ export interface ApiError {
   message: string;
   errors?: Array<{ field: string; message: string }>;
 }
+
+export interface TutorInfo {
+  id: string;
+  name: string;
+  photo: string;
+  subjects: Array<{ id: string; name: string }>;
+}
+
+export interface CancelSessionResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ModifySessionBody {
+  newScheduledDate: string;
+  newAvailabilityID: string;
+  newModality: string;
+  newDurationHours: string;
+}
+
+export interface EditSessionBody {
+  title: string;
+  description: string;
+}
+
+// Controls which sub-view is rendered inside SessionDetailModal
+export type ModalView = 'detail' | 'propose' | 'edit';

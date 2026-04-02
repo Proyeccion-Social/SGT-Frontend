@@ -36,7 +36,7 @@ export const ProposeModificationView = ({ session, onBack, onSuccess }: Props) =
     };
 
     try {
-      await modifySession(session.id, body, token);
+      await modifySession(session.id, body, String(token));
       setSuccess(true);
       setTimeout(onSuccess, 1200);
     } catch (err: any) {

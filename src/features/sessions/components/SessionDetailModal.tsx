@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import './syles/SessionDetailModal.css';
 import type { Session } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
-import { SessionDetailView } from './SessionDetailView';
+import { SessionDetailView } from './SessionDetaiView';
 import { ProposeModificationView } from './ProposeModificationView';
 import { EditSessionView } from './EditSessionView';
 

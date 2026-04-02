@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
 type Role = 'ADMIN' | 'TUTOR' | 'STUDENT';
 type Status = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
@@ -14,25 +15,28 @@ type User = {
 
 interface AuthStore {
     user: User | null;
+    token: string | null;
     requiresPasswordChange: boolean;
     requiresProfileCompletion: boolean;
     _hasHydrated: boolean;
     setHasHydrated: (val: boolean) => void;
     setUser: (user: User) => void;
+    setToken: (token: string) => void;
     clearUser: () => void;
 }
-
 
 export const useAuthStore = create<AuthStore>()(
     persist(
         (set) => ({
             user: null,
+            token: null,
             requiresPasswordChange: false,
             requiresProfileCompletion: false,
             _hasHydrated: false,
             setHasHydrated: (val) => set({ _hasHydrated: val }),
             setUser: (user) => set({ user }),
-            clearUser: () => set({ user: null }),
+            setToken: (token) => set({ token }),
+            clearUser: () => set({ user: null, token: null }),
         }),
         {
             name: 'auth-storage',

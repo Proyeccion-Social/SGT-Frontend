@@ -6,20 +6,24 @@ import { useState, useEffect } from 'react';
 import type { Session } from '../../sessions/types/session.types';
 import { useSession } from '../..//sessions/hooks/useSession';
 import { IncomingSessionsCard } from './IncomingSessionsCard';
-import { SessionDetailModal } from '../../sessions/SessionDetailModal';
-import { CancelSessionModal } from '../../sessions/CancelSessionModal';
+import { SessionDetailModal } from '@features/sessions/components/SessionDetailModal';
+import { CancelSessionModal } from '@features/sessions/components/CancelSessionModal';
 
 interface Props {
   role: 'tutor' | 'student';
 }
 
 export const DashboardSessionManager = ({ role }: Props) => {
-  const { sessions, loading, error, refetch } = useSession(role);
-
+  const { cancelar ,sessions, loading, error, fetchMySessions: refetch } = useSession(role);
+  // canCancel es tu lógica de ventana de tiempo — ejemplo:
+  const canCancel = (session: Session) => {
+    // tu lógica aquí, ej: verificar que falten más de X horas
+    return true;
+  };
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal]     = useState(false);
   const [sessionToCancel, setSessionToCancel]     = useState<Session | null>(null);
-
+  
   // Option B: listen to CustomEvent dispatched by IncomingSessionsCard
   useEffect(() => {
     const handler = (e: Event) => {
@@ -51,7 +55,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
     <>
       <IncomingSessionsCard
         sessions={sessions}
-        isLoading={isLoading}
+        isLoading={loading}
         error={error}
       />
 
@@ -69,6 +73,10 @@ export const DashboardSessionManager = ({ role }: Props) => {
           session={sessionToCancel}
           onClose={handleCancelClose}
           onSuccess={handleCancelSuccess}
+          cancelar={cancelar}
+          canCancel={canCancel}
+          isLoading={loading}
+          error={error}
         />
       )}
     </>

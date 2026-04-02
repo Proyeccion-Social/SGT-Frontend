@@ -36,7 +36,7 @@ export const EditSessionView = ({ session, onBack, onSuccess }: Props) => {
     };
 
     try {
-      await editSession(session.id, body, token);
+      await editSession(session.id, body, String(token));
       setSuccess(true);
       setTimeout(onSuccess, 1200);
     } catch (err: any) {

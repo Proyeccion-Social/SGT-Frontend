@@ -1,22 +1,31 @@
 // CancelSessionModal.tsx
-// T010: mandatory textarea, disabled button when empty
-// T011: useCancelSession wiring — canCancel check, cancel call, success/error
-
 import { useState } from 'react';
 import type { Session } from '../types/session.types';
-import { useCancelSession } from '../hooks/useCancelSession';
+import { useAuthStore } from '@/store/authStore';
 
 interface Props {
   session: Session;
   onClose: () => void;
   onSuccess: () => void;
+  canCancel: (session: Session) => boolean;
+  cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
+  isLoading: boolean;
+  error: string | null;
 }
 
-export const CancelSessionModal = ({ session, onClose, onSuccess }: Props) => {
-  const [reason, setReason]           = useState('');
+export const CancelSessionModal = ({
+  session,
+  onClose,
+  onSuccess,
+  canCancel,
+  cancelar,
+  isLoading,
+  error,
+}: Props) => {
+  const [reason, setReason] = useState('');
   const [windowWarning, setWindowWarning] = useState(false);
 
-  const { canCancel, cancel, isLoading, error } = useCancelSession();
+  const token = useAuthStore(state => state.token);
 
   const handleCancel = async () => {
     if (!canCancel(session)) {
@@ -24,8 +33,8 @@ export const CancelSessionModal = ({ session, onClose, onSuccess }: Props) => {
       return;
     }
     setWindowWarning(false);
-    await cancel(session.id, reason);
-    if (!error) onSuccess();
+    const ok = await cancelar(session.id, reason, token ?? '');
+    if (ok) onSuccess();
   };
 
   return (

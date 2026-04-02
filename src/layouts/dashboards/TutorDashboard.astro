@@ -1,28 +1,11 @@
 ---
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
-import { jwtDecode } from "jwt-decode";
 
-import TutorLayout from "../TutorLayout.astro";
-
-import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "@/features/dashboards/components/StatCard.astro";
 
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/");
-
-let userName = "";
-const { userRole = "tutor" } = Astro.props;
-
-try {
-  const token = Astro.cookies.get("access_token")?.value;
-  if (token) {
-    const decoded = jwtDecode(token) as any;
-    userName = decoded.name || "";
-  }
-} catch (e) {}
-
+const userRole = "tutor";
 
 const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
 const mockWorkload = {
@@ -37,68 +20,48 @@ const usedPercent = Math.min(
 );
 ---
 
-<TutorLayout title='Dashboard - Tutor | Atlas'>
-  <div class='dashboard-container'>
-    <Sidebar userRole={userRole} />
-    
-    <main class='content-wrapper'>
-      <div class='dashboard-content'>
-        <UserHeader userRole={userRole} />
+<main class='content-wrapper'>
+  <div class='dashboard-content'>
+    <UserHeader userRole={userRole} />
 
-      <!-- Nombre y rol desde Zustand store -->
-      <div class='welcome-banner-slot'>
-        <WelcomeBanner client:only='react' />
-      </div>
+    <div class='welcome-banner-slot'>
+      <WelcomeBanner client:only='react' />
+    </div>
 
-      <div class='hours-bar'>
-        <div
-          class='hours-segment hours-scheduled'
-          style={`width: ${usedPercent}%; background-color: #DAFFAA;`}
+    <div class='hours-bar'>
+      <div
+        class='hours-segment hours-scheduled'
+        style={`width: ${usedPercent}%; background-color: #DAFFAA;`}
+      >
+        <span class='scheduled-hours-text'
+          >{mockWorkload.scheduledHours} hora{
+            mockWorkload.scheduledHours !== 1 ? "s" : ""
+          } agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span
         >
-          <span class='scheduled-hours-text'
-            >{mockWorkload.scheduledHours} hora{
-              mockWorkload.scheduledHours !== 1 ? "s" : ""
-            } agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span
-          >
-        </div>
-        <div
-          class='hours-segment hours-remaining'
-          style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}
-        >
-          <span class='remaining-hours-text'
-            >{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta
-            semana</span
-          >
-        </div>
       </div>
-
-      <div class='cards-container'>
-        <div class='incoming-sessions-container'>
-          <IncomingSessionsCard
-            sessions={[]}
-            role={userRole as "tutor"}
-          />
-        </div>
-        
-        <div class='stats-container'>
-          <StatCard value={tutorStats.value} description={tutorStats.text} />
-        </div>
+      <div
+        class='hours-segment hours-remaining'
+        style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}
+      >
+        <span class='remaining-hours-text'
+          >{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span
+        >
       </div>
     </div>
-  </main>
-</div>
+
+    <div class='cards-container'>
+      <div class='incoming-sessions-container'>
+        <IncomingSessionsCard sessions={[]} role={userRole as "tutor"} />
+      </div>
+
+      <div class='stats-container'>
+        <StatCard value={tutorStats.value} description={tutorStats.text} />
+      </div>
+    </div>
+  </div>
+</main>
 
 <style>
-  .dashboard-container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    background-color: #f3edff;
-    padding: 18px 20px 20px 0;
-    box-sizing: border-box;
-    overflow-y: hidden;
-  }
-
   .content-wrapper {
     flex: 1;
     display: flex;

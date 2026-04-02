@@ -1,6 +1,6 @@
 import "../styles/SetAvailabilityHours.css";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import type { StepHandle } from "./ChooseSubjects";
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface TimeSlot {
@@ -68,7 +68,7 @@ const DAY_MAP: Record<string, string> = {
     "Sábado": "SATURDAY",
 };
 
-export default function SetAvailabilityHours({ onNext, onSkip, isMandatory, isSubmitting }: { onNext: (data: { availabilities: any[], max_weekly_hours: number }) => void; onSkip: () => void; isMandatory?: boolean; isSubmitting?: boolean }) {
+const SetAvailabilityHours = forwardRef<StepHandle, { onNext: (data: { availabilities: any[], max_weekly_hours: number }) => void; onCanContinueChange?: (canContinue: boolean) => void }>(({ onNext, onCanContinueChange }, ref) => {
     const [schedule, setSchedule] = useState<DaySchedule[]>(
         DAYS.map((day) => ({ day, slots: [] }))
     );
@@ -92,6 +92,17 @@ export default function SetAvailabilityHours({ onNext, onSkip, isMandatory, isSu
         });
         onNext({ availabilities, max_weekly_hours: Math.ceil(totalWeekHours) });
     };
+
+    const hasErrors = Object.keys(errors).length > 0;
+    const canContinue = !hasErrors && totalWeekHours > 0;
+
+    useImperativeHandle(ref, () => ({
+        triggerContinue: handleNext,
+    }), [schedule, errors]);
+
+    useEffect(() => {
+        onCanContinueChange?.(canContinue);
+    }, [canContinue, onCanContinueChange]);
 
     const weekProgress = Math.min((totalWeekHours / MAX_HOURS_PER_WEEK) * 100, 100);
     const progressClass =
@@ -190,9 +201,6 @@ export default function SetAvailabilityHours({ onNext, onSkip, isMandatory, isSu
         const d = schedule.find((d) => d.day === day)!;
         return dayTotal(d.slots) < MAX_HOURS_PER_DAY && totalWeekHours < MAX_HOURS_PER_WEEK;
     };
-
-    const hasErrors = Object.keys(errors).length > 0;
-    const canContinue = !hasErrors && totalWeekHours > 0;
 
     return (
         <>
@@ -352,20 +360,9 @@ export default function SetAvailabilityHours({ onNext, onSkip, isMandatory, isSu
                         );
                     })}
                 </div>
-
-                <div className="button-row">
-                    <Button className="skip-button" onClick={onSkip} disabled={isMandatory || isSubmitting}>
-                        Omitir
-                    </Button>
-                    <Button
-                        className="next-button"
-                        onClick={handleNext}
-                        disabled={!canContinue || isSubmitting}
-                    >
-                        {isSubmitting ? "Cargando..." : "Continuar"}
-                    </Button>
-                </div>
             </div>
         </>
     );
-}
+});
+
+export default SetAvailabilityHours;

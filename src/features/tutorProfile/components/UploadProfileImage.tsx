@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import Cropper, { type Area, type Point } from "react-easy-crop";
 import "../styles/UploadProfileImage.css";
 import { Button } from "@/components/ui/button";
@@ -6,14 +6,11 @@ import uploadImageIcon from "../assets/uploadImageIcon.svg";
 import sliderIcon from "../assets/sliderIcon.svg";
 import rotateLeftIcon from "../assets/rotateLeftIcon.svg";
 import rotateRightIcon from "../assets/rotateRightIcon.svg";
+import type { StepHandle } from "./ChooseSubjects";
 
 interface UploadProfileImageProps {
-  tutorName?: string;
   onNext: (croppedBlob: Blob | null) => void;
-  onBack?: () => void;
-  onSkip?: () => void;
-  isMandatory?: boolean;
-  isSubmitting?: boolean;
+  onCanContinueChange?: (canContinue: boolean, continueLabel?: string) => void;
 }
 
 async function getCroppedImg(
@@ -63,7 +60,7 @@ async function getCroppedImg(
   });
 }
 
-export default function UploadProfileImage({ onNext, onBack, onSkip, isMandatory, isSubmitting }: UploadProfileImageProps) {
+const UploadProfileImage = forwardRef<StepHandle, UploadProfileImageProps>(({ onNext, onCanContinueChange }, ref) => {
   const [image,             setImage]             = useState<string | null>(null);
   const [crop,              setCrop]              = useState<Point>({ x: 0, y: 0 });
   const [zoom,              setZoom]              = useState<number>(1);
@@ -133,6 +130,22 @@ export default function UploadProfileImage({ onNext, onBack, onSkip, isMandatory
   const rotateLeft  = () => setRotation((r) => (r - 90 + 360) % 360);
   const rotateRight = () => setRotation((r) => (r + 90) % 360);
 
+  useImperativeHandle(ref, () => ({
+    triggerContinue: () => {
+      if (image && croppedAreaPixels) {
+        handleContinue();
+      } else {
+        onNext(null);
+      }
+    },
+  }), [image, croppedAreaPixels, rotation]);
+
+  useEffect(() => {
+    const canContinue = !!image && !isProcessing;
+    const label = isProcessing ? "Procesando..." : "Continuar";
+    onCanContinueChange?.(canContinue, label);
+  }, [image, isProcessing, onCanContinueChange]);
+
   /* ─────────────────────── RENDER ─────────────────────────── */
   return (
     <>
@@ -200,6 +213,17 @@ export default function UploadProfileImage({ onNext, onBack, onSkip, isMandatory
               {/* Barra de controles: rotar — zoom — rotar */}
               <div className="editor-controls">
 
+                {/* Cancelar / cambiar imagen */}
+                <button
+                  type="button"
+                  className="cancel-crop-button"
+                  onClick={handleCancel}
+                  aria-label="Cancelar y elegir otra imagen"
+                  title="Cambiar imagen"
+                >
+                  ✕
+                </button>
+
                 {/* Rotar izquierda */}
                 <button
                   type="button"
@@ -242,35 +266,6 @@ export default function UploadProfileImage({ onNext, onBack, onSkip, isMandatory
             </div>
           )}
         </div>
-
-        <div className="body-footer-buttons">
-          {image ? (
-            <>
-                {isProcessing ? (
-                  <Button className="next-button" disabled>
-                    <span className="loading-spinner" /> Procesando…
-                  </Button>
-                ) : (
-                  <>
-                    <Button className="back-button" onClick={handleCancel}>Cancelar</Button>
-                    <Button className="next-button" onClick={handleContinue}>Continuar</Button>
-                  </>
-                )}
-            </>
-          ) : (
-            <>
-              {onBack && (
-                  <Button className="back-button" onClick={onBack}>Cancelar</Button>
-              )}
-              <Button className="skip-button" onClick={onSkip} disabled={isMandatory || isSubmitting}>
-                  Omitir
-              </Button>
-              <Button className="next-button" onClick={() => onNext(null)} disabled={!image || isSubmitting}>
-                  {isSubmitting ? "Cargando..." : "Continuar"}
-              </Button>
-            </>
-          )}
-        </div>
       </div>
 
       {/* Input oculto */}
@@ -284,4 +279,6 @@ export default function UploadProfileImage({ onNext, onBack, onSkip, isMandatory
       />
     </>
   );
-}
+});
+
+export default UploadProfileImage;

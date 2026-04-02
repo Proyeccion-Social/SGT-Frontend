@@ -1,6 +1,9 @@
 import "../styles/ChooseSubjects.css";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+
+export interface StepHandle {
+    triggerContinue: () => void;
+}
 
 const SUBJECTS = [
     { id: 1, name: "Diferencial", color: "#E8D5FF", borderColor: "#D1C4F5" },
@@ -28,9 +31,17 @@ const POSITION_OFFSETS = [
     { top: "25%", left: "22%" }, { top: "55%", left: "38%" }, { top: "28%", left: "68%" }, { top: "60%", left: "80%" }
 ];
 
-export default function ChooseSubjects({ onNext, onSkip, isMandatory, isSubmitting }: { onNext: (data: { subject_ids: string[], phone: string }) => void; onSkip: () => void; isMandatory?: boolean; isSubmitting?: boolean }) {
+const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: string[], phone: string }) => void; onCanContinueChange?: (canContinue: boolean) => void }>(({ onNext, onCanContinueChange }, ref) => {
     const [selected, setSelected] = useState<number[]>([]);
     const [phone, setPhone] = useState("");
+
+    useImperativeHandle(ref, () => ({
+        triggerContinue: () => onNext({ subject_ids: selected.map(s => String(s)), phone }),
+    }), [selected, phone, onNext]);
+
+    useEffect(() => {
+        onCanContinueChange?.(selected.length > 0);
+    }, [selected, onCanContinueChange]);
 
     const toggleSubject = (id: number) => {
         setSelected((prev) => {
@@ -78,15 +89,9 @@ export default function ChooseSubjects({ onNext, onSkip, isMandatory, isSubmitti
                         );
                     })}
                 </div>
-                <div className="button-row">
-                    <Button className="skip-button" onClick={onSkip} disabled={isMandatory || isSubmitting}>
-                        Omitir
-                    </Button>
-                    <Button className="next-button" onClick={() => onNext({ subject_ids: selected.map(s => String(s)), phone })} disabled={!canContinue || isSubmitting}>
-                        {isSubmitting ? "Cargando..." : "Continuar"}
-                    </Button>
-                </div>
             </div>
         </>
     );
-}
+});
+
+export default ChooseSubjects;

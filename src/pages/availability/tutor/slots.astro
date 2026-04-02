@@ -1,6 +1,8 @@
 ---
 export const prerender = false;
-import CalendarSlots from "../../../layouts/availability/CalendarSlots.astro";
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import CalendarSlots from "@/layouts/availability/CalendarSlots.astro";
+
 const token = Astro.cookies.get("access_token")?.value;
 
 if (!token) {
@@ -8,4 +10,6 @@ if (!token) {
 }
 ---
 
-<CalendarSlots token={token} />
+<DashboardLayout title='Tu Disponibilidad' rol='tutor'>
+  <CalendarSlots token={token} />
+</DashboardLayout>

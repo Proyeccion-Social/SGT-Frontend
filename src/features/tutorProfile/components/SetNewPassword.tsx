@@ -1,7 +1,7 @@
 import "../styles/ChooseSubjects.css";
 import "../styles/SetNewPassword.css";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import type { StepHandle } from "./ChooseSubjects";
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 128;
@@ -42,7 +42,7 @@ function EyeIcon({ open }: { open: boolean }) {
     );
 }
 
-export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitting }: { onNext: (password: string, phone: string) => void; onSkip: () => void; isMandatory?: boolean; isSubmitting?: boolean }) {
+const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone: string) => void; onCanContinueChange?: (canContinue: boolean) => void }>(({ onNext, onCanContinueChange }, ref) => {
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
     const [phone, setPhone] = useState("");
@@ -57,9 +57,17 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
     const lengthOk = password.length >= MIN_LENGTH && password.length <= MAX_LENGTH;
     const mismatch = confirm.length > 0 && password !== confirm;
     const matchOk  = confirm.length > 0 && password === confirm && lengthOk;
-    const phoneOk  = phone.trim().length >= 10; // Simple validation for phone
+    const phoneOk  = phone.trim().length >= 10;
 
     const canContinue = lengthOk && matchOk && phoneOk;
+
+    useImperativeHandle(ref, () => ({
+        triggerContinue: () => onNext(password, phone),
+    }), [password, phone, onNext]);
+
+    useEffect(() => {
+        onCanContinueChange?.(canContinue);
+    }, [canContinue, onCanContinueChange]);
 
     const passwordInputClass = [
         "password-input",
@@ -204,20 +212,9 @@ export default function SetNewPassword({ onNext, onSkip, isMandatory, isSubmitti
                         )}
                     </div>
                 </div>
-                
-                <div className="button-row">
-                    <Button className="skip-button" onClick={onSkip} disabled={isMandatory}>
-                        Omitir
-                    </Button>
-                    <Button
-                        className="next-button"
-                        onClick={() => onNext(password, phone)}
-                        disabled={!canContinue || isSubmitting}
-                    >
-                        {isSubmitting ? "Guardando..." : "Continuar"}
-                    </Button>
-                </div>
             </div>
         </>
     );
-}
+});
+
+export default SetNewPassword;

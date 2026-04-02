@@ -27,7 +27,6 @@
     justify-content: space-between;
     padding: 0.75rem 1.25rem;
     border: none;
-    border-radius: 14px;
     background-color: #F5F0FF;
     cursor: pointer;
     transition: background-color 0.15s ease, border-radius 0.2s ease;
@@ -41,7 +40,7 @@
 }
 
 .day-header:hover {
-    background-color: #EDE5FF;
+    background-color: #e7dcff;
 }
 
 .day-header-left {

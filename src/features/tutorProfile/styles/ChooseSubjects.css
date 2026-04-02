@@ -1,8 +1,4 @@
 .drawer-body {
-    border: 1px solid #E7DCFF;
-    margin-top: 3.6rem;
-    margin-left: 16rem;
-    margin-right: 16rem;
     margin-bottom: 5.75rem;
     border-radius: 16px;
     height: auto;
@@ -11,8 +7,6 @@
 .body-header {
     display: flex;
     flex-direction: column;
-    margin-top: 3.375rem;
-    margin-left: 3.375rem;
     gap: 0.5rem;
 }
 
@@ -33,7 +27,7 @@
 }
 
 .body-content {
-    margin: 2rem 3.375rem;
+    margin: 0rem 4rem 0rem 4.2rem;
     position: relative;
     height: 300px;
 }

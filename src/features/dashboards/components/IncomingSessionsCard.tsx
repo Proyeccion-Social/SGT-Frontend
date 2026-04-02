@@ -59,7 +59,7 @@ const SkeletonCard = () => (
 export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
   return (
     <div className="session-container">
-      <h2 className="main-title">Upcoming Sessions</h2>
+      <h2 className="main-title">Tus proximas sesiones</h2>
 
       <div className="cards-stack">
         {isLoading && (

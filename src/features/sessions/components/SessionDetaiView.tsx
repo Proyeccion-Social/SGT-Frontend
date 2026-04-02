@@ -1,5 +1,6 @@
 // SessionDetailView.tsx — styled to match design
 
+import './styles/SessionDetailView.css'
 import type { Session } from '../types/session.types';
 
 interface TutorInfo {
@@ -89,7 +90,8 @@ export const SessionDetailView = ({
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
 
   return (
-    <div className="sdv">
+    <div className='sdv-overlay'>
+      <div className="sdv">
 
       {/* ── Top: photo + title + description ── */}
       <div className="sdv__top">
@@ -179,6 +181,8 @@ export const SessionDetailView = ({
       </div>
 
     </div>
+    </div>
+    
   );
 };
 

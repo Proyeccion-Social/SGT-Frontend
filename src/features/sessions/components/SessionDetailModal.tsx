@@ -2,7 +2,7 @@
 // Modal shell — backdrop blur, ModalView state, Escape/backdrop close
 
 import { useState, useEffect, useCallback } from 'react';
-import './syles/SessionDetailModal.css';
+import './styles/SessionDetailModal.css';
 import type { Session } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';

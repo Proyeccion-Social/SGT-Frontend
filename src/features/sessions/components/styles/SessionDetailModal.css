@@ -18,16 +18,17 @@
 /* ─── Card shell ─────────────────────────────────────────────────────────────── */
 
 .modal-card {
-  background: #ffffff;
+  background: #ffffff00;
   border-radius: 20px;
   padding: 2rem;
   width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
+  max-width: 900px;
+  max-height: 450px;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   scrollbar-width: none;
+  align-content: center;
 }
 
 .modal-card::-webkit-scrollbar { display: none; }

@@ -1,17 +1,13 @@
 ---
 import FilterCard from "./FilterCard.astro";
-import SessionCard from "./SessionCard.astro";
-import arrow1 from "../assets/arrow1.png";
 import { SessionsPagination } from "./SessionsPagination.tsx";
+import SessionDialogManager from "./SessionDialogManager.tsx";
 
-const { data, currentStatus, questionnaire, userId } = Astro.props;
+const { data, currentStatus, userId } = Astro.props;
 
 const sessions = data.data;
 const statistics = data.statistics;
 const pagination = data.meta;
-
-console.log(sessions);
-console.log(pagination);
 ---
 
 <div class="block-container">
@@ -41,19 +37,17 @@ console.log(pagination);
               </td>
               <td>{session.description}</td>
               <td>
-                {
-                  (() => {
-                    if (session.status === "CANCELLED") return "Cancelada";
-                    if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
-                    if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
-                    if (session.participants.find((participant) => participant.id === userId)?.status === "ABSENT") return "Completada - No asistió";
-                    if (session.status === "COMPLETED") return "Completada";
-                    if (session.status === "SCHEDULED") return "Programada";
-                    if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente de confirmación por el tutor";
-                    if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente de confirmación por el estudiante";
-                    return session.status;
-                  })()
-                }
+                {(() => {
+                  if (session.status === "CANCELLED") return "Cancelada";
+                  if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
+                  if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
+                  if (session.participants.find((participant) => participant.id === userId)?.status === "ABSENT") return "Completada - No asistió";
+                  if (session.status === "COMPLETED") return "Completada";
+                  if (session.status === "SCHEDULED") return "Programada";
+                  if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente de confirmación por el tutor";
+                  if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente de confirmación por el estudiante";
+                  return session.status;
+                })()}
               </td>
             </tr>
           ))
@@ -69,9 +63,35 @@ console.log(pagination);
         client:load
       />
     </div>
-    {sessions.map((session) => <SessionCard session={session} questionnaire={questionnaire} userId={userId} />)}
+
+    {/* React island: se monta una sola vez, recibe todos los datos */}
+    <SessionDialogManager
+      client:load
+      sessions={sessions}
+      userId={userId}
+    />
   </div>
 </div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const tableBody = document.querySelector("tbody");
+
+    tableBody?.addEventListener("click", (e) => {
+      const row = (e.target as HTMLElement).closest(".history-section") as HTMLElement;
+      if (!row) return;
+
+      const sessionId = row.dataset.sessionId;
+      if (sessionId) {
+        document.dispatchEvent(
+          new CustomEvent("open-session-dialog", {
+            detail: { sessionId },
+          })
+        );
+      }
+    });
+  });
+</script>
 
 <style>
   .sections-container {
@@ -103,19 +123,11 @@ console.log(pagination);
       0 2px 4px -1px #8851ff58;
   }
 
-  th:nth-child(1) {
-    width: 12%;
-  }
-  th:nth-child(2) {
-    width: 26%;
-  }
-  th:nth-child(3) {
-    width: 37%;
-  }
-  th:nth-child(4) {
-    width: 20%;
-  }
- 
+  th:nth-child(1) { width: 12%; }
+  th:nth-child(2) { width: 26%; }
+  th:nth-child(3) { width: 37%; }
+  th:nth-child(4) { width: 20%; }
+
   th,
   td {
     background-color: #ffffff;
@@ -138,7 +150,6 @@ console.log(pagination);
     letter-spacing: 0.05em;
   }
 
-  /* Remove bottom border from the last row */
   tr:last-child td {
     border-bottom: none;
   }
@@ -160,26 +171,195 @@ console.log(pagination);
     display: none;
   }
 </style>
-<script>
-  // ✔️ Usamos event delegation para mejor rendimiento
-  document.addEventListener("astro:page-load", () => {
-    const tableBody = document.querySelector("tbody");
-    
-    tableBody?.addEventListener("click", (e) => {
-      const row = (e.target as HTMLElement).closest(".history-section") as HTMLElement;
-      if (!row) return;
 
-      const id = row.dataset.sessionId;
-      if (id) {
-        const dialog = document.getElementById(
-          `session-dialog-${id}`,
-        ) as HTMLDialogElement;
-        if (dialog) {
-          dialog.showModal();
-        } else {
-          console.error("No dialog found for session ID:", id);
-        }
-      }
-    });
-  });
-</script>
+{/* ====== Estilos globales para los componentes React ====== */}
+<style is:global>
+  /* --- Backdrop y modal del SessionDialogManager --- */
+  .sdm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    background: rgba(207, 185, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sdm-content {
+    z-index: 99999;
+    position: relative;
+  }
+
+  /* --- SessionCardView --- */
+  @keyframes scaleUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(15px) scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .sc-card {
+    position: relative;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: space-evenly;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 1rem 2rem;
+    border: 1px solid #e2e8f0;
+    color: #334155;
+    animation: scaleUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .sc-close-btn {
+    position: absolute;
+    z-index: 10;
+    top: -15px;
+    right: -15px;
+    background: white;
+    color: #ff4d4f;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .sc-close-btn:hover {
+    background: #f1f5f9;
+    transform: scale(1.1);
+  }
+
+  .sc-info {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: start;
+  }
+
+  .sc-col-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+    width: 160px;
+    padding: 0.5rem 1rem;
+  }
+
+  .sc-status-wrapper { width: 160px; }
+  .sc-status {
+    background-color: #f8fafc7d;
+    border-style: solid;
+    border-width: 1px;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: bold;
+    width: 160px;
+  }
+
+  .sc-date-time {
+    background-color: rgba(218, 255, 170, 0.886);
+    border: 1px solid rgba(218, 255, 170, 0.886);
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    border-radius: 16px;
+    font-weight: 500;
+    color: #334155;
+    width: 160px;
+  }
+  .sc-date-time hr {
+    border: 1px solid rgb(114, 114, 114);
+  }
+
+  .sc-duration, .sc-rating {
+    border: 1px solid #cbd5e1;
+    padding: 0.5rem 1rem;
+    border-radius: 16px;
+    font-weight: 500;
+    color: #334155;
+    width: 160px;
+  }
+
+  .sc-btn-eval {
+    background-color: rgba(205, 255, 142, 1);
+    border: none;
+    padding: 0.7rem 0.5rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 160px;
+    color: #334155;
+    transition: background-color 0.2s;
+  }
+  .sc-btn-eval:hover {
+    background-color: rgba(159, 116, 255, 1);
+    color: white;
+  }
+
+  .sc-col-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+    width: 320px;
+  }
+
+  .sc-title {
+    font-weight: bold;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .sc-col-tutor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.5rem 0;
+    gap: 0.7rem;
+  }
+
+  .sc-avatar {
+    width: 160px;
+    height: 160px;
+    border-radius: 16px;
+  }
+
+  /* Status colors */
+  .status-completed {
+    color: rgba(23, 42, 255, 0.85);
+    border-color: rgba(23, 42, 255, 0.85);
+  }
+  .status-cancelled {
+    color: rgba(255, 202, 45, 1);
+    border-color: rgba(255, 202, 45, 1);
+  }
+  .status-no_show {
+    color: rgba(255, 80, 80, 1);
+    border-color: rgba(255, 80, 80, 1);
+  }
+  .status-scheduled {
+    color: rgba(135, 81, 255, 1);
+    border-color: rgba(135, 81, 255, 1);
+  }
+
+
+</style>

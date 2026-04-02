@@ -10,33 +10,44 @@ interface UseSessionDetailReturn {
   isLoading: boolean;
   error: string | null;
 }
-
+ 
 export function useSessionDetail(sessionId: string | null): UseSessionDetailReturn {
-  const token = useAuthStore((s) => s.token);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession]   = useState<Session | null>(null);
   const [tutorInfo, setTutorInfo] = useState<TutorInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
+  const [error, setError]         = useState<string | null>(null);
+ 
   useEffect(() => {
-    if (!sessionId || !token) return;
-
+    if (!sessionId) return;
+ 
     let cancelled = false;
     setIsLoading(true);
     setError(null);
-
-    getSessionDetail(sessionId, token)
+ 
+    fetch(`/api/sessions/detail?sessionId=${sessionId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+        return res.json() as Promise<Session>;
+      })
       .then(async (sessionData) => {
         if (cancelled) return;
         setSession(sessionData);
-
-        // Q1 answer: tutorId comes from session.tutor.id
-        const tutorId = sessionData.tutor.id;
+ 
+        // Fetch tutor info — non-blocking
+        const tutorId = sessionData.tutor?.id;
+        if (!tutorId) return;
+ 
         try {
-          const tutorData = await getTutorInfo(tutorId, token);
-          if (!cancelled) setTutorInfo(tutorData);
+          const tutorRes = await fetch(`/api/sessions/tutor-info?tutorId=${tutorId}`);
+          if (tutorRes.ok) {
+            const tutorData: TutorInfo = await tutorRes.json();
+            if (!cancelled) setTutorInfo(tutorData);
+          }
         } catch {
-          // tutor info is non-blocking; session detail still shown
+          // tutor info es no-bloqueante
           if (!cancelled) setTutorInfo(null);
         }
       })
@@ -47,11 +58,11 @@ export function useSessionDetail(sessionId: string | null): UseSessionDetailRetu
       .finally(() => {
         if (!cancelled) setIsLoading(false);
       });
-
+ 
     return () => {
       cancelled = true;
     };
-  }, [sessionId, token]);
-
+  }, [sessionId]);
+ 
   return { session, tutorInfo, isLoading, error };
 }

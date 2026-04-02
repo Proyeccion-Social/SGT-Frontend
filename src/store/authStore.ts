@@ -21,6 +21,7 @@ interface AuthStore {
     setHasHydrated: (val: boolean) => void;
     setUser: (user: User) => void;
     clearUser: () => void;
+    setToken: (token: string) => void;
 }
 
 
@@ -35,6 +36,7 @@ export const useAuthStore = create<AuthStore>()(
             setHasHydrated: (val) => set({ _hasHydrated: val }),
             setUser: (user) => set({ user }),
             clearUser: () => set({ user: null }),
+            setToken: (token) => set({ token }),
         }),
         {
             name: 'auth-storage',

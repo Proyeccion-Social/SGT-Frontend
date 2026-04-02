@@ -8,21 +8,22 @@ import type { Session } from '../../sessions/types/session.types';
 import { useSessions } from '../hooks/useSession';
 import { SessionDetailModal } from './SessionDetailModal';
 import { CancelSessionModal } from './CancelSessionModal';
+import { IncomingSessionsCard } from '@features/dashboards/components/IncomingSessionsCard';
 
 interface Props {
   role: 'tutor' | 'student';
 }
  
 export const DashboardSessionManager = ({ role }: Props) => {
-  const { refetch } = useSessions(role);
+  const { sessions, isLoading, error, refetch } = useSessions(role);
  
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal]     = useState(false);
   const [sessionToCancel, setSessionToCancel]     = useState<Session | null>(null);
  
-  // Option B: escuchar el CustomEvent que despacha IncomingSessionsCard.astro
   useEffect(() => {
     const handler = (e: Event) => {
+        console.log('[DashboardSessionManager] open-detail recibido:', e);
       const sessionId = (e as CustomEvent<{ sessionId: string }>).detail.sessionId;
       if (sessionId) setSelectedSessionId(sessionId);
     };
@@ -46,12 +47,17 @@ export const DashboardSessionManager = ({ role }: Props) => {
     setSessionToCancel(null);
     refetch();
   };
+
+  console.log('[DashboardSessionManager] selectedSessionId:', selectedSessionId);
  
-  // Este componente no renderiza nada visible por sí mismo —
-  // IncomingSessionsCard.astro ya está en el HTML del dashboard.
-  // Solo monta los modales cuando corresponde.
   return (
     <>
+      <IncomingSessionsCard
+        sessions={sessions}
+        isLoading={isLoading}
+        error={error}
+      />
+ 
       {selectedSessionId && (
         <SessionDetailModal
           sessionId={selectedSessionId}
@@ -73,4 +79,3 @@ export const DashboardSessionManager = ({ role }: Props) => {
 };
  
 export default DashboardSessionManager;
- 

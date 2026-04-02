@@ -1,6 +1,6 @@
 // SessionDetailModal.tsx
 // T007: Modal shell — backdrop blur, ModalView state, Escape/backdrop close
-
+import './styles/SessionsDetailModal.css'
 import { useState, useEffect, useCallback } from 'react';
 import type { Session } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
@@ -9,18 +9,18 @@ import { ProposeModificationView } from './ProposeModificationView';
 import { EditSessionView } from './EditSessionView';
 
 export type ModalView = 'detail' | 'propose' | 'edit';
-
+ 
 interface Props {
   sessionId: string;
   role: 'tutor' | 'student';
   onClose: () => void;
   onRequestCancel: (session: Session) => void;
 }
-
+ 
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
-
+ 
   // T007: Close on Escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -28,7 +28,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
     },
     [onClose]
   );
-
+ 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     // Prevent body scroll while modal is open
@@ -38,12 +38,12 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
       document.body.style.overflow = '';
     };
   }, [handleKeyDown]);
-
+ 
   // T007: Close on backdrop click
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
-
+ 
   return (
     <div
       className="modal-overlay"
@@ -61,7 +61,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
         >
           ✕
         </button>
-
+ 
         {/* Loading state */}
         {isLoading && (
           <div className="modal-card__loading" aria-live="polite">
@@ -69,7 +69,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
             <p>Loading session details…</p>
           </div>
         )}
-
+ 
         {/* Error state */}
         {!isLoading && error && (
           <div className="modal-card__error" role="alert">
@@ -79,7 +79,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
             </button>
           </div>
         )}
-
+ 
         {/* Content views */}
         {!isLoading && !error && session && (
           <>
@@ -93,7 +93,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
                 onCancel={() => onRequestCancel(session)}
               />
             )}
-
+ 
             {view === 'propose' && (
               <ProposeModificationView
                 session={session}
@@ -101,7 +101,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
                 onSuccess={onClose}
               />
             )}
-
+ 
             {view === 'edit' && role === 'tutor' && (
               <EditSessionView
                 session={session}
@@ -115,5 +115,5 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
     </div>
   );
 };
-
+ 
 export default SessionDetailModal;

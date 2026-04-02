@@ -99,11 +99,16 @@ export async function getAvailability(query: AvailabilityQuery): Promise<Availab
 }
 
 /** GET /sessions/my-sessions/{role} */
-export function getSessions(
+export async function getSessions(
   role: 'tutor' | 'student',
   token: string
 ): Promise<Session[]> {
-  return request<Session[]>(`/sessions/my-sessions/${role}`, token);
+  console.log('[getSessions] URL:', `${API_URL}/scheduling/sessions/my-sessions/${role}`);
+  const res = await request<{ data: Session[] }>(
+    `/scheduling/sessions/my-sessions/${role}`,
+    token
+  );
+  return res.data;
 }
  
 /** GET /scheduling/sessions/{sessionId} */

@@ -113,15 +113,17 @@
             throw new Error(data.message || "Login failed");
           }
 
+          console.log('[Login] data completa:', data);
           // Guardar usuario en sessionStorage para hidratar el store
           sessionStorage.setItem(
-            "auth_user",
-            JSON.stringify({
-              user: data.user,
-              requiresPasswordChange: data.requiresPasswordChange,
-              requiresProfileCompletion: data.requiresProfileCompletion,
-            }),
-          );
+  "auth_user",
+  JSON.stringify({
+    user: data.user,
+    token: data.token,                              // ← ADD
+    requiresPasswordChange: data.requiresPasswordChange,
+    requiresProfileCompletion: data.requiresProfileCompletion,
+  }),
+);
 
           // Redirigir según estado del usuario
           if (data.requiresProfileCompletion) {

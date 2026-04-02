@@ -17,7 +17,21 @@ console.log(session);
       <div class="bar-session-1">
         <div class="status">
           {/* 🔹 Estado */}
-          <p class={`status `}>
+          <p
+            class={`status ${
+              session.participants.find((participant) => participant.id === userId)?.status === "ABSENT"
+                ? "status-no_show"
+                : session.status === "CANCELLED" ||
+                    session.status === "CANCELLED_BY_STUDENT" ||
+                    session.status === "CANCELLED_BY_TUTOR"
+                  ? "status-cancelled"
+                  : session.status === "COMPLETED"
+                    ? "status-completed"
+                    : session.status === "SCHEDULED"
+                      ? "status-scheduled"
+                      : ""
+            }`}
+          >
             {
               session.status === "CANCELLED"
                 ? "Cancelada"
@@ -303,9 +317,10 @@ console.log(session);
     color: #334155;
     transition: background-color 0.2s;
     width: 160px;
-    hr {
-      border: 1px solid rgb(114, 114, 114);
-    }
+  }
+
+  .date-time hr {
+    border: 1px solid rgb(114, 114, 114);
   }
   .duration-session {
     border: 1px solid #cbd5e1;

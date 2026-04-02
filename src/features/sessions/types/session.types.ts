@@ -1,7 +1,5 @@
 export type Modality = 'VIRT' | 'PRES' | "";
 
-export type SessionType = 'INDIVIDUAL' | 'COLLABORATIVE';
-
 export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
   | 'CONFIRMED'
@@ -37,8 +35,7 @@ export interface Session {
   scheduledDate: string;             // "YYYY-MM-DD"
   startTime: string;                 // "HH:mm:ss"
   endTime: string;                   // "HH:mm:ss"
-  duration: number;                  // en horas
-  type: SessionType;
+  duration: number;
   modality: Modality;
   status: SessionStatus;
   title: string;
@@ -240,7 +237,6 @@ export interface CreateSessionDTO {
   title: string;
   description: string;
   modality: Modality;
-  type?: SessionType;
   subjectId?: string;
   durationHours: number;
 }
@@ -278,10 +274,10 @@ export interface CancelSessionResponse {
 }
 
 export interface ModifySessionBody {
-  newScheduledDate: string;
-  newAvailabilityID: string;
-  newModality: string;
-  newDurationHours: string;
+  newScheduledDate?: string;    // ISO date string
+  newAvailabilityID?: string;   // ID del slot de disponibilidad del tutor
+  newModality?: string;
+  newDurationHours?: number;
 }
 
 export interface EditSessionBody {

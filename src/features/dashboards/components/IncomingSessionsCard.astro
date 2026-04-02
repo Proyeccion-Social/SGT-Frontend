@@ -1,5 +1,5 @@
 ---
-export interface Session {
+interface Session {
   id: string;
   title: string;
   description: string;
@@ -8,12 +8,12 @@ export interface Session {
   time: string;
   timeLeft: string;
 }
-
+ 
 interface Props {
-  sessions: Session[]; // Recibe un array de sesiones mockeadas
-  role: "tutor" | "student";
+  sessions: Session[];
+  role: 'tutor' | 'student';
 }
-
+ 
 const { sessions, role } = Astro.props;
 ---
 

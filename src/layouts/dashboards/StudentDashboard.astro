@@ -4,39 +4,17 @@ import { jwtDecode } from "jwt-decode";
 import MainLayout from "../Layout.astro";
 import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import RoleBadge from "../../features/dashboards/components/RoleBadge.astro";
-import IncomingSessionsCard from "../../features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "../../features/dashboards/components/StatCard.astro";
 import UserHeader from "../../features/general/components/UserHeader.astro";
 import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+import DashboardSessionManager from '../../features/sessions/components/DashboardSessionsManager';
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
 
 const payload = JSON.parse(atob(token.split(".")[1]));
 const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
-
-const mockSessions = [
-  {
-    id: "1",
-    title: "Introducción a derivadas y definición por límite",
-    description:
-      "En esta tutoría quiero que me expliquen la regla de la cadena",
-    subject: "Cálculo Diferencial",
-    status: "Cerrada",
-    time: "Hoy 3:00 PM",
-    timeLeft: "En 2h",
-  },
-  {
-    id: "2",
-    title: "Límites infinitos",
-    description: "Revisión de asíntotas verticales y horizontales",
-    subject: "Cálculo Diferencial",
-    status: "Pendiente",
-    time: "Mañana 10:00 AM",
-    timeLeft: "En 1d",
-  },
-];
 
 const studentStats = { value: 3, text: "Tutorías esta semana" };
 ---
@@ -56,10 +34,7 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
         <div class='cards-container'>
           <div class='left-side'>
             <div class='incoming-sessions-container'>
-              <IncomingSessionsCard
-                sessions={mockSessions}
-                role={userRole as "tutor" | "student"}
-              />
+              <DashboardSessionManager role="student" client:only="react" />
             </div>
 
             <div class='green-photo-space'>

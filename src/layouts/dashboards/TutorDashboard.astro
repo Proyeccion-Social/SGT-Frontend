@@ -8,10 +8,15 @@ import StatCard from "../../features/dashboards/components/StatCard.astro";
 import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
 
+import MainLayout from "../Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
+import StatCard from "@/features/dashboards/components/StatCard.astro";
+import AttendencePostSession from "@/features/sessions/components/AttendencePostSession";
+
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
-
-const payload = JSON.parse(atob(token.split(".")[1]));
 
 let userName = "";
 const { userRole = "tutor" } = Astro.props;
@@ -29,6 +34,7 @@ const mockWorkload = {
   scheduledHours: 2,
   weeklyLimit: 8,
 };
+
 const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
 const usedPercent = Math.min(
   (mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100,
@@ -41,6 +47,7 @@ const usedPercent = Math.min(
     <Sidebar userRole={userRole} />
 
     <main class='content-wrapper'>
+      <AttendencePostSession client:only='react' />
       <div class='dashboard-content'>
         <UserHeader userRole={userRole} />
 

@@ -1,14 +1,16 @@
 ---
+import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
+import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
+import { Image } from "astro:assets";
+import { getTutorSlots } from "@/features/availability/services/availabilityService";
+import type { Slot } from "@/features/availability/services/availabilityService";
+
 import MainLayout from "../Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
 import RightCalendarMenu from "@/features/availability/components/RightCalendarMenu.astro";
-import type { Slot } from "@/features/availability/services/availabilityService";
-import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
-import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
-import { Image } from "astro:assets";
-import { getTutorSlots } from "@/features/availability/services/availabilityService";
+
 import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
 import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
 import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";

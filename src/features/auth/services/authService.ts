@@ -71,8 +71,6 @@ export const fetchMe = async (accessToken: string) => {
   return response.json();
 };
 
-
-
 export const register = async (data: RegisterDto) => {
   const response = await fetch(`${API_URL}/auth/register`, {
     method: "POST",

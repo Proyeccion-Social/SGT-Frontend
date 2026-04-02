@@ -1,0 +1,6 @@
+<svg width="42" height="30" viewBox="0 0 42 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Flecha Morada -->
+  <path d="M11.25 7.5L18.75 15L11.25 22.5" stroke="#B797FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Flecha Verde -->
+  <path d="M23.25 7.5L30.75 15L23.25 22.5" stroke="#C1FF72" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

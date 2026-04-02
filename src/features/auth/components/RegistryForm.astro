@@ -1,0 +1,145 @@
+<form id='registryForm' action='' class='registryForm'>
+  <div class='field'>
+    <label for='email'>Email</label>
+    <input
+      id='emailRegister'
+      type='email'
+      placeholder='nombre@udistrital.edu.co'
+      required
+    />
+  </div>
+  <div class='field'>
+    <label for='fullName'>Nombre</label>
+    <input id='fullName' type='text' placeholder='Juana De Arco' required />
+  </div>
+
+  <div class='field'>
+    <label for='password'>Contraseña</label>
+    <input
+      id='passwordRegister'
+      type='password'
+      placeholder='Ingresa tu contraseña'
+      required
+    />
+  </div>
+  <button type='submit'>Continuar</button>
+</form>
+
+<script>
+  import { sileo } from "sileo";
+  const form = document.getElementById("registryForm");
+  const emailInput = document.getElementById("emailRegister");
+  const nameInput = document.getElementById("fullName");
+  const passwordInput = document.getElementById("passwordRegister");
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await sileo
+      .promise(
+        async () => {
+          const res = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: nameInput.value,
+              email: emailInput.value,
+              password: passwordInput.value,
+              confirmPassword: passwordInput.value,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.message || "Error en el registro");
+          }
+        },
+        {
+          loading: { title: "Registrando usuario...", fill: "#8751ff" },
+          success: { title: "Registro exitoso", description: "Revisa la bandeja de tu correo y sigue las instrucciones para activar tu cuenta.", fill: "#58d68d" },
+          error: { title: "Error en el registro", fill: "#f35761" },
+        },
+      )
+      .then(() => {
+        sileo.action({
+          title: "Registro exitoso",
+          description: "Revisa la bandeja de tu correo y sigue las instrucciones para activar tu cuenta.",
+          button: {
+            title: "Ir a Outlook",
+            onClick: () => window.open("https://outlook.office.com/mail/", "_blank"),
+          },
+          fill: "#58d68d",
+          styles: {
+            badge: { fill: "#ffffff" },
+          },
+        });
+      })
+      .catch((err) => {
+      });
+  });
+</script>
+
+<style>
+  .registryForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 370px;
+    padding: 0 16px;
+    padding-bottom: 16px;
+
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .field input {
+    width: 100%;
+    max-width: 370px;
+    height: 48px;
+    padding: 0 16px;
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 14px;
+    border-radius: 12px;
+    border: none;
+    background-color: #e8e8e8;
+    color: #5f5f5f;
+  }
+
+  .field input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(135, 81, 255, 0.25);
+  }
+
+  .registryForm button {
+    width: 100%;
+    max-width: 370px;
+    height: 56px;
+    border-radius: 8px;
+    border: none;
+    background-color: #8751ff;
+    color: #ffffff;
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 20px;
+    font-style: bold;
+    font-weight: 700;
+    line-height: 100%;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .registryForm button:hover {
+    background-color: #6c41cc;
+  }
+</style>

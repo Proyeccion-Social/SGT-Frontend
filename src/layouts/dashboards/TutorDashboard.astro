@@ -7,6 +7,7 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "@/features/dashboards/components/StatCard.astro";
+import AttendencePostSession from "@/features/sessions/components/AttendencePostSession";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
@@ -63,6 +64,7 @@ const usedPercent = Math.min(
     <Sidebar userRole={userRole} />
 
     <main class='content-wrapper'>
+      <AttendencePostSession client:only='react' />
       <div class='dashboard-content'>
         <UserHeader userRole={userRole} />
 

@@ -1,89 +1,39 @@
-import { useState, useCallback, useEffect } from 'react';
-import {
-  createSession,
-  getMySessions,
-  cancelSession,
-} from '../services/sessionService';
-import type { Session, CreateSessionDTO, Modality } from '../types/session.types';
-import { useAuthStore } from '@/store/authStore';
+// useSessions.ts — Fetch authenticated user's session list by role
+import { useState, useEffect, useCallback } from 'react';
+import { useAuthStore } from '../../../store/authStore';
+import { getSessions } from '../services/sessionService';
+import type { Session } from '../types/session.types';
 
-interface UseSessionReturn {
+interface UseSessionsReturn {
   sessions: Session[];
-  loading: boolean;
+  isLoading: boolean;
   error: string | null;
-  fetchMySessions: () => Promise<void>;
-  agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
-  cancelar: (sessionId: string) => Promise<boolean>;
+  refetch: () => void;
 }
 
-export function useSession(): UseSessionReturn {
+export function useSessions(role: 'tutor' | 'student'): UseSessionsReturn {
+  const token = useAuthStore((s) => s.token);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const user = useAuthStore(state => state.user);
-  const _hasHydrated = useAuthStore(state => state._hasHydrated);
+  const fetchSessions = useCallback(async () => {
+    if (!token) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getSessions(role, token);
+      setSessions(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error fetching sessions');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [role, token]);
 
   useEffect(() => {
-    if (_hasHydrated && user?.id) {
-      fetchMySessions();
-    }
-  }, [_hasHydrated, user?.id]);
+    fetchSessions();
+  }, [fetchSessions]);
 
-
-  const fetchMySessions = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getMySessions();
-      setSessions(data);
-    } catch (e: any) {
-      if (e.message === 'UNAUTHORIZED') {
-        useAuthStore.getState().clearUser();
-      } else {
-        setError(e.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-
-  const agendar = useCallback(
-  async (data: CreateSessionDTO): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const nueva = await createSession(data);
-      setSessions(prev => [...prev, nueva]);
-      return true;
-    } catch (e: any) {
-      setError(e.message);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  },
-  []
-);
-
-
-  const cancelar = useCallback(async (sessionId: string): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-    try {
-      await cancelSession(sessionId);
-      setSessions(prev =>
-        prev.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
-      );
-      return true;
-    } catch (e: any) {
-      setError(e.message);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return { sessions, loading, error, fetchMySessions, agendar, cancelar };
+  return { sessions, isLoading, error, refetch: fetchSessions };
 }

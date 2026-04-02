@@ -14,6 +14,7 @@ type User = {
 
 interface AuthStore {
     user: User | null;
+    token: string;
     requiresPasswordChange: boolean;
     requiresProfileCompletion: boolean;
     _hasHydrated: boolean;
@@ -27,6 +28,7 @@ export const useAuthStore = create<AuthStore>()(
     persist(
         (set) => ({
             user: null,
+            token: "",
             requiresPasswordChange: false,
             requiresProfileCompletion: false,
             _hasHydrated: false,

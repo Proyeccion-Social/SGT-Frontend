@@ -1,16 +1,32 @@
-import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery } from '../types/session.types';
+import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery, TutorInfo,
+  CancelSessionResponse,
+  ModifySessionBody,
+  EditSessionBody, } from '../types/session.types';
 
 const API_URL = import.meta.env.PUBLIC_API_URL;
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (res.status === 401) {
-    throw new Error('UNAUTHORIZED'); // ← distinguible en el hook
-  }
+async function request<T>(
+  path: string,
+  token: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    },
+  });
+ 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.message ?? `Error ${res.status}`);
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(
+      errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`
+    );
   }
-  return res.json();
+ 
+  return res.json() as Promise<T>;
 }
 
 
@@ -66,19 +82,6 @@ export async function getSessionsByTutor(tutorId: string): Promise<Session[]> {
   return res.json();
 }
 
-// ─── Cancelar sesión ────────────────────────────────────────
-export async function cancelSession(sessionId: string): Promise<void> {
-  const res = await fetch(`${API_URL}/`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message ?? 'Error al cancelar la sesión');
-  }
-}
-
 // ─── Consultar disponibilidad ───────────────────────────────
 export async function getAvailability(query: AvailabilityQuery): Promise<AvailabilitySlot[]> {
   const params = new URLSearchParams({
@@ -94,3 +97,80 @@ export async function getAvailability(query: AvailabilityQuery): Promise<Availab
   if (!res.ok) throw new Error('Error al consultar disponibilidad');
   return res.json();
 }
+
+/** GET /sessions/my-sessions/{role} */
+export function getSessions(
+  role: 'tutor' | 'student',
+  token: string
+): Promise<Session[]> {
+  return request<Session[]>(`/sessions/my-sessions/${role}`, token);
+}
+ 
+/** GET /scheduling/sessions/{sessionId} */
+export function getSessionDetail(
+  sessionId: string,
+  token: string
+): Promise<Session> {
+  return request<Session>(`/scheduling/sessions/${sessionId}`, token);
+}
+ 
+/** GET /tutors/{tutorId} */
+export function getTutorInfo(
+  tutorId: string,
+  token: string
+): Promise<TutorInfo> {
+  return request<TutorInfo>(`/tutors/${tutorId}`, token);
+}
+ 
+/** DELETE /scheduling/sessions/{sessionId}
+ *  Q3 answer: body includes { reason: string }
+ */
+export function cancelSession(
+  sessionId: string,
+  reason: string,
+  token: string
+): Promise<CancelSessionResponse> {
+  return request<CancelSessionResponse>(
+    `/scheduling/sessions/${sessionId}`,
+    token,
+    {
+      method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    }
+  );
+}
+ 
+/** POST /scheduling/sessions/{sessionId} */
+export function modifySession(
+  sessionId: string,
+  body: ModifySessionBody,
+  token: string
+): Promise<{ success: boolean; message: string }> {
+  return request(`/scheduling/sessions/${sessionId}`, token, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+ 
+/** PATCH /scheduling/sessions/{sessionId}
+ *  Q4 answer: body includes virtualLink and location
+ */
+export function editSession(
+  sessionId: string,
+  body: EditSessionBody,
+  token: string
+): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
+  return request(`/scheduling/sessions/${sessionId}`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+ 
+/** GET /tutor/{tutorId}/slots — Q2 answer */
+export function getTutorSlots(
+  tutorId: string,
+  token: string
+): Promise<unknown> {
+  return request(`/tutor/${tutorId}/slots`, token);
+}
+ 

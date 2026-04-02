@@ -14,7 +14,7 @@ export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
 export interface SessionTutor {
   id: string;        
   name: string;
-  photo: string;     // URL
+  photo?: string;     // URL
 }
 
 export interface SessionSubject {
@@ -26,6 +26,7 @@ export interface SessionParticipant {
   id: string;        
   name: string;
   status: ParticipantStatus;
+  role: string;
 }
 
 // ─── Entidad principal Session ───────────────────────────────
@@ -226,9 +227,11 @@ export interface AvailabilityQuery {
 }
 
 export interface AvailabilitySlot {
-  start: string;
-  end: string;
-  availability: boolean;
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  available: boolean;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────
@@ -262,4 +265,23 @@ export interface ApiError {
   errorCode: ApiErrorCode;
   message: string;
   errors?: Array<{ field: string; message: string }>;
+}
+
+export interface EditSessionBody {
+  title: string;
+  description: string;
+  virtualLink?: string;           // T002 — Q4 confirmed
+  location?: string;              // T002 — Q4 confirmed
+}
+ 
+export interface ModifySessionBody {
+  newScheduledDate?: string;      // ISO date string
+  newAvailabilityID?: string;     // slot id from getTutorSlots
+  newModality?: string;
+  newDurationHours?: number;
+}
+ 
+export interface CancelSessionResponse {
+  success: boolean;
+  message: string;
 }

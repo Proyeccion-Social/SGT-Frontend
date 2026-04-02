@@ -1,0 +1,150 @@
+---
+import Nav from "./Nav.astro";
+import Header from "./Header.astro";
+import Video from "./Video.astro";
+import Cards from "./Cards.astro"
+import InteractComponent from "./InteractComponent.astro";
+import Footer from "./Footer.astro";
+import Community from "./Community.astro";
+
+import Arrow from "../assets/imgs/Arrow1.png";
+import PrincipalBg from "../assets/imgs/PrincipalBg.png";
+
+import { Image } from "astro:assets";
+---
+
+<section id="app">
+  <div
+    class='principalPage'
+    style={`background-image: url(${PrincipalBg.src});`}
+  >
+    <article class="navContent">
+      <Nav />
+      <div class='arrow'>
+        <Image  
+          src={Arrow} 
+          alt='Arrow' 
+        />
+        <p>By: Proyección Social</p>
+      </div>
+    </article>
+    
+    <Header />
+    <Video />
+  </div>
+</section>
+
+<Cards />
+<InteractComponent />
+<Community />
+<Footer/>
+
+<style>
+  .principalPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 97%;
+    margin-top: 40px;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+  }
+
+  .arrow {
+    position: relative; 
+    top: 90px;
+    left: -320px;
+    font-family: "Caveat";
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    gap: 4px;
+  }
+
+  .arrow p {
+    position: relative;
+    left: -60px;
+    font-family: 'Caveat';
+    font-style: normal;
+    font-size: 20px;
+    line-height: 32px;
+    color: #1A1A1A;
+  }
+
+  section {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .navContent {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+  }
+  
+ @media (width >= 1024px){
+
+  section {
+    height: 97vh;
+    max-height: 1000px;
+  }
+
+
+
+  .principalPage {
+    margin-top: 30px;
+
+  }
+  .arrow {
+    top: 95px;
+    left: -350px;
+  }
+
+
+}
+
+ @media (768px < width < 1024px) {
+
+  .arrow{
+    top: 75px;
+    left: -240px;
+  }
+  section {
+    height: 97vh;
+  }
+ }
+
+@media (width <= 768px){
+
+    .arrow {
+    display: none;
+  }
+  .principalPage {
+    width: 100%;
+    margin-top: 0px;
+    padding: 0 10px;
+  }
+  
+  section {
+    height: 97vh;
+  }
+  .principalPage {
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+</style>

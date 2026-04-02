@@ -1,0 +1,73 @@
+<div id="authDialogsContainer" class="authDialogsContainer">
+  <div class="sharedBackdrop" id="sharedBackdrop"></div>
+  <slot />
+</div>
+
+<style>
+  .authDialogsContainer {
+    position: fixed;
+    inset: 0;
+    z-index: 99998;
+    pointer-events: none;
+  }
+
+  .authDialogsContainer.active {
+    pointer-events: auto;
+  }
+
+  .sharedBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(207, 185, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+    z-index: 99998;
+  }
+
+  .sharedBackdrop.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+</style>
+
+<script>
+  const container = document.getElementById("authDialogsContainer");
+  const sharedBackdrop = document.getElementById("sharedBackdrop");
+  const loginDialog = document.getElementById("loginDialog") as HTMLDialogElement;
+  const forgotPasswordDialog = document.getElementById("forgotPasswordDialog") as HTMLDialogElement;
+
+  function updateBackdropVisibility() {
+    const isAnyDialogOpen = loginDialog?.open || forgotPasswordDialog?.open;
+    
+    if (isAnyDialogOpen) {
+      sharedBackdrop?.classList.add("visible");
+      container?.classList.add("active");
+    } else {
+      sharedBackdrop?.classList.remove("visible");
+      container?.classList.remove("active");
+    }
+  }
+
+  const observer = new MutationObserver(updateBackdropVisibility);
+  
+  if (loginDialog) {
+    observer.observe(loginDialog, { attributes: true, attributeFilter: ["open"] });
+  }
+  if (forgotPasswordDialog) {
+    observer.observe(forgotPasswordDialog, { attributes: true, attributeFilter: ["open"] });
+  }
+
+  sharedBackdrop?.addEventListener("click", () => {
+    if (loginDialog?.open) {
+      loginDialog.dispatchEvent(new CustomEvent("close-request"));
+    }
+    if (forgotPasswordDialog?.open) {
+      forgotPasswordDialog.dispatchEvent(new CustomEvent("close-request"));
+    }
+  });
+
+  updateBackdropVisibility();
+</script>

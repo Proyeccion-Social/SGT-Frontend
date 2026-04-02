@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import Search from "@/features/search/components/Search.astro";
+---
+
+<DashboardLayout title='Explorar tutores' rol='student'>
+  <Search />
+</DashboardLayout>

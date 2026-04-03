@@ -56,7 +56,8 @@ export type EvaluationAspect =
   | 'PUNCTUALITY'
   | 'KNOWLEDGE'
   | 'USEFULNESS';
-export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'NO_SHOW';
+
+export type AttendanceStatus = 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
 // ─── Asistencia (RF34) ───────────────────────────────────────
 
@@ -68,6 +69,15 @@ export interface AttendanceRecord {
 
 export interface RegisterAttendanceDTO {
   attendances: AttendanceRecord[];
+}
+
+export interface CompleteSessionBody {
+  tutorId: string;
+}
+
+export interface CompleteSessionResult {
+  success: boolean;
+  message: string;
 }
 
 export interface AttendanceResponse {

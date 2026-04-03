@@ -1,7 +1,17 @@
-import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery, SessionTutor,
+import type {
+  Session,
+  CreateSessionDTO,
+  AvailabilitySlot,
+  AvailabilityQuery,
+  SessionTutor,
   CancelSessionResponse,
   ModifySessionBody,
-  EditSessionBody, } from '../types/session.types';
+  EditSessionBody,
+  RegisterAttendanceDTO,
+  RegisterAttendanceResult,
+  CompleteSessionBody,
+  CompleteSessionResult
+} from '../types/session.types';
 
 /** Base URL for API calls (server BFF uses API_URL; browser falls back to PUBLIC_*) */
 const API_BASE = (
@@ -192,4 +202,27 @@ export function getTutorSlots(
 ): Promise<unknown> {
   return request(`/tutor/${tutorId}/slots`, token);
 }
- 
+
+/** PATCH /session-execution/sessions/{sessionId}/attendance */
+export function registerAttendance(
+  sessionId: string,
+  body: RegisterAttendanceDTO,
+  token: string
+): Promise<RegisterAttendanceResult> {
+  return request(`/session-execution/sessions/${sessionId}/attendance`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
+/** PATCH /session-execution/sessions/{sessionId}/complete */
+export function registerCompletedSession(
+  sessionId: string,
+  body: CompleteSessionBody,
+  token: string
+): Promise<CompleteSessionResult> {
+  return request(`/session-execution/sessions/${sessionId}/complete`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}

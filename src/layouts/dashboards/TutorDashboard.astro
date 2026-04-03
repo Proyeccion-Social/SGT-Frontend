@@ -4,7 +4,6 @@ import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import DashboardSessionManager from '@/features/dashboards/components/DashboarSessionsManager';
 import StatCard from "@/features/dashboards/components/StatCard.astro";
-import AttendencePostSession from "@/features/sessions/components/AttendencePostSession";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
 
@@ -40,7 +39,6 @@ const usedPercent = Math.min(
     <Sidebar userRole={userRole} />
 
     <main class='content-wrapper'>
-      <AttendencePostSession client:only='react' />
       <div class='dashboard-content'>
         <UserHeader userRole={userRole} />
 
@@ -80,6 +78,7 @@ const usedPercent = Math.min(
     background-color: #f3edff;
     padding: 18px 20px 20px 0;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
   .content-wrapper {

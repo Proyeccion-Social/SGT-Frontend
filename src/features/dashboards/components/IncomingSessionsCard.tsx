@@ -2,9 +2,10 @@
 // Renders sessions fetched by DashboardSessionManager via useSessions
 // Option B: Detalles button dispatches CustomEvent 'open-detail' to document
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import '../styles/IncomingSessionsCard.css';
 import type { Session } from '../../sessions/types/session.types';
+import AttendencePostSession from '@features/sessions/components/AttendencePostSession';
 
 interface Props {
   sessions: Session[];
@@ -107,6 +108,18 @@ const SkeletonCard = () => (
 export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }: Props) => {
   const sortedSessions = useMemo(() => sortSessionsForDisplay(sessions), [sessions]);
 
+  const [attendanceSession, setAttendanceSession] = useState<Session | null>(
+    null
+  );
+
+  const handleAttendanceOpen = (session: Session) => {
+    setAttendanceSession(session);
+  };
+
+  const handleAttendanceClose = () => {
+    setAttendanceSession(null);
+  };
+
   return (
     <div className="session-container">
       <h2 className="main-title">Tus proximas sesiones</h2>
@@ -199,6 +212,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
                   type="button"
                   className="btn-asistencia"
                   aria-label={`Asistencia de ${session.title}`}
+                  onClick={() => handleAttendanceOpen(session)}
                 >
                   Asistencia
                 </button>
@@ -222,6 +236,14 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
       <div className="bottom-overlay">
         <span className="view-more">Ver más</span>
       </div>
+
+      {attendanceSession && (
+        <AttendencePostSession
+          key={attendanceSession.id}
+          session={attendanceSession}
+          onClose={handleAttendanceClose}
+        />
+      )}
     </div>
   );
 };

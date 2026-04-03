@@ -4,9 +4,11 @@
     left: 0;
     right: 0;
     bottom: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: #C2C2C225;
     backdrop-filter: blur(6px);
-    z-index: 1100;
+    z-index: 10000;
 }
 
 .attendance-container { 
@@ -21,7 +23,32 @@
     border-radius: 16px;
     background: #FFFFFF;
     border: 1px solid #C6C6C6;
-    z-index: 1101;
+    z-index: 10001;
+}
+
+.attendance-session-meta {
+    padding: 24px 32px 8px;
+}
+
+.attendance-session-title {
+    font-family: 'Open Sauce Two', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #3C3C3C;
+    margin: 0 0 4px;
+}
+
+.attendance-session-subject {
+    font-size: 14px;
+    color: #777;
+    margin: 0;
+}
+
+.attendance-empty {
+    padding: 16px 0 8px;
+    color: #666;
+    font-size: 14px;
+    margin: 0;
 }
 
 .attendance-header {
@@ -113,6 +140,10 @@
 .attendance-checkbox:checked {
     background-color: #9F74FF;
     border: 1px solid #9F74FF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-image: url("src/features/sessions/images/WhiteCheckIcon.svg");
     background-size: 12.5px;
     background-position: center;

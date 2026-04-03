@@ -59,7 +59,7 @@ const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: st
     return (
         <>
             <div className="drawer-body">
-                <div className="body-header">
+                <div className="body-header-subjects">
                     <p className="body-header-title">Escoge las materias que vas a dar como tutor</p>
                     <p className="body-header-subtitle">Máximo: {MAX_SELECTIONS} materias</p>
                 </div>

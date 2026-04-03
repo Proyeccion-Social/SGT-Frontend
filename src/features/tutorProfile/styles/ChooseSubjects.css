@@ -1,13 +1,8 @@
-.drawer-body {
-    margin-bottom: 5.75rem;
-    border-radius: 16px;
-    height: auto;
-}
-
-.body-header {
+.body-header-subjects {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding: 40px;
 }
 
 .body-header-title {
@@ -111,26 +106,6 @@
     align-items: center;
     justify-content: center;
     justify-self: flex-start;
-    margin-bottom: 1rem;
-    margin-left: 1rem;
-}
-
-.next-button {
-    border-radius: 8px;
-    background-color: #9F74FF;
-    font-family: "Cabinet Grotesk Variable";
-    font-weight: 700;
-    font-style: Bold;
-    font-size: 20px;
-    line-height: 36px;
-    letter-spacing: -2%;
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    justify-self: flex-end;
-    margin-bottom: 1rem;
-    margin-right: 1rem;
 }
 
 .drawer-footer {

@@ -205,7 +205,7 @@ const SetAvailabilityHours = forwardRef<StepHandle, { onNext: (data: { availabil
     return (
         <>
             <div className="drawer-body">
-                <div className="body-header">
+                <div className="body-header-availability">
                     <p className="body-header-title">Configura tus horas semanales</p>
                     <p className="body-header-subtitle">
                         Selecciona un día y agrega los espacios de disponibilidad. Máx.{" "}

@@ -9,7 +9,7 @@
 .body-header {
   display: flex;
   flex-direction: column;
-  padding: 40px;
+  padding: 40px 40px 0px 40px;
   gap: 0.5rem;
   text-wrap: balance;
 }
@@ -327,38 +327,6 @@
   line-height: 36px;
   letter-spacing: -2%;
   margin-left: 1rem;
-}
-
-.next-button {
-  border-radius: 8px;
-  background-color: #9f74ff;
-  font-family: "Cabinet Grotesk Variable";
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 36px;
-  letter-spacing: -2%;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0rem 0.75rem;
-  margin-right: 1rem;
-}
-
-.next-button:hover {
-  background-color: #8b5cf6;
-}
-
-.next-button:disabled {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 1rem;
-  margin-left: auto;
-  background-color: #e7dcff;
-  color: #9f74ff;
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 /* ── Spinner ────────────────────────────────────────────────── */

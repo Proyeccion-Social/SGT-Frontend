@@ -1,3 +1,10 @@
+.body-header-availability {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    gap: 0.5rem;
+    text-wrap: balance;
+}
 /* ── Days grid ─────────────────────────────────────────── */
 .availability-grid {
     display: flex;

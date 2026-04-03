@@ -130,7 +130,6 @@
 /* ─── Fixed Footer ─────────────────────────────────────────── */
 .drawer-fixed-footer {
   display: flex;
-  position: fixed;
   background: #ffffff;
   border-top: 1px solid #ede8ff;
   align-items: center;
@@ -159,6 +158,9 @@
   width: 24px;
   height: 24px;
   rotate: 20deg;
+  position: relative;
+  top: 2px;
+  right: 4px;
 }
 
 /* ─── Custom Scrollbar ─────────────────────────────────────── */

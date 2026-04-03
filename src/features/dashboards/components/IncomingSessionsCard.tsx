@@ -2,6 +2,7 @@
 // Renders sessions fetched by DashboardSessionManager via useSessions
 // Option B: Detalles button dispatches CustomEvent 'open-detail' to document
 
+import { useMemo } from 'react';
 import '../styles/IncomingSessionsCard.css';
 import type { Session } from '../../sessions/types/session.types';
 
@@ -9,7 +10,11 @@ interface Props {
   sessions: Session[];
   isLoading: boolean;
   error: string | null;
+  /** Quién ve la tarjeta: condiciona botones tutor (Terminar / Asistencia). */
+  viewerRole: 'tutor' | 'student';
 }
+
+export type SessionTimePhase = 'upcoming' | 'in_progress' | 'ended';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -20,17 +25,37 @@ const formatDate = (date: string) => {
   return `${day}/${month}/${year}`;
 };
 
-const getTimeLeft = (scheduledDate: string, startTime: string): string => {
-  const sessionDate = new Date(`${scheduledDate}T${startTime}`);
-  const now         = new Date();
-  const diffMs      = sessionDate.getTime() - now.getTime();
-  if (diffMs <= 0) return 'En curso';
-  const diffDays  = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+/** Fase temporal respecto a inicio y fin (misma fecha de agenda). */
+export const getSessionTimePhase = (
+  scheduledDate: string,
+  startTime: string,
+  endTime: string
+): SessionTimePhase => {
+  const start = new Date(`${scheduledDate}T${startTime}`);
+  const end = new Date(`${scheduledDate}T${endTime}`);
+  const t = Date.now();
+  if (t < start.getTime()) return 'upcoming';
+  if (t < end.getTime()) return 'in_progress';
+  return 'ended';
+};
+
+const getTimeLeft = (scheduledDate: string, startTime: string, endTime: string): string => {
+  const phase = getSessionTimePhase(scheduledDate, startTime, endTime);
+  if (phase === 'in_progress') return 'En curso';
+  if (phase === 'ended') return 'Finalizada';
+
+  const start = new Date(`${scheduledDate}T${startTime}`);
+  const now = new Date();
+  const diffMs = start.getTime() - now.getTime();
+
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   if (diffDays > 0) return `En ${diffDays}d ${diffHours}h`;
+
   const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
   if (diffHours > 0) return `En ${diffHours}h ${diffMins}min`;
-  return `En ${diffMins}min`;
+  if (diffMins > 0) return `En ${diffMins}min`;
+  return 'En menos de 1 min';
 };
 
 const openDetail = (sessionId: string) => {
@@ -38,6 +63,29 @@ const openDetail = (sessionId: string) => {
     new CustomEvent('open-detail', { detail: { sessionId } })
   );
 };
+
+/** Orden: finalizadas → en curso → próximas (próximas: de la más cercana a la más lejana). */
+export function sortSessionsForDisplay(sessions: Session[]): Session[] {
+  const startMs = (s: Session) =>
+    new Date(`${s.scheduledDate}T${s.startTime}`).getTime();
+  const endMs = (s: Session) =>
+    new Date(`${s.scheduledDate}T${s.endTime}`).getTime();
+  const rank = (s: Session) => {
+    const p = getSessionTimePhase(s.scheduledDate, s.startTime, s.endTime);
+    return p === 'ended' ? 0 : p === 'in_progress' ? 1 : 2;
+  };
+
+  return [...sessions].sort((a, b) => {
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra !== rb) return ra - rb;
+
+    const pa = getSessionTimePhase(a.scheduledDate, a.startTime, a.endTime);
+    if (pa === 'ended') return endMs(b) - endMs(a);
+    if (pa === 'in_progress') return startMs(a) - startMs(b);
+    return startMs(a) - startMs(b);
+  });
+}
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -56,7 +104,9 @@ const SkeletonCard = () => (
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
+export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }: Props) => {
+  const sortedSessions = useMemo(() => sortSessionsForDisplay(sessions), [sessions]);
+
   return (
     <div className="session-container">
       <h2 className="main-title">Tus proximas sesiones</h2>
@@ -74,19 +124,27 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
           <p style={{ color: 'white', fontSize: 14 }}>{error}</p>
         )}
 
-        {!isLoading && !error && sessions.length === 0 && (
+        {!isLoading && !error && sortedSessions.length === 0 && (
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14 }}>
             No tienes sesiones próximas agendadas.
           </p>
         )}
 
-        {!isLoading && !error && sessions.map((session) => (
+        {!isLoading && !error && sortedSessions.map((session) => {
+          const phase = getSessionTimePhase(
+            session.scheduledDate,
+            session.startTime,
+            session.endTime
+          );
+          const isTutor = viewerRole === 'tutor';
+
+          return (
           <div key={session.id} className="session-card">
             <div className="card-content">
               <div className="card-header">
                 <span>{session.title}</span>
                 <span className="badge-time">
-                  {getTimeLeft(session.scheduledDate, session.startTime)}
+                  {getTimeLeft(session.scheduledDate, session.startTime, session.endTime)}
                 </span>
               </div>
 
@@ -104,16 +162,61 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
             </div>
 
             <div className="actions">
-              <button
-                className="btn-details"
-                onClick={() => openDetail(session.id)}
-                aria-label={`Ver detalles de ${session.title}`}
-              >
-                Detalles
-              </button>
+              {phase === 'upcoming' && (
+                <button
+                  type="button"
+                  className="btn-details"
+                  onClick={() => openDetail(session.id)}
+                  aria-label={`Ver detalles de ${session.title}`}
+                >
+                  Detalles
+                </button>
+              )}
+
+              {phase === 'in_progress' && isTutor && (
+                <button
+                  type="button"
+                  className="btn-terminar"
+                  aria-label={`Terminar sesión ${session.title}`}
+                >
+                  Terminar
+                </button>
+              )}
+
+              {phase === 'in_progress' && !isTutor && (
+                <button
+                  type="button"
+                  className="btn-details-disabled"
+                  onClick={() => openDetail(session.id)}
+                  aria-label={`Ver detalles de ${session.title}`}
+                >
+                  Detalles
+                </button>
+              )}
+
+              {phase === 'ended' && isTutor && (
+                <button
+                  type="button"
+                  className="btn-asistencia"
+                  aria-label={`Asistencia de ${session.title}`}
+                >
+                  Asistencia
+                </button>
+              )}
+
+              {phase === 'ended' && !isTutor && (
+                <button
+                  type="button"
+                  className="btn-calificar"
+                  aria-label={`Calificar sesión ${session.title}`}
+                >
+                  Calificar
+                </button>
+              )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="bottom-overlay">

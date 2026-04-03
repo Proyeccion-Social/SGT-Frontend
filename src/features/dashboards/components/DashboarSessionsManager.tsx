@@ -57,6 +57,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
         sessions={sessions}
         isLoading={loading}
         error={error}
+        viewerRole={role}
       />
 
       {selectedSessionId && (

@@ -60,7 +60,7 @@ const usedPercent = Math.min(
 
         <div class='cards-container'>
           <div class='incoming-sessions-container'>
-            <DashboardSessionManager role="tutor" client:only="react" /> 
+            <DashboardSessionManager role={userRole} client:only="react" /> 
           </div>
 
           <div class='stats-container'>

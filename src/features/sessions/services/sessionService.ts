@@ -3,14 +3,19 @@ import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery, Se
   ModifySessionBody,
   EditSessionBody, } from '../types/session.types';
 
-const API_URL = import.meta.env.PUBLIC_API_URL;
+/** Base URL for API calls (server BFF uses API_URL; browser falls back to PUBLIC_*) */
+const API_BASE = (
+  import.meta.env.API_URL ??
+  import.meta.env.PUBLIC_API_URL ??
+  ''
+).replace(/\/$/, '');
 
 async function request<T>(
   path: string,
   token: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_BASE}${path.startsWith('/') ? path : `/${path}`}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -42,8 +47,18 @@ function getAuthHeaders(): HeadersInit {
   };
 }
 
+function normalizeMySessionsPayload(raw: unknown): Session[] {
+  if (Array.isArray(raw)) return raw as Session[];
+  if (raw && typeof raw === 'object' && 'data' in raw) {
+    const data = (raw as { data: unknown }).data;
+    if (Array.isArray(data)) return data as Session[];
+  }
+  return [];
+}
+
 export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/scheduling/sessions/individual`, { 
+  const base = (import.meta.env.VITE_API_URL ?? API_BASE).replace(/\/$/, '');
+  const res = await fetch(`${base}/scheduling/sessions/individual`, { 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
     body: JSON.stringify(data),
@@ -64,7 +79,7 @@ export async function createSession(data: CreateSessionDTO, token? : string): Pr
 
 // ─── Obtener sesiones del usuario autenticado ───────────────
 export async function getMySessions(): Promise<Session[]> {
-  const res = await fetch(`${API_URL}/`, {
+  const res = await fetch(`${API_BASE}/`, {
     headers: getAuthHeaders(),
   });
 
@@ -74,7 +89,7 @@ export async function getMySessions(): Promise<Session[]> {
 
 // ─── Obtener sesiones de un tutor específico ────────────────
 export async function getSessionsByTutor(tutorId: string): Promise<Session[]> {
-  const res = await fetch(`${API_URL}/`, {
+  const res = await fetch(`${API_BASE}/`, {
     headers: getAuthHeaders(),
   });
 
@@ -90,7 +105,7 @@ export async function getAvailability(query: AvailabilityQuery): Promise<Availab
     ...(query.modality ? { modality: query.modality } : {}),
   });
 
-  const res = await fetch(`${API_URL}`, {
+  const res = await fetch(`${API_BASE}`, {
     headers: getAuthHeaders(),
   });
 
@@ -98,17 +113,16 @@ export async function getAvailability(query: AvailabilityQuery): Promise<Availab
   return res.json();
 }
 
-/** GET /sessions/my-sessions/{role} */
+/** GET /scheduling/sessions/my-sessions/{role} */
 export async function getSessions(
   role: 'tutor' | 'student',
   token: string
 ): Promise<Session[]> {
-  console.log('[getSessions] URL:', `${API_URL}/scheduling/sessions/my-sessions/${role}`);
-  const res = await request<{ data: Session[] }>(
+  const raw = await request<unknown>(
     `/scheduling/sessions/my-sessions/${role}`,
     token
   );
-  return res.data;
+  return normalizeMySessionsPayload(raw);
 }
  
 /** GET /scheduling/sessions/{sessionId} */

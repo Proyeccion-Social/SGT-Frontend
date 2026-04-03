@@ -27,7 +27,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 
     const data = await getSessions(role, token);
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({ data }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

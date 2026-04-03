@@ -1,19 +1,12 @@
 ---
-import { Image } from "astro:assets";
-import MainLayout from "../Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
-import UserHeader from "../../features/general/components/UserHeader.astro";
-import DashboardSessionManager from '@features/dashboards/components/DashboarSessionsManager';
-import StatCard from "../../features/dashboards/components/StatCard.astro";
-import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
-import { jwtDecode } from "jwt-decode";
-
 import MainLayout from "../Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
-import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
+import DashboardSessionManager from '@/features/dashboards/components/DashboarSessionsManager';
 import StatCard from "@/features/dashboards/components/StatCard.astro";
 import AttendencePostSession from "@/features/sessions/components/AttendencePostSession";
+import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+import { jwtDecode } from "jwt-decode";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
@@ -57,24 +50,11 @@ const usedPercent = Math.min(
         </div>
 
         <div class='hours-bar'>
-          <div
-            class='hours-segment hours-scheduled'
-            style={`width: ${usedPercent}%; background-color: #DAFFAA;`}
-          >
-            <span class='scheduled-hours-text'
-              >{mockWorkload.scheduledHours} hora{
-                mockWorkload.scheduledHours !== 1 ? "s" : ""
-              } agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span
-            >
+          <div class='hours-segment hours-scheduled' style={`width: ${usedPercent}%; background-color: #DAFFAA;`}>
+            <span class='scheduled-hours-text'>{mockWorkload.scheduledHours} hora{mockWorkload.scheduledHours !== 1 ? "s" : ""} agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span>
           </div>
-          <div
-            class='hours-segment hours-remaining'
-            style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}
-          >
-            <span class='remaining-hours-text'
-              >{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta
-              semana</span
-            >
+          <div class='hours-segment hours-remaining' style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}>
+            <span class='remaining-hours-text'>{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span>
           </div>
         </div>
 

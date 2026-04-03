@@ -10,12 +10,6 @@ import UserHeader from "../../features/general/components/UserHeader.astro";
 import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 
-import MainLayout from "../Layout.astro";
-import Sidebar from "@/features/dashboards/components/Sidebar.astro";
-import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
-import StatCard from "@/features/dashboards/components/StatCard.astro";
-import UserHeader from "@/features/general/components/UserHeader.astro";
-import ImageIcon from "@/features/dashboards/components/icons/ImageIcon.svg";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");

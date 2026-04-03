@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   createSession,
-  getMySessions,
   cancelSession,
 } from '../services/sessionService';
 import type { Session, CreateSessionDTO, Modality } from '../types/session.types';
@@ -21,28 +20,23 @@ export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const user = useAuthStore(state => state.user);
   const _hasHydrated = useAuthStore(state => state._hasHydrated);
-
-  useEffect(() => {
-    if (_hasHydrated && user?.id) {
-      fetchMySessions();
-    }
-  }, [_hasHydrated, user?.id]);
-
 
   const fetchMySessions = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/sessions/my-sessions?role=${role}`);
+      const res = await fetch(`/api/sessions/my-sessions?role=${encodeURIComponent(role)}`, {
+        credentials: 'include',
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body?.message ?? `HTTP ${res.status}`);
       }
       const json = await res.json();
-      // Backend wraps response in { data: [...] }
-      setSessions(json.data ?? json);
+      // BFF / upstream: { data: Session[] } o array directo
+      const list = Array.isArray(json) ? json : (json?.data ?? []);
+      setSessions(Array.isArray(list) ? list : []);
     } catch (err) {
       console.error('[useSessions] error:', err);
       setError(err instanceof Error ? err.message : 'Error fetching sessions');
@@ -51,6 +45,10 @@ export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
     }
   }, [role]);
 
+  useEffect(() => {
+    if (!_hasHydrated) return;
+    void fetchMySessions();
+  }, [_hasHydrated, fetchMySessions]);
 
   const agendar = useCallback(
   async (data: CreateSessionDTO): Promise<boolean> => {

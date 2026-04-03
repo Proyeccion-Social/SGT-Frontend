@@ -71,17 +71,28 @@ export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
 );
 
 
-  const cancelar = useCallback(async (sessionId: string, reason: string, token : string): Promise<boolean> => {
+  const cancelar = useCallback(async (sessionId: string, reason: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
-      await cancelSession(sessionId, reason, token);
+      const res = await fetch(`/api/sessions/cancel-session`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reason }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
+      }
+
       setSessions(prev =>
         prev.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
       );
       return true;
-    } catch (e: any) {
-      setError(e.message);
+    } catch (err) {
+      console.error('[useSessions] error:', err);
+      setError(err instanceof Error ? err.message : 'Error cancelling session');
       return false;
     } finally {
       setLoading(false);

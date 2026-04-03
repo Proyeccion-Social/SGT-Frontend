@@ -56,10 +56,10 @@
 
   /* CAMBIOS CLAVE */
   width: fit-content;       /* El contenedor ahora abraza el ancho del contenido */
-  min-width: 320px;         /* Opcional: para que no se vea demasiado flaco con poco contenido */
+  min-width: 793px;         /* Opcional: para que no se vea demasiado flaco con poco contenido */
   max-width: 900px;         /* Se limita al máximo de tu modal-card para no romperse */
 
-  padding: 24px 24px 72px 24px;   /* bottom padding leaves room for buttons */
+  padding: 24px 24px 24px 24px;   /* bottom padding leaves room for buttons */
   position: relative;
   animation: sdv-slide-up 0.28s cubic-bezier(.22,.68,0,1.2);
   overflow: visible;
@@ -233,7 +233,7 @@
   gap: 8px;
   padding: 15px 8px;
   border-radius: var(--sdv-radius-card);
-  border: 1.5px dashed var(--sdv-border);
+  border: 3px dashed var(--sdv-border);
   background: var(--sdv-white);
   text-align: center;
   transition: border-color .18s, box-shadow .18s;
@@ -297,7 +297,7 @@
 .sdv-btn {
   flex: 1;
   padding: 11px 16px;
-  border-radius: var(--sdv-radius-pill);
+  border-radius: 8px;
   font-family: var(--sdv-font);
   font-size: 13px;
   font-weight: 700;
@@ -313,12 +313,12 @@
 /* Propose – lime */
 .sdv-btn--propose {
   background: var(--sdv-lime);
-  color: var(--sdv-lime-text);
+  color: #749944;
   border: 2px solid var(--sdv-lime-border);
-  box-shadow: 0 4px 16px rgba(101,163,13,.20);
 }
 .sdv-btn--propose:hover {
-  box-shadow: 0 6px 20px rgba(101,163,13,.30);
+  background-color: var(--sdv-lime-border);
+  color: var(--sdv-bg);
   filter: brightness(1.04);
 }
 
@@ -338,10 +338,8 @@
   background: var(--sdv-coral);
   color: var(--sdv-coral-text);
   border: 2px solid var(--sdv-coral-dark);
-  box-shadow: 0 4px 16px rgba(225,29,72,.20);
 }
 .sdv-btn--cancel:hover {
-  box-shadow: 0 6px 20px rgba(225,29,72,.30);
   filter: brightness(1.04);
 }
 

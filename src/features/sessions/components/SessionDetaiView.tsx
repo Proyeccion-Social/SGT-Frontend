@@ -1,6 +1,11 @@
 // SessionDetailView.tsx — styled to match design
 
 import './styles/SessionDetailView.css'
+import compu from './icons/compu.svg'
+import ubicacion from './icons/compu.svg'
+import pin from './icons/Pin.svg'
+import calendar from './icons/calendar-day.svg'
+import time from './icons/timer.svg'
 import type { Session } from '../types/session.types';
 
 interface TutorInfo {
@@ -43,19 +48,24 @@ const formatDate = (date: string, startTime: string): string => {
 
 const modalityIcon = (modality: string) => {
   const m = String(modality).toLowerCase();
-  if (m.includes('virtual') || m.includes('pres') === false) {
-    return (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <rect x="2" y="4" width="20" height="14" rx="2"/>
-        <path d="M8 20h8M12 18v2"/>
-      </svg>
-    );
-  }
+  
+  // Aquí seleccionamos el objeto completo del import
+  const iconAsset = (m.includes('virt') || !m.includes('pres')) 
+    ? compu 
+    : ubicacion;
+
+  // Extraemos la URL. Si 'iconAsset' es un objeto, usamos .src
+  // Si por alguna razón fuera ya un string, lo usamos directamente
+  const src = typeof iconAsset === 'string' ? iconAsset : iconAsset.src;
+
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-      <circle cx="12" cy="9" r="2.5"/>
-    </svg>
+    <a href={src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+      <img 
+        src={src} 
+        alt="Icono de modalidad" 
+        style={{ width: '40px', height: '40px' }} 
+      />
+    </a>
   );
 };
 
@@ -129,24 +139,26 @@ export const SessionDetailView = ({
         </div>
 
         <div className="sdv-card">
-          <div className="sdv-card__icon sdv-card__icon--purple">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 6v6l4 2"/>
-            </svg>
-          </div>
+          <a href={time.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+            <img 
+              src={time.src} 
+              alt="Icono de tiempo" 
+              style={{ width: '40px', height: '40px' }} 
+            />
+          </a>
           <span className="sdv-card__label">
             {formatDuration(session.startTime, session.endTime)}
           </span>
         </div>
 
         <div className="sdv-card">
-          <div className="sdv-card__icon sdv-card__icon--blue">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <path d="M16 2v4M8 2v4M3 10h18"/>
-            </svg>
-          </div>
+          <a href={calendar.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+            <img 
+              src={calendar.src} 
+              alt="Icono de modalidad" 
+              style={{ width: '40px', height: '40px' }} 
+            />
+          </a>
           <span className="sdv-card__label">
             {dateStr}
             <br/>
@@ -155,11 +167,13 @@ export const SessionDetailView = ({
         </div>
 
         <div className="sdv-card">
-          <div className="sdv-card__icon sdv-card__icon--purple">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
-          </div>
+          <a href={pin.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+            <img 
+              src={pin.src} 
+              alt="Icono de modalidad" 
+              style={{ width: '40px', height: '40px' }} 
+            />
+          </a>
           <span className="sdv-card__label">{statusLabel(String(session.status))}</span>
         </div>
 

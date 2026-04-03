@@ -71,6 +71,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
       {showCancelModal && sessionToCancel && (
         <CancelSessionModal
           session={sessionToCancel}
+          session_id={sessionToCancel.id}
           onClose={handleCancelClose}
           onSuccess={handleCancelSuccess}
           cancelar={cancelar}

@@ -244,7 +244,7 @@
 
 .sdv-btn {
   flex: 1;
-  min-width: 120px;
+  max-width: 196px;
   padding: 0.65rem 1rem;
   border: none;
   border-radius: 10px;

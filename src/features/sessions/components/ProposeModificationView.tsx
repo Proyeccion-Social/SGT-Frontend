@@ -1,6 +1,7 @@
 // ProposeModificationView.tsx
 // T012: 3 controlled selectors — modality, duration, schedule (stub until T003)
 // T013: Connected to modifySession service
+import './styles/ProposeModificationView.css'
 
 import { useState } from 'react';
 import type { Session, ModifySessionBody } from '../types/session.types';

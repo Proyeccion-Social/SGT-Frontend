@@ -1,0 +1,115 @@
+/* ══════════════════════════════════════════════════════
+   ProposeModificationView.css
+   Estilo coherente con el sistema de modales SDV
+   ══════════════════════════════════════════════════════ */
+
+.modal-view--propose {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 8px 48px 8px; /* Padding inferior para dejar espacio a los botones colgantes */
+  position: relative;
+}
+
+/* ── Título ── */
+.modal-view__title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sdv-gray-dark, #1e293b);
+  letter-spacing: -.4px;
+}
+
+/* ── Campos de Formulario ── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.form-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sdv-gray-dark, #475569);
+  margin-left: 4px;
+}
+
+.form-field__select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--sdv-border, #dcd6f7);
+  background: var(--sdv-white, #ffffff);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--sdv-gray-dark, #1e293b);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.form-field__select:focus {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.form-field__select:disabled {
+  background: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.form-field__hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+  padding: 0 4px;
+}
+
+/* ── Errores ── */
+.modal-view__error {
+  margin: 8px 0;
+  padding: 10px;
+  background: #fff1f2;
+  color: #e11d48;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid #fb7185;
+}
+
+/* ── Estado de Éxito ── */
+.modal-view--success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #059669;
+  font-weight: 600;
+  text-align: center;
+  animation: cancel-fade-in 0.3s ease;
+}
+
+/* ── Footer con Botones Colgantes ── */
+.modal-view__footer {
+  position: absolute;
+  bottom: -46px; /* Ajustado para que queden mitad fuera del .modal-card */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: max-content;
+  z-index: 100;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .modal-view__footer {
+    bottom: -70px; /* Más espacio si los botones se apilan */
+    flex-direction: column;
+    gap: 8px;
+  }
+}

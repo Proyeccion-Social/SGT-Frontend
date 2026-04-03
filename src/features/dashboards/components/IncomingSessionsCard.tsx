@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import '../styles/IncomingSessionsCard.css';
 import type { Session } from '../../sessions/types/session.types';
 import AttendencePostSession from '@features/sessions/components/AttendencePostSession';
+import FinishSession from '@/features/sessions/components/FinishSession';
 
 interface Props {
   sessions: Session[];
@@ -111,6 +112,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
   const [attendanceSession, setAttendanceSession] = useState<Session | null>(
     null
   );
+  const [finishingSession, setFinishingSession] = useState<Session | null>(null);
 
   const handleAttendanceOpen = (session: Session) => {
     setAttendanceSession(session);
@@ -191,6 +193,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
                   type="button"
                   className="btn-terminar"
                   aria-label={`Terminar sesión ${session.title}`}
+                  onClick={() => setFinishingSession(session)}
                 >
                   Terminar
                 </button>
@@ -242,6 +245,17 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
           key={attendanceSession.id}
           session={attendanceSession}
           onClose={handleAttendanceClose}
+        />
+      )}
+
+      {finishingSession && (
+        <FinishSession
+          session={finishingSession}
+          onClose={() => setFinishingSession(null)}
+          onConfirm={() => {
+            setFinishingSession(null);
+            setAttendanceSession(finishingSession);
+          }}
         />
       )}
     </div>

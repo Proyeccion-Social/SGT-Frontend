@@ -107,7 +107,11 @@ const SkeletonCard = () => (
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }: Props) => {
-  const sortedSessions = useMemo(() => sortSessionsForDisplay(sessions), [sessions]);
+  const displaySessions = useMemo(() => {
+    // Filter out COMPLETED and CANCELLED sessions
+    const filtered = sessions.filter(s => s.status !== 'COMPLETED' && s.status !== 'CANCELLED');
+    return sortSessionsForDisplay(filtered);
+  }, [sessions]);
 
   const [attendanceSession, setAttendanceSession] = useState<Session | null>(
     null
@@ -139,13 +143,13 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
           <p style={{ color: 'white', fontSize: 14 }}>{error}</p>
         )}
 
-        {!isLoading && !error && sortedSessions.length === 0 && (
+        {!isLoading && !error && displaySessions.length === 0 && (
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14 }}>
             No tienes sesiones próximas agendadas.
           </p>
         )}
 
-        {!isLoading && !error && sortedSessions.map((session) => {
+        {!isLoading && !error && displaySessions.map((session) => {
           const phase = getSessionTimePhase(
             session.scheduledDate,
             session.startTime,

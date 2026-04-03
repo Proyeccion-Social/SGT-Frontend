@@ -2,18 +2,12 @@
 import { Image } from "astro:assets";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 
-import MainLayout from "../Layout.astro";
-import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
 import StatCard from "@/features/dashboards/components/StatCard.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import ImageIcon from "@/features/dashboards/components/icons/ImageIcon.svg";
 
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/");
-
-const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
+const userRole = "student";
 
 const mockSessions = [
   {
@@ -40,53 +34,35 @@ const mockSessions = [
 const studentStats = { value: 3, text: "Tutorías esta semana" };
 ---
 
-<MainLayout title='Dashboard'>
-  <div class='dashboard-container'>
-    <Sidebar userRole={userRole} />
+<main class='content-wrapper'>
+  <div class='dashboard-content'>
+    <UserHeader userRole={userRole} />
 
-    <main class='content-wrapper'>
-      <div class='dashboard-content'>
-        <UserHeader userRole={userRole} />
+    <div class='welcome-banner-slot'>
+      <WelcomeBanner client:only='react' />
+    </div>
 
-        <div class='welcome-banner-slot'>
-          <WelcomeBanner client:only='react' />
+    <div class='cards-container'>
+      <div class='left-side'>
+        <div class='incoming-sessions-container'>
+          <IncomingSessionsCard
+            sessions={mockSessions}
+            role={userRole as "tutor" | "student"}
+          />
         </div>
 
-        <div class='cards-container'>
-          <div class='left-side'>
-            <div class='incoming-sessions-container'>
-              <IncomingSessionsCard
-                sessions={mockSessions}
-                role={userRole as "tutor" | "student"}
-              />
-            </div>
-
-            <div class='green-photo-space'>
-              <Image src={ImageIcon} alt='Image' />
-            </div>
-          </div>
-          <div class='stats-container'>
-            <StatCard
-              value={studentStats.value}
-              description={studentStats.text}
-            />
-          </div>
+        <div class='green-photo-space'>
+          <Image src={ImageIcon} alt='Image' />
         </div>
       </div>
-    </main>
+      <div class='stats-container'>
+        <StatCard value={studentStats.value} description={studentStats.text} />
+      </div>
+    </div>
   </div>
-</MainLayout>
+</main>
 
 <style>
-  .dashboard-container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    background-color: #f3edff;
-    padding: 18px 20px 20px 0;
-    box-sizing: border-box;
-  }
-
   .content-wrapper {
     flex: 1;
     display: flex;
@@ -98,6 +74,7 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
     overflow: hidden;
     overflow-y: auto;
     clip-path: inset(0 0 0 0 round 16px);
+    height: 100%;
   }
 
   .content-wrapper::-webkit-scrollbar {

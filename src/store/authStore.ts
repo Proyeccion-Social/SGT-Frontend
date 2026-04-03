@@ -19,6 +19,8 @@ interface AuthStore {
     _hasHydrated: boolean;
     setHasHydrated: (val: boolean) => void;
     setUser: (user: User) => void;
+    setRequiresPasswordChange: (val: boolean) => void;
+    setRequiresProfileCompletion: (val: boolean) => void;
     clearUser: () => void;
 }
 
@@ -32,7 +34,9 @@ export const useAuthStore = create<AuthStore>()(
             _hasHydrated: false,
             setHasHydrated: (val) => set({ _hasHydrated: val }),
             setUser: (user) => set({ user }),
-            clearUser: () => set({ user: null }),
+            setRequiresPasswordChange: (val) => set({ requiresPasswordChange: val }),
+            setRequiresProfileCompletion: (val) => set({ requiresProfileCompletion: val }),
+            clearUser: () => set({ user: null, requiresPasswordChange: false, requiresProfileCompletion: false }),
         }),
         {
             name: 'auth-storage',

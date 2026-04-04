@@ -104,6 +104,114 @@
   width: max-content;
   z-index: 100;
 }
+/* ══════════════════════════════════════════════════════
+   ProposeModificationForm — bloques .pmf
+   Añadir al final de SessionDetailView.css
+   ══════════════════════════════════════════════════════ */
+
+/* ── Contenedor principal ── */
+.pmf {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+/* ── Fila genérica: 2 columnas iguales ── */
+.pmf__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Fila de ancho completo (Disponibilidad) ── */
+.pmf__row--full {
+  grid-template-columns: 1fr;
+}
+
+/* ── Caja visual de cada selector ── */
+.pmf__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 8px;
+  border-radius: var(--sdv-radius-card);
+  border: 3px dashed var(--sdv-border);
+  background: #F3EDFF80;
+  text-align: center;
+  transition: border-color .18s, box-shadow .18s;
+  width: 100%; 
+  box-sizing: border-box;
+}
+
+/* Estado foco: resalta la caja cuando el select interno está activo */
+.pmf__card:focus-within {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* ── Ajustes internos al montar form-field dentro de pmf__card ── */
+.pmf__card .form-field {
+  width: 100%;
+  gap: 6px;
+}
+
+.pmf__card .form-field__label {
+  text-align: center;
+}
+
+/* El select dentro de la card no necesita borde propio */
+.pmf__card .form-field__select {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  text-align: center;
+  text-align-last: center;
+  padding: 6px 8px;
+  width: 100%;
+}
+
+.pmf__card .form-field__select:focus {
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+/* La fila full (Disponibilidad) no usa aspect-ratio cuadrado */
+.pmf__row--full .pmf__card {
+  aspect-ratio: unset;
+  padding: 16px 12px;
+}
+
+/* ── Hint y error ── */
+.pmf__card .form-field__hint {
+  text-align: center;
+}
+
+.pmf__error {
+  margin: 4px 0 0;
+  padding: 10px;
+  background: #fff1f2;
+  color: #e11d48;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid #fb7185;
+}
+
+/* ── Responsive: apilar en móvil ── */
+@media (max-width: 480px) {
+  .pmf__row {
+    grid-template-columns: 1fr;
+  }
+
+  .pmf__card {
+    aspect-ratio: unset;
+    padding: 16px 12px;
+  }
+}
 
 /* ── Responsive ── */
 @media (max-width: 480px) {

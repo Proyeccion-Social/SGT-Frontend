@@ -8,117 +8,145 @@ import type { Session, ModifySessionBody } from '../types/session.types';
 import { modifySession } from '../services/sessionService';
 import { useAuthStore } from '../../../store/authStore';
 
+export type SessionType = 'individual' | 'grupal' | '';
+export type Modality    = 'virtual' | 'in-person' | '';
+ 
+export interface AvailabilitySlot {
+  id: string;
+  label: string; // e.g. "Lunes 14:00 – 15:00"
+}
+ 
 interface Props {
   session: Session;
-  onBack: () => void;
+  /** Slots de disponibilidad provistos por el consumidor (vacío = stub deshabilitado). */
+  availabilitySlots?: AvailabilitySlot[];
   onSuccess: () => void;
+  /** Expone el estado de envío para que el padre controle el botón Confirmar. */
+  onSubmittingChange?: (isSubmitting: boolean) => void;
+  /** El padre llama a triggerSubmitRef.current() cuando presiona Confirmar. */
+  triggerSubmitRef?: React.MutableRefObject<(() => Promise<void>) | null>;
 }
-
-type Modality = 'virtual' | 'in-person' | '';
-
-export const ProposeModificationView = ({ session, onBack, onSuccess }: Props) => {
-  const [newModality, setNewModality]             = useState<Modality>('');
+ 
+export const ProposeModificationForm = ({
+  session,
+  availabilitySlots = [],
+  onSuccess,
+  onSubmittingChange,
+  triggerSubmitRef,
+}: Props) => {
+  const [newModality,       setNewModality]       = useState<Modality>('');
+  const [newSessionType,    setNewSessionType]     = useState<SessionType>('');
   const [newAvailabilityID, setNewAvailabilityID] = useState('');
-  const [newDurationHours, setNewDurationHours]   = useState('');
-  const [isSubmitting, setIsSubmitting]           = useState(false);
-  const [error, setError]                         = useState<string | null>(null);
-  const [success, setSuccess]                     = useState(false);
-
+  const [error,             setError]             = useState<string | null>(null);
+ 
   const token = useAuthStore((s) => s.token);
-
+ 
   const handleConfirm = async () => {
-    setIsSubmitting(true);
     setError(null);
-
+    onSubmittingChange?.(true);
+ 
     const body: ModifySessionBody = {
       ...(newModality       && { newModality }),
+      ...(newSessionType    && { newSessionType }),
       ...(newAvailabilityID && { newAvailabilityID }),
-      ...(newDurationHours  && { newDurationHours: Number(newDurationHours) }),
     };
-
+ 
     try {
       await modifySession(session.id, body, String(token));
-      setSuccess(true);
-      setTimeout(onSuccess, 1200);
+      onSuccess();
     } catch (err: any) {
       setError(err?.message ?? 'Error al proponer modificación.');
     } finally {
-      setIsSubmitting(false);
+      onSubmittingChange?.(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="modal-view modal-view--success" aria-live="polite">
-        <p>✓ Modificación propuesta exitosamente.</p>
-      </div>
-    );
+ 
+  if (triggerSubmitRef) {
+    triggerSubmitRef.current = handleConfirm;
   }
-
+ 
+  const slotsAvailable = availabilitySlots.length > 0;
+ 
   return (
-    <div className="modal-view modal-view--propose">
-      <h3 className="modal-view__title">Proponer modificación</h3>
-
-      <div className="form-field">
-        <label htmlFor="modality-select" className="form-field__label">Modalidad</label>
-        <select
-          id="modality-select"
-          className="form-field__select"
-          value={newModality}
-          onChange={(e) => setNewModality(e.target.value as Modality)}
-        >
-          <option value="">Sin cambio</option>
-          <option value="virtual">Virtual</option>
-          <option value="in-person">Presencial</option>
-        </select>
+    <div className="pmf">
+ 
+      {/* ── Fila 1: Modalidad + Tipo ── */}
+      <div className="pmf__row">
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-modality" className="form-field__label">Modalidad</label>
+            <select
+              id="pmf-modality"
+              className="form-field__select"
+              value={newModality}
+              onChange={(e) => setNewModality(e.target.value as Modality)}
+            >
+              <option value="">Sin cambio</option>
+              <option value="virtual">Virtual</option>
+              <option value="in-person">Presencial</option>
+            </select>
+          </div>
+        </div>
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-type" className="form-field__label">Tipo</label>
+            <select
+              id="pmf-type"
+              className="form-field__select"
+              value={newSessionType}
+              onChange={(e) => setNewSessionType(e.target.value as SessionType)}
+            >
+              <option value="">Sin cambio</option>
+              <option value="individual">Individual</option>
+              <option value="grupal">Grupal</option>
+            </select>
+          </div>
+        </div>
+ 
       </div>
-
-      <div className="form-field">
-        <label htmlFor="duration-select" className="form-field__label">Duración (horas)</label>
-        <select
-          id="duration-select"
-          className="form-field__select"
-          value={newDurationHours}
-          onChange={(e) => setNewDurationHours(e.target.value)}
-        >
-          <option value="">Sin cambio</option>
-          <option value="1">1 hora</option>
-          <option value="1.5">1.5 horas</option>
-          <option value="2">2 horas</option>
-          <option value="2.5">2.5 horas</option>
-          <option value="3">3 horas</option>
-        </select>
+ 
+      {/* ── Fila 2: Disponibilidad ── */}
+      <div className="pmf__row pmf__row--full">
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-slot" className="form-field__label">Disponibilidad</label>
+            <select
+              id="pmf-slot"
+              className="form-field__select"
+              value={newAvailabilityID}
+              onChange={(e) => setNewAvailabilityID(e.target.value)}
+              disabled={!slotsAvailable}
+              title={!slotsAvailable ? 'Pendiente de disponibilidad del tutor' : undefined}
+            >
+              {slotsAvailable ? (
+                <>
+                  <option value="">Selecciona un horario</option>
+                  {availabilitySlots.map((slot) => (
+                    <option key={slot.id} value={slot.id}>{slot.label}</option>
+                  ))}
+                </>
+              ) : (
+                <option value="">Próximamente…</option>
+              )}
+            </select>
+            {!slotsAvailable && (
+              <p className="form-field__hint">
+                La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.
+              </p>
+            )}
+          </div>
+        </div>
+ 
       </div>
-
-      <div className="form-field">
-        <label htmlFor="slot-select" className="form-field__label">Horario</label>
-        <select
-          id="slot-select"
-          className="form-field__select"
-          value={newAvailabilityID}
-          onChange={(e) => setNewAvailabilityID(e.target.value)}
-          disabled
-          title="Pendiente confirmación del shape de slots (T003)"
-        >
-          <option value="">Próximamente…</option>
-        </select>
-        <p className="form-field__hint">
-          La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.
-        </p>
-      </div>
-
-      {error && <p className="modal-view__error" role="alert">{error}</p>}
-
-      <div className="modal-view__footer">
-        <button className="sdv-btn sdv-btn--propose" onClick={onBack} disabled={isSubmitting}>
-          Cancelar
-        </button>
-        <button className="sdv-btn sdv-btn--cancel" onClick={handleConfirm} disabled={isSubmitting}>
-          {isSubmitting ? 'Enviando…' : 'Confirmar'}
-        </button>
-      </div>
+ 
+      {error && <p className="pmf__error" role="alert">{error}</p>}
+ 
     </div>
   );
 };
-
-export default ProposeModificationView;
+ 
+export default ProposeModificationForm;
+ 

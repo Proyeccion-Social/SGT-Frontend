@@ -6,27 +6,27 @@ import './styles/SessionDetailModal.css';
 import type { Session } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
-import { ProposeModificationView } from './ProposeModificationView';
+import { ProposeModificationForm } from './ProposeModificationView';
 import { EditSessionView } from './EditSessionView';
 
 export type ModalView = 'detail' | 'propose' | 'edit';
-
+ 
 interface Props {
   sessionId: string;
   role: 'tutor' | 'student';
   onClose: () => void;
   onRequestCancel: (session: Session) => void;
 }
-
+ 
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
-
+ 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
     [onClose]
   );
-
+ 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
@@ -35,11 +35,11 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
       document.body.style.overflow = '';
     };
   }, [handleKeyDown]);
-
+ 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
-
+ 
   return (
     <div
       className="modal-overlay"
@@ -52,39 +52,38 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
         <button className="modal-card__close" onClick={onClose} aria-label="Close modal">
           ✕
         </button>
-
+ 
         {isLoading && (
           <div className="modal-card__loading" aria-live="polite">
             <p>Cargando sesión…</p>
           </div>
         )}
-
+ 
         {!isLoading && error && (
           <div className="modal-card__error" role="alert">
             <p>Error al cargar la sesión: {error}</p>
             <button className="sdv-btn sdv-btn--propose" onClick={onClose}>Cerrar</button>
           </div>
         )}
-
+ 
         {!isLoading && !error && session && (
           <>
-            {view === 'detail' && (
+            {/* 'detail' y 'propose' se manejan dentro de SessionDetailView */}
+            {(view === 'detail' || view === 'propose') && (
               <SessionDetailView
                 session={session}
                 tutorInfo={tutorInfo}
                 role={role}
+                isProposing={view === 'propose'}
+                // availabilitySlots={slots} ← conectar cuando esté disponible la API
                 onProposeModification={() => setView('propose')}
+                onBack={() => setView('detail')}
                 onEdit={() => setView('edit')}
                 onCancel={() => onRequestCancel(session)}
+                onProposeSuccess={onClose}
               />
             )}
-            {view === 'propose' && (
-              <ProposeModificationView
-                session={session}
-                onBack={() => setView('detail')}
-                onSuccess={onClose}
-              />
-            )}
+ 
             {view === 'edit' && role === 'tutor' && (
               <EditSessionView
                 session={session}
@@ -98,5 +97,6 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
     </div>
   );
 };
-
+ 
 export default SessionDetailModal;
+ 

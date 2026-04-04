@@ -64,11 +64,11 @@ export function NotificationDropDown() {
             <DropdownMenuLabel className="flex items-center justify-between">
               <span>Notificaciones</span>
               <button className="text-foreground text-xs font-normal underline-offset-2 hover:underline">
-                Marcar como leídas
+                Marcar todas como leídas
               </button>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup className="overflow-y-auto max-h-80">
+            <DropdownMenuGroup className="overflow-y-auto max-h-80 no-scrollbar">
               {notifications.map((notification) => (
                 <DropdownMenuItem
                   key={notification.id} 
@@ -92,10 +92,7 @@ export function NotificationDropDown() {
                 </DropdownMenuItem>
               ))}
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center">
-              View all notifications
-            </DropdownMenuItem>
+            
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

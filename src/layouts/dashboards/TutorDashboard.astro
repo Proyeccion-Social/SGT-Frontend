@@ -2,8 +2,9 @@
 import MainLayout from "../Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
-import DashboardSessionManager from '@/features/dashboards/components/DashboarSessionsManager';
+import DashboardSessionManager from "@/features/dashboards/components/DashboarSessionsManager";
 import StatCard from "@/features/dashboards/components/StatCard.astro";
+import { TutorAvailabilityBar } from "@/features/dashboards/components/TutorAvailabilityBar";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
 
@@ -34,34 +35,29 @@ const usedPercent = Math.min(
 );
 ---
 
-<MainLayout title='Dashboard'>
-  <div class='dashboard-container'>
+<MainLayout title="Dashboard">
+  <div class="dashboard-container">
     <Sidebar userRole={userRole} />
 
-    <main class='content-wrapper'>
-      <div class='dashboard-content'>
+    <main class="content-wrapper">
+      <div class="dashboard-content">
         <UserHeader userRole={userRole} />
 
         <!-- Nombre y rol desde Zustand store -->
-        <div class='welcome-banner-slot'>
-          <WelcomeBanner client:only='react' />
+        <div class="welcome-banner-slot">
+          <WelcomeBanner client:only="react" />
         </div>
 
-        <div class='hours-bar'>
-          <div class='hours-segment hours-scheduled' style={`width: ${usedPercent}%; background-color: #DAFFAA;`}>
-            <span class='scheduled-hours-text'>{mockWorkload.scheduledHours} hora{mockWorkload.scheduledHours !== 1 ? "s" : ""} agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span>
-          </div>
-          <div class='hours-segment hours-remaining' style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}>
-            <span class='remaining-hours-text'>{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span>
-          </div>
+        <div class="hours-bar">
+          <TutorAvailabilityBar client:only="react" />
         </div>
 
-        <div class='cards-container'>
-          <div class='incoming-sessions-container'>
-            <DashboardSessionManager role={userRole} client:only="react" /> 
+        <div class="cards-container">
+          <div class="incoming-sessions-container">
+            <DashboardSessionManager role={userRole} client:only="react" />
           </div>
 
-          <div class='stats-container'>
+          <div class="stats-container">
             <StatCard value={tutorStats.value} description={tutorStats.text} />
           </div>
         </div>

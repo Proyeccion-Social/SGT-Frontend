@@ -62,7 +62,7 @@ export default function AttendencePostSession({ session, onClose }: Props) {
 
       const payload = {
         attendances: records,
-        tutorId: session.tutor
+        tutorId: session.tutor.id
       };
 
       const res = await fetch(

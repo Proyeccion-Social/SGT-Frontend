@@ -6,6 +6,7 @@ export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
   | 'CONFIRMED'
   | 'COMPLETED'
+  | 'SCHEDULED'
   | 'CANCELLED';
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';

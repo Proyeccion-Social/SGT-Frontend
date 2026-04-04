@@ -171,8 +171,8 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
 
               <div className="card-footer">
                 <div className="tags">
-                  <span className="tag-subject">{String(session.subject)}</span>
-                  <span className="tag-status">{String(session.status)}</span>
+                  <span className="tag-subject">{session.subject.name}</span>
+                  <span className="tag-status">{session.status}</span>
                 </div>
                 <span className="time-label">
                   {formatDate(session.scheduledDate)} · {formatTime(session.startTime)}

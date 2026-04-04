@@ -1,5 +1,5 @@
 // Importación de la API y la ruta de disponibilidad
-const API_URL = import.meta.env.API_URL;
+const API_URL = (import.meta.env.API_URL ?? import.meta.env.PUBLIC_API_URL ?? '').replace(/\/$/, '');
 const AVAILABILITY_PATH = '/availability';
 
 //===============================================================
@@ -74,6 +74,21 @@ export interface ApiError {
     description: string;
 }
 
+export interface TutorAvailabilityPublic {
+    tutorId: string;
+    tutorName: string;
+    totalSlots: number;
+    availableSlots: Slot[];
+    groupedByDay: Record<DayOfWeek, Slot[]>;
+}
+
+export interface TutorProfile {
+    id: string;
+    name: string;
+    email: string;
+    maxWeeklyHours: number;
+}
+
 //===============================================================
 // Funciones
 //===============================================================
@@ -94,15 +109,15 @@ function getToken(): string | null {
  * Incluye el JWT en el header Authorization.
  * Lanza el error si no se encuentra el JWT.
  */
-function buildAuthHeaders(): HeadersInit {
-    const token = getToken();
-    if (!token) {
+function buildAuthHeaders(token?: string): HeadersInit {
+    const activeToken = token || getToken();
+    if (!activeToken) {
         throw new Error('AUTH_05: No hay token de sesión. Por favor inicia sesión.')
     }
 
     return {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${activeToken.replace('Bearer ', '')}`
     };
 }
 
@@ -117,10 +132,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
     const errorBody: ApiError = await response.json().catch(() => ({
         code: 'INTERNAL_01',
-        httpStatus: response.status,
+        httpStatus: response.status.toString(),
         message: 'Error interno del servidor',
         description: 'Error al procesar la respuesta del servidor'
     }));
+
+    if (typeof window === 'undefined') {
+        console.error(`[API Error] ${response.status} ${response.url}:`, errorBody);
+    }
 
     throw errorBody;
 }
@@ -215,9 +234,10 @@ export async function getTutorSlots(
  * - PERMISSION_01 (403): El usuario no tiene el rol de tutor.
  */
 export async function manageSlot(
-    dto: ManageSlotDto
+    dto: ManageSlotDto,
+    token?: string
 ): Promise<SlotResponse> {
-    const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders(token);
 
     const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutor/slots`, {
         method: 'POST',
@@ -240,9 +260,10 @@ export async function manageSlot(
  * - PERMISSION_01 (403): El usuario no tiene rol de tutor.
  */
 export async function setWeeklyLimit(
-    maxHours: number
+    maxHours: number,
+    token?: string
 ): Promise<void> {
-    const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders(token);
 
     const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutor/limits`, {
         method: 'PUT',
@@ -264,13 +285,13 @@ export async function setWeeklyLimit(
  * - AUTH_05 (401): Token no proporcionado
  * - PERMISSION_01 (403): El usuario no tiene rol de tutor
  */
-export async function getTutorWorkload(): Promise<{
+export async function getTutorWorkload(token?: string): Promise<{
     totalAvailableHours: number;
     scheduledHours: number;
     remainingHours: number;
     limitReachedPercentage: number;
 }> {
-    const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders(token);
 
     const response = await fetch(
         `${API_URL}${AVAILABILITY_PATH}/tutor/workload`,
@@ -281,4 +302,35 @@ export async function getTutorWorkload(): Promise<{
     );
 
     return handleResponse(response);
+}
+
+/**
+ * GET /api/v1/availability/tutor/me
+ * Consulta la disponibilidad propia del tutor.
+ * Rol requerido: Tutor
+ */
+export async function getMyAvailability(token?: string): Promise<TutorAvailabilityPublic> {
+    const headers = buildAuthHeaders(token);
+
+    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutors/me`, {
+        method: 'GET',
+        headers,
+    });
+
+    return handleResponse<TutorAvailabilityPublic>(response);
+}
+
+/**
+ * GET /api/v1/tutors/profile
+ * Obtiene el perfil propio del tutor autenticado.
+ */
+export async function getOwnTutorProfile(token?: string): Promise<TutorProfile> {
+    const headers = buildAuthHeaders(token);
+
+    const response = await fetch(`${API_URL}/tutors/profile`, {
+        method: 'GET',
+        headers,
+    });
+
+    return handleResponse<TutorProfile>(response);
 }

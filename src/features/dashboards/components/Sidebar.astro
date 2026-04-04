@@ -11,6 +11,7 @@ import CalendarIcon from "./icons/CalendarIcon.svg";
 import BinocularIcon from "./icons/BinocularIcon.svg";
 import SearchIcon from "./icons/SearchIcon.svg";
 import CommunityIcon from "./icons/CommunityIcon.svg";
+import { NotificationDropDown } from "@/features/notifications/components/NotificationDropDown";
 
 interface Props {
   userRole: "admin" | "tutor" | "student";
@@ -110,10 +111,7 @@ const currentPath = Astro.url.pathname;
 
   <div class="navbar-footer">
     <div class="notification-container">
-      <a href="#">
-        <Image src={NotificationIcon} alt="Notification" class="icon" />
-        <span class="notification-label">Notificaciones</span>
-      </a>
+      <NotificationDropDown client:only="react"/>
     </div>
 
     <div class="logout-container">
@@ -300,6 +298,7 @@ const currentPath = Astro.url.pathname;
 
   .notification-container {
     background: #e6ffc7;
+    overflow: visible;
   }
 
   /* Iconos */

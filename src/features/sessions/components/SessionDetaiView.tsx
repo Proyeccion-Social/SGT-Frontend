@@ -10,6 +10,7 @@ import time from './icons/timer.svg'
 import type { Session } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import type { AvailabilitySlot }   from './ProposeModificationView';
+import { EditSessionForm } from './EditSessionView'
 
 interface TutorInfo {
   id: string;
@@ -21,15 +22,15 @@ interface Props {
   session: Session;
   tutorInfo: TutorInfo | null;
   role: 'tutor' | 'student';
-  /** Cuando true, muestra el formulario de modificación en lugar de las 4 cards. */
   isProposing?: boolean;
-  /** Slots opcionales para el selector de disponibilidad. */
+  isEditing?: boolean;
   availabilitySlots?: AvailabilitySlot[];
   onProposeModification: () => void;
-  onBack: () => void;          // Volver desde la vista de propuesta
+  onBack: () => void;
   onEdit: () => void;
   onCancel: () => void;
-  onProposeSuccess: () => void; // Cierra el modal tras confirmar
+  onProposeSuccess: () => void;
+  onEditSuccess: () => void;
 }
  
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -90,19 +91,22 @@ export const SessionDetailView = ({
   tutorInfo,
   role,
   isProposing = false,
+  isEditing   = false,
   availabilitySlots = [],
   onProposeModification,
   onBack,
   onEdit,
   onCancel,
   onProposeSuccess,
+  onEditSuccess,
 }: Props) => {
   const tutorName = tutorInfo?.name ?? session.tutor?.name ?? 'Tutor';
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
  
-  // Ref para disparar el submit del formulario desde el footer
-  const submitRef  = useRef<(() => Promise<void>) | null>(null);
+  const submitRef      = useRef<(() => Promise<void>) | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+ 
+  const isAltView = isProposing || isEditing;
  
   return (
     <div className='sdv-overlay'>
@@ -121,7 +125,7 @@ export const SessionDetailView = ({
           </div>
         </div>
  
-        {/* ── Tags row: subject, tutor, status ── */}
+        {/* ── Tags ── */}
         <div className="sdv__tags">
           <span className="sdv-tag sdv-tag--subject">{String(session.subject)}</span>
           <span className="sdv-tag sdv-tag--tutor">
@@ -131,12 +135,27 @@ export const SessionDetailView = ({
           <span className="sdv-tag sdv-tag--status">{statusLabel(String(session.status))}</span>
         </div>
  
-        {/* ── Cards OR Propose form ── */}
+        {/* ── Section title (only in alt views) ── */}
+        {isAltView && (
+          <p className="sdv__section-title">
+            <span className="sdv__section-dot" />
+            {isProposing ? 'Proponer modificación' : 'Editando...'}
+          </p>
+        )}
+ 
+        {/* ── Cards / Propose form / Edit form ── */}
         {isProposing ? (
           <ProposeModificationForm
             session={session}
             availabilitySlots={availabilitySlots}
             onSuccess={onProposeSuccess}
+            onSubmittingChange={setIsSubmitting}
+            triggerSubmitRef={submitRef}
+          />
+        ) : isEditing ? (
+          <EditSessionForm
+            session={session}
+            onSuccess={onEditSuccess}
             onSubmittingChange={setIsSubmitting}
             triggerSubmitRef={submitRef}
           />
@@ -185,7 +204,7 @@ export const SessionDetailView = ({
  
         {/* ── Footer ── */}
         <div className="sdv__footer">
-          {isProposing ? (
+          {isAltView ? (
             <>
               <button
                 className="sdv-btn sdv-btn--propose"
@@ -195,11 +214,11 @@ export const SessionDetailView = ({
                 Volver
               </button>
               <button
-                className="sdv-btn sdv-btn--cancel"
+                className="sdv-btn sdv-btn--edit"
                 onClick={() => submitRef.current?.()}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Enviando…' : 'Confirmar'}
+                {isSubmitting ? 'Guardando…' : 'Confirmar'}
               </button>
             </>
           ) : (

@@ -6,8 +6,6 @@ import './styles/SessionDetailModal.css';
 import type { Session } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
-import { ProposeModificationForm } from './ProposeModificationView';
-import { EditSessionView } from './EditSessionView';
 
 export type ModalView = 'detail' | 'propose' | 'edit';
  
@@ -67,31 +65,20 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
         )}
  
         {!isLoading && !error && session && (
-          <>
-            {/* 'detail' y 'propose' se manejan dentro de SessionDetailView */}
-            {(view === 'detail' || view === 'propose') && (
-              <SessionDetailView
-                session={session}
-                tutorInfo={tutorInfo}
-                role={role}
-                isProposing={view === 'propose'}
-                // availabilitySlots={slots} ← conectar cuando esté disponible la API
-                onProposeModification={() => setView('propose')}
-                onBack={() => setView('detail')}
-                onEdit={() => setView('edit')}
-                onCancel={() => onRequestCancel(session)}
-                onProposeSuccess={onClose}
-              />
-            )}
- 
-            {view === 'edit' && role === 'tutor' && (
-              <EditSessionView
-                session={session}
-                onBack={() => setView('detail')}
-                onSuccess={onClose}
-              />
-            )}
-          </>
+          <SessionDetailView
+            session={session}
+            tutorInfo={tutorInfo}
+            role={role}
+            isProposing={view === 'propose'}
+            isEditing={view === 'edit'}
+            // availabilitySlots={slots} ← conectar cuando esté disponible la API
+            onProposeModification={() => setView('propose')}
+            onBack={() => setView('detail')}
+            onEdit={() => setView('edit')}
+            onCancel={() => onRequestCancel(session)}
+            onProposeSuccess={onClose}
+            onEditSuccess={onClose}
+          />
         )}
       </div>
     </div>
@@ -99,4 +86,3 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
 };
  
 export default SessionDetailModal;
- 

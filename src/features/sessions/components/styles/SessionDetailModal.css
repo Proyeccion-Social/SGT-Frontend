@@ -271,7 +271,8 @@
 }
 
 .sdv-btn--edit:hover {
-  background: rgba(155, 122, 255, 0.22);
+  background: rgb(155, 122, 255);
+  color: rgb(255, 255, 255);
 }
 
 .sdv-btn--cancel {

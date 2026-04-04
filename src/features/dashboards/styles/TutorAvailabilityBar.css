@@ -10,7 +10,7 @@
     z-index: 0;
 }
 
-.hours-segment-hours-scheduled {
+.hours-segment-taught {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -18,20 +18,20 @@
     background-color: #DAFFAA;
     border: 1px solid #C1FF72;
     border-radius: 12px;
-    z-index: 1;
-    min-width: 200px;
+    z-index: 2;
+    min-width: 150px;
 }
 
-.scheduled-hours-text {
+.taught-hours-text {
     font-family: 'Open Sauce Two';
     font-weight: 400;
     font-size: 20px;
     line-height: 24px;
     letter-spacing: -2%;
     padding-left: 24px;
+    padding-right: 24px;
     color: #4D662E;
 }
-
 
 .remaining-hours-text {
     font-family: 'Open Sauce Two';

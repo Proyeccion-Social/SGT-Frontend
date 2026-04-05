@@ -70,15 +70,26 @@ const modalityIcon = (modality: string) => {
   );
 };
  
-const statusLabel = (status: string) => {
+const statusLabel = (status: string): string => {
   const map: Record<string, string> = {
-    CONFIRMED:   'Confirmada',
-    PENDING:     'Pendiente',
-    CANCELLED:   'Cancelada',
-    CLOSED:      'Cerrada',
-    IN_PROGRESS: 'En curso',
+    PENDING_TUTOR_CONFIRMATION: 'Pendiente de confirmación',
+    SCHEDULED:                  'Programada',
+    PENDING_MODIFICATION:       'Modificación pendiente',
+    REJECTED_BY_TUTOR:          'Rechazada por tutor',
+    CANCELLED_BY_STUDENT:       'Cancelada por estudiante',
+    CANCELLED_BY_TUTOR:         'Cancelada por tutor',
+    CANCELLED_BY_ADMIN:         'Cancelada por administrador',
+    COMPLETED:                  'Completada',
   };
   return map[status] ?? status;
+};
+
+const modalityLabel = (modality: string): string => {
+  const map: Record<string, string> = {
+    VIRT: 'Virtual',
+    PRES: 'Presencial',
+  };
+  return map[String(modality).toUpperCase()] ?? modality;
 };
  
 const FallbackAvatar = ({ name }: { name: string }) => (
@@ -131,7 +142,7 @@ export const SessionDetailView = ({
  
         {/* ── Tags ── */}
         <div className="sdv__tags">
-          <span className="sdv-tag sdv-tag--subject">{String(session.subject)}</span>
+          <span className="sdv-tag sdv-tag--subject">{String(session.subject.name)}</span>
           <span className="sdv-tag sdv-tag--tutor">
             <span className="sdv-tag__dot sdv-tag__dot--purple" />
             {tutorName}
@@ -172,8 +183,7 @@ export const SessionDetailView = ({
                 {modalityIcon(String(session.modality))}
               </div>
               <span className="sdv-card__label">
-                {String(session.modality).charAt(0).toUpperCase() +
-                 String(session.modality).slice(1).toLowerCase()}
+                {modalityLabel(String(session.modality))}
               </span>
             </div>
  

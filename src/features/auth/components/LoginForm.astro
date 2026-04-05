@@ -22,6 +22,7 @@
 
 <script>
   import { sileo } from "sileo";
+  import { navigate } from "astro:transitions/client"
 
   const form = document.getElementById("login-form") as HTMLFormElement | null;
   const passwordField = document.getElementById("password-field");
@@ -128,11 +129,11 @@
           console.log(data);
           // Redirigir según estado del usuario
           if (data.requiresPasswordChange) {
-            window.location.href = "/change-password";
+            await navigate("/change-password");
           } else if (data.requiresProfileCompletion) {
-            window.location.href = "/dashboard";
+            await navigate("/dashboard");
           } else {
-            window.location.href = "/dashboard";
+            await navigate("/dashboard");
           }
         },
         {

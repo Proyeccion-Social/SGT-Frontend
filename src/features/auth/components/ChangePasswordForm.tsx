@@ -1,7 +1,9 @@
 import "./ChangePasswordForm.css";
 import { useState, useEffect } from "react";
+import { navigate } from "astro:transitions/client";
 import { useAuthStore } from "@/store/authStore";
 import { sileo } from "sileo";
+
 import eyeNormal from "../assets/icons/eye-normal.svg";
 import eyeLabeled from "../assets/icons/eye-labeled.svg";
 
@@ -34,7 +36,6 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 export default function ChangePasswordForm() {
-    const user = useAuthStore((s) => s.user);
     const requiresPasswordChange = useAuthStore((s) => s.requiresPasswordChange);
 
     const [currentPassword, setCurrentPassword] = useState("");
@@ -48,7 +49,7 @@ export default function ChangePasswordForm() {
 
     useEffect(() => {
         if (!requiresPasswordChange) {
-            window.location.href = "/dashboard";
+            navigate("/dashboard");
         }
     }, [requiresPasswordChange]);
 
@@ -99,7 +100,7 @@ export default function ChangePasswordForm() {
             );
 
             useAuthStore.getState().setRequiresPasswordChange(false);
-            window.location.href = "/dashboard";
+            await navigate("/dashboard");
         } catch {
             setSubmitting(false);
         }
@@ -123,149 +124,147 @@ export default function ChangePasswordForm() {
         touched.confirm && matchOk ? "password-input--success" : "",
     ].filter(Boolean).join(" ");
 
-    if (!requiresPasswordChange) return null;
-
     return (
-        <form className="change-password-form" onSubmit={handleSubmit}>
-            <div className="change-password-header">
-                <h1 className="change-password-title">
-                    Cambiemos tu <span>contraseña</span>
-                </h1>
-                <p className="change-password-subtitle">
-                    Es la primera vez que estás entrando, crea una nueva contraseña
-                </p>
-            </div>
-
-            <div className="change-password-fields">
-                {/* Current password */}
-                <div className="password-field">
-                    <label className="password-label" htmlFor="current-password">
-                        Contraseña actual
-                    </label>
-                    <div className="password-input-wrapper">
-                        <input
-                            id="current-password"
-                            type={showCurrent ? "text" : "password"}
-                            className={currentInputClass}
-                            placeholder="Ingresa tu contraseña temporal"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            onBlur={() => setTouched((t) => ({ ...t, current: true }))}
-                            autoComplete="current-password"
-                        />
-                        <button
-                            className="password-eye-btn"
-                            type="button"
-                            onClick={() => setShowCurrent((v) => !v)}
-                            aria-label={showCurrent ? "Ocultar contraseña" : "Mostrar contraseña"}
-                        >
-                            <EyeIcon open={showCurrent} />
-                        </button>
-                    </div>
-                    {currentEmpty && (
-                        <p className="password-error">Ingresa tu contraseña actual</p>
-                    )}
+            <form className="change-password-form" onSubmit={handleSubmit}>
+                <div className="change-password-header">
+                    <h1 className="change-password-title">
+                        Cambiemos tu <span>contraseña</span>
+                    </h1>
+                    <p className="change-password-subtitle">
+                        Es la primera vez que estás entrando, crea una nueva contraseña
+                    </p>
                 </div>
 
-                {/* New password */}
-                <div className="password-field">
-                    <label className="password-label" htmlFor="new-password">
-                        Nueva contraseña
-                    </label>
-                    <div className="password-input-wrapper">
-                        <input
-                            id="new-password"
-                            type={showNew ? "text" : "password"}
-                            className={newInputClass}
-                            placeholder="Ingresa tu nueva contraseña"
-                            value={newPassword}
-                            maxLength={MAX_LENGTH}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            onBlur={() => setTouched((t) => ({ ...t, newPw: true }))}
-                            autoComplete="new-password"
-                        />
-                        <button
-                            className="password-eye-btn"
-                            type="button"
-                            onClick={() => setShowNew((v) => !v)}
-                            aria-label={showNew ? "Ocultar contraseña" : "Mostrar contraseña"}
-                        >
-                            <EyeIcon open={showNew} />
-                        </button>
-                    </div>
-
-                    {newPassword.length > 0 && (
-                        <div className="password-strength">
-                            <div className="password-strength-bars">
-                                {([1, 2, 3] as const).map((level) => (
-                                    <div
-                                        key={level}
-                                        className={`password-strength-bar${strength >= level ? ` ${STRENGTH_CLASS[level]}` : ""}`}
-                                    />
-                                ))}
-                            </div>
-                            {strength > 0 && (
-                                <span className="password-strength-label">
-                                    {STRENGTH_LABELS[strength as 1 | 2 | 3]}
-                                </span>
-                            )}
-                        </div>
-                    )}
-
-                    {touched.newPw && tooShort && (
-                        <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
-                    )}
-                    {touched.newPw && tooLong && (
-                        <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
-                    )}
-                </div>
-
-                {/* Confirm password */}
-                {newPassword.length > 0 && (
+                <div className="change-password-fields">
+                    {/* Current password */}
                     <div className="password-field">
-                        <label className="password-label" htmlFor="confirm-password">
-                            Confirmar contraseña
+                        <label className="password-label" htmlFor="current-password">
+                            Contraseña actual
                         </label>
                         <div className="password-input-wrapper">
                             <input
-                                id="confirm-password"
-                                type={showConfirm ? "text" : "password"}
-                                className={confirmInputClass}
-                                placeholder="Repite tu nueva contraseña"
-                                value={confirm}
+                                id="current-password"
+                                type={showCurrent ? "text" : "password"}
+                                className={currentInputClass}
+                                placeholder="Ingresa tu contraseña temporal"
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                onBlur={() => setTouched((t) => ({ ...t, current: true }))}
+                                autoComplete="current-password"
+                            />
+                            <button
+                                className="password-eye-btn"
+                                type="button"
+                                onClick={() => setShowCurrent((v) => !v)}
+                                aria-label={showCurrent ? "Ocultar contraseña" : "Mostrar contraseña"}
+                            >
+                                <EyeIcon open={showCurrent} />
+                            </button>
+                        </div>
+                        {currentEmpty && (
+                            <p className="password-error">Ingresa tu contraseña actual</p>
+                        )}
+                    </div>
+
+                    {/* New password */}
+                    <div className="password-field">
+                        <label className="password-label" htmlFor="new-password">
+                            Nueva contraseña
+                        </label>
+                        <div className="password-input-wrapper">
+                            <input
+                                id="new-password"
+                                type={showNew ? "text" : "password"}
+                                className={newInputClass}
+                                placeholder="Ingresa tu nueva contraseña"
+                                value={newPassword}
                                 maxLength={MAX_LENGTH}
-                                onChange={(e) => setConfirm(e.target.value)}
-                                onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                onBlur={() => setTouched((t) => ({ ...t, newPw: true }))}
                                 autoComplete="new-password"
                             />
                             <button
                                 className="password-eye-btn"
                                 type="button"
-                                onClick={() => setShowConfirm((v) => !v)}
-                                tabIndex={-1}
-                                aria-label={showConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                onClick={() => setShowNew((v) => !v)}
+                                aria-label={showNew ? "Ocultar contraseña" : "Mostrar contraseña"}
                             >
-                                <EyeIcon open={showConfirm} />
+                                <EyeIcon open={showNew} />
                             </button>
                         </div>
 
-                        {touched.confirm && mismatch && (
-                            <p className="password-error">Las contraseñas no coinciden</p>
+                        {newPassword.length > 0 && (
+                            <div className="password-strength">
+                                <div className="password-strength-bars">
+                                    {([1, 2, 3] as const).map((level) => (
+                                        <div
+                                            key={level}
+                                            className={`password-strength-bar${strength >= level ? ` ${STRENGTH_CLASS[level]}` : ""}`}
+                                        />
+                                    ))}
+                                </div>
+                                {strength > 0 && (
+                                    <span className="password-strength-label">
+                                        {STRENGTH_LABELS[strength as 1 | 2 | 3]}
+                                    </span>
+                                )}
+                            </div>
                         )}
-                        {touched.confirm && matchOk && (
-                            <p className="password-ok">Las contraseñas coinciden</p>
+
+                        {touched.newPw && tooShort && (
+                            <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
+                        )}
+                        {touched.newPw && tooLong && (
+                            <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
                         )}
                     </div>
-                )}
-            </div>
 
-            <button
-                type="submit"
-                className="change-password-submit"
-                disabled={!canSubmit}
-            >
-                Guardar
-            </button>
-        </form>
+                    {/* Confirm password */}
+                    {newPassword.length > 0 && (
+                        <div className="password-field">
+                            <label className="password-label" htmlFor="confirm-password">
+                                Confirmar contraseña
+                            </label>
+                            <div className="password-input-wrapper">
+                                <input
+                                    id="confirm-password"
+                                    type={showConfirm ? "text" : "password"}
+                                    className={confirmInputClass}
+                                    placeholder="Repite tu nueva contraseña"
+                                    value={confirm}
+                                    maxLength={MAX_LENGTH}
+                                    onChange={(e) => setConfirm(e.target.value)}
+                                    onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+                                    autoComplete="new-password"
+                                />
+                                <button
+                                    className="password-eye-btn"
+                                    type="button"
+                                    onClick={() => setShowConfirm((v) => !v)}
+                                    tabIndex={-1}
+                                    aria-label={showConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                >
+                                    <EyeIcon open={showConfirm} />
+                                </button>
+                            </div>
+
+                            {touched.confirm && mismatch && (
+                                <p className="password-error">Las contraseñas no coinciden</p>
+                            )}
+                            {touched.confirm && matchOk && (
+                                <p className="password-ok">Las contraseñas coinciden</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <button
+                    type="submit"
+                    className="change-password-submit"
+                    disabled={!canSubmit}
+                >
+                    Guardar
+                </button>
+            </form>
     );
 }

@@ -1,6 +1,11 @@
+---
+import ToasterReact from "@/components/ui/ToasterReact";
+---
+
 <div id="authDialogsContainer" class="authDialogsContainer">
   <div class="sharedBackdrop" id="sharedBackdrop"></div>
   <slot />
+  <ToasterReact client:load />
 </div>
 
 <style>

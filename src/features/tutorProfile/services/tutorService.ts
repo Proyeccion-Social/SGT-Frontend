@@ -31,7 +31,7 @@ export const getTutorProfile = async (accessToken: string) => {
 };
 
 export const completeTutorProfile = async (data: CompleteTutorProfileDto, accessToken: string) => {
-  const response = await fetch(`${API_URL}/tutors/profile`, {
+  const response = await fetch(`${API_URL}/tutors/profile/complete`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -42,25 +42,9 @@ export const completeTutorProfile = async (data: CompleteTutorProfileDto, access
 
   const body = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(body?.message ?? "Profile completion failed");
-  }
-  return body;
-};
-
-export const updateTutorProfile = async (data: Partial<CompleteTutorProfileDto>, accessToken: string) => {
-  // RF10: PUT /api/v1/tutor/profile (singular "tutor" as per requirement)
-  const response = await fetch(`${API_URL}/tutor/profile`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(body?.message ?? "Profile update failed");
+    const err = new Error(body?.message ?? "Profile completion failed");
+    (err as any).status = response.status;
+    throw err;
   }
   return body;
 };

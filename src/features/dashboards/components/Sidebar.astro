@@ -20,38 +20,40 @@ const { userRole } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
-<aside class="sidebar" id="main-sidebar">
-  <div class="navbar-header">
-    <a href="/"><img src="/favicon.svg" alt="LogoSideBar" /></a>
-    <button class="collapse-button" id="sidebar-toggle">
-      <Image src={CollapseIcon} alt="Collapse" class="collapse-icon" />
+<aside class='sidebar' id='main-sidebar'>
+  <div class='navbar-header'>
+    <a href='/'><img src='/favicon.svg' alt='LogoSideBar' /></a>
+    <button class='collapse-button' id='sidebar-toggle'>
+      <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
     </button>
   </div>
 
-  <div class="navbar-items">
+  <div class='navbar-items'>
     {
       userRole === "student" && (
-        <div class="calendar-container">
-          <a href="/availability/student/slots">
-            <Image src={CalendarIcon} alt="Calendar" class="icon" />
-            <span class="nav-label">Calendario</span>
+        <div class='calendar-container'>
+          <a href='/availability/student/slots'>
+            <Image src={CalendarIcon} alt='Calendar' class='icon' />
+            <span class='nav-label'>Calendario</span>
           </a>
         </div>
       )
     }
 
-    <div class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}>
-      <a href="/dashboard">
-        <Image src={DashboardIcon} alt="Dashboard" class="icon" />
-        <span class="nav-label">Dashboard</span>
+    <div
+      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+    >
+      <a href='/dashboard'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
+        <span class='nav-label'>Dashboard</span>
       </a>
     </div>
     {
       userRole === "admin" && (
         <>
-          <a href="#">
-            <Image src={ConfigIcon} alt="Config" class="icon" />
-            <span class="nav-label">Configuración</span>
+          <a href='#'>
+            <Image src={ConfigIcon} alt='Config' class='icon' />
+            <span class='nav-label'>Configuración</span>
           </a>
         </>
       )
@@ -61,21 +63,21 @@ const currentPath = Astro.url.pathname;
       userRole === "tutor" && (
         <>
           <a
-            href="/availability/tutor/slots"
+            href='/availability/tutor/slots'
             class={
               currentPath.startsWith("/availability/tutor") ? "active-link" : ""
             }
           >
-            <Image src={WindowIcon} alt="Slots" class="icon" />
-            <span class="nav-label">Tu Disponibilidad</span>
+            <Image src={WindowIcon} alt='Slots' class='icon' />
+            <span class='nav-label'>Tu Disponibilidad</span>
           </a>
-          <button type="button" id="config-drawer-trigger">
-            <Image src={ConfigIcon} alt="Config" class="icon" />
-            <span class="nav-label">Configuración</span>
+          <button type='button' id='config-drawer-trigger'>
+            <Image src={ConfigIcon} alt='Config' class='icon' />
+            <span class='nav-label'>Configuración</span>
           </button>
-          <a href="#">
-            <Image src={HistoryIcon} alt="History" class="icon" />
-            <span class="nav-label">Historial</span>
+          <a href='#'>
+            <Image src={HistoryIcon} alt='History' class='icon' />
+            <span class='nav-label'>Historial</span>
           </a>
         </>
       )
@@ -85,41 +87,41 @@ const currentPath = Astro.url.pathname;
       userRole === "student" && (
         <>
           <a
-            href="/search"
+            href='/search'
             class={currentPath.startsWith("/search") ? "active-link" : ""}
           >
-            <Image src={SearchIcon} alt="Search" class="icon" />
-            <span class="nav-label">Buscar</span>
+            <Image src={SearchIcon} alt='Search' class='icon' />
+            <span class='nav-label'>Buscar</span>
           </a>
-          <a href="#">
-            <Image src={BinocularIcon} alt="Binocular" class="icon" />
-            <span class="nav-label">Explorar</span>
+          <a href='#'>
+            <Image src={BinocularIcon} alt='Binocular' class='icon' />
+            <span class='nav-label'>Explorar</span>
           </a>
-          <a href="#">
-            <Image src={CommunityIcon} alt="Community" class="icon" />
-            <span class="nav-label">Comunidad</span>
+          <a href='#'>
+            <Image src={CommunityIcon} alt='Community' class='icon' />
+            <span class='nav-label'>Comunidad</span>
           </a>
-          <a href="#">
-            <Image src={HistoryIcon} alt="History" class="icon" />
-            <span class="nav-label">Historial</span>
+          <a href='#'>
+            <Image src={HistoryIcon} alt='History' class='icon' />
+            <span class='nav-label'>Historial</span>
           </a>
         </>
       )
     }
   </div>
 
-  <div class="navbar-footer">
-    <div class="notification-container">
-      <a href="#">
-        <Image src={NotificationIcon} alt="Notification" class="icon" />
-        <span class="notification-label">Notificaciones</span>
+  <div class='navbar-footer'>
+    <div class='notification-container'>
+      <a href='#'>
+        <Image src={NotificationIcon} alt='Notification' class='icon' />
+        <span class='notification-label'>Notificaciones</span>
       </a>
     </div>
 
-    <div class="logout-container">
-      <button type="button" id="logout-button">
-        <Image src={LogoutIcon} alt="Logout" class="icon" />
-        <span class="nav-label">Cerrar Sesión</span>
+    <div class='logout-container'>
+      <button type='button' id='logout-button'>
+        <Image src={LogoutIcon} alt='Logout' class='icon' />
+        <span class='nav-label'>Cerrar Sesión</span>
       </button>
     </div>
   </div>
@@ -412,22 +414,17 @@ const currentPath = Astro.url.pathname;
     window.addEventListener("force-sidebar-expand", handleExpand);
     window.addEventListener("force-sidebar-collapse", handleCollapse);
 
-    // --- 3. Trigger del Menú de Configuración/Perfil ---
-    if (configBtn) {
-      configBtn.onclick = () => {
-        window.dispatchEvent(new CustomEvent("open-profile-drawer"));
-      };
-    }
-
-    // --- 4. Lógica de Logout ---
+    // --- 3. Lógica de Logout ---
     if (logoutButton) {
       logoutButton.onclick = async () => {
         try {
-          const authUserStr = sessionStorage.getItem("auth_user");
-          const authUser = authUserStr ? JSON.parse(authUserStr) : null;
-          const userId = authUser?.user?.id;
+          const authStorage = JSON.parse(
+            localStorage.getItem("auth-storage") || "{}",
+          );
+          const userId = authStorage?.state?.user?.id;
 
           if (!userId) {
+            localStorage.removeItem("auth-storage");
             window.location.replace("/");
             return;
           }
@@ -441,21 +438,20 @@ const currentPath = Astro.url.pathname;
               });
 
               if (!res.ok) throw new Error("Error en la petición");
-              sessionStorage.removeItem("auth_user");
+              localStorage.removeItem("auth-storage");
             },
             {
               loading: { title: "Cerrando sesión...", fill: "#8751ff" },
               success: { title: "Sesión cerrada", fill: "#58d68d" },
               error: { title: "Error al cerrar sesión", fill: "#f35761" },
-            }
+            },
           );
 
           // Redirección limpia
           window.location.replace("/");
         } catch (error) {
           console.error("Logout error:", error);
-          // Si falla el fetch pero queremos forzar salida:
-          sessionStorage.removeItem("auth_user");
+          localStorage.removeItem("auth-storage");
           window.location.replace("/");
         }
       };

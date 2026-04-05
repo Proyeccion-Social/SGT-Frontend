@@ -1,30 +1,29 @@
 'use client';
-
+import './styles/drawer.css';
 import { Drawer } from 'vaul';
 import React, { useEffect, useCallback } from 'react';
-import './styles/drawer.css';
-import ChooseSubjects from '@/features/tutorProfile/components/ChooseSubjects';
 import type { StepHandle } from '@/features/tutorProfile/components/ChooseSubjects';
+
+import ChooseSubjects from '@/features/tutorProfile/components/ChooseSubjects';
 import UploadProfileImage from '@/features/tutorProfile/components/UploadProfileImage';
-import SetAvailabilityHours from '@/features/tutorProfile/components/SetAvailabilityHours';
-import SetNewPassword from '@/features/tutorProfile/components/SetNewPassword';
+import PersonalData from '@/features/tutorProfile/components/PersonalData';
 import Finish from '@/features/tutorProfile/components/Finish';
+
 import { useAuthStore } from '@/store/authStore';
-import { completeTutorProfile, updateTutorProfile, type CompleteTutorProfileDto } from '@/features/tutorProfile/services/tutorService';
-import { changePassword } from '@/features/auth/services/authService';
-import { toast } from 'sonner';
+import type { CompleteTutorProfileDto } from '@/features/tutorProfile/services/tutorService';
+import { sileo } from 'sileo';
 import { Button } from '@/components/ui/button';
+
+import checkedIcon from "./images/checked-icon.svg"
 import numberOne from "./images/number-one.png";
 import numberTwo from "./images/number-two.png";
 import numberThree from "./images/number-three.png";
-import numberFour from "./images/number-four.png";
-import background from "./images/titleBackground.png";
+import markedTitle from "./images/marked-title.svg"
 
 const STEPS = [
     { id: 1, label: 'Materias', shortLabel: '01' },
     { id: 2, label: 'Foto de Perfil', shortLabel: '02' },
-    { id: 3, label: 'Disponibilidad', shortLabel: '03' },
-    { id: 4, label: 'Contraseña', shortLabel: '04' },
+    { id: 3, label: 'Datos personales', shortLabel: '03' },
 ];
 
 export default function VaulDrawer() {
@@ -33,30 +32,19 @@ export default function VaulDrawer() {
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    // Data collection state
-    const [formData, setFormData] = React.useState<Partial<CompleteTutorProfileDto>>({});
+    const [formData, setFormData] = React.useState<Partial<CompleteTutorProfileDto>>({
+        phone: '',
+        url_image: 'https://avatars.githubusercontent.com/u/150485576?v=4',
+        max_weekly_hours: 8,
+        subject_ids: [],
+    });
 
-    // Initial check for profile completion
+    // Open drawer when profile completion is required
     useEffect(() => {
         if (requiresProfileCompletion) {
             setIsOpen(true);
-            // Initialize defaults only when completing profile for the first time
-            setFormData({
-                phone: '',
-                url_image: '',
-                max_weekly_hours: 8, // Default
-                subject_ids: [],
-                availabilities: [],
-            });
         }
     }, [requiresProfileCompletion]);
-
-    // Listen for the sidebar config button event
-    useEffect(() => {
-        const handler = () => setIsOpen(true);
-        window.addEventListener('open-profile-drawer', handler);
-        return () => window.removeEventListener('open-profile-drawer', handler);
-    }, []);
 
     useEffect(() => {
         const handlePageTransition = () => {
@@ -69,56 +57,50 @@ export default function VaulDrawer() {
         return () => document.removeEventListener('astro:after-swap', handlePageTransition);
     }, [isOpen]);
 
-    const goToStep = (s: number) => {
-        setStep(s);
-    };
-
     const nextStep = (newData?: Partial<CompleteTutorProfileDto>) => {
+        const merged = newData ? { ...formData, ...newData } : formData;
         if (newData) {
-            setFormData(prev => ({ ...prev, ...newData }));
+            setFormData(merged);
         }
-        setStep((prev) => Math.min(prev + 1, 5));
+
+        console.log("Datos recibidos del paso actual:", newData);
+        console.log("Datos acumulados hasta ahora:", merged);
+
+        setCanContinue(false);
+        setContinueLabel('Continuar');
+        setStep((prev) => Math.min(prev + 1, 4));
     };
 
-    const skipStep = () => setStep((prev) => Math.min(prev + 1, 5));
-
-    const handleSubmit = async (newPassword?: string) => {
+    const handleSubmit = async (dataOverride?: Partial<CompleteTutorProfileDto>) => {
         if (!user || isSubmitting) return;
         setIsSubmitting(true);
+        const submitData = dataOverride || formData;
 
         try {
-            const tokenArr = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-            const token = tokenArr ? tokenArr.split('=')[1] : null;
-            if (!token) throw new Error("No access token found");
-
-            // 1. If password provided, change it first (optional step)
-            if (newPassword && newPassword.length >= 8) {
-                await changePassword({ password: newPassword, confirmPassword: newPassword }, token);
-                toast.success("Contraseña actualizada");
+            // Complete Profile via BFF route
+            console.log("Datos enviados para completar perfil:", submitData);
+            const res = await fetch('/api/tutor/complete-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(submitData),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                throw new Error(err?.message ?? 'Profile completion failed');
             }
+            sileo.success({ title: '¡Perfil completado con éxito!', fill: '#58d68d' });
+            useAuthStore.setState({ requiresProfileCompletion: false });
 
-            // 2. Complete or Update Profile
-            if (requiresProfileCompletion) {
-                await completeTutorProfile(formData as CompleteTutorProfileDto, token);
-                toast.success("¡Perfil completado con éxito!");
-
-                // Update local store state to reflect completion
-                useAuthStore.setState({ requiresProfileCompletion: false });
-            } else {
-                await updateTutorProfile(formData, token);
-                toast.success("¡Perfil actualizado!");
-            }
-
-            // On success, go to finish step
-            setStep(5);
+            // Go to finish step
+            setStep(4);
         } catch (error: any) {
-            toast.error(`Error: ${error.message}`);
+            sileo.error({ title: 'Error', description: error.message, fill: '#f35761' });
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const isFinishStep = step === 5;
+    const isFinishStep = step === 4;
 
     const containerRef = React.useRef<HTMLDivElement>(null);
     const stepRef = React.useRef<StepHandle>(null);
@@ -131,17 +113,15 @@ export default function VaulDrawer() {
     }, []);
 
     // Reset footer state when step changes
-    useEffect(() => {
+    const goToStep = (targetStep: number) => {
+        // Save current step data before navigating away
+        const data = stepRef.current?.getData?.();
+        if (data) {
+            setFormData(prev => ({ ...prev, ...data }));
+        }
         setCanContinue(false);
         setContinueLabel('Continuar');
-    }, [step]);
-
-    const handleFooterSkip = () => {
-        if (step === 4) {
-            handleSubmit();
-        } else {
-            skipStep();
-        }
+        setStep(targetStep);
     };
 
     const handleFooterContinue = () => {
@@ -151,11 +131,11 @@ export default function VaulDrawer() {
     return (
         <div ref={containerRef}>
             <Drawer.Root
-                dismissible={!requiresProfileCompletion}
+                dismissible={false}
                 open={isOpen}
                 modal={true}
                 onOpenChange={(open) => {
-                    if (requiresProfileCompletion && !open) return;
+                    if (!open) return;
                     setIsOpen(open);
                 }}
             >
@@ -166,18 +146,19 @@ export default function VaulDrawer() {
                         <div aria-hidden className="drawer-handle" />
 
                         {/* Header */}
-                        <div className="drawer-header">
-                            <Drawer.Title className="drawer-title">
-                                <span className="drawer-title-text">
-                                    {requiresProfileCompletion ? 'Completar perfil' : 'Actualizar perfil'}
-                                </span>
-                            </Drawer.Title>
-                            <Drawer.Description className="drawer-description">
-                                {requiresProfileCompletion
-                                    ? (user?.name ? `Bienvenido ${user.name}` : 'Bienvenido')
-                                    : 'Modifica la información de tu perfil'}
-                            </Drawer.Description>
-                        </div>
+                        {!isFinishStep && (
+                            <div className="drawer-header">
+                                <Drawer.Title className="drawer-title">
+                                    <span className="drawer-title-text">
+                                        <span>Completemos tu perfil</span>
+                                        <img src={markedTitle.src} alt="Marked" />
+                                    </span>
+                                </Drawer.Title>
+                                <Drawer.Description className="drawer-description">
+                                    {user?.name ? `Bienvenido ${user.name}` : 'Bienvenido'}
+                                </Drawer.Description>
+                            </div>
+                        )}
 
                         <div className="drawer-layout">
                             <div className='drawer-content-container'>
@@ -186,9 +167,7 @@ export default function VaulDrawer() {
                                     <nav className="drawer-step-nav">
                                         <div className="drawer-step-nav-header">
                                             <Drawer.Description className="drawer-description">
-                                                {requiresProfileCompletion
-                                                    ? 'Bienvenido, sigue los pasos para configurar tu cuenta.'
-                                                    : 'Actualiza los datos de tu cuenta a continuación.'}
+                                                Bienvenido, sigue los pasos para configurar tu cuenta.
                                             </Drawer.Description>
                                         </div>
                                         <ul className="drawer-step-list">
@@ -196,13 +175,16 @@ export default function VaulDrawer() {
                                                 <li key={s.id}>
                                                     <button
                                                         className={`drawer-step-item${step === s.id ? ' drawer-step-item--active' : ''}${step > s.id ? ' drawer-step-item--done' : ''}`}
-                                                        onClick={() => goToStep(s.id)}
+                                                        onClick={() => { if (s.id < step) goToStep(s.id); }}
                                                         type="button"
+                                                        disabled={s.id > step}
                                                     >
                                                         <span className="drawer-step-number">{s.shortLabel}</span>
                                                         <span className="drawer-step-label">{s.label}</span>
                                                         {step > s.id && (
-                                                            <span className="drawer-step-check">✓</span>
+                                                            <span className="drawer-step-check">
+                                                                <img style={{width: '20px', height: '20px'}} src={checkedIcon.src} alt="Completado" />
+                                                            </span>
                                                         )}
                                                     </button>
                                                 </li>
@@ -216,6 +198,7 @@ export default function VaulDrawer() {
                                     {step === 1 && (
                                         <ChooseSubjects
                                             ref={stepRef}
+                                            initialSelected={formData.subject_ids}
                                             onNext={(data) => nextStep(data)}
                                             onCanContinueChange={handleCanContinueChange}
                                         />
@@ -226,7 +209,6 @@ export default function VaulDrawer() {
                                             onNext={(blob) => {
                                                 if (blob) {
                                                     // TODO: Implement actual image upload
-                                                    // For now using a placeholder to allow profile completion
                                                     nextStep();
                                                 } else {
                                                     nextStep();
@@ -236,46 +218,36 @@ export default function VaulDrawer() {
                                         />
                                     )}
                                     {step === 3 && (
-                                        <SetAvailabilityHours
+                                        <PersonalData
                                             ref={stepRef}
-                                            onNext={(data) => nextStep(data)}
-                                            onCanContinueChange={handleCanContinueChange}
-                                        />
-                                    )}
-                                    {step === 4 && (
-                                        <SetNewPassword
-                                            ref={stepRef}
-                                            onNext={(pwd, phone) => {
-                                                setFormData(prev => ({ ...prev, phone }));
-                                                handleSubmit(pwd);
+                                            initialPhone={formData.phone}
+                                            onNext={(data) => {
+                                                const merged = { ...formData, ...data };
+                                                setFormData(merged);
+                                                handleSubmit(merged);
                                             }}
                                             onCanContinueChange={handleCanContinueChange}
                                         />
                                     )}
-                                    {step === 5 && (
+                                    {step === 4 && (
                                         <Finish onNext={() => setIsOpen(false)} />
                                     )}
                                 </div>
                             </div>
                         </div>
                         {!isFinishStep &&
-                            <div className="drawer-fixed-footer">
-                                <Button className="skip-button" onClick={handleFooterSkip} disabled={requiresProfileCompletion || isSubmitting}>
-                                    Omitir
-                                </Button>
+                            <div className="drawer-fixed-footer" style={{ justifyContent: 'center' }}>
                                 <div className="drawer-footer-step">
-                                    <p className="drawer-footer-step-text">
-                                        Paso
-                                    </p>
+                                    <p className="drawer-footer-step-text">Paso</p>
                                     <div className="drawer-footer-step-img">
-                                        {step === 1 && <img src={numberOne.src} alt="1" />}
-                                        {step === 2 && <img src={numberTwo.src} alt="2" />}
-                                        {step === 3 && <img src={numberThree.src} alt="3" />}
-                                        {step === 4 && <img src={numberFour.src} alt="4" />}
+                                        <img
+                                            src={[numberOne, numberTwo, numberThree][step - 1]?.src}
+                                            alt={String(step)}
+                                        />
                                     </div>
                                 </div>
-                                <Button className="next-button" onClick={handleFooterContinue} disabled={!canContinue || isSubmitting}>
-                                    {isSubmitting ? "Guardando..." : continueLabel}
+                                <Button className="next-button" style={{position: "absolute", right: "2rem"}} onClick={handleFooterContinue} disabled={!canContinue || isSubmitting}>
+                                    {isSubmitting ? "Guardando..." : step === 3 ? 'Guardar' : continueLabel}
                                 </Button>
                             </div>
                         }

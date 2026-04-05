@@ -157,8 +157,8 @@
 .drawer-footer-step-img {
   width: 24px;
   height: 24px;
-  rotate: 20deg;
   position: relative;
+  rotate: 20deg;
   top: 2px;
   right: 4px;
 }
@@ -216,9 +216,22 @@
 }
 
 .drawer-title-text {
+  color: #1a1a1a;
   position: relative;
   z-index: 2; /* Texto siempre al frente */
 }
+
+.drawer-title-text img{
+  position: absolute;
+  top: 0px;
+  left: -10px;
+}
+
+.drawer-title-text span {
+  z-index: 10;
+  position: relative;
+}
+
 
 .drawer-background {
   position: absolute;
@@ -273,12 +286,12 @@
 
 .drawer-step-item:hover {
   background: #f3edff;
-  color: #5a3ea8;
+  color: #6c41cc;
 }
 
 .drawer-step-item--active {
   background: #e7dcff;
-  color: #7c3aed;
+  color: #8751ff;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
 }
 
@@ -291,7 +304,7 @@
   font-weight: 700;
   line-height: 1;
   background: #e7dcff;
-  color: #7c3aed;
+  color: #8751ff;
   border-radius: 6px;
   padding: 0.25rem 0.5rem;
   flex-shrink: 0;
@@ -301,7 +314,7 @@
 }
 
 .drawer-step-item--active .drawer-step-number {
-  background: #7c3aed;
+  background: #8751ff;
   color: #fff;
 }
 
@@ -332,7 +345,7 @@
   font-size: 18px;
   line-height: 1;
   letter-spacing: -0.01em;
-  color: #7c3aed;
+  color: #8751ff;
   display: flex;
   align-items: center;
   justify-content: center;

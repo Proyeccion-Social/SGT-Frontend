@@ -126,7 +126,6 @@
           };
           localStorage.setItem("auth-storage", JSON.stringify(authStorage));
 
-          console.log(data);
           // Redirigir según estado del usuario
           if (data.requiresPasswordChange) {
             await navigate("/change-password");

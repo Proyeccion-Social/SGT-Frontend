@@ -35,7 +35,7 @@ export const ProposeModificationForm = ({
   modificar,
 }: Props) => {
   const [newModality,       setNewModality]       = useState<Modality>('');
-  const [newSessionType,    setNewSessionType]     = useState<SessionType>('');
+  const [newDurationHours, setNewDurationHours] = useState<string>('');
   const [newAvailabilityId, setNewAvailabilityId] = useState('');
   const [error,             setError]             = useState<string | null>(null);
  
@@ -45,10 +45,10 @@ export const ProposeModificationForm = ({
     onSubmittingChange?.(true);
 
     const body: ModifySessionBody = {
-      ...(newModality       && { newModality }),
-      ...(newSessionType    && { newSessionType }),
-      ...(newAvailabilityId && { newAvailabilityId }),
-    };
+  ...(newModality      && { newModality }),
+  ...(newDurationHours && { newDurationHours: Number(newDurationHours) }),
+  ...(newAvailabilityId && { newAvailabilityId: Number(newAvailabilityId) }),
+};
 
     try {
       console.log('[ProposeModification] handleConfirm ejecutado', { sessionId: session.id, body });
@@ -65,7 +65,7 @@ export const ProposeModificationForm = ({
     } finally {
       onSubmittingChange?.(false);
     }
-  }, [newModality, newSessionType, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
+  }, [newModality, newDurationHours, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
 
   useEffect(() => {
     if (triggerSubmitRef) {
@@ -99,16 +99,17 @@ export const ProposeModificationForm = ({
  
         <div className="pmf__card">
           <div className="form-field">
-            <label htmlFor="pmf-type" className="form-field__label">Tipo</label>
+            <label htmlFor="pmf-duration" className="form-field__label">Duración</label>
             <select
-              id="pmf-type"
+              id="pmf-duration"
               className="form-field__select"
-              value={newSessionType}
-              onChange={(e) => setNewSessionType(e.target.value as SessionType)}
+              value={newDurationHours}
+              onChange={(e) => setNewDurationHours(e.target.value)}
             >
               <option value="">Sin cambio</option>
-              <option value="individual">Individual</option>
-              <option value="grupal">Grupal</option>
+              <option value="1">1 hora</option>
+              <option value="1.5">1 hora 30 min</option>
+              <option value="2">2 horas</option>
             </select>
           </div>
         </div>

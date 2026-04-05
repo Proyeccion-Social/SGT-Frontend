@@ -277,7 +277,7 @@ export interface EditSessionBody {
  
 export interface ModifySessionBody {
   newScheduledDate?: string;      // ISO date string
-  newAvailabilityId?: string;     // slot id from getTutorSlots
+  newAvailabilityId?: number;     // slot id from getTutorSlots
   newModality?: string;
   newDurationHours?: number;
 }

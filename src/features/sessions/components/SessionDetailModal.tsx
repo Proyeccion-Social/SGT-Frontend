@@ -6,6 +6,8 @@ import './styles/SessionDetailModal.css';
 import type { Session, ModifySessionBody } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
+import { useTutorSlots } from '../hooks/useAvailability';
+import type { AvailabilitySlot } from './ProposeModificationView';
 
 export type ModalView = 'detail' | 'propose' | 'edit';
  
@@ -20,6 +22,7 @@ interface Props {
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
+  const { slots: availabilitySlots } = useTutorSlots(session?.tutor?.id ?? null); 
  
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
@@ -72,6 +75,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
             role={role}
             isProposing={view === 'propose'}
             isEditing={view === 'edit'}
+            availabilitySlots={availabilitySlots}
             onProposeModification={() => setView('propose')}
             onBack={() => setView('detail')}
             onEdit={() => setView('edit')}

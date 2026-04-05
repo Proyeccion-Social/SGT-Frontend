@@ -7,6 +7,8 @@ import ubicacion from './icons/compu.svg'
 import pin from './icons/Pin.svg'
 import calendar from './icons/calendar-day.svg'
 import time from './icons/timer.svg'
+
+
 import type { Session, ModifySessionBody } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import type { AvailabilitySlot }   from './ProposeModificationView';

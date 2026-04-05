@@ -36,7 +36,7 @@ export const ProposeModificationForm = ({
 }: Props) => {
   const [newModality,       setNewModality]       = useState<Modality>('');
   const [newSessionType,    setNewSessionType]     = useState<SessionType>('');
-  const [newAvailabilityID, setNewAvailabilityID] = useState('');
+  const [newAvailabilityId, setNewAvailabilityId] = useState('');
   const [error,             setError]             = useState<string | null>(null);
  
  
@@ -47,7 +47,7 @@ export const ProposeModificationForm = ({
     const body: ModifySessionBody = {
       ...(newModality       && { newModality }),
       ...(newSessionType    && { newSessionType }),
-      ...(newAvailabilityID && { newAvailabilityID }),
+      ...(newAvailabilityId && { newAvailabilityId }),
     };
 
     try {
@@ -65,7 +65,7 @@ export const ProposeModificationForm = ({
     } finally {
       onSubmittingChange?.(false);
     }
-  }, [newModality, newSessionType, newAvailabilityID, modificar, session.id, onSuccess, onSubmittingChange]);
+  }, [newModality, newSessionType, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
 
   useEffect(() => {
     if (triggerSubmitRef) {
@@ -124,8 +124,8 @@ export const ProposeModificationForm = ({
             <select
               id="pmf-slot"
               className="form-field__select"
-              value={newAvailabilityID}
-              onChange={(e) => setNewAvailabilityID(e.target.value)}
+              value={newAvailabilityId}
+              onChange={(e) => setNewAvailabilityId(e.target.value)}
               disabled={!slotsAvailable}
               title={!slotsAvailable ? 'Pendiente de disponibilidad del tutor' : undefined}
             >

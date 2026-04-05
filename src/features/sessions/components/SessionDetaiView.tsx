@@ -9,7 +9,7 @@ import calendar from './icons/calendar-day.svg'
 import time from './icons/timer.svg'
 
 
-import type { Session, ModifySessionBody } from '../types/session.types';
+import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import type { AvailabilitySlot }   from './ProposeModificationView';
 import { EditSessionForm } from './EditSessionView'
@@ -34,6 +34,7 @@ interface Props {
   onProposeSuccess: () => void;
   onEditSuccess: () => void;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
  
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -114,6 +115,7 @@ export const SessionDetailView = ({
   onProposeSuccess,
   onEditSuccess,
   modificar,
+  editar,
 }: Props) => {
   const tutorName = tutorInfo?.name ?? session.tutor?.name ?? 'Tutor';
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
@@ -174,6 +176,7 @@ export const SessionDetailView = ({
             onSuccess={onEditSuccess}
             onSubmittingChange={setIsSubmitting}
             triggerSubmitRef={submitRef}
+            editar={editar}
           />
         ) : (
           <div className="sdv__cards">

@@ -4,14 +4,13 @@
 
 import { useState } from 'react';
 import type { Session, EditSessionBody } from '../types/session.types';
-import { editSession } from '../services/sessionService';
-import { useAuthStore } from '../../../store/authStore';
 
 interface Props {
   session: Session;
   onSuccess: () => void;
   onSubmittingChange?: (isSubmitting: boolean) => void;
   triggerSubmitRef?: React.MutableRefObject<(() => Promise<void>) | null>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
  
 export const EditSessionForm = ({
@@ -19,14 +18,13 @@ export const EditSessionForm = ({
   onSuccess,
   onSubmittingChange,
   triggerSubmitRef,
+  editar,
 }: Props) => {
   const [title,       setTitle]       = useState(session.title);
   const [description, setDescription] = useState(session.description);
   const [location,    setLocation]    = useState('');
   const [virtualLink, setVirtualLink] = useState('');
   const [error,       setError]       = useState<string | null>(null);
- 
-  const token = useAuthStore((s) => s.token);
  
   const handleConfirm = async () => {
     setError(null);
@@ -40,7 +38,8 @@ export const EditSessionForm = ({
     };
  
     try {
-      await editSession(session.id, body, String(token));
+      const success = await editar(session.id, body);
+      if (!success) throw new Error('No se pudieron guardar los cambios.');
       onSuccess();
     } catch (err: any) {
       setError(err?.message ?? 'Error al guardar cambios.');

@@ -165,7 +165,7 @@ export function editSession(
   body: EditSessionBody,
   token: string
 ): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
-  return request(`/scheduling/sessions/${sessionId}`, token, {
+  return request(`/scheduling/sessions/${sessionId}/details`, token, {
     method: 'PATCH',
     body: JSON.stringify(body),
   });

@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import './styles/SessionDetailModal.css';
-import type { Session, ModifySessionBody } from '../types/session.types';
+import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
 import { useTutorSlots } from '../hooks/useAvailability';
@@ -17,9 +17,10 @@ interface Props {
   onClose: () => void;
   onRequestCancel: (session: Session) => void;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
  
-export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar }: Props) => {
+export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
   const { slots: availabilitySlots } = useTutorSlots(session?.tutor?.id ?? null); 
@@ -83,6 +84,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
             onProposeSuccess={onClose}
             onEditSuccess={onClose}
             modificar={modificar} 
+            editar={editar}
           />
         )}
       </div>

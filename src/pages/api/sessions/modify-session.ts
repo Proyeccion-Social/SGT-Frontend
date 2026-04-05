@@ -21,8 +21,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
+    console.log("DATOS RECIBIDA: ",
+          "{",
+            " body: ", body,
+            " token: ", token,
+            " sessionId: ", sessionId,
+            "}"
+        );
     const data = await modifySession(sessionId, body, token);
+    
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

@@ -7,7 +7,7 @@ import ubicacion from './icons/compu.svg'
 import pin from './icons/Pin.svg'
 import calendar from './icons/calendar-day.svg'
 import time from './icons/timer.svg'
-import type { Session } from '../types/session.types';
+import type { Session, ModifySessionBody } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import type { AvailabilitySlot }   from './ProposeModificationView';
 import { EditSessionForm } from './EditSessionView'
@@ -31,6 +31,7 @@ interface Props {
   onCancel: () => void;
   onProposeSuccess: () => void;
   onEditSuccess: () => void;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
 }
  
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -99,6 +100,7 @@ export const SessionDetailView = ({
   onCancel,
   onProposeSuccess,
   onEditSuccess,
+  modificar,
 }: Props) => {
   const tutorName = tutorInfo?.name ?? session.tutor?.name ?? 'Tutor';
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
@@ -151,6 +153,7 @@ export const SessionDetailView = ({
             onSuccess={onProposeSuccess}
             onSubmittingChange={setIsSubmitting}
             triggerSubmitRef={submitRef}
+            modificar={modificar}   // ← nuevo
           />
         ) : isEditing ? (
           <EditSessionForm

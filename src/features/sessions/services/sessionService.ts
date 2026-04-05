@@ -151,7 +151,7 @@ export function modifySession(
   body: ModifySessionBody,
   token: string
 ): Promise<{ success: boolean; message: string }> {
-  return request(`/scheduling/sessions/${sessionId}`, token, {
+  return request(`/scheduling/sessions/${sessionId}/propose-modification`, token, {
     method: 'POST',
     body: JSON.stringify(body),
   });

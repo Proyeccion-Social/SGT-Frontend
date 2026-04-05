@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const DashboardSessionManager = ({ role }: Props) => {
-  const { cancelar ,sessions, loading, error, fetchMySessions: refetch } = useSession(role);
+  const { cancelar, modificar ,sessions, loading, error, fetchMySessions: refetch } = useSession(role);
   // canCancel es tu lógica de ventana de tiempo — ejemplo:
   const canCancel = (session: Session) => {
     // tu lógica aquí, ej: verificar que falten más de X horas
@@ -65,7 +65,8 @@ export const DashboardSessionManager = ({ role }: Props) => {
           role={role}
           onClose={() => setSelectedSessionId(null)}
           onRequestCancel={handleRequestCancel}
-        />
+          modificar={modificar}
+        />  
       )}
 
       {showCancelModal && sessionToCancel && (

@@ -4,7 +4,7 @@ import {
   getMySessions,
   cancelSession,
 } from '../services/sessionService';
-import type { Session, CreateSessionDTO, Modality } from '../types/session.types';
+import type { Session, CreateSessionDTO, Modality, ModifySessionBody } from '../types/session.types';
 import { useAuthStore } from '@/store/authStore';
 
 interface UseSessionReturn {
@@ -14,6 +14,7 @@ interface UseSessionReturn {
   fetchMySessions: () => Promise<void>;
   agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
   cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
 }
 
 export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
@@ -41,7 +42,6 @@ export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
         throw new Error(body?.message ?? `HTTP ${res.status}`);
       }
       const json = await res.json();
-      // Backend wraps response in { data: [...] }
       setSessions(json.data ?? json);
     } catch (err) {
       console.error('[useSessions] error:', err);
@@ -99,5 +99,40 @@ export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
     }
   }, []);
 
-  return { sessions, loading, error, fetchMySessions, agendar, cancelar };
+  // ── NUEVO ──────────────────────────────────────────────────────────────────
+  const modificar = useCallback(
+    async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/sessions/modify-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, ...data }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+
+        const updated: Session = await res.json();
+
+        setSessions(prev =>
+          prev.map(s => (s.id === sessionId ? { ...s, ...updated } : s))
+        );
+        return true;
+      } catch (err) {
+        console.error('[useSessions] error:', err);
+        setError(err instanceof Error ? err.message : 'Error modifying session');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  // ──────────────────────────────────────────────────────────────────────────
+
+  return { sessions, loading, error, fetchMySessions, agendar, cancelar, modificar };
 }

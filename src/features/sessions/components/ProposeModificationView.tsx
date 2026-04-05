@@ -3,13 +3,11 @@
 // T013: Connected to modifySession service
 import './styles/ProposeModificationView.css'
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Session, ModifySessionBody } from '../types/session.types';
-import { modifySession } from '../services/sessionService';
-import { useAuthStore } from '../../../store/authStore';
 
 export type SessionType = 'individual' | 'grupal' | '';
-export type Modality    = 'virtual' | 'in-person' | '';
+export type Modality    = 'VIRT' | 'PRES' | '';
  
 export interface AvailabilitySlot {
   id: string;
@@ -25,6 +23,7 @@ interface Props {
   onSubmittingChange?: (isSubmitting: boolean) => void;
   /** El padre llama a triggerSubmitRef.current() cuando presiona Confirmar. */
   triggerSubmitRef?: React.MutableRefObject<(() => Promise<void>) | null>;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
 }
  
 export const ProposeModificationForm = ({
@@ -33,37 +32,46 @@ export const ProposeModificationForm = ({
   onSuccess,
   onSubmittingChange,
   triggerSubmitRef,
+  modificar,
 }: Props) => {
   const [newModality,       setNewModality]       = useState<Modality>('');
   const [newSessionType,    setNewSessionType]     = useState<SessionType>('');
   const [newAvailabilityID, setNewAvailabilityID] = useState('');
   const [error,             setError]             = useState<string | null>(null);
  
-  const token = useAuthStore((s) => s.token);
  
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     setError(null);
     onSubmittingChange?.(true);
- 
+
     const body: ModifySessionBody = {
       ...(newModality       && { newModality }),
       ...(newSessionType    && { newSessionType }),
       ...(newAvailabilityID && { newAvailabilityID }),
     };
- 
+
     try {
-      await modifySession(session.id, body, String(token));
-      onSuccess();
+      console.log('[ProposeModification] handleConfirm ejecutado', { sessionId: session.id, body });
+      const ok = await modificar(session.id, body);
+      if (ok) {
+        console.log('ejecutada la modificacion con exito');
+        onSuccess();
+      } else {
+        console.error('FALLO EL MODIFICAR');
+        setError('No se pudo proponer la modificación.');
+      }
     } catch (err: any) {
       setError(err?.message ?? 'Error al proponer modificación.');
     } finally {
       onSubmittingChange?.(false);
     }
-  };
- 
-  if (triggerSubmitRef) {
-    triggerSubmitRef.current = handleConfirm;
-  }
+  }, [newModality, newSessionType, newAvailabilityID, modificar, session.id, onSuccess, onSubmittingChange]);
+
+  useEffect(() => {
+    if (triggerSubmitRef) {
+      triggerSubmitRef.current = handleConfirm;
+    }
+  }, [handleConfirm]);
  
   const slotsAvailable = availabilitySlots.length > 0;
  
@@ -83,8 +91,8 @@ export const ProposeModificationForm = ({
               onChange={(e) => setNewModality(e.target.value as Modality)}
             >
               <option value="">Sin cambio</option>
-              <option value="virtual">Virtual</option>
-              <option value="in-person">Presencial</option>
+              <option value="VIRT">Virtual</option>
+              <option value="PRES">Presencial</option>
             </select>
           </div>
         </div>

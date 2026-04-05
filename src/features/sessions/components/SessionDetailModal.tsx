@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import './styles/SessionDetailModal.css';
-import type { Session } from '../types/session.types';
+import type { Session, ModifySessionBody } from '../types/session.types';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
 
@@ -14,9 +14,10 @@ interface Props {
   role: 'tutor' | 'student';
   onClose: () => void;
   onRequestCancel: (session: Session) => void;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
 }
  
-export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }: Props) => {
+export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
  
@@ -71,13 +72,13 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
             role={role}
             isProposing={view === 'propose'}
             isEditing={view === 'edit'}
-            // availabilitySlots={slots} ← conectar cuando esté disponible la API
             onProposeModification={() => setView('propose')}
             onBack={() => setView('detail')}
             onEdit={() => setView('edit')}
             onCancel={() => onRequestCancel(session)}
             onProposeSuccess={onClose}
             onEditSuccess={onClose}
+            modificar={modificar} 
           />
         )}
       </div>

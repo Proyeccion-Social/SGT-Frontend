@@ -1,12 +1,13 @@
 ---
 import { Image } from "astro:assets";
-import { jwtDecode } from "jwt-decode";
+import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
+
 import MainLayout from "../Layout.astro";
 import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import OptionButton from "../../features/dashboards/components/OptionButton.astro";
+
 import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
-import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");

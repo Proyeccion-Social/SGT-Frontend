@@ -12,7 +12,7 @@ export default function Finish({ onNext, userName }: { onNext: () => void; userN
                         <h2 className="finish-title">Has completado tu perfil</h2>
                         <img src={marked.src} alt="Completado" className="finish-mark" />
                     </article>
-                    <p className="finish-subtitle">Bienvenido {userName ?? "Johan"}</p>
+                    <p className="finish-subtitle">{userName ? `Bienvenido ${userName}` : "Bienvenido"}</p>
                     <article className="arrow-continue">
                         <img src={arrow.src} alt="Continuar" className="finish-arrow" />
                         <a className="finish-anchord" onClick={onNext}>

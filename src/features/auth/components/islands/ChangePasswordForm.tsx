@@ -1,4 +1,4 @@
-import "./ChangePasswordForm.css";
+import "../../assets/styles/ChangePasswordForm.css";
 import { useState, useEffect } from "react";
 import { navigate } from "astro:transitions/client";
 import { useAuthStore } from "@/store/authStore";

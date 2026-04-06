@@ -1,19 +1,19 @@
 'use client';
-import './styles/drawer.css';
 import { Drawer } from 'vaul';
+import { sileo } from 'sileo';
 import React, { useEffect, useCallback } from 'react';
-import type { StepHandle } from '@/features/tutorProfile/components/ChooseSubjects';
 
+import type { StepHandle } from '@/features/tutorProfile/components/ChooseSubjects';
 import ChooseSubjects from '@/features/tutorProfile/components/ChooseSubjects';
 import UploadProfileImage from '@/features/tutorProfile/components/UploadProfileImage';
 import PersonalData from '@/features/tutorProfile/components/PersonalData';
 import Finish from '@/features/tutorProfile/components/Finish';
+import { Button } from '@/components/ui/button';
 
 import { useAuthStore } from '@/store/authStore';
 import type { CompleteTutorProfileDto } from '@/features/tutorProfile/services/tutorService';
-import { sileo } from 'sileo';
-import { Button } from '@/components/ui/button';
 
+import './styles/drawer.css';
 import checkedIcon from "./images/checked-icon.svg"
 import numberOne from "./images/number-one.png";
 import numberTwo from "./images/number-two.png";

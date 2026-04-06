@@ -1,4 +1,4 @@
-import "./ChangePasswordForm.css";
+import "../../assets/styles/ChangePasswordForm.css";
 import { useAuthStore } from "@/store/authStore";
 
 export default function ChangePasswordGreeting() {

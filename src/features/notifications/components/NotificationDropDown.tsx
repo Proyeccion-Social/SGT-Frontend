@@ -62,8 +62,8 @@ export function NotificationDropDown() {
         <DropdownMenuContent className="w-80 bg-[#FFFFFF]/90  text-black" align="end" side="right" sideOffset={15} >
           <DropdownMenuGroup>
             <DropdownMenuLabel className="flex items-center justify-between">
-              <span>Notificaciones</span>
-              <button className="text-foreground text-xs font-normal underline-offset-2 hover:underline">
+              <span className="text-[20px] text-black">Notificaciones</span>
+              <button className="text-foreground text-[10px] font-normal underline-offset-2 hover:underline">
                 Marcar todas como leídas
               </button>
             </DropdownMenuLabel>

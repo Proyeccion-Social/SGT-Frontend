@@ -1,6 +1,6 @@
 import HandWrittenArrow from './icons/HandWrittenArrow.svg';
 import HandWrittenLine from './icons/HandWrittenLine.svg';
-import "../../../styles/badge.css";
+import "../styles/badge.css";
 
 
 type Props = {
@@ -16,6 +16,7 @@ export const RoleBadge = ({ name, role }: Props) => {
   };
 
   const roleName = roleNames[role.toLowerCase()] ?? '';
+  const firstName = name.split(' ')[0];
 
   return (
     <div className="badge-container">
@@ -26,13 +27,13 @@ export const RoleBadge = ({ name, role }: Props) => {
             <img src={HandWrittenArrow.src} alt="Arrow" className="hand-drawn-arrow" />
           </>
         )}
-      </div>
-
-      <span className="highlight-name">
-        {name}
         {roleName === 'Estudiante' && (
           <img src={HandWrittenLine.src} alt="Line" className="hand-drawn-line" />
         )}
+      </div>
+
+      <span className="highlight-name">
+        {firstName}
       </span>
     </div>
   );

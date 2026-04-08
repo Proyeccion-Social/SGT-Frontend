@@ -1,87 +1,63 @@
 ---
 import { Image } from "astro:assets";
-import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
+import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+import OptionButton from "@/features/dashboards/components/OptionButton.astro";
 
-import MainLayout from "../Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
-import OptionButton from "../../features/dashboards/components/OptionButton.astro";
-
-import RoleChangeIcon from "../../features/dashboards/components/icons/RoleChangeIcon.svg";
-import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
-
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/");
-
-const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
+import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
+import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 ---
 
-<MainLayout title='Dashboard'>
-  <div class='dashboard-container'>
-    <Sidebar userRole={userRole} />
+<main class='content-wrapper'>
+  <div class='dashboard-content'>
+    <div class='welcome-banner-slot'>
+      <WelcomeBanner client:only='react' />
+    </div>
 
-    <main class='content-wrapper'>
-      <div class='dashboard-content'>
-        <div class='welcome-banner-slot'>
-          <WelcomeBanner client:only='react' />
-        </div>
+    <div class='buttons'>
+      <OptionButton
+        backgroundColor='#B797FF'
+        titleColor='#513199'
+        title='Crear tutor'
+      />
+      <OptionButton
+        backgroundColor='#CDFF8E'
+        titleColor='#4D662E'
+        title='Analíticas'
+      />
+      <OptionButton
+        backgroundColor='#F7DF94'
+        titleColor='#91792E'
+        title='Materias'
+      />
+      <OptionButton
+        backgroundColor='#A3A3A3'
+        titleColor='#1A1A1A'
+        title='Configuración'
+      />
+      <OptionButton
+        backgroundColor='#58D68D'
+        titleColor='#12522D'
+        title='Gestionar tutores'
+      />
+    </div>
 
-        <div class='buttons'>
-          <OptionButton
-            backgroundColor='#B797FF'
-            titleColor='#513199'
-            title='Crear tutor'
-          />
-          <OptionButton
-            backgroundColor='#CDFF8E'
-            titleColor='#4D662E'
-            title='Analíticas'
-          />
-          <OptionButton
-            backgroundColor='#F7DF94'
-            titleColor='#91792E'
-            title='Materias'
-          />
-          <OptionButton
-            backgroundColor='#A3A3A3'
-            titleColor='#1A1A1A'
-            title='Configuración'
-          />
-          <OptionButton
-            backgroundColor='#58D68D'
-            titleColor='#12522D'
-            title='Gestionar tutores'
-          />
-        </div>
-
-        <div class='user-header'>
-          <button class='role-change-button'
-            ><Image
-              src={RoleChangeIcon}
-              alt='Change Role'
-              class='role-change-img'
-            /></button
-          >
-          <button class='avatar'><Image src={UserIcon} alt='User' /></button>
-        </div>
-      </div>
-    </main>
+    <div class='user-header'>
+      <button class='role-change-button'
+        ><Image
+          src={RoleChangeIcon}
+          alt='Change Role'
+          class='role-change-img'
+        /></button
+      >
+      <button class='avatar'><Image src={UserIcon} alt='User' /></button>
+    </div>
   </div>
-</MainLayout>
+</main>
 
 <style>
-  .dashboard-container {
-    display: flex;
-    width: 100vw;
-    height: 100%;
-    overflow-x: hidden;
-    background-color: #f3edff;
-  }
-
   .content-wrapper {
     flex: 1;
     display: flex;
-    padding: 18px 20px 20px 0;
     min-width: 0;
   }
 
@@ -94,7 +70,6 @@ const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
     overflow-y: auto;
     align-items: center;
     justify-content: center;
-    margin-top: 30px;
   }
 
   .welcome-banner-slot {

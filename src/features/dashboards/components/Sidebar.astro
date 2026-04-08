@@ -22,11 +22,11 @@ const currentPath = Astro.url.pathname;
 
 <aside class='sidebar' id='main-sidebar'>
   <div class='navbar-header'>
-    <a href='/'><img src='/favicon.svg' alt='Logo' /></a>
+    <a href='/'><img src='/favicon.svg' alt='LogoSideBar' /></a>
+    <button class='collapse-button' id='sidebar-toggle'>
+      <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
+    </button>
   </div>
-  <button class='collapse-button' id='sidebar-toggle'>
-    <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
-  </button>
 
   <div class='navbar-items'>
     {
@@ -47,21 +47,10 @@ const currentPath = Astro.url.pathname;
         <Image src={DashboardIcon} alt='Dashboard' class='icon' />
         <span class='nav-label'>Dashboard</span>
       </a>
-    <div
-      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
-    >
-      <a href='/dashboard'>
-        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
-      </a>
     </div>
-
     {
       userRole === "admin" && (
         <>
-          <a href='#'>
-            <Image src={WindowIcon} alt='Window' class='icon' />
-            <span class='nav-label'>Gestión</span>
-          </a>
           <a href='#'>
             <Image src={ConfigIcon} alt='Config' class='icon' />
             <span class='nav-label'>Configuración</span>
@@ -82,10 +71,10 @@ const currentPath = Astro.url.pathname;
             <Image src={WindowIcon} alt='Slots' class='icon' />
             <span class='nav-label'>Tu Disponibilidad</span>
           </a>
-          <a href='#'>
+          <button type='button' id='config-drawer-trigger'>
             <Image src={ConfigIcon} alt='Config' class='icon' />
             <span class='nav-label'>Configuración</span>
-          </a>
+          </button>
           <a href='#'>
             <Image src={HistoryIcon} alt='History' class='icon' />
             <span class='nav-label'>Historial</span>
@@ -97,11 +86,9 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <>
-          <a 
-            href="/search"
-            class={
-              currentPath.startsWith("/search") ? "active-link" : ""
-            }
+          <a
+            href='/search'
+            class={currentPath.startsWith("/search") ? "active-link" : ""}
           >
             <Image src={SearchIcon} alt='Search' class='icon' />
             <span class='nav-label'>Buscar</span>
@@ -131,10 +118,12 @@ const currentPath = Astro.url.pathname;
       </a>
     </div>
 
-    <a href='#'>
-      <Image src={LogoutIcon} alt='Logout' class='icon' />
-      <span class='nav-label'>Cerrar Sesión</span>
-    </a>
+    <div class='logout-container'>
+      <button type='button' id='logout-button'>
+        <Image src={LogoutIcon} alt='Logout' class='icon' />
+        <span class='nav-label'>Cerrar Sesión</span>
+      </button>
+    </div>
   </div>
 </aside>
 
@@ -150,7 +139,7 @@ const currentPath = Astro.url.pathname;
       width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
       padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     position: relative;
-    z-index: 50;
+    z-index: 10;
     background: #f4f0ff;
     overflow: visible;
   }
@@ -164,19 +153,19 @@ const currentPath = Astro.url.pathname;
 
   /* Header y Logo */
   .navbar-header {
-    margin-top: -1rem;
     margin-bottom: auto;
     position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
     padding-left: 0;
     transition: padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   .sidebar.expanded .navbar-header {
     padding-left: 10px;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .navbar-header img {
@@ -199,7 +188,6 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 60;
   }
 
   .collapse-icon {
@@ -211,15 +199,23 @@ const currentPath = Astro.url.pathname;
   }
 
   /* Contenedores de Navegación */
-  .navbar-items,
+  .navbar-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: auto;
+    transition: align-items 0s;
+  }
+
   .navbar-footer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
     width: 100%;
-    margin-top: auto;
-    margin-bottom: auto;
+    margin-bottom: 2rem;
     transition: align-items 0s;
   }
 
@@ -250,7 +246,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container,
   .dashboard-container,
-  .notification-container {
+  .notification-container,
+  .logout-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -269,7 +266,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container a,
   .dashboard-container a,
-  .notification-container a {
+  .notification-container a,
+  .logout-container button {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -282,7 +280,8 @@ const currentPath = Astro.url.pathname;
   .sidebar.expanded .navbar-footer > a,
   .sidebar.expanded .calendar-container,
   .sidebar.expanded .dashboard-container,
-  .sidebar.expanded .notification-container {
+  .sidebar.expanded .notification-container,
+  .sidebar.expanded .logout-container {
     width: 90%;
     justify-content: flex-start;
     padding-left: 10px;
@@ -291,7 +290,8 @@ const currentPath = Astro.url.pathname;
 
   .sidebar.expanded .calendar-container a,
   .sidebar.expanded .dashboard-container a,
-  .sidebar.expanded .notification-container a {
+  .sidebar.expanded .notification-container a,
+  .sidebar.expanded .logout-container button {
     justify-content: flex-start;
   }
 
@@ -299,6 +299,7 @@ const currentPath = Astro.url.pathname;
   .calendar-container {
     background: #cdff8e;
   }
+
   .notification-container {
     background: #e6ffc7;
   }
@@ -337,9 +338,38 @@ const currentPath = Astro.url.pathname;
     transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
   }
 
-  .navbar-footer {
-    margin-bottom: 0;
-    gap: 24px;
+  /* Config drawer trigger — style as nav link */
+  #config-drawer-trigger {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    transition:
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 0.2s ease;
+    gap: 10px;
+    white-space: nowrap;
+    color: inherit;
+  }
+
+  .sidebar.expanded #config-drawer-trigger {
+    width: 90%;
+    justify-content: flex-start;
+    padding-left: 10px;
+    gap: 16px;
+  }
+
+  #config-drawer-trigger:hover {
+    background: #e7dcff;
   }
 
   /* Active link highlight */
@@ -356,22 +386,78 @@ const currentPath = Astro.url.pathname;
 </style>
 
 <script>
-  document.addEventListener("astro:page-load", () => {
+  import { sileo } from "sileo";
+
+  const setupSidebar = () => {
     const sidebar = document.getElementById("main-sidebar");
     const toggle = document.getElementById("sidebar-toggle");
+    const configBtn = document.getElementById("config-drawer-trigger");
+    const logoutButton = document.getElementById("logout-button");
 
-    if (sidebar && toggle) {
-      toggle.addEventListener("click", () => {
+    if (!sidebar) return;
+
+    // --- 1. Control de Expansión Manual ---
+    if (toggle) {
+      toggle.onclick = () => {
         sidebar.classList.toggle("expanded");
-      });
-
-      window.addEventListener("force-sidebar-expand", () => {
-        sidebar.classList.add("expanded");
-      });
-
-      window.addEventListener("force-sidebar-collapse", () => {
-        sidebar.classList.remove("expanded");
-      });
+      };
     }
-  });
+
+    // --- 2. Sincronización con Menús Externos (Eventos Globales) ---
+    // Escuchamos los eventos que lanzan otros componentes (como el RightAvailabilityMenu)
+    const handleExpand = () => sidebar.classList.add("expanded");
+    const handleCollapse = () => sidebar.classList.remove("expanded");
+
+    window.removeEventListener("force-sidebar-expand", handleExpand);
+    window.removeEventListener("force-sidebar-collapse", handleCollapse);
+
+    window.addEventListener("force-sidebar-expand", handleExpand);
+    window.addEventListener("force-sidebar-collapse", handleCollapse);
+
+    // --- 3. Lógica de Logout ---
+    if (logoutButton) {
+      logoutButton.onclick = async () => {
+        try {
+          const authStorage = JSON.parse(
+            localStorage.getItem("auth-storage") || "{}",
+          );
+          const userId = authStorage?.state?.user?.id;
+
+          if (!userId) {
+            localStorage.removeItem("auth-storage");
+            window.location.replace("/");
+            return;
+          }
+
+          await sileo.promise(
+            async () => {
+              const res = await fetch("/api/auth/logout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: userId }),
+              });
+
+              if (!res.ok) throw new Error("Error en la petición");
+              localStorage.removeItem("auth-storage");
+            },
+            {
+              loading: { title: "Cerrando sesión...", fill: "#8751ff" },
+              success: { title: "Sesión cerrada", fill: "#58d68d" },
+              error: { title: "Error al cerrar sesión", fill: "#f35761" },
+            },
+          );
+
+          // Redirección limpia
+          window.location.replace("/");
+        } catch (error) {
+          console.error("Logout error:", error);
+          localStorage.removeItem("auth-storage");
+          window.location.replace("/");
+        }
+      };
+    }
+  };
+
+  // Inicialización en cada carga de página (soporta View Transitions)
+  document.addEventListener("astro:page-load", setupSidebar);
 </script>

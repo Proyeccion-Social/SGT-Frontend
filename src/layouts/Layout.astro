@@ -1,15 +1,15 @@
 ---
 import "@/styles/global.css";
-import { ViewTransitions } from "astro:transitions";
-import AuthHydrator from "@/store/AuthHydrator";
+import { ClientRouter } from "astro:transitions";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "sileo";
+import ToasterReact from "@/components/ui/ToasterReact";
 
 interface Props {
   title: string;
+  noToaster?: boolean;
 }
 
-const { title } = Astro.props;
+const { title, noToaster = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -19,14 +19,13 @@ const { title } = Astro.props;
     <meta name='viewport' content='width=device-width' />
     <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
     <meta name='generator' content={Astro.generator} />
-    <ViewTransitions />
+    <ClientRouter />
     <title>{title}</title>
   </head>
   <body>
-    <AuthHydrator client:load />
     <TooltipProvider>
       <slot />
     </TooltipProvider>
-    <Toaster client:only="react" position="top-center" offset={24} />
+    {!noToaster && <ToasterReact client:load />}
   </body>
 </html>

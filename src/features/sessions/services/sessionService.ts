@@ -27,7 +27,7 @@ function getAuthHeaders(): HeadersInit {
 }
 
 export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/scheduling/sessions/individual`, { 
+  const res = await fetch(`${import.meta.env.API_URL}/scheduling/sessions/individual`, { 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
     body: JSON.stringify(data),

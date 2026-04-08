@@ -4,10 +4,12 @@ import type { Slot } from "@/features/availability/services/availabilityService"
 interface Props {
   slots: Slot[];
   baseDate?: Date;
-  mode?: "tutor" | "student"
+  mode?: "tutor" | "student";
+  role?: "ADMIN" | "TUTOR" | "STUDENT";
 }
 
-const { slots: rawSlots, baseDate = new Date(), mode = "tutor" } = Astro.props;
+const { slots: rawSlots, baseDate = new Date(), mode: modeProp, role } = Astro.props;
+const mode = modeProp ?? (role?.toUpperCase() === "STUDENT" ? "student" : "tutor");
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
 import {

@@ -1,0 +1,17 @@
+---
+import StudentSchedule from "../../layouts/sessions/StudentSchedule.astro";
+import { fade } from "astro:transitions";
+
+const token = Astro.cookies.get("access_token")?.value;
+
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role; // 'ADMIN', 'TUTOR', 'STUDENT'
+---
+
+<article transition:animate={fade({ duration: "0.5s" })}>
+  {userRole === "STUDENT" && <StudentSchedule />}
+</article>

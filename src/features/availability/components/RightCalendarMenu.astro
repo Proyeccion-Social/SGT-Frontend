@@ -1,0 +1,417 @@
+---
+import { Image } from "astro:assets";
+import type { Slot } from "@/features/availability/services/availabilityService";
+import { DAYS } from "../utils/calendarConstants";
+import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
+import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+
+interface Props {
+  slots: Slot[];
+  baseDate: Date;
+  offset: number;
+  prevOffset: number;
+  nextOffset: number;
+}
+
+const { slots, baseDate, offset, prevOffset, nextOffset } = Astro.props;
+
+// Ayuda para obtener el nombre del mes formateado
+const monthName = baseDate.toLocaleString("es-ES", { month: "long" });
+const year = baseDate.getFullYear();
+
+// Calcular el rango de la semana actual (Lunes a Sábado) para el resaltado
+const currentDay = baseDate.getDay() === 0 ? 6 : baseDate.getDay();
+const monday = new Date(baseDate);
+monday.setDate(baseDate.getDate() - (currentDay - 1));
+const saturday = new Date(monday);
+saturday.setDate(monday.getDate() + 5);
+
+const mondayDate = monday.getDate();
+const saturdayDate = saturday.getDate();
+
+// Lógica del mini-calendario
+const firstDayOfMonth = new Date(year, baseDate.getMonth(), 1);
+const lastDayOfMonth = new Date(year, baseDate.getMonth() + 1, 0);
+const daysInMonth = lastDayOfMonth.getDate();
+const startDayOfWeek =
+  firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1; // 0 para el Lunes
+
+// Generar días para la cuadrícula
+const days = [];
+for (let i = 0; i < startDayOfWeek; i++) {
+  days.push({ day: null });
+}
+
+// Coincidencia de semana robusta: un día está en la "semana seleccionada" si su fecha cae entre nuestro lunes y sábado calculados
+const startOfSelectedWeek = new Date(monday);
+startOfSelectedWeek.setHours(0, 0, 0, 0);
+const endOfSelectedWeek = new Date(saturday);
+endOfSelectedWeek.setHours(23, 59, 59, 999);
+
+// Mapear días de la semana a fechas con slots
+const systemToday = new Date();
+systemToday.setHours(0, 0, 0, 0);
+
+const daysWithSlots = new Set<number>();
+DAYS.forEach((day, idx) => {
+  const dayHasSlots = slots.some(
+    (s) => s.dayOfWeek?.toString().toUpperCase() === day.key,
+  );
+  if (dayHasSlots) {
+    const slotDate = new Date(monday);
+    slotDate.setDate(monday.getDate() + idx);
+    daysWithSlots.add(slotDate.getDate());
+  }
+});
+
+for (let i = 1; i <= daysInMonth; i++) {
+  const date = new Date(year, baseDate.getMonth(), i);
+  date.setHours(0, 0, 0, 0);
+  const isSelected = date >= startOfSelectedWeek && date <= endOfSelectedWeek;
+  const isToday = date.getTime() === systemToday.getTime();
+  const hasSlots = daysWithSlots.has(i) && isSelected;
+  const isFirstOfWeek =
+    isSelected && date.getTime() === startOfSelectedWeek.getTime();
+  const isLastOfWeek =
+    isSelected &&
+    date.getDate() === endOfSelectedWeek.getDate() &&
+    date.getMonth() === endOfSelectedWeek.getMonth();
+  days.push({
+    day: i,
+    isSelected,
+    isToday,
+    hasSlots,
+    isFirstOfWeek,
+    isLastOfWeek,
+    date,
+  });
+}
+
+// Agrupar slots por día para la lista inferior
+const slotsByDay = DAYS.map((day) => {
+  // 1. Encontrar la fecha exacta de este día para la semana actual
+  // Si el día es Lunes (índice 0 en tu array DAYS), le sumamos 0 días al lunes de esta semana
+  const dayIndex = DAYS.indexOf(day);
+  const actualDate = new Date(monday);
+  actualDate.setDate(monday.getDate() + dayIndex);
+
+  // 2. Formatear la fecha (ej: "15 de Marzo")
+  const dateString = actualDate.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "short",
+  });
+
+  // 3. Filtrar los slots que pertenecen a este día de la semana
+  const daySlots = slots.filter((s) => s.dayOfWeek === day.key && !s.isBooked);
+
+  return {
+    ...day,
+    dateLabel: dateString,
+    slots: daySlots.sort((a, b) => a.startTime.localeCompare(b.startTime)),
+    totalHours: daySlots.length,
+  };
+}).filter((d) => d.slots.length > 0);
+---
+
+<div class='right-menu-inner'>
+  <div class='user-profile'>
+    <UserHeader userRole='tutor' />
+  </div>
+
+  <div class='mini-calendar'>
+    <div class='calendar-header'>
+      <h4>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}</h4>
+      <div class='calendar-nav'>
+        <a href={`?offset=${prevOffset}&openMenu=true`} class='cal-nav-btn'>
+          <Image src={BackArrowIcon} alt='Back' />
+        </a>
+        <a href={`?offset=${nextOffset}&openMenu=true`} class='cal-nav-btn'>
+          <Image src={ForwardArrowIcon} alt='Forward' />
+        </a>
+      </div>
+    </div>
+
+    <div class='calendar-grid'>
+      <div class='grid-header'>Lu</div>
+      <div class='grid-header'>Ma</div>
+      <div class='grid-header'>Mi</div>
+      <div class='grid-header'>Ju</div>
+      <div class='grid-header'>Vi</div>
+      <div class='grid-header'>Sa</div>
+      <div class='grid-header'>Do</div>
+
+      {
+        days.map((item) =>
+          item.day ? (
+            <div
+              class={`grid-day ${item.isSelected ? "selected" : ""} ${item.isFirstOfWeek ? "week-start" : ""} ${item.isLastOfWeek ? "week-end" : ""}`}
+            >
+              <span
+                class={`day-num ${item.isFirstOfWeek || item.isLastOfWeek ? "circle-endpoint" : ""}`}
+              >
+                {item.day}
+              </span>
+            </div>
+          ) : (
+            <div class='grid-day empty' />
+          ),
+        )
+      }
+    </div>
+  </div>
+
+  <div class='slots-list-container'>
+    <div class='slots-scroll'>
+      {
+        slotsByDay.map((day) => (
+          <div class='day-slot-card'>
+            <div class='day-info'>
+              <div class='day-header-row'>
+                <span class='day-name'>{day.label}</span>
+                <span class='day-date'>{day.dateLabel}</span>{" "}
+              </div>
+              <span class='day-stats'>
+                {day.totalHours} {day.totalHours === 1 ? "hora" : "horas"} en
+                total
+              </span>
+            </div>
+            <div class='slots-chips'>
+              {day.slots.map((slot) => (
+                <div class='slot-chip'>
+                  <span>
+                    {slot.startTime} - {slot.endTime}
+                  </span>
+                  <button class='remove-slot' data-id={slot.id}>
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .right-menu-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .user-profile {
+    padding-top: 20px;
+    padding-right: 0px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+  .mini-calendar {
+    background: #fff;
+    padding: 28px 28px 0px 28px;
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .calendar-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #818181;
+  }
+
+  .calendar-nav {
+    display: flex;
+    gap: 10px;
+    margin-right: 8px;
+  }
+
+  .cal-nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #A3A3A3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 1010;
+    position: relative;
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+  }
+
+  .grid-header {
+    font-size: 0.75rem;
+    color: #1A1A1A;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  .grid-day {
+    font-size: 0.85rem;
+    padding: 2px 0;
+    color: #3C3C3C;
+    cursor: default;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .day-num {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+    position: relative;
+    z-index: 2;
+  }
+
+  .day-num.circle-endpoint {
+    background-color: #9f74ff;
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .grid-day.selected {
+    color: #7c5bbf;
+    font-weight: 500;
+    border-radius: 0;
+  }
+
+  .grid-day.selected.week-start {
+    border-radius: 50% 0 0 50%;
+    padding-left: 0;
+  }
+
+  .grid-day.selected.week-end {
+    border-radius: 0 50% 50% 0;
+    padding-right: 0;
+  }
+
+  .slots-list-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    border-radius: 20px;
+    padding: 8px 28px 28px 28px;
+    
+  }
+
+  .slots-scroll {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 16px;
+    border: 1px solid #e8e8e8;
+    inset: 0;
+
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    clip-path: inset(0 0 0 0 round 16px);
+
+  }
+
+  .slots-scroll::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .slots-scroll::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+  }
+
+  .day-slot-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .day-info {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .day-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .day-stats {
+    font-size: 0.7rem;
+    color: #94a3b8;
+  }
+
+  .slots-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .slot-chip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f3edff;
+    color: #a78bfa;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .remove-slot {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: transform 0.2s ease;
+  }
+
+  .remove-slot:hover {
+    opacity: 1;
+    transform: scale(1.2);
+    background: #dc2626;
+  }
+  .day-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .day-date {
+    font-size: 0.8rem;
+    color: #9f74ff; /* Color acento para la fecha */
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+</style>

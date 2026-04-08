@@ -1,0 +1,380 @@
+---
+import { Image } from "astro:assets";
+import DashboardIcon from "./icons/DashboardIcon.svg";
+import ConfigIcon from "./icons/ConfigIcon.svg";
+import NotificationIcon from "./icons/NotificationIcon.svg";
+import LogoutIcon from "./icons/LogoutIcon.svg";
+import WindowIcon from "./icons/WindowIcon.svg";
+import CollapseIcon from "./icons/CollapseIcon.svg";
+import HistoryIcon from "./icons/HistoryIcon.svg";
+import CalendarIcon from "./icons/CalendarIcon.svg";
+import BinocularIcon from "./icons/BinocularIcon.svg";
+import SearchIcon from "./icons/SearchIcon.svg";
+import CommunityIcon from "./icons/CommunityIcon.svg";
+
+interface Props {
+  userRole: "admin" | "tutor" | "student";
+}
+
+const { userRole } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<aside class='sidebar' id='main-sidebar'>
+  <div class='navbar-header'>
+    <a href='/'><img src='/favicon.svg' alt='Logo' /></a>
+  </div>
+  <button class='collapse-button' id='sidebar-toggle'>
+    <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
+  </button>
+
+  <div class='navbar-items'>
+    {
+      userRole === "student" && (
+        <div class='calendar-container'>
+          <a href="/sessions"
+            class={
+              currentPath.startsWith("/sessions") ? "active-link" : ""
+            }>
+            <Image src={CalendarIcon} alt='Calendar' class='icon' />
+            <span class='nav-label'>Calendario</span>
+          </a>
+        </div>
+      )
+    }
+
+    <div
+      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+    >
+      <a href='/dashboard'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
+        <span class='nav-label'>Dashboard</span>
+      </a>
+    <div
+      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+    >
+      <a href='/dashboard'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
+      </a>
+    </div>
+
+    {
+      userRole === "admin" && (
+        <>
+          <a href='#'>
+            <Image src={WindowIcon} alt='Window' class='icon' />
+            <span class='nav-label'>Gestión</span>
+          </a>
+          <a href='#'>
+            <Image src={ConfigIcon} alt='Config' class='icon' />
+            <span class='nav-label'>Configuración</span>
+          </a>
+        </>
+      )
+    }
+
+    {
+      userRole === "tutor" && (
+        <>
+          <a
+            href='/availability/tutor/slots'
+            class={
+              currentPath.startsWith("/availability/tutor") ? "active-link" : ""
+            }
+          >
+            <Image src={WindowIcon} alt='Slots' class='icon' />
+            <span class='nav-label'>Tu Disponibilidad</span>
+          </a>
+          <a href='#'>
+            <Image src={ConfigIcon} alt='Config' class='icon' />
+            <span class='nav-label'>Configuración</span>
+          </a>
+          <a href='#'>
+            <Image src={HistoryIcon} alt='History' class='icon' />
+            <span class='nav-label'>Historial</span>
+          </a>
+        </>
+      )
+    }
+
+    {
+      userRole === "student" && (
+        <>
+          <a 
+            href="/search"
+            class={
+              currentPath.startsWith("/search") ? "active-link" : ""
+            }
+          >
+            <Image src={SearchIcon} alt='Search' class='icon' />
+            <span class='nav-label'>Buscar</span>
+          </a>
+          <a href='#'>
+            <Image src={BinocularIcon} alt='Binocular' class='icon' />
+            <span class='nav-label'>Explorar</span>
+          </a>
+          <a href='#'>
+            <Image src={CommunityIcon} alt='Community' class='icon' />
+            <span class='nav-label'>Comunidad</span>
+          </a>
+          <a href='#'>
+            <Image src={HistoryIcon} alt='History' class='icon' />
+            <span class='nav-label'>Historial</span>
+          </a>
+        </>
+      )
+    }
+  </div>
+
+  <div class='navbar-footer'>
+    <div class='notification-container'>
+      <a href='#'>
+        <Image src={NotificationIcon} alt='Notification' class='icon' />
+        <span class='notification-label'>Notificaciones</span>
+      </a>
+    </div>
+
+    <a href='#'>
+      <Image src={LogoutIcon} alt='Logout' class='icon' />
+      <span class='nav-label'>Cerrar Sesión</span>
+    </a>
+  </div>
+</aside>
+
+<style>
+  .sidebar {
+    width: 100px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 0;
+    transition:
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    position: relative;
+    z-index: 50;
+    background: #f4f0ff;
+    overflow: visible;
+  }
+
+  .sidebar.expanded {
+    width: 260px;
+    align-items: flex-start;
+    padding-left: 20px;
+    z-index: 50;
+  }
+
+  /* Header y Logo */
+  .navbar-header {
+    margin-top: -1rem;
+    margin-bottom: auto;
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-left: 0;
+    transition: padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .sidebar.expanded .navbar-header {
+    padding-left: 10px;
+    justify-content: flex-start;
+  }
+
+  .navbar-header img {
+    height: 4rem;
+    width: auto;
+  }
+
+  /* Botón de Colapso - positioned on sidebar, not navbar-header */
+  .collapse-button {
+    position: absolute;
+    top: 20px;
+    right: -19px;
+    background: white;
+    border: none;
+    border-radius: 24px;
+    width: 39px;
+    height: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 60;
+  }
+
+  .collapse-icon {
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .sidebar.expanded .collapse-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Contenedores de Navegación */
+  .navbar-items,
+  .navbar-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: auto;
+    transition: align-items 0s;
+  }
+
+  .sidebar.expanded .navbar-items,
+  .sidebar.expanded .navbar-footer {
+    align-items: flex-start;
+  }
+
+  /* Estilos generales para enlaces y contenedores de iconos */
+  .navbar-items > a,
+  .navbar-footer > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    transition:
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .calendar-container,
+  .dashboard-container,
+  .notification-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    transition:
+      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+      background-color 0.2s ease;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .calendar-container a,
+  .dashboard-container a,
+  .notification-container a {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+
+  .sidebar.expanded .navbar-items > a,
+  .sidebar.expanded .navbar-footer > a,
+  .sidebar.expanded .calendar-container,
+  .sidebar.expanded .dashboard-container,
+  .sidebar.expanded .notification-container {
+    width: 90%;
+    justify-content: flex-start;
+    padding-left: 10px;
+    gap: 16px;
+  }
+
+  .sidebar.expanded .calendar-container a,
+  .sidebar.expanded .dashboard-container a,
+  .sidebar.expanded .notification-container a {
+    justify-content: flex-start;
+  }
+
+  /* Ajustes específicos de contenedores con fondo */
+  .calendar-container {
+    background: #cdff8e;
+  }
+  .notification-container {
+    background: #e6ffc7;
+  }
+
+  /* Iconos */
+  .icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  /* Labels (Texto) — position absolute when collapsed so icons stay centered */
+  .nav-label,
+  .notification-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #89878f;
+    white-space: nowrap;
+    overflow: hidden;
+    position: absolute;
+    left: 44px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .notification-label {
+    color: #9acc5b;
+  }
+
+  .sidebar.expanded .nav-label,
+  .sidebar.expanded .notification-label {
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
+  }
+
+  .navbar-footer {
+    margin-bottom: 0;
+    gap: 24px;
+  }
+
+  /* Active link highlight */
+  .active-link,
+  .dashboard-container.active-link {
+    background: #e7dcff;
+    border-radius: 12px;
+  }
+
+  a.active-link {
+    background: #e7dcff;
+    border-radius: 12px;
+  }
+</style>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const sidebar = document.getElementById("main-sidebar");
+    const toggle = document.getElementById("sidebar-toggle");
+
+    if (sidebar && toggle) {
+      toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("expanded");
+      });
+
+      window.addEventListener("force-sidebar-expand", () => {
+        sidebar.classList.add("expanded");
+      });
+
+      window.addEventListener("force-sidebar-collapse", () => {
+        sidebar.classList.remove("expanded");
+      });
+    }
+  });
+</script>

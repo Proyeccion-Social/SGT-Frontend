@@ -1,0 +1,101 @@
+---
+import Card from "./SingleCard.astro"
+
+import bgCardBuscar from "../assets/imgs/BuscarCardBg.png";
+import imgCardBuscar from "../assets/imgs/ImageBuscar.png";
+
+import bgCardAgendar from "../assets/imgs/AgendarCardBg.png";
+import imgCardAgendar from "../assets/imgs/ImageAgendar.png";
+
+import bgCardSesiones from "../assets/imgs/SesionesCardBg.png";
+import imgCardSesiones from "../assets/imgs/ImageAgendar.png";
+---
+
+<section class="cardSection">
+  <h2><span>Atlas</span> centraliza las tutorías de Proyección Social en un solo lugar</h2>
+  <div>
+    <Card
+      imgSrc={imgCardAgendar}
+      title="Agendar"
+      header="Agendar"
+      headerSubtitle="Elige tu modalidad y horario. Tú decides cómo aprender"
+      bg={bgCardAgendar}
+    />
+    <Card
+      imgSrc={imgCardBuscar}
+      title="Buscar"
+      header="Buscar"
+      headerSubtitle="Encuentra expertos en las materias que necesitas"
+      bg={bgCardBuscar}
+    />
+
+    <Card
+      imgSrc={imgCardSesiones}
+      title="Sesiones"
+      header="Sesiones"
+      headerSubtitle="Aprende en grupo y resuelve dudas junto a otros estudiantes"
+      bg={bgCardSesiones}
+    />
+  </div>
+</section>
+
+<style>
+  .cardSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    justify-content: center;
+    margin-bottom: 50px;
+    margin-top: 160px;
+    flex-wrap: nowrap;
+  }
+
+  .cardSection h2 {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 48px;
+    line-height: 56px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    width: 798px;
+
+  }
+
+  .cardSection h2 span {
+    color: #8751FF;
+  }
+
+  .cardSection div {
+    display: flex;
+    gap: 42px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media(width <= 810px) {
+    .cardSection h2 {
+      font-size: 40px;
+      padding: 0px 20px;
+      line-height: 40px;
+      width: auto; 
+    }
+
+    @media (width <= 768px) {
+
+     .cardSection h2 {
+        font-size: 30px;
+        line-height: 40px;
+
+      }
+      .cardSection {
+        padding: 0px  20px;
+      }
+  
+    }
+  }
+  
+</style> 

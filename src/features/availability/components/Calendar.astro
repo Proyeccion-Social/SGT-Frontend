@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { slots: rawSlots, baseDate = new Date(), mode: modeProp, role } = Astro.props;
-const mode = modeProp ?? (role?.toUpperCase() === "STUDENT" ? "student" : "tutor");
+const mode = modeProp ?? (role === "STUDENT" ? "student" : "tutor");
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
 import {

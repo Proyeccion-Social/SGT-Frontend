@@ -16,7 +16,7 @@ interface Props {
   tutorIds: string[];
   slot: Slot | null;
   subject: string;
-  token:String;
+  token: string;
   onSelect: (tutorId: string) => void;
 }
 

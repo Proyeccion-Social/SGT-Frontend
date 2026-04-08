@@ -15,9 +15,9 @@ export default function Finish({ onNext, userName }: { onNext: () => void; userN
                     <p className="finish-subtitle">{userName ? `Bienvenido ${userName}` : "Bienvenido"}</p>
                     <article className="arrow-continue">
                         <img src={arrow.src} alt="Continuar" className="finish-arrow" />
-                        <a className="finish-anchord" onClick={onNext}>
+                        <button className="finish-anchord" onClick={onNext}>
                             Continuar
-                        </a>
+                        </button>
                     </article>
                 </div>
             </div>

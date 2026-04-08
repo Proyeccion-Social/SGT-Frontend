@@ -4,8 +4,8 @@ import { navigate } from "astro:transitions/client";
 import { useAuthStore } from "@/store/authStore";
 import { sileo } from "sileo";
 
-import eyeNormal from "../assets/icons/eye-normal.svg";
-import eyeLabeled from "../assets/icons/eye-labeled.svg";
+import eyeNormal from "../../assets/icons/eye-normal.svg";
+import eyeLabeled from "../../assets/icons/eye-labeled.svg";
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 128;

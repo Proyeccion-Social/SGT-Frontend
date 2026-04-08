@@ -1,4 +1,4 @@
-import type { APIRoute, APIContext } from 'astro';
+import type { APIRoute } from 'astro';
 import { createSession } from '../../../features/sessions/services/sessionService';
 import { getTutorInfo } from "../../../features/availability/services/tutorServices" // ajusta la ruta si es necesario
 

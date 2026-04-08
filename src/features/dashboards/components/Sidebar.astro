@@ -32,10 +32,10 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <div class='calendar-container'>
-          <a href="/sessions"
-            class={
-              currentPath.startsWith("/sessions") ? "active-link" : ""
-            }>
+          <a
+            href='/sessions'
+            class={currentPath.startsWith("/sessions") ? "active-link" : ""}
+          >
             <Image src={CalendarIcon} alt='Calendar' class='icon' />
             <span class='nav-label'>Calendario</span>
           </a>
@@ -49,12 +49,6 @@ const currentPath = Astro.url.pathname;
       <a href='/dashboard'>
         <Image src={DashboardIcon} alt='Dashboard' class='icon' />
         <span class='nav-label'>Dashboard</span>
-      </a>
-    <div
-      class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
-    >
-      <a href='/dashboard'>
-        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
       </a>
     </div>
 
@@ -100,11 +94,9 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <>
-          <a 
-            href="/search"
-            class={
-              currentPath.startsWith("/search") ? "active-link" : ""
-            }
+          <a
+            href='/search'
+            class={currentPath.startsWith("/search") ? "active-link" : ""}
           >
             <Image src={SearchIcon} alt='Search' class='icon' />
             <span class='nav-label'>Buscar</span>
@@ -134,10 +126,12 @@ const currentPath = Astro.url.pathname;
       </a>
     </div>
 
-    <a href='#'>
-      <Image src={LogoutIcon} alt='Logout' class='icon' />
-      <span class='nav-label'>Cerrar Sesión</span>
-    </a>
+    <div class='logout-container'>
+      <button type='button' id='logout-button'>
+        <Image src={LogoutIcon} alt='Logout' class='icon' />
+        <span class='nav-label'>Cerrar Sesión</span>
+      </button>
+    </div>
   </div>
 </aside>
 
@@ -214,15 +208,23 @@ const currentPath = Astro.url.pathname;
   }
 
   /* Contenedores de Navegación */
-  .navbar-items,
+  .navbar-items {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: auto;
+    transition: align-items 0s;
+  }
+
   .navbar-footer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
     width: 100%;
-    margin-top: auto;
-    margin-bottom: auto;
+    margin-bottom: 2rem;
     transition: align-items 0s;
   }
 
@@ -253,7 +255,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container,
   .dashboard-container,
-  .notification-container {
+  .notification-container,
+  .logout-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -272,7 +275,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container a,
   .dashboard-container a,
-  .notification-container a {
+  .notification-container a,
+  .logout-container button {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -285,7 +289,8 @@ const currentPath = Astro.url.pathname;
   .sidebar.expanded .navbar-footer > a,
   .sidebar.expanded .calendar-container,
   .sidebar.expanded .dashboard-container,
-  .sidebar.expanded .notification-container {
+  .sidebar.expanded .notification-container,
+  .sidebar.expanded .logout-container {
     width: 90%;
     justify-content: flex-start;
     padding-left: 10px;
@@ -294,7 +299,8 @@ const currentPath = Astro.url.pathname;
 
   .sidebar.expanded .calendar-container a,
   .sidebar.expanded .dashboard-container a,
-  .sidebar.expanded .notification-container a {
+  .sidebar.expanded .notification-container a,
+  .sidebar.expanded .logout-container button {
     justify-content: flex-start;
   }
 
@@ -340,11 +346,6 @@ const currentPath = Astro.url.pathname;
     transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
   }
 
-  .navbar-footer {
-    margin-bottom: 0;
-    gap: 24px;
-  }
-
   /* Active link highlight */
   .active-link,
   .dashboard-container.active-link {
@@ -376,5 +377,42 @@ const currentPath = Astro.url.pathname;
         sidebar.classList.remove("expanded");
       });
     }
+  });
+
+  import { sileo } from "sileo";
+  const logoutButton = document.getElementById("logout-button");
+  logoutButton?.addEventListener("click", async () => {
+    await sileo.promise(
+      async () => {
+        const authUserStr = sessionStorage.getItem("auth_user");
+        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
+        const userId = authUser?.user?.id;
+
+        if (!userId) {
+          throw new Error("No hay sesión activa");
+        }
+
+        const res = await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: userId }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Error al cerrar sesión");
+        }
+
+        sessionStorage.removeItem("auth_user");
+      },
+      {
+        loading: { title: "Cerrando sesión...", fill: "#8751ff" },
+        success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
+        error: { title: "Error al cerrar sesión", fill: "#f35761" },
+      },
+    );
+    window.location.href = "/";
   });
 </script>

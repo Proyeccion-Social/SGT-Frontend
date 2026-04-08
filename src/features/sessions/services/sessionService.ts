@@ -1,6 +1,6 @@
 import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery } from '../types/session.types';
 
-const API_URL = import.meta.env.PUBLIC_API_URL;
+const API_URL = import.meta.env.API_URL;
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (res.status === 401) {
@@ -27,7 +27,7 @@ function getAuthHeaders(): HeadersInit {
 }
 
 export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/scheduling/sessions/individual`, { 
+  const res = await fetch(`${API_URL}/scheduling/sessions/individual`, { 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
     body: JSON.stringify(data),

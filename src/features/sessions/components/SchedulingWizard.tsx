@@ -310,9 +310,6 @@ console.log("SESION CREADA:", result);
   // en tu modelo original ya dependías de data.slot.modality.
   const needsModality = data.slot?.modality === null;
 
-  // Calcular paso máximo según condicional
-  const totalSteps = needsModality ? 4 : 3;
-
   return (
     <>
       {/* Popover de materias */}

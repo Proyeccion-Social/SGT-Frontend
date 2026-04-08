@@ -16,7 +16,7 @@ interface Props {
   tutorIds: string[];
   slot: Slot | null;
   subject: string;
-  token:String;
+  token: string;
   onSelect: (tutorId: string) => void;
 }
 
@@ -47,11 +47,8 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
         },
       }
     );
-            console.log("STATUS BACKEND /tutors:", res.status);
 
             if (!res.ok) {
-              const body = await res.text();
-              console.error("BODY BACKEND /tutors:", body);
               throw new Error("No se pudo obtener el tutor");
             }
             const t = (await res.json()) as TutorInfo;
@@ -65,9 +62,6 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
         for (const t of results) {
           byId[t.id] = t;
         }
-
-        // DEBUG opcional
-        console.log("TUTORES CARGADOS:", byId);
 
         setTutors(byId);
       } catch (e) {

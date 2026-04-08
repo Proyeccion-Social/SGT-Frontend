@@ -1,27 +1,28 @@
-<form id="login-form" class="login-form">
-  <div class="field">
-    <label for="email">Email</label>
+<form id='login-form' class='login-form'>
+  <div class='field'>
+    <label for='email'>Email</label>
     <input
-      id="email"
-      type="email"
-      placeholder="nombre@udistrital.edu.co"
+      id='email'
+      type='email'
+      placeholder='nombre@udistrital.edu.co'
       required
     />
   </div>
 
-  <div id="password-field" class="field">
+  <div id='password-field' class='field'>
     <article>
-      <label for="password">Contraseña</label>
-      <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+      <label for='password'>Contraseña</label>
+      <a href='#' class='forgot-password'>¿Olvidaste tu contraseña?</a>
     </article>
-    <input id="password" type="password" placeholder="Ingresa tu contraseña" />
+    <input id='password' type='password' placeholder='Ingresa tu contraseña' />
   </div>
 
-  <button type="submit">Continuar</button>
+  <button type='submit'>Continuar</button>
 </form>
 
 <script>
   import { sileo } from "sileo";
+  import { navigate } from "astro:transitions/client"
 
   const form = document.getElementById("login-form") as HTMLFormElement | null;
   const passwordField = document.getElementById("password-field");
@@ -113,23 +114,25 @@
             throw new Error(data.message || "Login failed");
           }
 
-          // Guardar usuario en sessionStorage para hidratar el store
-          sessionStorage.setItem(
-            "auth_user",
-            JSON.stringify({
-              user: data.user,
-              requiresPasswordChange: data.requiresPasswordChange,
-              requiresProfileCompletion: data.requiresProfileCompletion,
-            }),
+          // Guardar estado en zustand persist (localStorage)
+          const authStorage = JSON.parse(
+            localStorage.getItem("auth-storage") || '{"state":{},"version":0}',
           );
+          authStorage.state = {
+            ...authStorage.state,
+            user: data.user,
+            requiresPasswordChange: data.requiresPasswordChange ?? false,
+            requiresProfileCompletion: data.requiresProfileCompletion ?? false,
+          };
+          localStorage.setItem("auth-storage", JSON.stringify(authStorage));
 
           // Redirigir según estado del usuario
-          if (data.requiresProfileCompletion) {
-            window.location.href = "/dashboard";
-          } else if (data.requiresPasswordChange) {
-            window.location.href = "/change-password";
+          if (data.requiresPasswordChange) {
+            await navigate("/change-password");
+          } else if (data.requiresProfileCompletion) {
+            await navigate("/dashboard");
           } else {
-            window.location.href = "/dashboard";
+            await navigate("/dashboard");
           }
         },
         {

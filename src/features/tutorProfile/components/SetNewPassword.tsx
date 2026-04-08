@@ -59,7 +59,7 @@ const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone
     const matchOk  = confirm.length > 0 && password === confirm && lengthOk;
     const phoneOk  = phone.trim().length >= 10;
 
-    const canContinue = lengthOk && matchOk && phoneOk;
+    const canContinue = phoneOk && (password.length === 0 || (lengthOk && matchOk));
 
     useImperativeHandle(ref, () => ({
         triggerContinue: () => onNext(password, phone),
@@ -92,123 +92,123 @@ const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone
         <>
             <div className="drawer-body">
                 <div className="body-header">
-                    <p className="body-header-title">Establece tu nueva contraseña</p>
+                    <p className="body-header-title">Datos personales y seguridad</p>
                     <p className="body-header-subtitle">
-                        Mínimo {MIN_LENGTH} caracteres · Máximo {MAX_LENGTH} caracteres
+                        Actualiza tu teléfono o cambia tu contraseña
                     </p>
                 </div>
 
-                <div className="password-form">
-                    {/* ── Teléfono ── */}
-                    <div className="password-field">
-                        <label className="password-label" htmlFor="phone">
-                            Número de teléfono
-                        </label>
-                        <div className="password-input-wrapper">
-                            <input
-                                id="phone"
-                                type="tel"
-                                className={phoneInputClass}
-                                placeholder="Ingresa tu número de teléfono"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))} // Only numbers
-                                onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-                            />
+                <div className="password-form password-form--columns">
+                    {/* ── Left column: Phone ── */}
+                    <div className="password-form-column">
+                        <div className="password-field">
+                            <label className="password-label" htmlFor="phone">
+                                Número de teléfono
+                            </label>
+                            <div className="password-input-wrapper">
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    className={phoneInputClass}
+                                    placeholder="Ingresa tu número de teléfono"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                                    onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                                />
+                            </div>
+                            {touched.phone && !phoneOk && (
+                                <p className="password-error">Ingresa un número válido (10 dígitos)</p>
+                            )}
                         </div>
-                        {touched.phone && !phoneOk && (
-                            <p className="password-error">Ingresa un número válido</p>
-                        )}
                     </div>
 
-                    {/* ── Nueva contraseña ── */}
-                    <div className="password-field">
-                        <label className="password-label" htmlFor="new-password">
-                            Nueva contraseña
-                        </label>
-                        <div className="password-input-wrapper">
-                            <input
-                                id="new-password"
-                                type={showPassword ? "text" : "password"}
-                                className={passwordInputClass}
-                                placeholder="Ingresa tu nueva contraseña"
-                                value={password}
-                                maxLength={MAX_LENGTH}
-                                onChange={(e) => setPassword(e.target.value)}
-                                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-                            />
-                            <button
-                                className="password-eye-btn"
-                                type="button"
-                                onClick={() => setShowPassword((v) => !v)}
-                                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                            >
-                                <EyeIcon open={showPassword} />
-                            </button>
+                    {/* ── Right column: Password ── */}
+                    <div className="password-form-column">
+                        <div className="password-field">
+                            <label className="password-label" htmlFor="new-password">
+                                Nueva contraseña <span className="password-optional">(opcional)</span>
+                            </label>
+                            <div className="password-input-wrapper">
+                                <input
+                                    id="new-password"
+                                    type={showPassword ? "text" : "password"}
+                                    className={passwordInputClass}
+                                    placeholder="Ingresa tu nueva contraseña"
+                                    value={password}
+                                    maxLength={MAX_LENGTH}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                                />
+                                <button
+                                    className="password-eye-btn"
+                                    type="button"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                >
+                                    <EyeIcon open={showPassword} />
+                                </button>
+                            </div>
+
+                            {password.length > 0 && (
+                                <div className="password-strength">
+                                    <div className="password-strength-bars">
+                                        {([1, 2, 3] as const).map((level) => (
+                                            <div
+                                                key={level}
+                                                className={`password-strength-bar${strength >= level ? ` ${STRENGTH_CLASS[level]}` : ""}`}
+                                            />
+                                        ))}
+                                    </div>
+                                    {strength > 0 && (
+                                        <span className="password-strength-label">
+                                            {STRENGTH_LABELS[strength as 1 | 2 | 3]}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+
+                            {touched.password && tooShort && (
+                                <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
+                            )}
+                            {touched.password && tooLong && (
+                                <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
+                            )}
                         </div>
 
-                        {/* Strength bars */}
                         {password.length > 0 && (
-                            <div className="password-strength">
-                                <div className="password-strength-bars">
-                                    {([1, 2, 3] as const).map((level) => (
-                                        <div
-                                            key={level}
-                                            className={`password-strength-bar${strength >= level ? ` ${STRENGTH_CLASS[level]}` : ""}`}
-                                        />
-                                    ))}
+                            <div className="password-field">
+                                <label className="password-label" htmlFor="confirm-password">
+                                    Confirmar contraseña
+                                </label>
+                                <div className="password-input-wrapper">
+                                    <input
+                                        id="confirm-password"
+                                        type={showConfirm ? "text" : "password"}
+                                        className={confirmInputClass}
+                                        placeholder="Repite tu nueva contraseña"
+                                        value={confirm}
+                                        maxLength={MAX_LENGTH}
+                                        onChange={(e) => setConfirm(e.target.value)}
+                                        onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+                                    />
+                                    <button
+                                        className="password-eye-btn"
+                                        type="button"
+                                        onClick={() => setShowConfirm((v) => !v)}
+                                        tabIndex={-1}
+                                        aria-label={showConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
+                                    >
+                                        <EyeIcon open={showConfirm} />
+                                    </button>
                                 </div>
-                                {strength > 0 && (
-                                    <span className="password-strength-label">
-                                        {STRENGTH_LABELS[strength as 1 | 2 | 3]}
-                                    </span>
+
+                                {touched.confirm && mismatch && (
+                                    <p className="password-error">Las contraseñas no coinciden</p>
+                                )}
+                                {touched.confirm && matchOk && (
+                                    <p className="password-ok">Las contraseñas coinciden</p>
                                 )}
                             </div>
-                        )}
-
-                        {/* Validation feedback */}
-                        {touched.password && tooShort && (
-                            <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
-                        )}
-                        {touched.password && tooLong && (
-                            <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
-                        )}
-                        {touched.password && lengthOk && (
-                            <p className="password-ok">Longitud válida</p>
-                        )}
-                    </div>
-
-                    {/* ── Confirmar contraseña ── */}
-                    <div className="password-field">
-                        <label className="password-label" htmlFor="confirm-password">
-                            Confirmar contraseña
-                        </label>
-                        <div className="password-input-wrapper">
-                            <input
-                                id="confirm-password"
-                                type={showConfirm ? "text" : "password"}
-                                className={confirmInputClass}
-                                placeholder="Repite tu nueva contraseña"
-                                value={confirm}
-                                maxLength={MAX_LENGTH}
-                                onChange={(e) => setConfirm(e.target.value)}
-                                onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
-                            />
-                            <button
-                                className="password-eye-btn"
-                                type="button"
-                                onClick={() => setShowConfirm((v) => !v)}
-                                tabIndex={-1}
-                                aria-label={showConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
-                            >
-                                <EyeIcon open={showConfirm} />
-                            </button>
-                        </div>
-
-                        {touched.confirm && mismatch && (
-                            <p className="password-error">Las contraseñas no coinciden</p>
-                        )}
-                        {touched.confirm && matchOk && (
-                            <p className="password-ok">Las contraseñas coinciden</p>
                         )}
                     </div>
                 </div>

@@ -3,17 +3,24 @@ import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 
 export interface StepHandle {
     triggerContinue: () => void;
+    getData?: () => Record<string, unknown>;
 }
 
-const SUBJECTS = [
-    { id: 1, name: "Diferencial", color: "#E8D5FF", borderColor: "#D1C4F5" },
-    { id: 3, name: "Avanzada", color: "#FFE5D5", borderColor: "#FFCCBB" },
-    { id: 4, name: "POO", color: "#D5FFE8", borderColor: "#BBE9D1" },
-    { id: 5, name: "Integral", color: "#FFD5D5", borderColor: "#FFBBBB" },
-    { id: 6, name: "Ecuaciones", color: "#D5F5D5", borderColor: "#BBEBB1" },
-    { id: 7, name: "Física 1", color: "#E0D5FF", borderColor: "#C9BBFF" },
-    { id: 9, name: "POO", color: "#D5EEFF", borderColor: "#BBDEFF" },
-    { id: 10, name: "Básica", color: "#D5FFF5", borderColor: "#BBFFEE" },
+type Subject = {
+    id: string;
+    name: string;
+};
+
+const SUBJECT_COLORS = [
+    { color: "#E8D5FF", borderColor: "#D1C4F5" },
+    { color: "#FFE5D5", borderColor: "#FFCCBB" },
+    { color: "#D5FFE8", borderColor: "#BBE9D1" },
+    { color: "#FFD5D5", borderColor: "#FFBBBB" },
+    { color: "#D5F5D5", borderColor: "#BBEBB1" },
+    { color: "#E0D5FF", borderColor: "#C9BBFF" },
+    { color: "#D5EEFF", borderColor: "#BBDEFF" },
+    { color: "#D5FFF5", borderColor: "#BBFFEE" },
+    { color: "#FFECD5", borderColor: "#FFD9BB" },
 ];
 
 const MAX_SELECTIONS = 3;
@@ -31,19 +38,31 @@ const POSITION_OFFSETS = [
     { top: "25%", left: "22%" }, { top: "55%", left: "38%" }, { top: "28%", left: "68%" }, { top: "60%", left: "80%" }
 ];
 
-const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: string[], phone: string }) => void; onCanContinueChange?: (canContinue: boolean) => void }>(({ onNext, onCanContinueChange }, ref) => {
-    const [selected, setSelected] = useState<number[]>([]);
-    const [phone, setPhone] = useState("");
+const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: string[] }) => void; onCanContinueChange?: (canContinue: boolean) => void; initialSelected?: string[] }>(({ onNext, onCanContinueChange, initialSelected }, ref) => {
+    const [selected, setSelected] = useState<string[]>(initialSelected ?? []);
+    const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/subjects')
+            .then(res => res.json())
+            .then(result => {
+                setSubjects(result.data ?? []);
+            })
+            .catch(() => setSubjects([]))
+            .finally(() => setLoading(false));
+    }, []);
 
     useImperativeHandle(ref, () => ({
-        triggerContinue: () => onNext({ subject_ids: selected.map(s => String(s)), phone }),
-    }), [selected, phone, onNext]);
+        triggerContinue: () => onNext({ subject_ids: selected }),
+        getData: () => ({ subject_ids: selected }),
+    }), [selected, onNext]);
 
     useEffect(() => {
         onCanContinueChange?.(selected.length > 0);
     }, [selected, onCanContinueChange]);
 
-    const toggleSubject = (id: number) => {
+    const toggleSubject = (id: string) => {
         setSelected((prev) => {
             if (prev.includes(id)) {
                 return prev.filter((s) => s !== id);
@@ -54,7 +73,10 @@ const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: st
     };
 
     const lastSelectedId = selected.length > 0 ? selected[selected.length - 1] : null;
-    const canContinue = selected.length;
+
+    if (loading) {
+        return <div className="drawer-body"><p>Cargando materias...</p></div>;
+    }
 
     return (
         <>
@@ -65,21 +87,22 @@ const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: st
                 </div>
                 
                 <div className="body-content">
-                    {SUBJECTS.map((subject, index) => {
+                    {subjects.map((subject, index) => {
                         const isSelected = selected.includes(subject.id);
                         const isLastSelected = subject.id === lastSelectedId;
                         const pos = POSITION_OFFSETS[index % POSITION_OFFSETS.length];
+                        const colors = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
 
                         return (
                             <button
                                 key={subject.id}
                                 className={`subject-tag ${isSelected ? "subject-tag--selected" : ""} ${isLastSelected ? "subject-tag--last" : ""}`}
                                 style={{ 
-                                    backgroundColor: subject.color,
+                                    backgroundColor: colors.color,
                                     top: pos.top,
                                     left: pos.left,
-                                    "--subject-color": subject.color,
-                                    "--subject-border": subject.borderColor
+                                    "--subject-color": colors.color,
+                                    "--subject-border": colors.borderColor
                                 } as React.CSSProperties}
                                 onClick={() => toggleSubject(subject.id)}
                             >

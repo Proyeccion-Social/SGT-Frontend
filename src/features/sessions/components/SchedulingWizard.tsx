@@ -266,7 +266,7 @@ const result = await res.json();
     sileo.action({
       title: "Tutoría agendada",
       description: "Tu espacio ha sido reservado exitosamente.",
-      fill: "#058c42",
+      fill: "#58d68d",
       styles: { badge: "#ffffff" } ,
     });
 

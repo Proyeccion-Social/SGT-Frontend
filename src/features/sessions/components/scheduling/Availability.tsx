@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Slot } from "../../../availability/services/availabilityService";
-import { Rotate } from "@hugeicons/core-free-icons";
+import "../styles/Availability.css";
 
 interface TutorInfo {
   id: string;
@@ -9,14 +9,13 @@ interface TutorInfo {
   modality: string;
   type: string;
   subjects: { id: string; name: string }[];
-  
 }
 
 interface Props {
   tutorIds: string[];
   slot: Slot | null;
   subject: string;
-  token:String;
+  token: String;
   onSelect: (tutorId: string) => void;
 }
 
@@ -39,14 +38,11 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
       try {
         const results = await Promise.all(
           tutorIds.map(async (id) => {
-            const res = await fetch(
-      `/api/sessions/scheduleapi?tutorId=${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+            const res = await fetch(`/api/sessions/scheduleapi?tutorId=${id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
             console.log("STATUS BACKEND /tutors:", res.status);
 
             if (!res.ok) {
@@ -66,9 +62,7 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
           byId[t.id] = t;
         }
 
-        // DEBUG opcional
         console.log("TUTORES CARGADOS:", byId);
-
         setTutors(byId);
       } catch (e) {
         console.error("Error cargando tutores", e);
@@ -83,72 +77,33 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
     };
   }, [tutorIds]);
 
-  const handleContinue = () => {
-    if (selected) onSelect(selected);
-  };
-
   return (
     <div>
-      <h2 style={{ fontSize: "32px", fontWeight: 700, margin: "0 0 8px", lineHeight: 1.2 }}>
-        <span style={{ background: "#ede9fe", borderRadius: "6px", padding: "0 4px" }}>
-          Selecciona
-        </span>{" "}
+      {/* ── Encabezado ── */}
+      <h2 className="availability-title">
+        <span className="availability-title__highlight">Selecciona</span>{" "}
         el tutor de tu preferencia
       </h2>
-      <p style={{ color: "#6b7280", fontSize: "15px", margin: "0 0 32px" }}>
-        Estás agendando un espacio nuevo
-      </p>
+      <p className="availability-subtitle">Estás agendando un espacio nuevo</p>
 
-      <div style={{
-        border: "1px solid #e5e7eb", borderRadius: "16px",
-        padding: "40px 32px", background: "#fafafa",
-      }}>
-        {/* Tutores centrados */}
-        <div style={{
-          display: "flex", gap: "24px",
-          flexWrap: "wrap", justifyContent: "center",
-        }}>
+      {/* ── Contenedor principal ── */}
+      <div className="availability-card">
+
+        {/* ── Lista de tutores ── */}
+        <div className="tutor-list">
           {tutorIds.map((tutorId) => {
             const info = tutors[tutorId];
+            const isSelected = selected === tutorId;
 
             return (
               <button
                 key={tutorId}
                 onClick={() => setSelected(tutorId)}
-                style={{
-                  position: "relative",
-                  border: "none",
-                  borderRadius: "16px",
-                  overflow: "visible",
-                  width: "240px",
-                  background: "#fff",
-                  cursor: "pointer",
-                  padding: 0,
-                  textAlign: "left",
-                  boxShadow:
-                    selected === tutorId
-                      ? "0 0 0 2px #7c3aed"
-                      : "0 0 0 1px #e5e7eb",
-                }}
+                className={`tutor-card${isSelected ? " tutor-card--selected" : ""}`}
               >
-                {/* Check esquina superior izquierda — igual al diseño */}
-                {selected === tutorId && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "-10px",
-                      left: "-10px",
-                      width: "24px",
-                      height: "24px",
-                      background: "#CFB9FF",
-                      borderRadius: "100px",
-                      transform: "rotate(20deg)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      zIndex: 2,
-                    }}
-                  >
+                {/* ── Indicador de selección ── */}
+                {isSelected && (
+                  <div className="tutor-card__check-badge">
                     <svg
                       width="10"
                       height="8"
@@ -167,91 +122,34 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
                   </div>
                 )}
 
-                {/* Badge materia */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: "10px",
-                    right: "10px",
-                    background: "#ede9fe",
-                    color: "#6d28d9",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    padding: "3px 10px",
-                    borderRadius: "999px",
-                    zIndex: 2,
-                  }}
-                >
-                  {subject}
-                </div>
+                {/* ── Badge de materia ── */}
+                <div className="tutor-card__subject-badge">{subject}</div>
 
-                {/* Foto */}
-                <div
-                  style={{
-                    width: "100%",
-                    height: "200px",
-                    background: "#e5e7eb",
-                    borderRadius: "16px 16px 0 0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                  }}
-                >
+                {/* ── Foto del tutor ── */}
+                <div className="tutor-card__photo-wrapper">
                   {info?.photoUrl ? (
                     <img
                       src={info.photoUrl}
                       alt={info.name}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
+                      className="tutor-card__photo"
                     />
                   ) : (
-                    <span style={{ color: "#9ca3af", fontSize: "12px" }}>
-                      Sin foto
-                    </span>
+                    <span className="tutor-card__photo-placeholder">Sin foto</span>
                   )}
                 </div>
 
-                {/* Nombre sobre la foto */}
-                <div
-                  style={{
-                    background: "rgba(0,0,0,0.5)",
-                    color: "#fff",
-                    padding: "6px 12px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    marginTop: "-32px",
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                >
+                {/* ── Nombre superpuesto ── */}
+                <div className="tutor-card__name-overlay">
                   {info?.name ?? tutorId}
                 </div>
 
-                {/* Info */}
-                <div style={{ padding: "12px 14px" }}>
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      margin: "0 0 2px",
-                      fontStyle: "italic",
-                    }}
-                  >
+                {/* ── Información del tutor ── */}
+                <div className="tutor-card__info">
+                  <p className="tutor-card__info-text">
                     <strong>Modalidades disponibles:</strong>{" "}
                     {info?.modality ?? "Presencial o virtual"}
                   </p>
-                  <p
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      margin: 0,
-                      fontStyle: "italic",
-                    }}
-                  >
+                  <p className="tutor-card__info-text">
                     <strong>Tipo:</strong>{" "}
                     {info?.type ?? "Virtual o integral"}
                   </p>
@@ -261,17 +159,14 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
           })}
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "32px" }}>
+        {/* ── Pie con botón de continuar ── */}
+        <div className="availability-footer">
           <button
             disabled={!selected}
             onClick={() => selected && onSelect(selected)}
-            style={{
-              background: selected ? "#7c3aed" : "#c4b5fd",
-              color: "#fff", border: "none",
-              borderRadius: "10px", padding: "12px 28px",
-              fontSize: "15px", fontWeight: 600,
-              cursor: selected ? "pointer" : "not-allowed",
-            }}
+            className={`availability-footer__continue-btn${
+              selected ? " availability-footer__continue-btn--active" : ""
+            }`}
           >
             Continuar
           </button>

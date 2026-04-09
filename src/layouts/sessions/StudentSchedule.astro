@@ -8,20 +8,17 @@ import type { Slot } from "../../features/availability/services/availabilityServ
 import { Image } from "astro:assets";
 import UserIcon from "../../features/dashboards/components/icons/UserIcon.svg";
 
-// Sin redirects aquí — el token ya fue validado en la página
 const token = Astro.cookies.get("access_token")?.value!;
 const payload = JSON.parse(atob(token.split(".")[1]));
 const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
-
-// const slots = await getAllTutorSlotsSSR().catch(() => []);
 
 const slots = await getAllTutorSlotsSSR({ onlyAvailable: true }).catch(() => []);
 
 const today = new Date();
 const startOfWeek = new Date(today);
-startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lunes
+startOfWeek.setDate(today.getDate() - today.getDay() + 1);
 const endOfWeek = new Date(startOfWeek);
-endOfWeek.setDate(startOfWeek.getDate() + 5); // Sábado
+endOfWeek.setDate(startOfWeek.getDate() + 5);
 
 const formatDay = (date: Date) =>
   date.toLocaleDateString("es-CO", { day: "2-digit", month: "long" });
@@ -30,8 +27,11 @@ const formatDay = (date: Date) =>
 <MainLayout title="Agendamiento">
   <div class="dashboard-container">
     <Sidebar userRole={userRole} />
+
     <main class="content-wrapper">
       <div class="dashboard-content">
+
+        <!-- Encabezado fijo (no scrollea) -->
         <div class="schedule-header">
           <div class="header-left">
             <div class="header-title">
@@ -42,13 +42,16 @@ const formatDay = (date: Date) =>
             </div>
             <span class="badge">Espacios disponibles para tutoría</span>
           </div>
-
           <button class="avatar">
             <Image src={UserIcon} alt="User" />
           </button>
         </div>
 
-        <WeeklyCalendar slots={slots} mode = "student" />
+        <!-- Área scrolleable solo vertical — igual que .calendar-container en el layout de tutor -->
+        <div class="calendar-scroll-area">
+          <WeeklyCalendar slots={slots} mode="student" />
+        </div>
+
         <SchedulingWizard client:only="react" slots={slots} token={token} />
       </div>
     </main>
@@ -58,13 +61,46 @@ const formatDay = (date: Date) =>
 <style>
   @import "@/styles/variables.css";
 
+  /* ── Contenedor raíz ── */
+  .dashboard-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;        /* altura fija — igual que availability-container */
+    background-color: #f3edff;
+    box-sizing: border-box;
+    overflow: hidden;     /* contención total, sin scroll en el root */
+  }
+
+  /* ── Columna derecha ── */
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    padding: 19px 20px 20px 0;
+    min-width: 0;
+    overflow: hidden;     /* punto de contención — igual que en layout de tutor */
+  }
+
+  /* ── Panel blanco ── */
+  .dashboard-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 16px;
+    overflow: hidden;     /* contiene el calendario — NO overflow-y: auto aquí */
+    min-width: 0;
+  }
+
+  /* ── Encabezado (sticky, no scrollea) ── */
   .schedule-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    padding: 24px 32px 0 32px;
+    padding: 24px 32px 16px 32px;
     box-sizing: border-box;
+    flex-shrink: 0;       /* nunca se comprime */
+    border-bottom: 1px solid #e7dcff;
   }
 
   .header-left {
@@ -114,26 +150,22 @@ const formatDay = (date: Date) =>
     align-items: center;
   }
 
-  .dashboard-container {
-    display: flex;
-    width: 100vw;
-    height: 100%;
-    overflow-x: hidden;
-    background-color: #f3edff;
-  }
-  .content-wrapper {
-    flex: 1;
-    display: flex;
-    padding: 0 20px 20px 0;
-    min-width: 0;
-  }
-  .dashboard-content {
+  /* ── Área del calendario — scroll solo vertical, igual que .calendar-container ── */
+  .calendar-scroll-area {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: #fff;
-    border-radius: 16px;
     overflow-y: auto;
-    margin-top:19px;
+    overflow-x: hidden;   /* bloquea scroll horizontal aquí adentro */
+    min-width: 0;
+  }
+
+  .calendar-scroll-area::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .calendar-scroll-area::-webkit-scrollbar-thumb {
+    background: #e7dcff;
+    border-radius: 10px;
   }
 </style>

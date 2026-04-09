@@ -8,6 +8,11 @@ import SlotPopover from "./scheduling/SlotPopover";
 import type { Slot } from "../../../features/availability/services/availabilityService";
 import { sileo } from "sileo";
 
+import StepOne from "../assets/StepOne.svg";
+import StepTwo from "../assets/StepTwo.svg";
+import StepThree from "../assets/Stepthree.svg";
+import StepFour from "../assets/StepFour.svg";
+
 export interface WizardData {
   slot: Slot | null;
   tutorId: string;
@@ -388,14 +393,29 @@ const result = await res.json();
               </div>
             </div>
 
-            {/* Indicador de paso — siempre al fondo */}
+                        {/* Indicador de paso — siempre al fondo */}
             <div style={{
-              padding: "16px", textAlign: "center",
-              fontSize: "14px", color: "#6b7280",
+              padding: "16px",
+              textAlign: "center",
+              fontSize: "14px",
+              color: "#6b7280",
               borderTop: "1px solid #f3f4f6",
               flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
             }}>
-              Paso {["1️⃣","2️⃣","3️⃣","4️⃣"][step - 1]}
+              Paso
+              <img
+                src={[StepOne.src, StepTwo.src, StepThree.src, StepFour.src][step - 1]}
+                alt={`Paso ${step}`}
+                style={{
+                  width: "25px",
+                  height: "25px",
+                  opacity: 1,
+                }}
+              />
             </div>
           </Drawer.Content>
         </Drawer.Portal>

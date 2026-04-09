@@ -51,7 +51,6 @@ export default function SchedulingWizard({ slots, token }: Props) {
   useEffect(() => {
   const handler = (e: Event) => {
     const custom = e as CustomEvent;
-    console.log("detail completo:", custom.detail);
 
     const matchingSlots = slots.filter(
       (s) =>
@@ -231,8 +230,6 @@ scheduledDate.setDate(today.getDate() + diff);
 // 6. Generación del string (Formato YYYY-MM-DD en UTC)
 const scheduledDateStr = scheduledDate.toISOString().split("T")[0];
 
-console.log(scheduledDateStr); // "2026-03-30"
-
     const [startH, startM] = (slotContext?.startTime ?? "00:00").split(":").map(Number);
     const [endH, endM] = (slotContext?.endTime ?? "00:00").split(":").map(Number);
     const durationHours = Math.round(((endH * 60 + endM) - (startH * 60 + startM)) / 60 * 2) / 2;
@@ -248,9 +245,6 @@ console.log(scheduledDateStr); // "2026-03-30"
       title: data.title,
       description: data.description,
     };
-
-// Imprime el objeto completo para ver qué se envía realmente
-console.log("ENVIANDO SESION:", JSON.stringify(sessionData, null, 2));
 
 
 const res = await fetch('/api/sessions/scheduleapi', {
@@ -268,7 +262,6 @@ if (!res.ok) {
 }
 
 const result = await res.json();
-console.log("SESION CREADA:", result);
 
     sileo.action({
       title: "Tutoría agendada",
@@ -280,7 +273,6 @@ console.log("SESION CREADA:", result);
     handleClose();
 
   } catch (error) {
-    console.error("Error al crear la sesión:", error);
     sileo.action({
       title: "Error al agendar",
       description: "No se pudo reservar el espacio. Intenta de nuevo.",

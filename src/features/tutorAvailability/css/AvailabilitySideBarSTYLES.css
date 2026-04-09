@@ -33,7 +33,7 @@ color: #1e293b;
     gap: 10px;
     align-self: center;
     background-color: #DAFFAA;
-    border: 1px solid #4D662E;
+    border: 1px solid #9ACC5B;
     color: #4D662E;
     font-weight: 700;
     font-size: 24px;
@@ -57,11 +57,13 @@ color: #1e293b;
 .SlotsContainer {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     gap: 10px;
     padding: 1.25rem;
     width: 100%;
+    max-height: 600px;
+    overflow-y: auto;
     border-radius: 8px;
 }
 

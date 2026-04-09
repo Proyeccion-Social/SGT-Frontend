@@ -40,6 +40,21 @@ export default function VaulDrawer() {
             <hr className="Separator"/>
             <div className="SlotsContainer">
               <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
+              <HoursCard />
             </div>
             <hr className="Separator"/>
             <div className="CloseButtonContainer">

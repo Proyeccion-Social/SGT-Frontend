@@ -3,21 +3,34 @@
 /* ── Encabezado ── */
 .details-title {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0 0 8px;
-  line-height: 1.2;
+  line-height: 64px;
+  letter-spacing: -0.02em;
 }
 
 .details-title__highlight {
-  background: #ede9fe;
-  border-radius: 6px;
+  position: relative;
+  display: inline-block;
   padding: 0 4px;
+  white-space: nowrap;
+}
+
+.details-title__highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/resaltado-informacion.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  z-index: -1;
 }
 
 .details-subtitle {
   color: #6b7280;
   font-size: 15px;
   margin: 0 0 32px;
+  letter-spacing: -0.02em;
 }
 
 /* ── Contenedor principal ── */

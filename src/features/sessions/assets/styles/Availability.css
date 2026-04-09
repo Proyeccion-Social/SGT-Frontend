@@ -1,23 +1,35 @@
-AvailabilityStep.css
 
 /* ── Encabezado ── */
 .availability-title {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 0 0 8px;
-  line-height: 1.2;
+  line-height: 64px;
+  letter-spacing: -0.02em;
 }
 
 .availability-title__highlight {
-  background: #ede9fe;
-  border-radius: 6px;
+  position: relative;
+  display: inline-block;
   padding: 0 4px;
+  white-space: nowrap;
+}
+
+.availability-title__highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/resaltado.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  z-index: -1;
 }
 
 .availability-subtitle {
   color: #6b7280;
   font-size: 15px;
   margin: 0 0 32px;
+  letter-spacing: -0.02em;
 }
 
 /* ── Contenedor principal de la tarjeta ── */
@@ -82,6 +94,7 @@ AvailabilityStep.css
   padding: 3px 10px;
   border-radius: 999px;
   z-index: 2;
+  letter-spacing: -0.02em;
 }
 
 /* ── Foto del tutor ── */
@@ -111,6 +124,7 @@ AvailabilityStep.css
 .tutor-card__name-overlay {
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
+  letter-spacing: -0.02em;
   padding: 6px 12px;
   font-size: 13px;
   font-weight: 600;

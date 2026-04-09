@@ -71,6 +71,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  letter-spacing: -0.02em;
 }
 
 /* ── Imagen del número de paso ── */

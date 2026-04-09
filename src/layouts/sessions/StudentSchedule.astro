@@ -97,7 +97,7 @@ const formatDay = (date: Date) =>
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    padding: 24px 32px 16px 32px;
+    padding: 40px 50px 40px 50px;
     box-sizing: border-box;
     flex-shrink: 0;       /* nunca se comprime */
     border-bottom: 1px solid #e7dcff;
@@ -116,10 +116,11 @@ const formatDay = (date: Date) =>
   }
 
   .header-title h1 {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: var(--color-moradops-400);
     margin: 0;
+    letter-spacing: -0.02em;
   }
 
   .date-range {
@@ -131,8 +132,9 @@ const formatDay = (date: Date) =>
   .badge {
     display: inline-block;
     background-color: #E2D5FF;
+    width: fit-content;
     color: #3C3C3C;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     padding: 3px 10px;
     border-radius: 999px;

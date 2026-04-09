@@ -1,7 +1,7 @@
 import { useState } from "react";
 import grupalIcon from "../../assets/grupal.svg";
 import individualIcon from "../../assets/individiual.svg";
-import "../styles/SessionType.css";
+import "../../assets/styles/SessionType.css";
 
 interface Props {
   onNext: (type: "INDIVIDUAL" | "GRUPAL") => void;

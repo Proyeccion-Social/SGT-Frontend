@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Slot } from "../../../availability/services/availabilityService";
-import "../styles/Availability.css";
+import "../../assets/styles/Availability.css";
 
 interface TutorInfo {
   id: string;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../styles/Detail.css";
+import "../../assets/styles/Detail.css";
 
 interface Props {
   onNext: (title: string, description: string) => void;

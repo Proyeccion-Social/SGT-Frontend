@@ -1,7 +1,7 @@
 import { useState } from "react";
 import presencialIcon from "../../assets/presencial.svg";
 import virtualIcon from "../../assets/virtual.svg";
-import "../styles/Modality.css";
+import "../../assets/styles/Modality.css";
 
 interface Props {
   onNext: (modality: "VIRT" | "PRES") => void;

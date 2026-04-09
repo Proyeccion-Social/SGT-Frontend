@@ -1,0 +1,26 @@
+.HoursCard {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 320px;
+    height: 70px;
+    border-radius: 16px;
+    border-width: 1px;
+    border-style: dashed;
+    border-color: #C6C6C6;
+
+}
+
+.DayAndHoursContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items:center;
+}
+
+.LeftColor {
+    width: 32px;
+    height: 100%;
+    background-color: #9F74FF;
+    border-radius: 16px 0 0 16px;
+}

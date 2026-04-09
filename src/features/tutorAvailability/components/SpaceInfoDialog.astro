@@ -1,0 +1,289 @@
+---
+import infoIcon from "@/features/tutorAvailability/assets/infoIcon.png";
+import line from "@/features/tutorAvailability/assets/line.svg";
+import closeIcon from "@/features/tutorAvailability/assets/close.png"
+
+interface Props {
+    description: string;
+    hours: number;
+}
+
+const { description, hours } = Astro.props;
+---
+
+<dialog>
+    <div class="container">
+        <button class="closeBtn"><img src={closeIcon.src}></button>
+        <div class="title">Información de tu espacio</div>
+        <p class="description">bla bla bla bla</p>
+        <div class="modality-container">
+            <button class="modality-btn">Presencial</button>
+            <button class="modality-btn">Virtual</button>
+        </div>
+        <div class="hours-container">
+            <p class="hours-label">Inicia</p>
+            <p class="hours-label">Termina</p>
+            <input type="text" inputmode="numeric" maxlength="5" placeholder="10:00" class="hoursInput">
+            <input type="text" inputmode="numeric" maxlength="5" placeholder="18:00" class="hoursInput">
+        </div>
+        <div class="buttons-container">
+            <button class="saveBtn">Guardar</button>
+            <button class="deleteBtn">Eliminar</button>
+        </div>
+    </div>
+</dialog>
+
+<style>
+    dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .title {
+        text-align: left;
+        font-weight: 500;
+        font-style: Medium;
+        font-size: 20px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color:#1A1A1A;
+    }
+
+    .closeBtn {
+        width: 15px;
+        position:absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+   
+
+    .description {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #1e293b;
+        margin-top: 10px;
+    }
+
+    .hours-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .hoursInput {
+        align-self: center;
+        text-align: center;
+        font-weight: 400;
+        font-size: 20px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #5F5F5F;
+        padding: 10px;
+        width: 100%;
+        height: 60px;
+        opacity: 1;
+        top: 197px;
+        left: 202.7px;
+        border-radius: 8.8px;
+        border-width: 1.1px;
+        border: 1px solid #C6C6C6;
+
+    }
+    
+    .hours-label {
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #5F5F5F;
+    }
+
+    .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        gap: 0px;
+        background-color: white;
+        padding: 30px;
+        border-radius: 16px;
+        border: 1px solid #C6C6C6;
+        width: 514px;
+        height: 307px;
+    }
+
+    .modality-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+        margin-top: 25px;
+        width: 100%;
+        background-color: #8751FF;
+        border-radius: 8px;
+    }
+
+    .modality-btn {
+        padding: 10px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        color:#E8E8E8;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 20px;
+        letter-spacing: -2%;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    .modality-btn:hover {
+        background-color: #9F74FF;
+    }
+
+    .modality-btn:active {
+        background-color: #9F74FF;
+    }
+
+    .modality-btn.active {
+        background-color: #9F74FF;
+        color: white;
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 10px;
+    }
+    
+    .saveBtn {
+        width: 94px;
+        height: 37px;
+        background-color: #DAFFAA;
+        color: #9ACC5B;
+        border: 1px solid #9ACC5B;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -2%;
+        transition: background-color 0.3s ease;
+    }
+
+    .saveBtn:hover {
+        background-color: #9ACC5B;
+        color: #DAFFAA;
+
+    }
+
+    .saveBtn:active {
+        background-color: #9ACC5B;
+        color: #DAFFAA;
+    }
+
+
+    .deleteBtn {
+        width: 94px;
+        height: 37px;
+        background-color: #F35761;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -2%;
+        transition: background-color 0.3s ease;
+    }
+
+    .deleteBtn:hover {
+        background-color: #e2202d;
+
+    }
+
+    .deleteBtn:active {
+        background-color: #ee1f2d;
+    }
+</style>
+
+<script>
+
+function formatTimeInput(input){
+
+    input.addEventListener("input", () => {
+
+        let value = input.value.replace(/\D/g,""); // eliminar todo lo que no sea numero
+
+        if(value.length > 4){
+            value = value.slice(0,4);
+        }
+
+        if(value.length >= 3){
+            value = value.slice(0,2) + ":" + value.slice(2);
+        }
+
+        input.value = value;
+
+    });
+
+    input.addEventListener("blur", () => {
+
+        let value = input.value;
+
+        if(!value.includes(":")) return;
+
+        let [hours, minutes] = value.split(":");
+
+        hours = parseInt(hours);
+        minutes = parseInt(minutes);
+
+        if(isNaN(hours) || hours > 23) hours = 23;
+        if(isNaN(minutes) || minutes > 59) minutes = 59;
+
+        input.value =
+            String(hours).padStart(2,"0") +
+            ":" +
+            String(minutes).padStart(2,"0");
+
+    });
+
+}
+
+document.querySelectorAll(".hoursInput").forEach(formatTimeInput);
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const modalityButtons = document.querySelectorAll(".modality-btn");
+
+    modalityButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            btn.classList.toggle("active");
+        });
+    });
+
+});
+</script>

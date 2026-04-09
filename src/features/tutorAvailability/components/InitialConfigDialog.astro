@@ -1,0 +1,109 @@
+---
+import infoIcon from "@/features/tutorAvailability/assets/infoIcon.svg";
+---
+
+<dialog>
+    <div class="container">
+        <h3 class="title">Configura tu <span>disponibilidad</span></h3>
+        <p>Indica los días y horarios en los que puedes dictar tutorías. Los estudiantes solo podrán agendar sesiones en las franjas que definas aquí.</p>
+        <div class="advice">
+            <img src={infoIcon.src} alt="" class="infoIcon">
+            <p>También podrás establecer un límite de horas semanales para evitar sobrecargarte</p>
+        </div>
+        <button class="empezarBtn">Empezar</button>
+    </div>
+</dialog>
+
+<style>
+    dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .title {
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -2%;
+        color: #1e293b;
+        span {
+            color: #8751FF;
+        }
+    }
+
+    .advice {
+        background-color: #FAE9B7;
+        display: flex;
+        flex-direction: row;
+        padding: 20px 30px;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        border-radius: 16px;
+        p {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 20px;
+            letter-spacing: -2%;
+            color: #91792E;
+        }
+    }
+    
+
+    .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 15px;
+        background-color: white;
+        padding: 40px;
+        border-radius: 16px;
+        border: 1px solid #C6C6C6;
+        width: 570px;
+        height: 320px;
+    }
+
+    .infoIcon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .empezarBtn {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 91px;
+        height: 36px;
+        background-color: #9F74FF;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -2%;
+        transition: background-color 0.3s ease;
+    }
+
+    .empezarBtn:hover {
+        background-color: #8751FF;
+
+    }
+
+    .empezarBtn:active {
+        background-color: #8751FF;
+    }
+</style>

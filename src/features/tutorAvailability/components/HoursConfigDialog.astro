@@ -1,0 +1,122 @@
+---
+import infoIcon from "@/features/tutorAvailability/assets/infoIcon.png";
+import line from "@/features/tutorAvailability/assets/line.svg";
+---
+
+<dialog>
+    <div class="container">
+        <div class="title"><div class="line">Limite de horas</div> semanales</div>
+        <p class="description">Evita sobrecargarte limitando la cantidad de horas semanales que impartes</p>
+        <input type="number" min="0" onkeypress="return event.charCode >= 48" placeholder="Ej: 10" class="hoursInput">
+        <button class="empezarBtn">Terminar y guardar</button>
+    </div>
+</dialog>
+
+<style>
+    dialog {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .title {
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -2%;
+        color: #1e293b;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .line {
+        background-image: url('/src/features/tutorAvailability/assets/line.svg');
+        background-size: contain;     /* 🔥 muestra TODA la imagen */
+        background-repeat: no-repeat;
+        background-position: center;
+
+        display: inline-block;
+        padding: 4px 10px;
+    }
+
+    .description {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 20px;
+        letter-spacing: -2%;
+        text-align: center;
+        color: #1e293b;
+    }
+
+    .hoursInput {
+        align-self: center;
+        margin-top: 35px;
+        padding: 10px;
+        width: 160px;
+        height: 40px;
+        opacity: 1;
+        top: 197px;
+        left: 202.7px;
+        border-radius: 8.8px;
+        border-width: 1.1px;
+        border: 1px solid #C6C6C6;
+
+    }
+    
+
+    .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center; 
+        gap: 0px;
+        background-color: white;
+        padding: 60px;
+        border-radius: 16px;
+        border: 1px solid #C6C6C6;
+        width: 570px;
+        height: 320px;
+    }
+
+    
+    .empezarBtn {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 167px;
+        height: 36px;
+        background-color: #9F74FF;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -2%;
+        transition: background-color 0.3s ease;
+    }
+
+    .empezarBtn:hover {
+        background-color: #8751FF;
+
+    }
+
+    .empezarBtn:active {
+        background-color: #8751FF;
+    }
+</style>

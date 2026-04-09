@@ -13,47 +13,62 @@
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
+    position: relative;
     text-align: center;
 }
 
-.finish-button {
-    font-family: "Open Sauce Two", sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    color: #1A1A1A;
-    background-color: #D5FFD5;
-    border: none;
-    border-radius: 10px;
-    padding: 0.5rem 1.5rem;
+.finish-anchord {
+    font-family: 'Caveat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 32px;
+    letter-spacing: -0.02em;
+    text-decoration-line: underline;
+    color: #9ACC5B;
+    position: absolute;
+    top: -28px;
+    left: 72px;
     cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.15s ease;
-    margin-bottom: 0.5rem;
-}
-
-.finish-button:hover {
-    background-color: #b8f5b8;
-    transform: translateY(-1px);
 }
 
 .finish-title {
     font-family: "Open Sauce Two", sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
     color: #1A1A1A;
     margin: 0;
     line-height: 1.2;
+    font-weight: 600;
+    font-size: var(--fontsize-heading-h2m);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    z-index: 10;
+    position: relative;
 }
 
-.finish-highlight {
-    background-color: #D5FFD5;
-    border-radius: 4px;
-    padding: 0 4px;
+.marked-completed {
+    position: relative;
 }
+
 
 .finish-subtitle {
-    font-family: "Open Sauce Two", sans-serif;
-    font-size: 16px;
+    font-family: 'Open Sauce Two';
+    font-style: normal;
     font-weight: 400;
-    color: #6B6B6B;
-    margin: 0;
+    font-size: 20px;
+    line-height: 24px;
+    color: #3C3C3C;
+}
+
+.finish-mark {
+    position: absolute;
+    top: 0px;
+    z-index: 1;
+    left: 104px;
+}
+
+.arrow-continue {
+    position: absolute;
+    top: 0px;
+    z-index: 11;
+    top: -64px;
 }

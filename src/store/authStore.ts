@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthStore>()(
     persist(
         (set) => ({
             user: null,
-            requiresPasswordChange: false,
+            requiresPasswordChange: true,
             requiresProfileCompletion: false,
             _hasHydrated: false,
             setHasHydrated: (val) => set({ _hasHydrated: val }),

@@ -22,7 +22,7 @@ const titles: Record<string, string> = {
 ---
 
 <DashboardLayout title={titles[userRole]} rol={userRole}>
-  <article transition:animate={fade({ duration: "0.5s" })}>
+  <article transition:animate={fade({ duration: "0.3s" })}>
     {userRole === "admin" && <AdminDashboard />}
     {userRole === "tutor" && <TutorDashboard />}
     {userRole === "student" && <StudentDashboard />}

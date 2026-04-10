@@ -10,52 +10,82 @@ const statistics = data.statistics;
 const pagination = data.meta;
 ---
 
-<div class="block-container">
-  <FilterCard currentStatus={currentStatus} />
-  <div class="sections-container">
-    <table>
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Titulo</th>
-          <th>Descripcion</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          sessions.map((session) => (
-            <tr
-              class="history-section"
-              data-section-id={session.status}
-              data-session-id={session.id}
-            >
-              <td>{session.scheduledDate}</td>
-              <td class="title-column">
-                <span class="subject-name">{session.subject.name}</span>{" "}
-                {session.title}
-              </td>
-              <td>{session.description}</td>
-              <td>
-                {(() => {
-                  if (session.status === "CANCELLED") return "Cancelada";
-                  if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
-                  if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
-                  if (session.participants.find((participant) => participant.id === userId)?.status === "ABSENT") return "Completada - No asistió";
-                  if (session.status === "COMPLETED") return "Completada";
-                  if (session.status === "SCHEDULED") return "Programada";
-                  if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente de confirmación por el tutor";
-                  if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente de confirmación por el estudiante";
-                  return session.status;
-                })()}
-              </td>
-            </tr>
-          ))
-        }
-      </tbody>
-    </table>
+<div class='block-container'>
+  <div class='headerTitle'>
+    <h2 class='title'>Tu <span> historial</span> de sesiones</h2>
+  </div>
 
-    <div class="pagination-container">
+  <div class='sections-container'>
+    <FilterCard currentStatus={currentStatus} />
+    <div class='table-container'>
+      <table class='table-header'>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Título</th>
+            <th>Materia</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+      </table>
+      <div class='table-wrapper'>
+        <table>
+          <tbody>
+            {
+              sessions.map((session) => (
+                <tr
+                  class='history-section'
+                  data-section-id={session.status}
+                  data-session-id={session.id}
+                >
+                  <td>{session.scheduledDate}</td>
+                  <td>
+                    <span class='title-column'>
+                      <span
+                        class={`modality-tag ${session.modality === "PRES" || session.modality === "PRESENCIAL" ? "modality-pres" : "modality-virt"}`}
+                      >
+                        {session.modality === "PRES" ||
+                        session.modality === "PRESENCIAL"
+                          ? "Presencial"
+                          : "Virtual"}
+                      </span>
+                      {session.title}
+                    </span>
+                  </td>
+                  <td>
+                    <span class='subject-name'>{session.subject.name}</span>
+                  </td>
+                  <td>
+                    {(() => {
+                      if (session.status === "CANCELLED") return "Cancelada";
+                      if (session.status === "CANCELLED_BY_STUDENT")
+                        return "Cancelada por el estudiante";
+                      if (session.status === "CANCELLED_BY_TUTOR")
+                        return "Cancelada por el tutor";
+                      if (
+                        session.participants.find(
+                          (participant) => participant.id === userId,
+                        )?.status === "ABSENT"
+                      )
+                        return "Completada - No asistió";
+                      if (session.status === "COMPLETED") return "Completada";
+                      if (session.status === "SCHEDULED") return "Programada";
+                      if (session.status === "PENDING_TUTOR_CONFIRMATION")
+                        return "Pendiente de confirmación por el tutor";
+                      if (session.status === "PENDING_STUDENT_CONFIRMATION")
+                        return "Pendiente de confirmación por el estudiante";
+                      return session.status;
+                    })()}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class='pagination-container'>
       <SessionsPagination
         currentPage={pagination.page}
         totalPages={pagination.totalPages}
@@ -65,11 +95,7 @@ const pagination = data.meta;
     </div>
 
     {/* React island: se monta una sola vez, recibe todos los datos */}
-    <SessionDialogManager
-      client:load
-      sessions={sessions}
-      userId={userId}
-    />
+    <SessionDialogManager client:load sessions={sessions} userId={userId} />
   </div>
 </div>
 
@@ -78,7 +104,9 @@ const pagination = data.meta;
     const tableBody = document.querySelector("tbody");
 
     tableBody?.addEventListener("click", (e) => {
-      const row = (e.target as HTMLElement).closest(".history-section") as HTMLElement;
+      const row = (e.target as HTMLElement).closest(
+        ".history-section",
+      ) as HTMLElement;
       if (!row) return;
 
       const sessionId = row.dataset.sessionId;
@@ -86,7 +114,7 @@ const pagination = data.meta;
         document.dispatchEvent(
           new CustomEvent("open-session-dialog", {
             detail: { sessionId },
-          })
+          }),
         );
       }
     });
@@ -94,8 +122,30 @@ const pagination = data.meta;
 </script>
 
 <style>
+  .headerTitle {
+    width: 100%;
+    text-align: center;
+  }
   .sections-container {
     position: relative;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .title {
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: var(--text-headings);
+    span {
+      font-size: 3.5rem;
+      font-family: "Caveat", cursive;
+      color: #9966ff;
+    }
   }
   .pagination-container {
     display: flex;
@@ -110,44 +160,100 @@ const pagination = data.meta;
     padding: 4px 10px;
   }
 
-  table {
-    width: 1250px;
-    table-layout: fixed;
-    border-collapse: separate;
-    border-spacing: 0;
-    border: 1px solid #5100ff;
-    border-radius: 10px;
+  .title-column {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 100%;
     overflow: hidden;
-    box-shadow:
-      0 4px 6px -1px #8851ff58,
-      0 2px 4px -1px #8851ff58;
   }
 
-  th:nth-child(1) { width: 12%; }
-  th:nth-child(2) { width: 26%; }
-  th:nth-child(3) { width: 37%; }
-  th:nth-child(4) { width: 20%; }
+  .modality-tag {
+    font-size: 11px;
+    border-radius: 16px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+
+  .modality-pres {
+    background-color: rgba(218, 255, 170, 0.886);
+    color: rgb(45, 80, 22);
+  }
+
+  .modality-virt {
+    background-color: rgba(170, 215, 255, 0.886);
+    color: rgb(22, 55, 80);
+  }
+
+  .table-container {
+    border-radius: 20px;
+    border: 1px solid #e8e8e8;
+    width: 90%;
+    overflow: hidden;
+  }
+
+  .table-wrapper {
+    height: 440px;
+    overflow-y: scroll;
+  }
+
+  .table-header {
+    margin-right: 17px;
+  }
+
+  table {
+    table-layout: fixed;
+    border-spacing: 0;
+    letter-spacing: -0.02em;
+    width: 100%;
+  }
+
+  th:nth-child(1) {
+    width: 12%;
+  }
+  th:nth-child(2) {
+    width: 40%;
+  }
+  th:nth-child(3) {
+    width: 24%;
+  }
+  th:nth-child(4) {
+    width: 24%;
+  }
+
+  td:nth-child(1) {
+    width: 12%;
+  }
+  td:nth-child(2) {
+    width: 40%;
+  }
+  td:nth-child(3) {
+    width: 24%;
+  }
+  td:nth-child(4) {
+    width: 24%;
+  }
 
   th,
   td {
     background-color: #ffffff;
     padding: 10px 20px;
+    height: 60px;
     text-align: left;
-    border-bottom: 1px solid #5100ff;
+    border-bottom: 1px solid #e8e8e8;
     color: #334155;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    height: 50px;
+    letter-spacing: -0.02em;
+    font-size: 14px;
   }
 
   th {
-    background-color: #f8fafc;
     font-weight: 600;
-    text-transform: uppercase;
     font-size: 0.85rem;
     font-weight: bold;
-    letter-spacing: 0.05em;
+    letter-spacing: -0.02em;
   }
 
   tr:last-child td {
@@ -161,10 +267,8 @@ const pagination = data.meta;
   .block-container {
     display: flex;
     flex-direction: column;
-    justify-content: start;
-    max-width: 1400px;
+    justify-content: center;
     margin: 0 auto;
-    padding: 1rem;
   }
 
   .hidden {
@@ -260,7 +364,9 @@ const pagination = data.meta;
     padding: 0.5rem 1rem;
   }
 
-  .sc-status-wrapper { width: 160px; }
+  .sc-status-wrapper {
+    width: 160px;
+  }
   .sc-status {
     background-color: #f8fafc7d;
     border-style: solid;
@@ -287,7 +393,8 @@ const pagination = data.meta;
     border: 1px solid rgb(114, 114, 114);
   }
 
-  .sc-duration, .sc-rating {
+  .sc-duration,
+  .sc-rating {
     border: 1px solid #cbd5e1;
     padding: 0.5rem 1rem;
     border-radius: 16px;
@@ -360,6 +467,4 @@ const pagination = data.meta;
     color: rgba(135, 81, 255, 1);
     border-color: rgba(135, 81, 255, 1);
   }
-
-
 </style>

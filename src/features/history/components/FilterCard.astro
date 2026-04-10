@@ -3,9 +3,6 @@ const { currentStatus = "all"} = Astro.props;
 ---
 
 <div class="filter-wrapper">
-  <div>
-    <h2 class="title">Tu <span> historial</span> de sesiones</h2>
-  </div>
  <div class="segmented-control">
     <label class={`segment-label ${currentStatus === 'all' ? 'active' : ''}`} data-filter="all">
       <input type="radio" name="history_filter" checked={currentStatus === 'all'} value="all" />
@@ -43,10 +40,9 @@ const { currentStatus = "all"} = Astro.props;
 
 .segmented-control {
   display: inline-flex;
-  border: 1px solid rgba(231, 220, 255, 1);
-  border-radius: 18px;
+  border: 1px solid #e8e8e8;
+  border-radius: 28px;
   overflow: hidden;
-  background-color: rgba(231, 220, 255, 1);
   padding: 0.2rem;
   gap: 0.2rem;  
 }
@@ -56,7 +52,7 @@ const { currentStatus = "all"} = Astro.props;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
   color: #475569;
-  border-radius: 16px;
+  border-radius: 24px;
   position: relative;
   text-align: center;
   transition: background-color 0.2s, color 0.2s;

@@ -87,6 +87,7 @@ const systemToday = new Date();
               return (
                 <div
                   class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
+                  id={`slot-block-${slot.groupedIds[0]}`}
                   style={getSlotStyle(slot)}
                   data-slot-ids={slot.groupedIds.join(",")}
                   data-day={slot.dayOfWeek}
@@ -528,7 +529,7 @@ const systemToday = new Date();
 
       const endMinutes = parseInt(overlay.dataset.endMinutes || "") || (dragStartMinutes + SLOT_INTERVAL);
 
-      // Guardar rect del overlay ANTES de removerlo
+      // Capturar rect ANTES de remover — esto ya estaba correcto
       const overlayRect = overlay.getBoundingClientRect();
 
       overlay.remove();
@@ -538,19 +539,12 @@ const systemToday = new Date();
 
       const startTime = minutesToTime(dragStartMinutes);
       const endTime = minutesToTime(endMinutes);
-      const modalityLabel = formatModalityLabel(modality);
 
-      console.log("Intentando mostrar sileo:", { startTime, endTime, modalityLabel });
-
-      // Disparar evento con el rect del overlay para posicionar el popover
+      // Usar overlayRect directamente — eliminar el bloque duplicado completo
       document.dispatchEvent(
         new CustomEvent("slot:clicked", {
           detail: {
-            id: slotBlock.dataset.slotIds?.split(",")[0] || "",
-            dayOfWeek: slotBlock.dataset.day,
-            startTime,
-            endTime,
-            modality,
+            slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
             overlayRect: {
               top: overlayRect.top,
               bottom: overlayRect.bottom,
@@ -559,6 +553,10 @@ const systemToday = new Date();
               width: overlayRect.width,
               height: overlayRect.height,
             },
+            dayOfWeek: slotBlock.dataset.day,
+            startTime,
+            endTime,
+            modality,
           },
           bubbles: true,
         })

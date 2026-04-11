@@ -15,7 +15,6 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const authHeader = request.headers.get("authorization") || undefined;
-    console.log("TOKEN RECIBIDO EN BFF (GET):", authHeader);
 
     const tutor = await getTutorInfo(tutorId, authHeader);
 
@@ -24,7 +23,6 @@ export const GET: APIRoute = async ({ request }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error: any) {
-    console.error("Error en BFF getTutorInfo:", error);
 
     return new Response(
       JSON.stringify({
@@ -47,7 +45,6 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     const authHeader = request.headers.get('authorization') || undefined;
-    console.log("TOKEN RECIBIDO EN BFF:", authHeader);
 
     const session = await createSession(data, authHeader);
 
@@ -57,7 +54,6 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
   } catch (error: any) {
-    console.error('Error en BFF createSession:', error);
 
     return new Response(
       JSON.stringify({

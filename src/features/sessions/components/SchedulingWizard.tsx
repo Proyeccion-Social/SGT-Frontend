@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { VirtualElement as FloatingVirtualElement } from "@floating-ui/core";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
 import DetailsStep from "./scheduling/Details";
@@ -27,9 +28,13 @@ export interface WizardData {
   modality: "VIRT" | "PRES" | null;
 }
 
+interface VirtualElement {
+  getBoundingClientRect: () => DOMRect;
+}
+
 interface PopoverData {
   subjects: string[];
-  anchorRect: DOMRect;
+  slotBlockId: string;
   slotData: any;
 }
 
@@ -74,7 +79,7 @@ export default function SchedulingWizard({ slots, token }: Props) {
 
       if (subjects.length === 0) return;
 
-      const rect = custom.detail.overlayRect as DOMRect;
+      const slotBlockId = custom.detail.slotBlockId as string;
 
       sileo.action({
         title: "Franja seleccionada",
@@ -94,7 +99,11 @@ export default function SchedulingWizard({ slots, token }: Props) {
       });
 
       setTimeout(() => {
-        setPopover({ subjects, anchorRect: rect, slotData: custom.detail });
+        setPopover({
+          subjects,
+          slotBlockId,
+          slotData: custom.detail,
+        });
       }, 8);
     };
 
@@ -196,91 +205,96 @@ export default function SchedulingWizard({ slots, token }: Props) {
     });
   };
 
-  const handleSubmit = async () => {
-    try {
-      const dayMap: Record<string, number> = {
-        LUNES: 1,
-        MARTES: 2,
-        MIERCOLES: 3,
-        JUEVES: 4,
-        VIERNES: 5,
-        SABADO: 6,
-        DOMINGO: 7,
-      };
+  const handleSubmit = async (currentData: WizardData) => {
+  
+  try {
+    const dayMap: Record<string, number> = {
+      LUNES: 1,
+      MARTES: 2,
+      MIERCOLES: 3,
+      JUEVES: 4,
+      VIERNES: 5,
+      SABADO: 6,
+      DOMINGO: 7,
+    };
 
-      const rawDay = slotContext?.dayOfWeek ?? "LUNES";
-      const normalizedDay = rawDay
-        .toUpperCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+    const rawDay = slotContext?.dayOfWeek ?? "LUNES";
+    const normalizedDay = rawDay
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-      const today = new Date();
-      const todayDow = today.getDay() === 0 ? 7 : today.getDay();
-      const targetDow = dayMap[normalizedDay] ?? 1;
-      const diff =
-        targetDow >= todayDow
-          ? targetDow - todayDow
-          : 7 - todayDow + targetDow;
+    const today = new Date();
+    const todayDow = today.getDay() === 0 ? 7 : today.getDay();
+    const targetDow = dayMap[normalizedDay] ?? 1;
+    const diff =
+      targetDow >= todayDow
+        ? targetDow - todayDow
+        : 7 - todayDow + targetDow;
 
-      const scheduledDate = new Date(today);
-      scheduledDate.setDate(today.getDate() + diff);
-      const scheduledDateStr = scheduledDate.toISOString().split("T")[0];
+    const scheduledDate = new Date(today);
+    scheduledDate.setDate(today.getDate() + diff);
+    const scheduledDateStr = scheduledDate.toISOString().split("T")[0];
 
-      const [startH, startM] = (slotContext?.startTime ?? "00:00")
-        .split(":")
-        .map(Number);
-      const [endH, endM] = (slotContext?.endTime ?? "00:00")
-        .split(":")
-        .map(Number);
-      const durationHours =
-        Math.round(
-          (((endH * 60 + endM) - (startH * 60 + startM)) / 60) * 2
-        ) / 2;
+    const [startH, startM] = (slotContext?.startTime ?? "00:00")
+      .split(":")
+      .map(Number);
+    const [endH, endM] = (slotContext?.endTime ?? "00:00")
+      .split(":")
+      .map(Number);
+    const durationHours =
+      Math.round(
+        (((endH * 60 + endM) - (startH * 60 + startM)) / 60) * 2
+      ) / 2;
 
-      const sessionData = {
-        tutorId: data.tutorId,
-        subjectId: data.subjectId,
-        availabilityId: data.slot?.id,
-        scheduledDate: scheduledDateStr,
-        modality: data.modality ?? slotContext?.modality ?? "PRES",
-        durationHours,
-        title: data.title,
-        description: data.description,
-      };
+    const sessionData = {
+      tutorId: currentData.tutorId,
+      subjectId: currentData.subjectId,
+      availabilityId: currentData.slot?.id,
+      scheduledDate: scheduledDateStr,
+      modality: currentData.modality ?? slotContext?.modality ?? "PRES",
+      durationHours,
+      title: currentData.title,
+      description: currentData.description,
+    };
+    console.log("sessionData enviado:", JSON.stringify(sessionData, null, 2));
+    const res = await fetch("/api/sessions/scheduleapi", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(sessionData),
+    });
 
-      const res = await fetch("/api/sessions/scheduleapi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(sessionData),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || "Error al agendar sesión");
-      }
-
-      await res.json();
-
-      sileo.action({
-        title: "Tutoría agendada",
-        description: "Tu espacio ha sido reservado exitosamente.",
-        fill: "#58d68d",
-        styles: { badge: "#ffffff" },
-      });
-
-      handleClose();
-    } catch (error) {
-      sileo.action({
-        title: "Error al agendar",
-        description: "No se pudo reservar el espacio. Intenta de nuevo.",
-        fill: "#f35761",
-        styles: { badge: "#ffffff" },
-      });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || "Error al agendar sesión");
     }
-  };
+
+    await res.json();
+
+    sileo.action({
+      title: "Tutoría agendada",
+      description: "Tu espacio ha sido reservado exitosamente.",
+      fill: "#58d68d",
+      styles: { badge: "#ffffff" },
+    });
+
+    handleClose();
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 3000);
+  } catch (error) {
+    sileo.action({
+      title: "Error al agendar",
+      description: "No se pudo reservar el espacio. Intenta de nuevo.",
+      fill: "#f35761",
+      styles: { badge: "#ffffff" },
+    });
+  }
+};
 
   const availableSlots =
     slotContext && data.subject
@@ -308,7 +322,7 @@ export default function SchedulingWizard({ slots, token }: Props) {
       {popover && (
         <SlotPopover
           subjects={popover.subjects}
-          anchorRect={popover.anchorRect}
+          slotBlockId={popover.slotBlockId}
           slotData={popover.slotData}
           onSelect={handleSubjectSelect}
         />
@@ -358,9 +372,10 @@ export default function SchedulingWizard({ slots, token }: Props) {
                 {step === 3 && (
                   <SessionTypeStep
                     onNext={(sessionType) => {
-                      setData((prev) => ({ ...prev, sessionType }));
+                      const updatedData = { ...data, sessionType };
+                      setData(updatedData);
                       if (needsModality) setStep(4);
-                      else handleSubmit();
+                      else handleSubmit(updatedData);  // pasar data actualizado
                     }}
                     onBack={() => setStep(2)}
                   />
@@ -368,8 +383,9 @@ export default function SchedulingWizard({ slots, token }: Props) {
                 {step === 4 && needsModality && (
                   <ModalityStep
                     onNext={(modality) => {
-                      setData((prev) => ({ ...prev, modality }));
-                      handleSubmit();
+                      const updatedData = { ...data, modality };
+                      setData(updatedData);
+                      handleSubmit(updatedData);  // pasar data actualizado
                     }}
                     onBack={() => setStep(3)}
                   />

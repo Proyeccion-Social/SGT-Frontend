@@ -43,7 +43,7 @@ function getAuthHeaders(): HeadersInit {
 }
 
 export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/scheduling/sessions/individual`, { 
+  const res = await fetch(`${API_URL}/scheduling/sessions/individual`, { 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
     body: JSON.stringify(data),
@@ -103,7 +103,6 @@ export async function getSessions(
   role: 'tutor' | 'student',
   token: string
 ): Promise<Session[]> {
-  console.log('[getSessions] URL:', `${API_URL}/scheduling/sessions/my-sessions/${role}`);
   const res = await request<{ data: Session[] }>(
     `/scheduling/sessions/my-sessions/${role}`,
     token

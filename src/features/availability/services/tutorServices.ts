@@ -20,11 +20,8 @@ export async function getTutorInfo(
     }
   );
 const baseUrl = import.meta.env.API_URL;
-  console.log("API_URL:", baseUrl);   // Si imprime "undefined", ese es el problema
-  console.log("tutorId recibido:", tutorId);
 
   const url = `${baseUrl}/api/v1/tutors/${tutorId}`;
-  console.log("URL FINAL:", url);
 
   if (!res.ok) {
     throw new Error("No se pudo obtener el tutor");

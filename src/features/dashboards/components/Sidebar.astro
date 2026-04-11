@@ -247,6 +247,17 @@ const currentPath = Astro.url.pathname;
     position: relative;
   }
 
+  /* Evitar fondo morado en calendar-container */
+  .calendar-container a.active-link {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  /* Oscurecer el verde del contenedor cuando está activo */
+  .calendar-container:has(a.active-link) {
+    background: #a8e85a; /* #cdff8e oscurecido ~15% */
+  }
+
   .calendar-container,
   .dashboard-container,
   .notification-container,

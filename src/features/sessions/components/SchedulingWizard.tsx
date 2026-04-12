@@ -257,7 +257,15 @@ export default function SchedulingWizard({ slots, token }: Props) {
       title: currentData.title,
       description: currentData.description,
     };
-    console.log("sessionData enviado:", JSON.stringify(sessionData, null, 2));
+    console.log("=== DIAGNÓSTICO DE FECHA ===");
+console.log("slotContext.dayOfWeek:", slotContext?.dayOfWeek);
+console.log("rawDay:", rawDay);
+console.log("normalizedDay:", normalizedDay);
+console.log("today:", today.toISOString(), "| getDay():", today.getDay(), "| todayDow:", todayDow);
+console.log("targetDow:", targetDow, "| diff:", diff);
+console.log("scheduledDate:", scheduledDate.toISOString());
+console.log("scheduledDateStr:", scheduledDateStr);
+console.log("weekOffset actual:", new URLSearchParams(window.location.search).get("offset"));
     const res = await fetch("/api/sessions/scheduleapi", {
       method: "POST",
       headers: {

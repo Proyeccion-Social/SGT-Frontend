@@ -3,19 +3,13 @@ import infoIcon from "@/features/tutorAvailability/assets/infoIcon.png";
 import line from "@/features/tutorAvailability/assets/line.svg";
 import closeIcon from "@/features/tutorAvailability/assets/close.png"
 
-interface Props {
-    description: string;
-    hours: number;
-}
-
-const { description, hours } = Astro.props;
 ---
 
 <dialog id="space-info-dialog">
     <div class="container">
         <button class="closeBtn"><img src={closeIcon.src}></button>
         <div class="title">Información de tu espacio</div>
-        <p class="description">bla bla bla bla</p>
+        <p class="description"></p>
         <div class="modality-container">
             <button class="modality-btn">Presencial</button>
             <button class="modality-btn">Virtual</button>
@@ -240,75 +234,188 @@ const { description, hours } = Astro.props;
 <script>
 const dialog = document.getElementById("space-info-dialog") as HTMLDialogElement;
 const closeBtn = dialog?.querySelector(".closeBtn");
+const saveBtn = dialog?.querySelector(".saveBtn");
+const deleteBtn = dialog?.querySelector(".deleteBtn");
+const hoursInputs = dialog?.querySelectorAll(".hoursInput") as NodeListOf<HTMLInputElement>;
+const descriptionInput = dialog?.querySelector(".description") as HTMLInputElement;
 
+let currentSlot: any = null;
+
+// =======================
+// HELPERS
+// =======================
+
+// Obtener modalidad desde estado (NO desde clases)
+function getSelectedModality() {
+    return currentSlot?.modality || "NONE";
+}
+
+// Setear botones visualmente
+function setModalityButtons(modality: string) {
+    const buttons = dialog?.querySelectorAll(".modality-btn");
+
+    buttons?.forEach((btn) => {
+        btn.classList.remove("active");
+
+        if (
+            (btn.textContent === "Presencial" && (modality === "PRES" || modality === "BOTH")) ||
+            (btn.textContent === "Virtual" && (modality === "VIRT" || modality === "BOTH"))
+        ) {
+            btn.classList.add("active");
+        }
+    });
+}
+
+// =======================
+// EVENTOS
+// =======================
+
+// Cerrar
 closeBtn?.addEventListener("click", () => {
     dialog?.close();
 });
 
-// Close on backdrop click
+// Cerrar al hacer click fuera
 dialog?.addEventListener("click", (e) => {
     if (e.target === dialog) {
         dialog.close();
     }
 });
 
-// Listen for custom event to open the dialog
-window.addEventListener("open-space-info-dialog", () => {
+// 🔥 DELEGACIÓN DE EVENTOS PARA MODALIDAD
+dialog?.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+
+    if (target.classList.contains("modality-btn")) {
+        const buttons = dialog.querySelectorAll(".modality-btn");
+
+        // UI
+        buttons.forEach((b) => b.classList.remove("active"));
+        target.classList.add("active");
+
+        // 🔥 ESTADO REAL
+        if (target.textContent === "Presencial") {
+            currentSlot.modality = "PRES";
+        } else {
+            currentSlot.modality = "VIRT";
+        }
+    }
+});
+
+// =======================
+// ABRIR MODAL
+// =======================
+
+window.addEventListener("open-space-info-dialog", (e: any) => {
+    currentSlot = { ...e.detail }; // 🔥 copiar para no mutar directo
+
+    if (!currentSlot) return;
+
+    console.log("SLOT ABIERTO:", currentSlot);
+
+    // Horas (usa startTime / endTime reales)
+    if (hoursInputs.length === 2) {
+        hoursInputs[0].value = currentSlot.startTime?.slice(0, 5) || "";
+        hoursInputs[1].value = currentSlot.endTime?.slice(0, 5) || "";
+    }
+
+    descriptionInput.value = currentSlot.to || "";
+    // Modalidad
+    setModalityButtons(currentSlot.modality);
+
     dialog?.showModal();
 });
 
-function formatTimeInput(input){
+// =======================
+// GUARDAR
+// =======================
 
+saveBtn?.addEventListener("click", async () => {
+    if (!currentSlot) return;
+
+    const newStartTime = hoursInputs[0].value;
+    const newEndTime = hoursInputs[1].value;
+    const newModality = getSelectedModality();
+
+    const body = {
+        ...currentSlot,
+        new_start_time: newStartTime,
+        new_end_time: newEndTime,
+        new_modality: newModality
+    };
+
+    try {
+        const response = await fetch("/api/tutor-availability/patch-slots-by-range", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
+
+        if (response.ok) {
+            window.dispatchEvent(new CustomEvent('refresh-slots'));
+            dialog.close();
+        } else {
+            const err = await response.json();
+            alert(err.message || "Error al guardar");
+        }
+    } catch (error) {
+        console.error("Error al guardar:", error);
+    }
+});
+
+// =======================
+// ELIMINAR
+// =======================
+
+deleteBtn?.addEventListener("click", async () => {
+    if (!currentSlot) return;
+
+    if (!confirm("¿Estás seguro de que deseas eliminar esta franja?")) return;
+
+    try {
+        const response = await fetch("/api/tutor-availability/delete-slots-by-range", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(currentSlot),
+        });
+
+        if (response.ok) {
+            window.dispatchEvent(new CustomEvent('refresh-slots'));
+            dialog.close();
+        } else {
+            const err = await response.json();
+            alert(err.message || "Error al eliminar");
+        }
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+    }
+});
+
+// =======================
+// FORMATEO DE HORAS
+// =======================
+
+function formatTimeInput(input: HTMLInputElement){
     input.addEventListener("input", () => {
-
-        let value = input.value.replace(/\D/g,""); // eliminar todo lo que no sea numero
-
-        if(value.length > 4){
-            value = value.slice(0,4);
-        }
-
-        if(value.length >= 3){
-            value = value.slice(0,2) + ":" + value.slice(2);
-        }
-
+        let value = input.value.replace(/\D/g,"");
+        if(value.length > 4) value = value.slice(0,4);
+        if(value.length >= 3) value = value.slice(0,2) + ":" + value.slice(2);
         input.value = value;
-
     });
 
     input.addEventListener("blur", () => {
-
         let value = input.value;
-
         if(!value.includes(":")) return;
-
-        let [hours, minutes] = value.split(":");
-
-        hours = parseInt(hours);
-        minutes = parseInt(minutes);
-
+        let [hoursStr, minutesStr] = value.split(":");
+        let hours = parseInt(hoursStr);
+        let minutes = parseInt(minutesStr);
         if(isNaN(hours) || hours > 23) hours = 23;
         if(isNaN(minutes) || minutes > 59) minutes = 59;
-
-        input.value =
-            String(hours).padStart(2,"0") +
-            ":" +
-            String(minutes).padStart(2,"0");
-
+        input.value = String(hours).padStart(2,"0") + ":" + String(minutes).padStart(2,"0");
     });
-
 }
 
-document.querySelectorAll(".hoursInput").forEach(formatTimeInput);
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const modalityButtons = document.querySelectorAll(".modality-btn");
-
-    modalityButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            btn.classList.toggle("active");
-        });
-    });
-
-});
+document.querySelectorAll(".hoursInput").forEach((input) => 
+    formatTimeInput(input as HTMLInputElement)
+);
 </script>

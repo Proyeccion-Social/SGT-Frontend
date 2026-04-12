@@ -2,18 +2,58 @@
 import AvailabilitySideBar from "@/features/tutorAvailability/components/AvailabilitySideBar"
 import HelpSideBar from "@/features/tutorAvailability/components/HelpSideBar"
 ---
-<div class="calendar-container">
-    <AvailabilitySideBar client:load />
+
+
+<div id="tutor-calendar-dialog" class="tutor-calendar-dialog hidden">
+    <AvailabilitySideBar client:only="react" slots={[]} />
     <HelpSideBar client:load />
 </div>
 
 <style>
-    .calendar-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        width: 100%;
-    }
+.tutor-calendar-dialog {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0,0,0,0.5);
+}
+
+.hidden {
+    display: none;
+}
 </style>
 
+<script>
+const dialog = document.getElementById("tutor-calendar-dialog");
+
+window.addEventListener("open-tutor-calendar-dialog", () => {
+    dialog?.classList.remove("hidden");
+});
+
+window.addEventListener("close-tutor-calendar-dialog", () => {
+    dialog?.classList.add("hidden");
+});
+
+window.addEventListener("delete-slot", async (e: Event) => {
+    const event = e as CustomEvent;
+    try {
+        const response = await fetch("/api/tutor-availability/delete-slots-by-range", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(event.detail),
+        });
+
+        if (response.ok) {
+            window.dispatchEvent(new CustomEvent('refresh-slots'));
+        }
+    } catch (error) {
+        console.log("Error al eliminar el slot:", error);
+    }
+});
+
+</script>

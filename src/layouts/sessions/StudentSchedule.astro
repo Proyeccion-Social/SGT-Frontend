@@ -49,7 +49,7 @@ const formatDay = (date: Date) =>
         </div>
 
         <WeeklyCalendar slots={slots} mode = "student" />
-        <SchedulingWizard client:only="react" slots={slots} token={token} />
+        <SchedulingWizard client:only="react" slots={slots} />
       </div>
     </main>
   </div>

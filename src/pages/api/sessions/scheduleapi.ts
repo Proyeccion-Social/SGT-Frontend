@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { createSession } from '../../../features/sessions/services/sessionService';
 import { getTutorInfo } from "../../../features/availability/services/tutorServices" // ajusta la ruta si es necesario
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
   try {
     const url = new URL(request.url);
     const tutorId = url.searchParams.get("tutorId");
@@ -14,8 +14,8 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    const authHeader = request.headers.get("authorization") || undefined;
-    console.log("TOKEN RECIBIDO EN BFF (GET):", authHeader);
+    const token = cookies.get("access_token")?.value;
+    const authHeader = token? `Bearer ${token}` : undefined;
 
     const tutor = await getTutorInfo(tutorId, authHeader);
 
@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ request }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const data = await request.json();
 
@@ -46,8 +46,8 @@ export const POST: APIRoute = async ({ request }) => {
         { status: 400 }
       );
     }
-    const authHeader = request.headers.get('authorization') || undefined;
-    console.log("TOKEN RECIBIDO EN BFF:", authHeader);
+    const token = cookies.get('access_token')?.value;
+    const authHeader = token ? `Bearer ${token}` : undefined;
 
     const session = await createSession(data, authHeader);
 

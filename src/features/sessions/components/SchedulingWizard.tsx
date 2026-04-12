@@ -28,10 +28,9 @@ interface PopoverData {
 
 interface Props {
   slots: Slot[];
-  token : String;
 }
 
-export default function SchedulingWizard({ slots, token }: Props) {
+export default function SchedulingWizard({ slots }: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [popover, setPopover] = useState<PopoverData | null>(null); // control visual
@@ -256,8 +255,7 @@ console.log("ENVIANDO SESION:", JSON.stringify(sessionData, null, 2));
 const res = await fetch('/api/sessions/scheduleapi', {
   method: 'POST',
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
   },
   body: JSON.stringify(sessionData),
 });
@@ -369,7 +367,6 @@ console.log("SESION CREADA:", result);
                 {step === 1 && <AvailabilityStep tutorIds={tutorIds}
                             slot={data.slot}
                             subject={data.subject}
-                            token={token}
                             onSelect={(tutorId) => {
                               setData((prev) => ({ ...prev, tutorId }));
                               setStep(2);

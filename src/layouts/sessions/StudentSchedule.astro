@@ -64,7 +64,7 @@ const slots = await getAllTutorSlotsSSR({ onlyAvailable: true }).catch(() => [])
           <WeeklyCalendar slots={slots} mode="student" baseDate={monday} />
         </div>
 
-        <SchedulingWizard client:only="react" slots={slots} token={token} />
+        <SchedulingWizard client:only="react" slots={slots} />
       </div>
     </main>
   </div>

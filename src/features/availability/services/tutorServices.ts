@@ -19,9 +19,6 @@ export async function getTutorInfo(
         : undefined,
     }
   );
-const baseUrl = import.meta.env.API_URL;
-
-  const url = `${baseUrl}/api/v1/tutors/${tutorId}`;
 
   if (!res.ok) {
     throw new Error("No se pudo obtener el tutor");

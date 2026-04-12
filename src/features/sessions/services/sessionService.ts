@@ -3,7 +3,7 @@ import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery, Tu
   ModifySessionBody,
   EditSessionBody, } from '../types/session.types';
 
-const API_URL = import.meta.env.PUBLIC_API_URL;
+const API_URL = import.meta.env.API_URL;
 
 async function request<T>(
   path: string,

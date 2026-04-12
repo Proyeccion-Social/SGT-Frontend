@@ -40,10 +40,9 @@ interface PopoverData {
 
 interface Props {
   slots: Slot[];
-  token: String;
 }
 
-export default function SchedulingWizard({ slots, token }: Props) {
+export default function SchedulingWizard({ slots }: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [popover, setPopover] = useState<PopoverData | null>(null);
@@ -268,10 +267,6 @@ console.log("scheduledDateStr:", scheduledDateStr);
 console.log("weekOffset actual:", new URLSearchParams(window.location.search).get("offset"));
     const res = await fetch("/api/sessions/scheduleapi", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
       body: JSON.stringify(sessionData),
     });
 
@@ -361,7 +356,6 @@ console.log("weekOffset actual:", new URLSearchParams(window.location.search).ge
                     tutorIds={tutorIds}
                     slot={data.slot}
                     subject={data.subject}
-                    token={token}
                     onSelect={(tutorId) => {
                       setData((prev) => ({ ...prev, tutorId }));
                       setStep(2);

@@ -32,10 +32,10 @@ const currentPath = Astro.url.pathname;
     {
       userRole === "student" && (
         <div class='calendar-container'>
-          <a href="/sessions"
-            class={
-              currentPath.startsWith("/sessions") ? "active-link" : ""
-            }>
+          <a
+            href='/sessions'
+            class={currentPath.startsWith("/sessions") ? "active-link" : ""}
+          >
             <Image src={CalendarIcon} alt='Calendar' class='icon' />
             <span class='nav-label'>Calendario</span>
           </a>
@@ -352,40 +352,6 @@ const currentPath = Astro.url.pathname;
     transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
   }
 
-  /* Config drawer trigger — style as nav link */
-  #config-drawer-trigger {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    flex-shrink: 0;
-    overflow: hidden;
-    position: relative;
-    transition:
-      width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
-      padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
-      background-color 0.2s ease;
-    gap: 10px;
-    white-space: nowrap;
-    color: inherit;
-  }
-
-  .sidebar.expanded #config-drawer-trigger {
-    width: 90%;
-    justify-content: flex-start;
-    padding-left: 10px;
-    gap: 16px;
-  }
-
-  #config-drawer-trigger:hover {
-    background: #e7dcff;
-  }
-
   /* Active link highlight */
   .active-link,
   .dashboard-container.active-link {
@@ -415,63 +381,50 @@ const currentPath = Astro.url.pathname;
       toggle.onclick = () => {
         sidebar.classList.toggle("expanded");
       };
-    }
 
-    // --- 2. Sincronización con Menús Externos (Eventos Globales) ---
-    // Escuchamos los eventos que lanzan otros componentes (como el RightAvailabilityMenu)
-    const handleExpand = () => sidebar.classList.add("expanded");
-    const handleCollapse = () => sidebar.classList.remove("expanded");
+      window.addEventListener("force-sidebar-expand", () => {
+        sidebar.classList.add("expanded");
+      });
 
-    window.removeEventListener("force-sidebar-expand", handleExpand);
-    window.removeEventListener("force-sidebar-collapse", handleCollapse);
-
-    window.addEventListener("force-sidebar-expand", handleExpand);
-    window.addEventListener("force-sidebar-collapse", handleCollapse);
-
-    // --- 3. Lógica de Logout ---
-    if (logoutButton) {
-      logoutButton.onclick = async () => {
-        try {
-          const authStorage = JSON.parse(
-            localStorage.getItem("auth-storage") || "{}",
-          );
-          const userId = authStorage?.state?.user?.id;
-
-          if (!userId) {
-            localStorage.removeItem("auth-storage");
-            window.location.replace("/");
-            return;
-          }
-
-          await sileo.promise(
-            async () => {
-              const res = await fetch("/api/auth/logout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: userId }),
-              });
-
-              if (!res.ok) throw new Error("Error en la petición");
-              localStorage.removeItem("auth-storage");
-            },
-            {
-              loading: { title: "Cerrando sesión...", fill: "#8751ff" },
-              success: { title: "Sesión cerrada", fill: "#58d68d" },
-              error: { title: "Error al cerrar sesión", fill: "#f35761" },
-            },
-          );
-
-          // Redirección limpia
-          window.location.replace("/");
-        } catch (error) {
-          console.error("Logout error:", error);
-          localStorage.removeItem("auth-storage");
-          window.location.replace("/");
-        }
-      };
+      window.addEventListener("force-sidebar-collapse", () => {
+        sidebar.classList.remove("expanded");
+      });
     }
   };
 
-  // Inicialización en cada carga de página (soporta View Transitions)
-  document.addEventListener("astro:page-load", setupSidebar);
+  const logoutButton = document.getElementById("logout-button");
+  logoutButton?.addEventListener("click", async () => {
+    await sileo.promise(
+      async () => {
+        const authUserStr = sessionStorage.getItem("auth_user");
+        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
+        const userId = authUser?.user?.id;
+
+        if (!userId) {
+          throw new Error("No hay sesión activa");
+        }
+
+        const res = await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: userId }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Error al cerrar sesión");
+        }
+
+        sessionStorage.removeItem("auth_user");
+      },
+      {
+        loading: { title: "Cerrando sesión...", fill: "#8751ff" },
+        success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
+        error: { title: "Error al cerrar sesión", fill: "#f35761" },
+      },
+    );
+    window.location.href = "/";
+  });
 </script>

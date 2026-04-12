@@ -15,11 +15,10 @@ interface Props {
   tutorIds: string[];
   slot: Slot | null;
   subject: string;
-  token: String;
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, token }: Props) {
+export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [tutors, setTutors] = useState<Record<string, TutorInfo>>({});
   const [loading, setLoading] = useState(false);
@@ -38,14 +37,9 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect, to
       try {
         const results = await Promise.all(
           tutorIds.map(async (id) => {
-            const res = await fetch(`/api/sessions/scheduleapi?tutorId=${id}`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
+            const res = await fetch(`/api/sessions/scheduleapi?tutorId=${id}`)
 
             if (!res.ok) {
-              const body = await res.text();
               throw new Error("No se pudo obtener el tutor");
             }
             const t = (await res.json()) as TutorInfo;

@@ -6,6 +6,7 @@ import {
 import type { Session, CreateSessionDTO, Modality } from '../types/session.types';
 import { useAuthStore } from '@/store/authStore';
 import { useSessionStore } from '@/store/sessionStore';
+import { UserRole } from '@/constants/roles';
 
 interface UseSessionReturn {
   sessions: Session[];
@@ -16,7 +17,7 @@ interface UseSessionReturn {
   cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
 }
 
-export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
+export function useSession(role: UserRole): UseSessionReturn {
   const { sessions, loading, error, setSessions, setLoading, setError, lastFetched, setLastFetched } = useSessionStore();
   const _hasHydrated = useAuthStore(state => state._hasHydrated);
 
@@ -27,7 +28,8 @@ export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/sessions/my-sessions?role=${encodeURIComponent(role)}`, {
+      const roleParam = role.toLowerCase();
+      const res = await fetch(`/api/sessions/my-sessions?role=${encodeURIComponent(roleParam)}`, {
         credentials: 'include',
       });
       if (!res.ok) {

@@ -11,9 +11,10 @@ import CalendarIcon from "./icons/CalendarIcon.svg";
 import BinocularIcon from "./icons/BinocularIcon.svg";
 import SearchIcon from "./icons/SearchIcon.svg";
 import CommunityIcon from "./icons/CommunityIcon.svg";
+import { UserRole } from "@/constants/roles";
 
 interface Props {
-  userRole: "admin" | "tutor" | "student";
+  userRole: UserRole;
 }
 
 const { userRole } = Astro.props;
@@ -30,7 +31,7 @@ const currentPath = Astro.url.pathname;
 
   <div class='navbar-items'>
     {
-      userRole === "student" && (
+      userRole === UserRole.STUDENT && (
         <div class='calendar-container'>
           <a href='/availability/student/slots'>
             <Image src={CalendarIcon} alt='Calendar' class='icon' />
@@ -56,7 +57,7 @@ const currentPath = Astro.url.pathname;
     </div>
 
     {
-      userRole === "admin" && (
+      userRole === UserRole.ADMIN && (
         <>
           <a href='#'>
             <Image src={WindowIcon} alt='Window' class='icon' />
@@ -71,7 +72,7 @@ const currentPath = Astro.url.pathname;
     }
 
     {
-      userRole === "tutor" && (
+      userRole === UserRole.TUTOR && (
         <>
           <a
             href='/availability/tutor/slots'
@@ -95,7 +96,7 @@ const currentPath = Astro.url.pathname;
     }
 
     {
-      userRole === "student" && (
+      userRole === UserRole.STUDENT && (
         <>
           <a 
             href="/search"

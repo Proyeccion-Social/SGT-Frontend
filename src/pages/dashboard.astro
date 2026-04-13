@@ -3,6 +3,7 @@ import AdminDashboard from "../layouts/dashboards/AdminDashboard.astro";
 import StudentDashboard from "../layouts/dashboards/StudentDashboard.astro";
 import TutorDashboard from "../layouts/dashboards/TutorDashboard.astro";
 import { fade } from "astro:transitions";
+import { UserRole } from "@/constants/Roles";
 const token = Astro.cookies.get("access_token")?.value;
 
 if (!token) {
@@ -10,10 +11,10 @@ if (!token) {
 }
 
 const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role; // 'ADMIN', 'TUTOR', 'STUDENT'
+const userRole = payload.role;
 ---
 <article transition:animate={fade({duration: "0.5s"})} >
-  {userRole === "ADMIN" && <AdminDashboard title='Admin Dashboard' />}
-  {userRole === "TUTOR" && <TutorDashboard title='Tutor Dashboard' />}
-  {userRole === "STUDENT" && <StudentDashboard title='Student Dashboard' />}
+  {userRole === UserRole.ADMIN && <AdminDashboard />}
+  {userRole === UserRole.TUTOR && <TutorDashboard />}
+  {userRole === UserRole.STUDENT && <StudentDashboard />}
 </article>

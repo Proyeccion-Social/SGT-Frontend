@@ -13,6 +13,8 @@ import type {
   CompleteSessionResult
 } from '../types/session.types';
 
+import { UserRole } from '@/constants/roles';
+
 /** Base URL for API calls (server BFF uses API_URL; browser falls back to PUBLIC_*) */
 const API_BASE = (
   import.meta.env.API_URL ??
@@ -125,11 +127,11 @@ export async function getAvailability(query: AvailabilityQuery): Promise<Availab
 
 /** GET /scheduling/sessions/my-sessions/{role} */
 export async function getSessions(
-  role: 'tutor' | 'student',
+  role: UserRole,
   token: string
 ): Promise<Session[]> {
   const raw = await request<unknown>(
-    `/scheduling/sessions/my-sessions/${role}`,
+    `/scheduling/sessions/my-sessions/${role.toLowerCase()}`,
     token
   );
   return normalizeMySessionsPayload(raw);

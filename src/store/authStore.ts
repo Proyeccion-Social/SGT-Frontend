@@ -1,14 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { UserRole } from '@/constants/roles';
 
-type Role = 'ADMIN' | 'TUTOR' | 'STUDENT';
 type Status = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 type User = {
     id: string;
     name: string;
     email: string;
-    role: Role;
+    role: UserRole;
     emailVerified: boolean;
     status: Status;
 };

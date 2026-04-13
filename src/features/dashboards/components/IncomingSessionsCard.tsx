@@ -7,13 +7,14 @@ import '../styles/IncomingSessionsCard.css';
 import type { Session } from '../../sessions/types/session.types';
 import AttendencePostSession from '@features/sessions/components/AttendencePostSession';
 import FinishSession from '@/features/sessions/components/FinishSession';
+import { UserRole } from '@/constants/roles';
 
 interface Props {
   sessions: Session[];
   isLoading: boolean;
   error: string | null;
   /** Quién ve la tarjeta: condiciona botones tutor (Terminar / Asistencia). */
-  viewerRole: 'tutor' | 'student';
+  viewerRole: UserRole;
 }
 
 export type SessionTimePhase = 'upcoming' | 'in_progress' | 'ended';
@@ -155,7 +156,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
             session.startTime,
             session.endTime
           );
-          const isTutor = viewerRole === 'tutor';
+          const isTutor = viewerRole === UserRole.TUTOR;
 
           return (
           <div key={session.id} className="session-card">

@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useSession } from '@/features/sessions/hooks/useSession';
 import { useAvailabilityStore } from '@/store/availabilityStore';
 import { TutorAvailabilityBar } from './TutorAvailabilityBar';
+import { UserRole } from '@/constants/roles';
 
 // Auxiliares para cálculo de semana (Lunes-Domingo)
 const getWeekRange = () => {
@@ -28,7 +29,7 @@ const isInCurrentWeek = (dateStr: string) => {
 
 export const TutorAvailabilityManager = () => {
     // 1. Consumir sesiones del estado global (vía hook compartido)
-    const { sessions, loading: sessionsLoading, error: sessionsError } = useSession('tutor');
+    const { sessions, loading: sessionsLoading, error: sessionsError } = useSession(UserRole.TUTOR);
 
     // 2. Consumir perfil/disponibilidad del estado global
     const { 

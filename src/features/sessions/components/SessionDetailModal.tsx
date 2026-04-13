@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import './styles/SessionDetailModal.css';
 import type { Session } from '../types/session.types';
+import { UserRole } from '@/constants/roles';
 import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
 import { ProposeModificationView } from './ProposeModificationView';
@@ -13,7 +14,7 @@ export type ModalView = 'detail' | 'propose' | 'edit';
 
 interface Props {
   sessionId: string;
-  role: 'tutor' | 'student';
+  role: UserRole;
   onClose: () => void;
   onRequestCancel: (session: Session) => void;
 }
@@ -85,7 +86,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel }
                 onSuccess={onClose}
               />
             )}
-            {view === 'edit' && role === 'tutor' && (
+            {view === 'edit' && role === UserRole.TUTOR && (
               <EditSessionView
                 session={session}
                 onBack={() => setView('detail')}

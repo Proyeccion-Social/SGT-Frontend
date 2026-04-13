@@ -2,6 +2,7 @@
 
 import './styles/SessionDetailView.css'
 import type { Session } from '../types/session.types';
+import { UserRole } from '@/constants/roles';
 
 interface TutorInfo {
   id: string;
@@ -12,7 +13,7 @@ interface TutorInfo {
 interface Props {
   session: Session;
   tutorInfo: TutorInfo | null;
-  role: 'tutor' | 'student';
+  role: UserRole;
   onProposeModification: () => void;
   onEdit: () => void;
   onCancel: () => void;
@@ -86,7 +87,7 @@ export const SessionDetailView = ({
   onEdit,
   onCancel,
 }: Props) => {
-  const tutorName = tutorInfo?.name ?? session.tutor?.name ?? 'Tutor';
+  const tutorName = tutorInfo?.name ?? session.tutor?.name ?? UserRole.TUTOR;
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
 
   return (
@@ -170,7 +171,7 @@ export const SessionDetailView = ({
         <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
           Proponer modificación
         </button>
-        {role === 'tutor' && (
+        {role === UserRole.TUTOR && (
           <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
             Editar
           </button>

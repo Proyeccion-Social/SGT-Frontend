@@ -6,12 +6,13 @@ import SearchBar from "@/features/search/components/SearchBar.astro";
 import TutorList from "@/features/search/components/TutorList.astro";
 import TutorDetail from "@/features/search/components/TutorDetail.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import { UserRole } from "@/constants/roles";
 ---
 
 <Layout title='Explorar tutores'>
   <div class='page-wrapper-search'>
     <div id='sidebar-container'>
-      <Sidebar userRole='student' />
+      <Sidebar userRole={UserRole.STUDENT} />
     </div>
 
     <div class='search-page'>

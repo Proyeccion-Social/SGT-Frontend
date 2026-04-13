@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import CloseIcon from "@/features/sessions/images/CloseIcon.svg";
+import { UserRole } from "@/constants/roles";
 import type {
   AttendanceStatus,
   AttendanceRecord,
-  RegisterAttendanceDTO,
   Session,
   SessionParticipant,
 } from "@/features/sessions/types/session.types";
@@ -19,7 +19,7 @@ type Props = {
 /** Participantes a los que aplica registro de asistencia (excluye tutor en la lista). */
 function participantsForAttendance(session: Session): SessionParticipant[] {
   return session.participants.filter(
-    (p) => p.role?.toUpperCase() !== "TUTOR"
+    (p) => p.role?.toUpperCase() !== UserRole.TUTOR
   );
 }
 

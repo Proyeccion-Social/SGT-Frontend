@@ -4,8 +4,9 @@ import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils"
 import { Image } from "astro:assets";
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
 import type { Slot } from "@/features/availability/services/availabilityService";
+import MainLayout from "@/layouts/Layout.astro";
 
-import MainLayout from "../Layout.astro";
+import { UserRole } from "@/constants/roles";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
@@ -37,7 +38,7 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
 <MainLayout title='Availability'>
   <div class='availability-container'>
     <div id='sidebar-container'>
-      <Sidebar userRole='tutor' />
+      <Sidebar userRole={UserRole.TUTOR} />
     </div>
 
     <main class={`content-wrapper ${isMenuOpen ? "no-scroll" : ""}`}>
@@ -56,7 +57,7 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
           <button class='mes-btn' id='right-menu-toggle'
             >Mes <Image src={ArrowUpIcon} alt='Arrow Up' /></button
           >
-          <UserHeader userRole='tutor' />
+          <UserHeader userRole={UserRole.TUTOR} />
         </div>
         <div class='legend'>
           <p>Franjas horarias disponibles de tu semana</p>

@@ -3,20 +3,20 @@ import { Image } from 'astro:assets';
 import HandWrittenArrow from './icons/HandWrittenArrow.svg';
 import HandWrittenLine from './icons/HandWrittenLine.svg';
 import "../../../styles/badge.css";
-
+import { UserRole } from '@/constants/roles';
 
 interface Props {
   name: string;
-  role: string;
+  role: UserRole;
 }
 
 const { name, role } = Astro.props;
-var roleName = '';
-if (role === 'admin') {
+let roleName = '';
+if (role === UserRole.ADMIN) {
   roleName = 'Admin';
-} else if (role === 'student') {
+} else if (role === UserRole.STUDENT) {
   roleName = 'Estudiante';
-} else if (role === 'tutor') {
+} else if (role === UserRole.TUTOR) {
   roleName = 'Tutor';
 }
 ---

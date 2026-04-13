@@ -3,6 +3,7 @@
 
 import type { APIRoute } from 'astro';
 import { getSessions } from '@features/sessions/services/sessionService';
+import { UserRole } from '@/constants/roles';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   try {
@@ -18,14 +19,14 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const url  = new URL(request.url);
     const role = url.searchParams.get('role');
 
-    if (!role || (role !== 'student' && role !== 'tutor')) {
+    if (!role || (role !== UserRole.STUDENT.toLowerCase() && role !== UserRole.TUTOR.toLowerCase())) {
       return new Response(
         JSON.stringify({ message: 'role inválido. Usa student o tutor.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const data = await getSessions(role, token);
+    const data = await getSessions(role as UserRole, token);
 
     return new Response(JSON.stringify({ data }), {
       status: 200,

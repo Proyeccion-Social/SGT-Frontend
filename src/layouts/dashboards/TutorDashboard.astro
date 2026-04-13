@@ -7,12 +7,15 @@ import StatCard from "@/features/dashboards/components/StatCard.astro";
 import { TutorAvailabilityManager } from "@/features/dashboards/components/TutorAvailabilityManager";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import { jwtDecode } from "jwt-decode";
+import { UserRole } from "@/constants/roles";
 
 const token = Astro.cookies.get("access_token")?.value;
 if (!token) return Astro.redirect("/");
 
 let userName = "";
-const { userRole = "tutor" } = Astro.props;
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role as UserRole;
 
 try {
   const token = Astro.cookies.get("access_token")?.value;

@@ -8,9 +8,10 @@ import { useSession } from '../..//sessions/hooks/useSession';
 import { IncomingSessionsCard } from './IncomingSessionsCard';
 import { SessionDetailModal } from '@features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@features/sessions/components/CancelSessionModal';
+import { UserRole } from '@/constants/roles';
 
 interface Props {
-  role: 'tutor' | 'student';
+  role: UserRole;
 }
 
 export const DashboardSessionManager = ({ role }: Props) => {

@@ -1,14 +1,13 @@
 // CancelSessionModal.tsx
 import { useState } from 'react';
 import type { Session } from '../types/session.types';
-import { useAuthStore } from '@/store/authStore';
 
 interface Props {
   session: Session;
   onClose: () => void;
   onSuccess: () => void;
   canCancel: (session: Session) => boolean;
-  cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
+  cancelar: (sessionId: string, reason: string) => Promise<boolean>;
   isLoading: boolean;
   error: string | null;
 }
@@ -25,15 +24,13 @@ export const CancelSessionModal = ({
   const [reason, setReason] = useState('');
   const [windowWarning, setWindowWarning] = useState(false);
 
-  const token = useAuthStore(state => state.token);
-
   const handleCancel = async () => {
     if (!canCancel(session)) {
       setWindowWarning(true);
       return;
     }
     setWindowWarning(false);
-    const ok = await cancelar(session.id, reason, token ?? '');
+    const ok = await cancelar(session.id, reason);
     if (ok) onSuccess();
   };
 

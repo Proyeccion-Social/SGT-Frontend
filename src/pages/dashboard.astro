@@ -3,7 +3,7 @@ import AdminDashboard from "../layouts/dashboards/AdminDashboard.astro";
 import StudentDashboard from "../layouts/dashboards/StudentDashboard.astro";
 import TutorDashboard from "../layouts/dashboards/TutorDashboard.astro";
 import { fade } from "astro:transitions";
-import { UserRole } from "@/constants/Roles";
+import { UserRole } from "@/constants/roles";
 const token = Astro.cookies.get("access_token")?.value;
 
 if (!token) {

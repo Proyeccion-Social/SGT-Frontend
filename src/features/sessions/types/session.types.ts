@@ -46,7 +46,9 @@ export interface Session {
   title: string;
   description: string;
   participants: SessionParticipant[];
-  createdAt: string;                 // ISO date-time
+  createdAt: string;     
+  location: string;
+  virtualLink: string;            // ISO date-time
   cancelledAt: string | null;
   cancellationReason: string | null;
 }

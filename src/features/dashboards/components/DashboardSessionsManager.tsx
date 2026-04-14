@@ -3,11 +3,11 @@
 // Option B: listens to 'open-detail' CustomEvent dispatched by IncomingSessionsCard
 
 import { useState, useEffect } from 'react';
-import type { Session } from '../../sessions/types/session.types';
-import { useSession } from '../..//sessions/hooks/useSession';
+import type { Session } from '@/features/sessions/types/session.types';
+import { useSession } from '@/features/sessions/hooks/useSession';
 import { IncomingSessionsCard } from './IncomingSessionsCard';
-import { SessionDetailModal } from '@features/sessions/components/SessionDetailModal';
-import { CancelSessionModal } from '@features/sessions/components/CancelSessionModal';
+import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
+import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
 import { UserRole } from '@/constants/roles';
 
 interface Props {
@@ -49,7 +49,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
   const handleCancelSuccess = () => {
     setShowCancelModal(false);
     setSessionToCancel(null);
-    refetch();
+    refetch(true);
   };
 
   return (

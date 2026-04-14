@@ -1,6 +1,7 @@
 // Importación de la API y la ruta de disponibilidad
 const API_URL = (import.meta.env.API_URL ?? import.meta.env.PUBLIC_API_URL ?? '').replace(/\/$/, '');
 const AVAILABILITY_PATH = '/availability';
+const IS_SERVER = typeof window === 'undefined';
 
 //===============================================================
 // Tipos de datos
@@ -93,31 +94,19 @@ export interface TutorProfile {
 // Funciones
 //===============================================================
 
-/**
- * Obtiene el JWT desde las cookies del navegador
- */
-function getToken(): string | null {
-    if (typeof document === 'undefined') return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; access_token=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-    return null;
-}
 
 /**
- * Construye los headers para los endpoint protegidos. 
+ * Construye los headers para los endpoints protegidos. 
  * Incluye el JWT en el header Authorization.
- * Lanza el error si no se encuentra el JWT.
  */
 function buildAuthHeaders(token?: string): HeadersInit {
-    const activeToken = token || getToken();
-    if (!activeToken) {
-        throw new Error('AUTH_05: No hay token de sesión. Por favor inicia sesión.')
+    if (!token) {
+        throw new Error('AUTH_05: No hay token de sesión. Pásalo explícitamente desde la ruta de Astro.')
     }
 
     return {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${activeToken.replace('Bearer ', '')}`
+        'Authorization': `Bearer ${token}`
     };
 }
 
@@ -176,7 +165,11 @@ export async function getTutorSlots(
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`, {
+    const url = IS_SERVER
+        ? `${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`
+        : `/api/availability/tutors/${tutorId}/slots${queryString}`;
+
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -239,7 +232,11 @@ export async function manageSlot(
 ): Promise<SlotResponse> {
     const headers = buildAuthHeaders(token);
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutor/slots`, {
+    const url = IS_SERVER
+        ? `${API_URL}${AVAILABILITY_PATH}/tutor/slots`
+        : `/api/availability/tutor/slots`;
+
+    const response = await fetch(url, {
         method: 'POST',
         headers,
         body: JSON.stringify(dto),
@@ -265,7 +262,11 @@ export async function setWeeklyLimit(
 ): Promise<void> {
     const headers = buildAuthHeaders(token);
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutor/limits`, {
+    const url = IS_SERVER
+        ? `${API_URL}${AVAILABILITY_PATH}/tutor/limits`
+        : `/api/availability/tutor/limits`;
+
+    const response = await fetch(url, {
         method: 'PUT',
         headers,
         body: JSON.stringify({ maxHours }),
@@ -293,8 +294,12 @@ export async function getTutorWorkload(token?: string): Promise<{
 }> {
     const headers = buildAuthHeaders(token);
 
+    const url = IS_SERVER
+        ? `${API_URL}${AVAILABILITY_PATH}/tutor/workload`
+        : `/api/availability/tutor/workload`;
+
     const response = await fetch(
-        `${API_URL}${AVAILABILITY_PATH}/tutor/workload`,
+        url,
         {
             method: 'POST',
             headers,
@@ -312,7 +317,11 @@ export async function getTutorWorkload(token?: string): Promise<{
 export async function getMyAvailability(token?: string): Promise<TutorAvailabilityPublic> {
     const headers = buildAuthHeaders(token);
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutors/me`, {
+    const url = IS_SERVER
+        ? `${API_URL}${AVAILABILITY_PATH}/tutors/me`
+        : `/api/availability/me`;
+
+    const response = await fetch(url, {
         method: 'GET',
         headers,
     });
@@ -327,7 +336,11 @@ export async function getMyAvailability(token?: string): Promise<TutorAvailabili
 export async function getOwnTutorProfile(token?: string): Promise<TutorProfile> {
     const headers = buildAuthHeaders(token);
 
-    const response = await fetch(`${API_URL}/tutors/profile`, {
+    const url = IS_SERVER
+        ? `${API_URL}/tutors/profile`
+        : `/api/tutors/profile`;
+
+    const response = await fetch(url, {
         method: 'GET',
         headers,
     });

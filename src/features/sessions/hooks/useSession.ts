@@ -14,7 +14,7 @@ interface UseSessionReturn {
   error: string | null;
   fetchMySessions: (force?: boolean) => Promise<void>;
   agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
-  cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
+  cancelar: (sessionId: string, reason: string) => Promise<boolean>;
 }
 
 export function useSession(role: UserRole): UseSessionReturn {
@@ -72,11 +72,11 @@ export function useSession(role: UserRole): UseSessionReturn {
 );
 
 
-  const cancelar = useCallback(async (sessionId: string, reason: string, token : string): Promise<boolean> => {
+  const cancelar = useCallback(async (sessionId: string, reason: string): Promise<boolean> => {
     setLoading(true);
     setError(null);
     try {
-      await cancelSession(sessionId, reason, token);
+      await cancelSession(sessionId, reason);
       setSessions(
         sessions.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
       );

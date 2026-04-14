@@ -15,13 +15,11 @@ type User = {
 
 interface AuthStore {
     user: User | null;
-    token: string | null;
     requiresPasswordChange: boolean;
     requiresProfileCompletion: boolean;
     _hasHydrated: boolean;
     setHasHydrated: (val: boolean) => void;
     setUser: (user: User) => void;
-    setToken: (token: string) => void;
     clearUser: () => void;
 }
 
@@ -29,14 +27,12 @@ export const useAuthStore = create<AuthStore>()(
     persist(
         (set) => ({
             user: null,
-            token: null,
             requiresPasswordChange: false,
             requiresProfileCompletion: false,
             _hasHydrated: false,
             setHasHydrated: (val) => set({ _hasHydrated: val }),
             setUser: (user) => set({ user }),
-            setToken: (token) => set({ token }),
-            clearUser: () => set({ user: null, token: null }),
+            clearUser: () => set({ user: null }),
         }),
         {
             name: 'auth-storage',

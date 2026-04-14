@@ -21,6 +21,7 @@ const API_BASE = (
   import.meta.env.PUBLIC_API_URL ??
   ''
 ).replace(/\/$/, '');
+const IS_SERVER = typeof window === 'undefined';
 
 async function request<T>(
   path: string,
@@ -47,17 +48,7 @@ async function request<T>(
 }
 
 
-function getAuthHeaders(): HeadersInit {
-    const token = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('access_token='))
-    ?.split('=')[1];
 
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
 
 function normalizeMySessionsPayload(raw: unknown): Session[] {
   if (Array.isArray(raw)) return raw as Session[];
@@ -68,11 +59,10 @@ function normalizeMySessionsPayload(raw: unknown): Session[] {
   return [];
 }
 
-export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
-  const base = (import.meta.env.VITE_API_URL ?? API_BASE).replace(/\/$/, '');
-  const res = await fetch(`${base}/scheduling/sessions/individual`, { 
+export async function createSession(data: CreateSessionDTO): Promise<Session> {
+  const res = await fetch(`/api/sessions/create`, { 
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
 
@@ -82,148 +72,164 @@ export async function createSession(data: CreateSessionDTO, token? : string): Pr
       const error = await res.json();
       throw new Error(error.message ?? 'Error al crear la sesión');
     } else {
-      throw new Error(`Error crítico del servidor: Código ${res.status}`);
+      throw new Error(`Error del servidor: Código ${res.status}`);
     }
   }
 
   return res.json();
 }
 
-// ─── Obtener sesiones del usuario autenticado ───────────────
-export async function getMySessions(): Promise<Session[]> {
-  const res = await fetch(`${API_BASE}/`, {
-    headers: getAuthHeaders(),
-  });
 
-  if (!res.ok) throw new Error('Error al obtener sesiones');
-  return res.json();
-}
-
-// ─── Obtener sesiones de un tutor específico ────────────────
-export async function getSessionsByTutor(tutorId: string): Promise<Session[]> {
-  const res = await fetch(`${API_BASE}/`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) throw new Error('Error al obtener sesiones del tutor');
-  return res.json();
-}
-
-// ─── Consultar disponibilidad ───────────────────────────────
-export async function getAvailability(query: AvailabilityQuery): Promise<AvailabilitySlot[]> {
-  const params = new URLSearchParams({
-    tutorId: query.tutorId,
-    fecha: query.date,
-    ...(query.modality ? { modality: query.modality } : {}),
-  });
-
-  const res = await fetch(`${API_BASE}`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) throw new Error('Error al consultar disponibilidad');
-  return res.json();
-}
 
 /** GET /scheduling/sessions/my-sessions/{role} */
 export async function getSessions(
   role: UserRole,
-  token: string
+  token?: string
 ): Promise<Session[]> {
+  if (!IS_SERVER) {
+    const res = await fetch(`/api/sessions/my-sessions?role=${role.toLowerCase()}`);
+    if (!res.ok) throw new Error('Error al obtener sesiones');
+    const json = await res.json();
+    return normalizeMySessionsPayload(json);
+  }
   const raw = await request<unknown>(
     `/scheduling/sessions/my-sessions/${role.toLowerCase()}`,
-    token
+    token!
   );
   return normalizeMySessionsPayload(raw);
 }
  
 /** GET /scheduling/sessions/{sessionId} */
-export function getSessionDetail(
+export async function getSessionDetail(
   sessionId: string,
-  token: string
+  token?: string
 ): Promise<Session> {
-  return request<Session>(`/scheduling/sessions/${sessionId}`, token);
+  if (!IS_SERVER) {
+    const res = await fetch(`/api/sessions/detail?sessionId=${sessionId}`);
+    if (!res.ok) throw new Error('Error al obtener detalle de sesión');
+    return res.json();
+  }
+  return request<Session>(`/scheduling/sessions/${sessionId}`, token!);
 }
  
 /** GET /tutors/{tutorId} */
-export function getTutorInfo(
+export async function getTutorInfo(
   tutorId: string,
-  token: string
+  token?: string
 ): Promise<SessionTutor> {
-  return request<SessionTutor>(`/tutors/${tutorId}`, token);
+  if (!IS_SERVER) {
+    const res = await fetch(`/api/sessions/tutor-info?tutorId=${tutorId}`);
+    if (!res.ok) throw new Error('Error al obtener info del tutor');
+    return res.json();
+  }
+  return request<SessionTutor>(`/tutors/${tutorId}`, token!);
 }
  
 /** DELETE /scheduling/sessions/{sessionId}
  *  Q3 answer: body includes { reason: string }
  */
-export function cancelSession(
+export async function cancelSession(
   sessionId: string,
-  reason: string,
-  token: string
+  reason: string
 ): Promise<CancelSessionResponse> {
-  return request<CancelSessionResponse>(
-    `/scheduling/sessions/${sessionId}`,
-    token,
-    {
-      method: 'DELETE',
-      body: JSON.stringify({ reason }),
-    }
-  );
-}
- 
-/** POST /scheduling/sessions/{sessionId} */
-export function modifySession(
-  sessionId: string,
-  body: ModifySessionBody,
-  token: string
-): Promise<{ success: boolean; message: string }> {
-  return request(`/scheduling/sessions/${sessionId}`, token, {
+  const res = await fetch(`/api/sessions/cancel`, {
     method: 'POST',
-    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId, reason }),
   });
+  
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody?.message ?? `Error al cancelar sesión`);
+  }
+  return res.json();
 }
  
-/** PATCH /scheduling/sessions/{sessionId}
- *  Q4 answer: body includes virtualLink and location
- */
-export function editSession(
+export async function modifySession(
   sessionId: string,
-  body: EditSessionBody,
-  token: string
-): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
-  return request(`/scheduling/sessions/${sessionId}`, token, {
-    method: 'PATCH',
-    body: JSON.stringify(body),
+  body: ModifySessionBody
+): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`/api/sessions/modify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId, ...body }),
   });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody?.message ?? `Error al proponer modificación`);
+  }
+  return res.json();
+}
+ 
+export async function editSession(
+  sessionId: string,
+  body: EditSessionBody
+): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
+  const res = await fetch(`/api/sessions/edit`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId, ...body }),
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody?.message ?? `Error al editar la sesión`);
+  }
+  return res.json();
 }
  
 /** GET /tutor/{tutorId}/slots — Q2 answer */
-export function getTutorSlots(
+export async function getTutorSlots(
   tutorId: string,
-  token: string
+  token?: string
 ): Promise<unknown> {
-  return request(`/tutor/${tutorId}/slots`, token);
+  if (!IS_SERVER) {
+    const res = await fetch(`/api/availability/tutors/${tutorId}/slots`);
+    if (!res.ok) throw new Error('Error al obtener slots del tutor');
+    return res.json();
+  }
+  return request(`/tutor/${tutorId}/slots`, token!);
 }
 
 /** PATCH /session-execution/sessions/{sessionId}/attendance */
-export function registerAttendance(
+export async function registerAttendance(
   sessionId: string,
   body: RegisterAttendanceDTO,
-  token: string
+  token?: string
 ): Promise<RegisterAttendanceResult> {
-  return request(`/session-execution/sessions/${sessionId}/attendance`, token, {
+  if (!IS_SERVER) {
+    const res = await fetch(`/api/sessions/attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, ...body })
+    });
+    if (!res.ok) throw new Error('Error al registrar asistencia');
+    return res.json();
+  }
+  return request(`/session-execution/sessions/${sessionId}/attendance`, token!, {
     method: 'PATCH',
     body: JSON.stringify(body),
   });
 }
 
 /** PATCH /session-execution/sessions/{sessionId}/complete */
-export function registerCompletedSession(
+export async function registerCompletedSession(
   sessionId: string,
   body: CompleteSessionBody,
-  token: string
+  token?: string
 ): Promise<CompleteSessionResult> {
-  return request(`/session-execution/sessions/${sessionId}/complete`, token, {
+  if (!IS_SERVER) {
+      // Shared endpoint in our current BFF for attendance/completion
+    const res = await fetch(`/api/sessions/attendance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, ...body, isCompletion: true })
+    });
+    if (!res.ok) throw new Error('Error al completar sesión');
+    return res.json();
+  }
+  return request(`/session-execution/sessions/${sessionId}/complete`, token!, {
     method: 'PATCH',
     body: JSON.stringify(body),
   });

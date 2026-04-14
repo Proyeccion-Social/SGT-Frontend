@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import type { Session, ModifySessionBody } from '../types/session.types';
 import { modifySession } from '../services/sessionService';
-import { useAuthStore } from '../../../store/authStore';
+
 
 interface Props {
   session: Session;
@@ -23,8 +23,6 @@ export const ProposeModificationView = ({ session, onBack, onSuccess }: Props) =
   const [error, setError]                         = useState<string | null>(null);
   const [success, setSuccess]                     = useState(false);
 
-  const token = useAuthStore((s) => s.token);
-
   const handleConfirm = async () => {
     setIsSubmitting(true);
     setError(null);
@@ -36,7 +34,7 @@ export const ProposeModificationView = ({ session, onBack, onSuccess }: Props) =
     };
 
     try {
-      await modifySession(session.id, body, String(token));
+      await modifySession(session.id, body);
       setSuccess(true);
       setTimeout(onSuccess, 1200);
     } catch (err: any) {

@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import type { Session, EditSessionBody } from '../types/session.types';
 import { editSession } from '../services/sessionService';
-import { useAuthStore } from '../../../store/authStore';
+
 
 interface Props {
   session: Session;
@@ -16,13 +16,11 @@ interface Props {
 export const EditSessionView = ({ session, onBack, onSuccess }: Props) => {
   const [title, setTitle]             = useState(session.title);
   const [description, setDescription] = useState(session.description);
-  const [location, setLocation]       = useState('');
-  const [virtualLink, setVirtualLink] = useState('');
+  const [location, setLocation]       = useState(session.location || '');
+  const [virtualLink, setVirtualLink] = useState(session.virtualLink || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [success, setSuccess]         = useState(false);
-
-  const token = useAuthStore((s) => s.token);
 
   const handleConfirm = async () => {
     setIsSubmitting(true);
@@ -36,7 +34,7 @@ export const EditSessionView = ({ session, onBack, onSuccess }: Props) => {
     };
 
     try {
-      await editSession(session.id, body, String(token));
+      await editSession(session.id, body);
       setSuccess(true);
       setTimeout(onSuccess, 1200);
     } catch (err: any) {

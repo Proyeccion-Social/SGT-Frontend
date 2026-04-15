@@ -1,4 +1,4 @@
-import { DAY_COLORS } from "@/features/availability/utils/calendarConstants";
+import { DAY_COLORS } from "@/features/tutorAvailability/utils/calendarConstants";
 import closeIcon from "@/features/tutorAvailability/assets/close.svg"
 import styles from "@/features/tutorAvailability/css/HoursCard.module.css";
 
@@ -20,7 +20,13 @@ export default function HoursCard({ slot}: HoursCardProps) {
 
     const openSpaceInfoDialog = (e: React.MouseEvent) => {
         e.stopPropagation();
-        window.dispatchEvent(new CustomEvent('open-space-info-dialog', { detail: slot }));
+        // Cierra el drawer (Vaul) primero para que no bloquee los clicks del dialog.
+        window.dispatchEvent(new CustomEvent('close-availability-sidebar'));
+
+        // Abre el dialog en el siguiente tick.
+        window.setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('open-space-info-dialog', { detail: slot }));
+        }, 0);
     };
 
     const deleteSlot = (e: React.MouseEvent) => {
@@ -37,10 +43,11 @@ export default function HoursCard({ slot}: HoursCardProps) {
     };
 
     const color = DAY_COLORS[slot.day];
+    // Algunos colores ya incluyen alpha (p.ej. "#RRGGBBAA"). Evita duplicarlo.
 
     return (
         <div onClick={openSpaceInfoDialog} className={styles.HoursCard}>
-            <div className={styles.LeftColor} style={{ backgroundColor: color + "99" }}></div>
+            <div className={styles.LeftColor} style={{ backgroundColor: color }}></div>
             <div className={styles.InfoContainer}>
                 <div className={styles.DayAndHoursContainer}>
                     <p className={styles.day}>{slot.day} →</p>

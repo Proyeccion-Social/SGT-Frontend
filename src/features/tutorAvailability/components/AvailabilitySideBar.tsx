@@ -9,6 +9,8 @@
 
   export default function VaulDrawer({slots: initialSlots = []}: {slots?: any[]}) {
 
+    
+
       const [open, setOpen] = useState(false);
       const [slots, setSlots] = useState<any[]>(Array.isArray(initialSlots) ? initialSlots : []);
       const isSpaceInfoDialogOpenRef = useRef(false);
@@ -136,24 +138,32 @@
             }
 
           console.log("HORAS:", totalHours);
-          window.dispatchEvent(new CustomEvent('open-hours-config-dialog', { detail: totalHours }));
+          // Cierra el drawer localmente antes de abrir el dialog.
+          setOpen(false);
+          
+          // Abre el dialog en el siguiente tick cuando el drawer ya terminó de cerrar.
+            window.dispatchEvent(new CustomEvent('open-hours-config-dialog', { detail: totalHours }));
+          
       };
 
     return (
       <Drawer.Root open={open} onOpenChange={setOpen} direction="right" modal={false}>
-          <Drawer.Trigger asChild>
-    <button
-      className={`
-        ${open ? "h-10 w-10" : "h-14 w-14"}
-        absolute z-[100] top-6 right-6 flex items-center justify-center
-        rounded-full border border-[#C6C6C6] bg-white p-2
-        transition-all duration-300
-        cursor-pointer
-      `}
-    >
-      <img src={sidebarLogo.src} alt="" />
-    </button>
-  </Drawer.Trigger>
+        <button
+      type="button"
+          className={`
+            ${open ? "h-10 w-10" : "h-14 w-14"}
+            absolute z-[100] top-6 right-6 flex items-center justify-center
+            rounded-full border border-[#C6C6C6] bg-white p-2
+            transition-all duration-300
+            cursor-pointer
+          `}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(true);
+          }}
+        >
+          <img src={sidebarLogo.src} alt="" />
+        </button>
         <Drawer.Overlay
           className="fixed inset-0 bg-black/40 z-40"
           onClick={() => {
@@ -166,12 +176,11 @@
             className="right-8 top-8 bottom-8 fixed z-50 outline-none w-[380px]"
             style={{ '--initial-transform': 'calc(100% + 50px)' } as React.CSSProperties}
             onInteractOutside={(event) => {
-              if (isSpaceInfoDialogOpenRef.current) {
-                event.preventDefault();
-              } else {
-                setOpen(false);
-              }
+              // Importante: NO hacer preventDefault aquí, porque bloquea clicks
+              // del SpaceInfoDialog (que está fuera del drawer).
+              if (!isSpaceInfoDialogOpenRef.current) setOpen(false);
             }}
+            
           >
             <div className="bg-zinc-50 h-auto w-full grow flex flex-col rounded-[16px] border border-[#C6C6C6] z-20">
               <div className="p-5">
@@ -198,6 +207,7 @@
               </div>
             </div>
           </Drawer.Content>
+          
       </Drawer.Root>
     );
   }

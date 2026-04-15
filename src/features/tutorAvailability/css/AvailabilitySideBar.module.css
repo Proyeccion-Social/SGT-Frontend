@@ -67,3 +67,36 @@ color: #1e293b;
     border-radius: 8px;
 }
 
+
+
+
+.SlotsContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* Track */
+.SlotsContainer::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+/* Thumb */
+.SlotsContainer::-webkit-scrollbar-thumb {
+    background: #c4b5fd;
+    border-radius: 6px;
+}
+
+.SlotsContainer::-webkit-scrollbar-thumb:hover {
+    background: #a78bfa;
+}
+
+/* 🔴 ELIMINAR FLECHAS (forma real) */
+.SlotsContainer::-webkit-scrollbar-button {
+    height: 0 !important;
+    width: 0 !important;
+    display: block; /* importante: algunos navegadores ignoran none */
+    background: transparent;
+}
+
+
+
+

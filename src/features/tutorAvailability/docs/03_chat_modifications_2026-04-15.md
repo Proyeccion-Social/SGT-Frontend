@@ -26,6 +26,7 @@ Este documento resume, de forma trazable por archivo, todas las modificaciones a
 - **Coordinación Drawer/Modal:** emite `space-info-dialog-open` al abrir y `space-info-dialog-close` al cerrar para evitar cierres accidentales del sidebar.
 
 ### `src/features/tutorAvailability/components/HoursCard.tsx`
+- **Abrir editor sin bloqueo de mouse:** al hacer click en una tarjeta, primero dispara `close-availability-sidebar` y luego (en el siguiente tick) `open-space-info-dialog`. Esto evita el caso donde Vaul bloquea los clicks fuera del drawer.
 - **Delete desde sidebar:** el evento `delete-slot` ya no manda el objeto slot completo; manda el payload mínimo esperado por backend.
 - **Días:** incluye mapeo español→inglés (`LUNES`→`MONDAY`, etc.) para garantizar `dayOfWeek` válido.
 - **HTML:** el botón de eliminar es `type="button"` para evitar submits accidentales.
@@ -41,6 +42,7 @@ Este documento resume, de forma trazable por archivo, todas las modificaciones a
 - **Drawer vs dialogs:** `Drawer.Root modal={false}` y guardas para click-afueras:
   - click afuera cierra el sidebar
   - pero si `SpaceInfoDialog` está abierto, se bloquea el cierre.
+- **Cierre programático:** escucha el evento global `close-availability-sidebar` para cerrar el drawer cuando el usuario elige editar una franja desde `HoursCard`.
 
 ### `src/features/tutorAvailability/components/HoursConfigDialog.astro`
 - **Validaciones de input:** `min=1`, validación en tiempo real, y etiqueta de máximo permitido basada en horas totales.
@@ -66,6 +68,7 @@ Este documento resume, de forma trazable por archivo, todas las modificaciones a
 ## 3) Eventos globales usados
 - `refresh-slots`: recarga disponibilidad.
 - `open-space-info-dialog`: abre editor de franja.
+- `close-availability-sidebar`: cierra el sidebar (Vaul) antes de abrir el editor desde la lista.
 - `space-info-dialog-open` / `space-info-dialog-close`: coordinación con el sidebar.
 - `delete-slot`: eliminación desde UI (sidebar) usando payload limpio.
 - `open-hours-config-dialog`: abre diálogo de límites con el total de horas.

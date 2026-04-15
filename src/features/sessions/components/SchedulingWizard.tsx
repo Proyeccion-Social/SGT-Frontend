@@ -233,7 +233,11 @@ export default function SchedulingWizard({ slots }: Props) {
 
     const scheduledDate = new Date(today);
     scheduledDate.setDate(today.getDate() + diff);
-    const scheduledDateStr = scheduledDate.toISOString().split("T")[0];
+    const scheduledDateStr = [
+      scheduledDate.getFullYear(),
+      String(scheduledDate.getMonth() + 1).padStart(2, "0"),
+      String(scheduledDate.getDate()).padStart(2, "0"),
+    ].join("-");
 
     const [startH, startM] = (slotContext?.startTime ?? "00:00")
       .split(":")
@@ -256,15 +260,7 @@ export default function SchedulingWizard({ slots }: Props) {
       title: currentData.title,
       description: currentData.description,
     };
-    console.log("=== DIAGNÓSTICO DE FECHA ===");
-console.log("slotContext.dayOfWeek:", slotContext?.dayOfWeek);
-console.log("rawDay:", rawDay);
-console.log("normalizedDay:", normalizedDay);
-console.log("today:", today.toISOString(), "| getDay():", today.getDay(), "| todayDow:", todayDow);
-console.log("targetDow:", targetDow, "| diff:", diff);
-console.log("scheduledDate:", scheduledDate.toISOString());
-console.log("scheduledDateStr:", scheduledDateStr);
-console.log("weekOffset actual:", new URLSearchParams(window.location.search).get("offset"));
+    
     const res = await fetch("/api/sessions/scheduleapi", {
       method: "POST",
       body: JSON.stringify(sessionData),

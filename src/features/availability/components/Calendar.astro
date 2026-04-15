@@ -99,15 +99,29 @@ const systemToday = new Date();
                   data-is-booked={slot.isBooked}
                 >
                   {mode === "student" ? (
-                    <div class="slot-student-info">
-                      <span class="slot-tutor-count">
-                        Tutorías disponibles: {mode === "student" ? slot.tutorCount : slot.groupedIds.length}
-                      </span>
-                      <span class="slot-time-range">
-                        {slot.startTime} → {slot.endTime}
-                      </span>
-                    </div>
+                    isHalfHour ? (
+                      // Slot de media hora en modo estudiante — layout horizontal compacto
+                      <div class="slot-student-half">
+                        <span class="slot-student-half__count">
+                          {slot.tutorCount} disponible{slot.tutorCount !== 1 ? "s" : ""}
+                        </span>
+                        <span class="slot-student-half__time">
+                          {slot.startTime} → {slot.endTime}
+                        </span>
+                      </div>
+                    ) : (
+                      // Slot normal en modo estudiante — layout actual
+                      <div class="slot-student-info">
+                        <span class="slot-tutor-count">
+                          Tutorías disponibles: {slot.tutorCount}
+                        </span>
+                        <span class="slot-time-range">
+                          {slot.startTime} → {slot.endTime}
+                        </span>
+                      </div>
+                    )
                   ) : isHalfHour ? (
+                    // Slot de media hora en modo tutor — layout actual, sin cambio
                     <div class='slot-half-hour-content'>
                       <span class='slot-modality-text'>
                         {slot.modality?.toString().toUpperCase() === "VIRT" ? "Virtual" : "Presencial"}
@@ -117,6 +131,7 @@ const systemToday = new Date();
                       </span>
                     </div>
                   ) : (
+                    // Slot normal en modo tutor — layout actual, sin cambio
                     <>
                       <div class='slot-duration-text'>
                         {formatDuration(slot.startTime, slot.endTime)}
@@ -153,30 +168,6 @@ const systemToday = new Date();
 </div>
 
 <style>
-  .slot-student-info {
-  position: absolute;
-  top: 10px;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.slot-tutor-count {
-  font-size: 0.78rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 3px 8px;
-  border-radius: 999px;
-  color: #1f2937;
-}
-
-.slot-time-range {
-  font-size: 0.70rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-}
 
   .calendar-outer {
     width: 100%;
@@ -394,6 +385,65 @@ const systemToday = new Date();
     opacity: 0.8;
     white-space: nowrap;
   }
+
+  
+  .slot-student-info {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.slot-tutor-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #1f2937;
+}
+
+.slot-time-range {
+  font-size: 0.70rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+  .slot-student-half {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.slot-student-half__count {
+  font-size: 0.70rem;
+  font-weight: 600;
+  color: #1f2937;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 2px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.slot-student-half__time {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 </style>
 
 <script>

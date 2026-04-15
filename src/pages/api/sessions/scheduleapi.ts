@@ -56,7 +56,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
   } catch (error: any) {
-
     return new Response(
       JSON.stringify({
         message: error.message || 'Error interno del servidor',

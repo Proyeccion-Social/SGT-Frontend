@@ -1,13 +1,12 @@
 ---
 import infoIcon from "@/features/tutorAvailability/assets/infoIcon.png";
 import line from "@/features/tutorAvailability/assets/line.svg";
-import closeIcon from "@/features/tutorAvailability/assets/close.png"
-
+import closeIcon from "@/features/tutorAvailability/assets/close.png";
 ---
 
 <dialog id="space-info-dialog">
     <div class="container">
-        <button class="closeBtn"><img src={closeIcon.src}></button>
+        <button class="closeBtn"><img src={closeIcon.src} /></button>
         <div class="title">Información de tu espacio</div>
         <p class="description"></p>
         <div class="modality-container">
@@ -17,8 +16,22 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         <div class="hours-container">
             <p class="hours-label">Inicia</p>
             <p class="hours-label">Termina</p>
-            <input type="text" inputmode="numeric" maxlength="5" placeholder="10:00" class="hoursInput">
-            <input type="text" inputmode="numeric" maxlength="5" placeholder="18:00" class="hoursInput">
+            <input
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="10:00"
+                class="hoursInput"
+                readonly
+            />
+            <input
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="18:00"
+                class="hoursInput"
+                readonly
+            />
         </div>
         <div class="buttons-container">
             <button class="saveBtn">Guardar</button>
@@ -58,17 +71,15 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         font-size: 20px;
         line-height: 100%;
         letter-spacing: -2%;
-        color:#1A1A1A;
+        color: #1a1a1a;
     }
 
     .closeBtn {
         width: 15px;
-        position:absolute;
+        position: absolute;
         top: 20px;
         right: 20px;
     }
-
-   
 
     .description {
         font-weight: 400;
@@ -95,7 +106,7 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         font-size: 20px;
         line-height: 100%;
         letter-spacing: -2%;
-        color: #5F5F5F;
+        color: #5f5f5f;
         padding: 10px;
         width: 100%;
         height: 60px;
@@ -104,16 +115,15 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         left: 202.7px;
         border-radius: 8.8px;
         border-width: 1.1px;
-        border: 1px solid #C6C6C6;
-
+        border: 1px solid #c6c6c6;
     }
-    
+
     .hours-label {
         font-weight: 600;
         font-size: 16px;
         line-height: 100%;
         letter-spacing: -2%;
-        color: #5F5F5F;
+        color: #5f5f5f;
     }
 
     .container {
@@ -125,7 +135,7 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         background-color: white;
         padding: 30px;
         border-radius: 16px;
-        border: 1px solid #C6C6C6;
+        border: 1px solid #c6c6c6;
         width: 514px;
         height: 307px;
     }
@@ -137,7 +147,7 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         padding: 10px;
         margin-top: 25px;
         width: 100%;
-        background-color: #8751FF;
+        background-color: #8751ff;
         border-radius: 8px;
     }
 
@@ -146,7 +156,7 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         border-radius: 4px;
         border: none;
         cursor: pointer;
-        color:#E8E8E8;
+        color: #e8e8e8;
         font-size: 16px;
         font-weight: 500;
         line-height: 20px;
@@ -156,15 +166,15 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
     }
 
     .modality-btn:hover {
-        background-color: #9F74FF;
+        background-color: #9f74ff;
     }
 
     .modality-btn:active {
-        background-color: #9F74FF;
+        background-color: #9f74ff;
     }
 
     .modality-btn.active {
-        background-color: #9F74FF;
+        background-color: #9f74ff;
         color: white;
     }
 
@@ -178,13 +188,13 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
         transform: translateX(-50%);
         gap: 10px;
     }
-    
+
     .saveBtn {
         width: 94px;
         height: 37px;
-        background-color: #DAFFAA;
-        color: #9ACC5B;
-        border: 1px solid #9ACC5B;
+        background-color: #daffaa;
+        color: #9acc5b;
+        border: 1px solid #9acc5b;
         border-radius: 8px;
         cursor: pointer;
         font-size: 16px;
@@ -195,21 +205,19 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
     }
 
     .saveBtn:hover {
-        background-color: #9ACC5B;
-        color: #DAFFAA;
-
+        background-color: #9acc5b;
+        color: #daffaa;
     }
 
     .saveBtn:active {
-        background-color: #9ACC5B;
-        color: #DAFFAA;
+        background-color: #9acc5b;
+        color: #daffaa;
     }
-
 
     .deleteBtn {
         width: 94px;
         height: 37px;
-        background-color: #F35761;
+        background-color: #f35761;
         color: white;
         border: none;
         border-radius: 8px;
@@ -223,7 +231,6 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
 
     .deleteBtn:hover {
         background-color: #e2202d;
-
     }
 
     .deleteBtn:active {
@@ -232,190 +239,217 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png"
 </style>
 
 <script>
-const dialog = document.getElementById("space-info-dialog") as HTMLDialogElement;
-const closeBtn = dialog?.querySelector(".closeBtn");
-const saveBtn = dialog?.querySelector(".saveBtn");
-const deleteBtn = dialog?.querySelector(".deleteBtn");
-const hoursInputs = dialog?.querySelectorAll(".hoursInput") as NodeListOf<HTMLInputElement>;
-const descriptionInput = dialog?.querySelector(".description") as HTMLInputElement;
+    const dialog = document.getElementById(
+        "space-info-dialog",
+    ) as HTMLDialogElement;
+    const closeBtn = dialog?.querySelector(".closeBtn");
+    const saveBtn = dialog?.querySelector(".saveBtn");
+    const deleteBtn = dialog?.querySelector(".deleteBtn");
+    const hoursInputs = dialog?.querySelectorAll(
+        ".hoursInput",
+    ) as NodeListOf<HTMLInputElement>;
+    const descriptionInput = dialog?.querySelector(
+        ".description",
+    ) as HTMLInputElement;
 
-let currentSlot: any = null;
+    let currentSlot: any = null;
 
-// =======================
-// HELPERS
-// =======================
+    // =======================
+    // HELPERS
+    // =======================
 
-// Obtener modalidad desde estado (NO desde clases)
-function getSelectedModality() {
-    return currentSlot?.modality || "NONE";
-}
+    // Obtener modalidad desde estado (NO desde clases)
+    function getSelectedModality() {
+        return currentSlot?.modality || "NONE";
+    }
 
-// Setear botones visualmente
-function setModalityButtons(modality: string) {
-    const buttons = dialog?.querySelectorAll(".modality-btn");
+    // Setear botones visualmente
+    function setModalityButtons(modality: string) {
+        const buttons = dialog?.querySelectorAll(".modality-btn");
 
-    buttons?.forEach((btn) => {
-        btn.classList.remove("active");
+        buttons?.forEach((btn) => {
+            btn.classList.remove("active");
 
-        if (
-            (btn.textContent === "Presencial" && (modality === "PRES" || modality === "BOTH")) ||
-            (btn.textContent === "Virtual" && (modality === "VIRT" || modality === "BOTH"))
-        ) {
-            btn.classList.add("active");
+            if (
+                (btn.textContent === "Presencial" &&
+                    (modality === "PRES" || modality === "BOTH")) ||
+                (btn.textContent === "Virtual" &&
+                    (modality === "VIRT" || modality === "BOTH"))
+            ) {
+                btn.classList.add("active");
+            }
+        });
+    }
+
+    // =======================
+    // EVENTOS
+    // =======================
+
+    // Cerrar
+    closeBtn?.addEventListener("click", () => {
+        dialog?.close();
+    });
+
+    dialog?.addEventListener("close", () => {
+        window.dispatchEvent(new CustomEvent("space-info-dialog-close"));
+    });
+
+    // Cerrar al hacer click fuera
+    dialog?.addEventListener("click", (e) => {
+        if (e.target === dialog) {
+            dialog.close();
         }
     });
-}
 
-// =======================
-// EVENTOS
-// =======================
+    // 🔥 DELEGACIÓN DE EVENTOS PARA MODALIDAD
+    dialog?.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
 
-// Cerrar
-closeBtn?.addEventListener("click", () => {
-    dialog?.close();
-});
+        if (target.classList.contains("modality-btn")) {
+            const buttons = dialog.querySelectorAll(".modality-btn");
 
-// Cerrar al hacer click fuera
-dialog?.addEventListener("click", (e) => {
-    if (e.target === dialog) {
-        dialog.close();
-    }
-});
+            // UI
+            buttons.forEach((b) => b.classList.remove("active"));
+            target.classList.add("active");
 
-// 🔥 DELEGACIÓN DE EVENTOS PARA MODALIDAD
-dialog?.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
-
-    if (target.classList.contains("modality-btn")) {
-        const buttons = dialog.querySelectorAll(".modality-btn");
-
-        // UI
-        buttons.forEach((b) => b.classList.remove("active"));
-        target.classList.add("active");
-
-        // 🔥 ESTADO REAL
-        if (target.textContent === "Presencial") {
-            currentSlot.modality = "PRES";
-        } else {
-            currentSlot.modality = "VIRT";
+            // 🔥 ESTADO REAL
+            if (target.textContent === "Presencial") {
+                currentSlot.modality = "PRES";
+            } else {
+                currentSlot.modality = "VIRT";
+            }
         }
-    }
-});
+    });
 
-// =======================
-// ABRIR MODAL
-// =======================
+    // =======================
+    // ABRIR MODAL
+    // =======================
 
-window.addEventListener("open-space-info-dialog", (e: any) => {
-    currentSlot = { ...e.detail }; // 🔥 copiar para no mutar directo
+    window.addEventListener("open-space-info-dialog", (e: any) => {
+        currentSlot = { ...e.detail }; // 🔥 copiar para no mutar directo
 
-    if (!currentSlot) return;
+        if (!currentSlot) return;
 
-    console.log("SLOT ABIERTO:", currentSlot);
+        console.log("SLOT ABIERTO:", currentSlot);
 
-    // Horas (usa startTime / endTime reales)
-    if (hoursInputs.length === 2) {
-        hoursInputs[0].value = currentSlot.startTime?.slice(0, 5) || "";
-        hoursInputs[1].value = currentSlot.endTime?.slice(0, 5) || "";
-    }
+        // Horas (usa startTime / endTime reales)
+        if (hoursInputs.length === 2) {
+            hoursInputs[0].value = currentSlot.startTime?.slice(0, 5) || "";
+            hoursInputs[1].value = currentSlot.endTime?.slice(0, 5) || "";
+        }
 
-    descriptionInput.value = currentSlot.to || "";
-    // Modalidad
-    setModalityButtons(currentSlot.modality);
+        descriptionInput.value = currentSlot.to || "";
+        // Modalidad
+        setModalityButtons(currentSlot.modality);
 
-    dialog?.showModal();
-});
+        window.dispatchEvent(new CustomEvent("space-info-dialog-open"));
 
-// =======================
-// GUARDAR
-// =======================
+        dialog?.showModal();
+    });
 
-saveBtn?.addEventListener("click", async () => {
-    if (!currentSlot) return;
+    // =======================
+    // GUARDAR
+    // =======================
 
-    const newStartTime = hoursInputs[0].value;
-    const newEndTime = hoursInputs[1].value;
-    const newModality = getSelectedModality();
+    saveBtn?.addEventListener("click", async () => {
+        if (!currentSlot) return;
 
-    const body = {
-        ...currentSlot,
-        new_start_time: newStartTime,
-        new_end_time: newEndTime,
-        new_modality: newModality
-    };
+        const newStartTime = hoursInputs[0].value;
+        const newEndTime = hoursInputs[1].value;
+        const newModality = getSelectedModality();
 
-    try {
-        const response = await fetch("/api/tutor-availability/patch-slots-by-range", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
+        const body = {
+            dayOfWeek: currentSlot.dayOfWeek,
+            startTime: newStartTime,
+            endTime: newEndTime,
+            modality: newModality,
+        };
+
+        try {
+            const response = await fetch(
+                "/api/tutor-availability/patch-slots-by-range",
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (response.ok) {
+                window.dispatchEvent(new CustomEvent("refresh-slots"));
+                dialog.close();
+            } else {
+                const err = await response.json();
+                alert(err.message || "Error al guardar");
+            }
+        } catch (error) {
+            console.error("Error al guardar:", error);
+        }
+    });
+
+    // =======================
+    // ELIMINAR
+    // =======================
+
+    deleteBtn?.addEventListener("click", async () => {
+        if (!currentSlot) return;
+
+        const body = {
+            dayOfWeek: currentSlot.dayOfWeek,
+            startTime: currentSlot.startTime?.slice(0, 5) || "",
+            endTime: currentSlot.endTime?.slice(0, 5) || "",
+            modality: currentSlot.modality || "NONE",
+        };
+
+        try {
+            const response = await fetch(
+                "/api/tutor-availability/delete-slots-by-range",
+                {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (response.ok) {
+                window.dispatchEvent(new CustomEvent("refresh-slots"));
+                dialog.close();
+            } else {
+                const err = await response.json();
+                alert(err.message || "Error al eliminar");
+            }
+        } catch (error) {
+            console.error("Error al eliminar:", error);
+        }
+    });
+
+    // =======================
+    // FORMATEO DE HORAS
+    // =======================
+
+    function formatTimeInput(input: HTMLInputElement) {
+        input.addEventListener("input", () => {
+            let value = input.value.replace(/\D/g, "");
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length >= 3)
+                value = value.slice(0, 2) + ":" + value.slice(2);
+            input.value = value;
         });
 
-        if (response.ok) {
-            window.dispatchEvent(new CustomEvent('refresh-slots'));
-            dialog.close();
-        } else {
-            const err = await response.json();
-            alert(err.message || "Error al guardar");
-        }
-    } catch (error) {
-        console.error("Error al guardar:", error);
-    }
-});
-
-// =======================
-// ELIMINAR
-// =======================
-
-deleteBtn?.addEventListener("click", async () => {
-    if (!currentSlot) return;
-
-    if (!confirm("¿Estás seguro de que deseas eliminar esta franja?")) return;
-
-    try {
-        const response = await fetch("/api/tutor-availability/delete-slots-by-range", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(currentSlot),
+        input.addEventListener("blur", () => {
+            let value = input.value;
+            if (!value.includes(":")) return;
+            let [hoursStr, minutesStr] = value.split(":");
+            let hours = parseInt(hoursStr);
+            let minutes = parseInt(minutesStr);
+            if (isNaN(hours) || hours > 23) hours = 23;
+            if (isNaN(minutes) || minutes > 59) minutes = 59;
+            input.value =
+                String(hours).padStart(2, "0") +
+                ":" +
+                String(minutes).padStart(2, "0");
         });
-
-        if (response.ok) {
-            window.dispatchEvent(new CustomEvent('refresh-slots'));
-            dialog.close();
-        } else {
-            const err = await response.json();
-            alert(err.message || "Error al eliminar");
-        }
-    } catch (error) {
-        console.error("Error al eliminar:", error);
     }
-});
 
-// =======================
-// FORMATEO DE HORAS
-// =======================
-
-function formatTimeInput(input: HTMLInputElement){
-    input.addEventListener("input", () => {
-        let value = input.value.replace(/\D/g,"");
-        if(value.length > 4) value = value.slice(0,4);
-        if(value.length >= 3) value = value.slice(0,2) + ":" + value.slice(2);
-        input.value = value;
-    });
-
-    input.addEventListener("blur", () => {
-        let value = input.value;
-        if(!value.includes(":")) return;
-        let [hoursStr, minutesStr] = value.split(":");
-        let hours = parseInt(hoursStr);
-        let minutes = parseInt(minutesStr);
-        if(isNaN(hours) || hours > 23) hours = 23;
-        if(isNaN(minutes) || minutes > 59) minutes = 59;
-        input.value = String(hours).padStart(2,"0") + ":" + String(minutes).padStart(2,"0");
-    });
-}
-
-document.querySelectorAll(".hoursInput").forEach((input) => 
-    formatTimeInput(input as HTMLInputElement)
-);
+    hoursInputs?.forEach((input) => formatTimeInput(input));
 </script>

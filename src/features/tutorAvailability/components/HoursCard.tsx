@@ -1,3 +1,4 @@
+import { DAY_COLORS } from "@/features/availability/utils/calendarConstants";
 import closeIcon from "@/features/tutorAvailability/assets/close.svg"
 import styles from "@/features/tutorAvailability/css/HoursCard.module.css";
 
@@ -7,6 +8,16 @@ interface HoursCardProps {
 
 export default function HoursCard({ slot}: HoursCardProps) {
 
+    const dayMap: Record<string, string> = {
+        LUNES: "MONDAY",
+        MARTES: "TUESDAY",
+        MIERCOLES: "WEDNESDAY",
+        JUEVES: "THURSDAY",
+        VIERNES: "FRIDAY",
+        SABADO: "SATURDAY",
+        DOMINGO: "SUNDAY",
+    };
+
     const openSpaceInfoDialog = (e: React.MouseEvent) => {
         e.stopPropagation();
         window.dispatchEvent(new CustomEvent('open-space-info-dialog', { detail: slot }));
@@ -14,12 +25,22 @@ export default function HoursCard({ slot}: HoursCardProps) {
 
     const deleteSlot = (e: React.MouseEvent) => {
         e.stopPropagation();
-        window.dispatchEvent(new CustomEvent('delete-slot', { detail: slot }));
+
+        const body = {
+            dayOfWeek: slot.dayOfWeek || dayMap[slot.day] || slot.day,
+            startTime: slot.startTime?.substring(0, 5) || "",
+            endTime: slot.endTime?.substring(0, 5) || "",
+            modality: slot.modality || "NONE",
+        };
+
+        window.dispatchEvent(new CustomEvent('delete-slot', { detail: body }));
     };
+
+    const color = DAY_COLORS[slot.day];
 
     return (
         <div onClick={openSpaceInfoDialog} className={styles.HoursCard}>
-            <div className={styles.LeftColor}></div>
+            <div className={styles.LeftColor} style={{ backgroundColor: color + "99" }}></div>
             <div className={styles.InfoContainer}>
                 <div className={styles.DayAndHoursContainer}>
                     <p className={styles.day}>{slot.day} →</p>
@@ -36,7 +57,7 @@ export default function HoursCard({ slot}: HoursCardProps) {
                     </div>
                 </div>
             </div>
-            <button className={styles.closeButton} onClick={deleteSlot}>
+            <button type="button" className={styles.closeButton} onClick={deleteSlot}>
                 <img className={styles.closeIcon} src={closeIcon.src} alt="" />
             </button>
         </div>

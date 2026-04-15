@@ -85,6 +85,10 @@
   }, []);
 
       useEffect(() => {
+          const handleCloseAvailabilitySidebar = () => {
+            setOpen(false);
+          };
+
           const handleSpaceInfoDialogOpen = () => {
             isSpaceInfoDialogOpenRef.current = true;
           };
@@ -98,10 +102,12 @@
 
           // Escuchar evento de refresco
           window.addEventListener("refresh-slots", fetchSlots);
+          window.addEventListener("close-availability-sidebar", handleCloseAvailabilitySidebar);
           window.addEventListener("space-info-dialog-open", handleSpaceInfoDialogOpen);
           window.addEventListener("space-info-dialog-close", handleSpaceInfoDialogClose);
           return () => {
               window.removeEventListener("refresh-slots", fetchSlots);
+            window.removeEventListener("close-availability-sidebar", handleCloseAvailabilitySidebar);
             window.removeEventListener("space-info-dialog-open", handleSpaceInfoDialogOpen);
             window.removeEventListener("space-info-dialog-close", handleSpaceInfoDialogClose);
           };

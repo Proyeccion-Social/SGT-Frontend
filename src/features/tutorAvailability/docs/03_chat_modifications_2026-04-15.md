@@ -66,9 +66,39 @@ Este documento resume, de forma trazable por archivo, todas las modificaciones a
 - **Helpers:** nuevos utilitarios `calendarConstants.ts` / `calendarUtils.ts` y estilos `TutorCalendarGrid.module.css`.
 
 ## 3) Eventos globales usados
+- `open-tutor-calendar-dialog` / `close-tutor-calendar-dialog`: muestra/oculta el contenedor principal del calendario.
 - `refresh-slots`: recarga disponibilidad.
 - `open-space-info-dialog`: abre editor de franja.
 - `close-availability-sidebar`: cierra el sidebar (Vaul) antes de abrir el editor desde la lista.
 - `space-info-dialog-open` / `space-info-dialog-close`: coordinación con el sidebar.
 - `delete-slot`: eliminación desde UI (sidebar) usando payload limpio.
 - `open-hours-config-dialog`: abre diálogo de límites con el total de horas.
+
+## 4) Registro por autoría (usuario + Copilot)
+
+### Cambios hechos por el usuario (reportados en este chat)
+
+#### `src/features/tutorAvailability/components/HoursConfigDialog.astro`
+- **Ocultar calendario al abrir el diálogo de horas:** al recibir `open-hours-config-dialog`, se emite `close-tutor-calendar-dialog` antes de `showModal()`.
+- **Recuperación de clicks en modal/input/botón:** se añadió `unlockPointerEvents()` para restaurar `pointer-events` en `documentElement` y `body`.
+- **Resultado observado:** el botón `Terminar y guardar` y el input numérico vuelven a responder al mouse.
+
+### Cambios hechos por Copilot en la sesión
+
+#### `src/features/tutorAvailability/components/HoursCard.tsx`
+- **Apertura segura de editor de slot:** al click en tarjeta, primero dispara `close-availability-sidebar` y luego `open-space-info-dialog` en el siguiente tick.
+
+#### `src/features/tutorAvailability/components/AvailabilitySideBar.tsx`
+- **Soporte de cierre programático:** agrega listener de `close-availability-sidebar` para cerrar el Drawer desde eventos globales.
+- **Convivencia Drawer + dialog nativo:** mantiene `Drawer.Root modal={false}` y evita bloquear clicks externos (sin `preventDefault` en `onInteractOutside`).
+- **Protección de cierre accidental:** no cierra el Drawer cuando `SpaceInfoDialog` está abierto.
+
+#### `src/features/tutorAvailability/components/SpaceInfoDialog.astro`
+- **Señalización de estado del diálogo:** emite `space-info-dialog-open` al abrir y `space-info-dialog-close` al cerrar para coordinar con el sidebar.
+
+## 5) Errores reportados y estado
+
+1. **No se podía interactuar con botón/input de `HoursConfigDialog`:**
+  resuelto ocultando el calendario antes de abrir el modal de horas y restaurando `pointer-events` globales.
+2. **No se podía interactuar con `SpaceInfoDialog` al abrir desde el sidebar:**
+  resuelto cerrando primero el Drawer y abriendo luego el diálogo (orden de eventos + cierre programático del sidebar).

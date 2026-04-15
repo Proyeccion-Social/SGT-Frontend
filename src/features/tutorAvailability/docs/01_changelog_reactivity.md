@@ -42,6 +42,8 @@ Además de la reactividad del calendario, durante esta sesión se ajustaron cont
 - **Contratos PATCH/DELETE de slots:** al editar/eliminar una franja se envía un body mínimo `{ dayOfWeek, startTime, endTime, modality }` para evitar `400 Bad Request` por campos UI extra.
 - **Eliminación sin confirmación:** se removió el `confirm(...)` previo al delete desde el diálogo de edición.
 - **Validación de “Guardar disponibilidad”:** antes de abrir el diálogo de límite semanal se exige al menos 1 hora total de franjas (toast con `sileo`).
+- **Ocultar calendario antes de límites semanales:** al abrir `HoursConfigDialog` se emite `close-tutor-calendar-dialog` para evitar superposición de overlays.
+- **Fix de clics en `HoursConfigDialog`:** se restauran `pointer-events` globales al abrir el modal para que input y botón sean interactivos por mouse.
 - **Coordinación Drawer (Vaul) + `<dialog>`:** se incorporaron eventos `space-info-dialog-open` / `space-info-dialog-close` y una guarda para que el click afuera cierre el Drawer, pero no lo cierre si el diálogo de detalle está abierto.
 - **Fix de interacción (mouse bloqueado):** al abrir `SpaceInfoDialog` desde una tarjeta del sidebar (`HoursCard`), primero se cierra el sidebar (evento `close-availability-sidebar`) y luego se abre el diálogo (evento `open-space-info-dialog` en el siguiente tick). Esto evita el caso donde Vaul deja la página sin clicks (TAB funciona pero mouse no).
 - **Manejo de backend sin slots:** `getMyAvailability()` y el sidebar toleran respuestas `404/204` y normalizan `groupedByDay` a `{}`.

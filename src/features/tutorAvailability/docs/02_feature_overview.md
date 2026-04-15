@@ -40,6 +40,7 @@ La base de todo el feature consiste en una mezcolanza de Componentes de Archivo 
 - El sidebar (Vaul `Drawer`) fue configurado con `modal={false}` para evitar conflictos de foco/click con los `<dialog>` nativos.
 - El sidebar se cierra al hacer click afuera, **excepto** cuando `SpaceInfoDialog` está abierto.
 - **Importante (interacción desde lista):** al hacer click en una tarjeta del sidebar (`HoursCard`) para editar una franja, el sidebar se **cierra primero** y luego se abre `SpaceInfoDialog`. Esto evita que Vaul deje el resto de la página sin clicks (caso “TAB funciona pero mouse no”).
+- **HoursConfigDialog y foco de interacción:** antes de abrir `HoursConfigDialog`, se oculta el overlay del calendario (`close-tutor-calendar-dialog`) y se restauran `pointer-events` globales para asegurar que el input y el botón sean clickeables.
 
 ## 4. Fundamentos Aritméticos e Interpolación (`calendarUtils.ts`)
 Con frecuencia para efectos de flexibilidad y almacenamiento óptimo, el Backend despacha franjas atómicas y modulares (P. ej: de 30 en 30 minutos). Pintar cada tarjetita de impacto separada fracturaría brutalmente la visual de horas completas.
@@ -51,12 +52,17 @@ Dada la convivencia de Astro vs React, el feature elude dependencias engorrosas 
 - Cuando en cualquier módulo alguien altera una franja a punta de POST, PATCH, o DELETE exitoso; es imperativo hacer explotar globalmente un `window.dispatchEvent(new CustomEvent('refresh-slots'))`. Todo micro-bloque de React subscrito resetea su fetch hacia atrás obteniendo una sinergía pasiva espectacular.
 
 ### Eventos relevantes (actual)
+- `open-tutor-calendar-dialog` / `close-tutor-calendar-dialog`: muestra/oculta el contenedor principal del calendario (`tutorCalendar.astro`).
 - `refresh-slots`: obliga a recargar disponibilidad (calendario + sidebar).
 - `open-space-info-dialog`: abre `SpaceInfoDialog` con el slot seleccionado.
 - `close-availability-sidebar`: cierra el sidebar (Vaul) antes de abrir `SpaceInfoDialog` desde `HoursCard`.
 - `delete-slot`: evento "bus" que `tutorCalendar.astro` captura para ejecutar el DELETE.
 - `open-hours-config-dialog`: abre `HoursConfigDialog` pasando el total de horas (number) como `detail`.
 - `space-info-dialog-open` / `space-info-dialog-close`: coordinación de estado entre `SpaceInfoDialog` y el sidebar para evitar cierre accidental.
+
+### Incidencias de interacción resueltas (2026-04-15)
+- **No clic en input/botón de `HoursConfigDialog`:** resuelto ocultando calendario al abrir el modal de horas y restableciendo `pointer-events`.
+- **No interacción con `SpaceInfoDialog`:** resuelto cerrando el sidebar antes de abrir el diálogo y coordinando estado con eventos globales.
 
 ## 6. Contratos de payload (slots y límites)
 

@@ -137,11 +137,15 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: 
                 <div className="tutor-card__info">
                   <p className="tutor-card__info-text">
                     <strong>Modalidades disponibles:</strong>{" "}
-                    {info?.modality ?? "Presencial o virtual"}
+                    {info?.modality === "PRES"
+                      ? "Presencial"
+                      : info?.modality === "VIRT"
+                      ? "Virtual"
+                      : "Presencial o virtual"}
                   </p>
                   <p className="tutor-card__info-text">
                     <strong>Tipo:</strong>{" "}
-                    {info?.type ?? "Virtual o integral"}
+                    {info?.type ?? "Sin especificar"}
                   </p>
                 </div>
               </button>

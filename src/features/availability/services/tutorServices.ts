@@ -31,7 +31,7 @@ export async function getTutorInfo(
     name: data.name,
     photoUrl: data.photo ?? null,
     modality: data.availableModalities?.join(" o ") || "Presencial o virtual",
-    type: "Virtual o integral",
+    type: data.type || "Sin especificar" ,
     subjects: data.subjectsId ?? [],
   };
 }

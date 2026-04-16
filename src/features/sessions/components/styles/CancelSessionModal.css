@@ -1,0 +1,195 @@
+
+/* ── Overlay (reutiliza la misma lógica que sdv-overlay) ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 10, 35, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 24px;
+  animation: cancel-fade-in 0.22s ease;
+}
+
+/* ── Card base ── */
+.modal-card {
+  font-family: 'DM Sans', sans-serif;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 8px 40px 0 rgba(124, 58, 237, 0.13),
+              0 2px 8px 0 rgba(0, 0, 0, .06);
+  
+  width: 100%;
+  max-width: 520px;     /* Un poco más ancho para dar aire */
+  min-height: 300px;    /* Aseguramos una altura mínima base */
+  
+  /* El padding-bottom debe ser suficiente para que el contenido 
+     no choque con los botones que "suben" desde el borde */
+  padding: 32px 32px 64px 32px; 
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: visible; 
+  position: relative;
+  animation: cancel-slide-up 0.28s cubic-bezier(.22,.68,0,1.2);
+}
+
+/* ── Variante cancel (borde coral sutil en top) ── */
+.modal-card--cancel {
+  border-top: 3px solid #fb7185;
+}
+
+/* ── Botón cerrar ── */
+.modal-card__close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1;
+  transition: color .15s, transform .15s;
+  z-index: 10;
+
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  /* ... resto de tus estilos (width, height, etc) ... */
+  background: #ffffff;
+  border: 1.5px solid #eee;
+}
+.modal-card__close:hover {
+  color: #e11d48;
+  transform: scale(1.12);
+}
+
+/* ── Título ── */
+.cancel-modal__title {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.4;
+  letter-spacing: -.3px;
+}
+
+/* ── Nombre de la sesión ── */
+.cancel-modal__session-name {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 4px 12px;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* ── Textarea ── */
+.cancel-modal__textarea {
+    width: 100%;
+  text-align: left; /* El texto dentro del área de escritura mejor a la izquierda */
+  margin-top: 8px;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 110px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid #dcd6f7;
+  background: #f5f4fb;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  color: #1e293b;
+  line-height: 1.55;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  margin-bottom: 12px;
+}
+.cancel-modal__textarea::placeholder {
+  color: #94a3b8;
+}
+.cancel-modal__textarea:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.10);
+}
+
+/* ── Warning ── */
+.cancel-modal__warning {
+    width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid #f59e0b;
+}
+
+/* ── Error ── */
+.cancel-modal__error {
+    width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #e11d48;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid #fb7185;
+}
+
+.cancel-modal__footer {
+  position: absolute;
+  bottom: -20px; /* Mitad de la altura del botón hacia afuera */
+  left: 50%;
+  transform: translateX(-50%); /* Truco para centrado horizontal absoluto */
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: auto; /* Que se ajuste al tamaño de los botones */
+  z-index: 100;
+}
+
+/* ── Los botones reutilizan sdv-btn del SDV ── */
+/* (ya definidos en SessionDetailView.css)      */
+/* Solo se sobreescribe el estado disabled       */
+.sdv-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* ── Keyframes ── */
+@keyframes cancel-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes cancel-slide-up {
+  from { opacity: 0; transform: translateY(20px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);   }
+}
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .modal-card {
+    padding: 22px 18px 80px 18px;
+    border-radius: 18px;
+  }
+  .cancel-modal__footer {
+    flex-direction: column;
+    width: calc(100% - 36px);
+  }
+}

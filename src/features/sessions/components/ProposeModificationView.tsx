@@ -1,121 +1,161 @@
 // ProposeModificationView.tsx
 // T012: 3 controlled selectors — modality, duration, schedule (stub until T003)
 // T013: Connected to modifySession service
+import './styles/ProposeModificationView.css'
 
-import { useState } from 'react';
-import type { Session, ModifySessionBody } from '../types/session.types';
-import { modifySession } from '../services/sessionService';
+import { useCallback, useEffect, useState } from 'react';
+import type { Session, ModifySessionBody, Modality } from '../types/session.types';
 
 
+export type SessionType = 'individual' | 'grupal' | '';
+ 
+export interface AvailabilitySlot {
+  id: string;
+  label: string; // e.g. "Lunes 14:00 – 15:00"
+}
+ 
 interface Props {
   session: Session;
-  onBack: () => void;
+  /** Slots de disponibilidad provistos por el consumidor (vacío = stub deshabilitado). */
+  availabilitySlots?: AvailabilitySlot[];
   onSuccess: () => void;
+  /** Expone el estado de envío para que el padre controle el botón Confirmar. */
+  onSubmittingChange?: (isSubmitting: boolean) => void;
+  /** El padre llama a triggerSubmitRef.current() cuando presiona Confirmar. */
+  triggerSubmitRef?: React.MutableRefObject<(() => Promise<void>) | null>;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
 }
-
-type Modality = 'virtual' | 'in-person' | '';
-
-export const ProposeModificationView = ({ session, onBack, onSuccess }: Props) => {
-  const [newModality, setNewModality]             = useState<Modality>('');
-  const [newAvailabilityID, setNewAvailabilityID] = useState('');
-  const [newDurationHours, setNewDurationHours]   = useState('');
-  const [isSubmitting, setIsSubmitting]           = useState(false);
-  const [error, setError]                         = useState<string | null>(null);
-  const [success, setSuccess]                     = useState(false);
-
-  const handleConfirm = async () => {
-    setIsSubmitting(true);
+ 
+export const ProposeModificationForm = ({
+  session,
+  availabilitySlots = [],
+  onSuccess,
+  onSubmittingChange,
+  triggerSubmitRef,
+  modificar,
+}: Props) => {
+  const [newModality,       setNewModality]       = useState<Modality>();
+  const [newDurationHours, setNewDurationHours] = useState<string>('');
+  const [newAvailabilityId, setNewAvailabilityId] = useState('');
+  const [error,             setError]             = useState<string | null>(null);
+ 
+ 
+  const handleConfirm = useCallback(async () => {
     setError(null);
+    onSubmittingChange?.(true);
 
     const body: ModifySessionBody = {
-      ...(newModality       && { newModality }),
-      ...(newAvailabilityID && { newAvailabilityID }),
-      ...(newDurationHours  && { newDurationHours: Number(newDurationHours) }),
-    };
+  ...(newModality      && { newModality }),
+  ...(newDurationHours && { newDurationHours: Number(newDurationHours) }),
+  ...(newAvailabilityId && { newAvailabilityId: Number(newAvailabilityId) }),
+};
 
     try {
-      await modifySession(session.id, body);
-      setSuccess(true);
-      setTimeout(onSuccess, 1200);
+      console.log('[ProposeModification] handleConfirm ejecutado', { sessionId: session.id, body });
+      const ok = await modificar(session.id, body);
+      if (ok) {
+        console.log('ejecutada la modificacion con exito');
+        onSuccess();
+      } else {
+        console.error('FALLO EL MODIFICAR');
+        setError('No se pudo proponer la modificación.');
+      }
     } catch (err: any) {
       setError(err?.message ?? 'Error al proponer modificación.');
     } finally {
-      setIsSubmitting(false);
+      onSubmittingChange?.(false);
     }
-  };
+  }, [newModality, newDurationHours, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
 
-  if (success) {
-    return (
-      <div className="modal-view modal-view--success" aria-live="polite">
-        <p>✓ Modificación propuesta exitosamente.</p>
-      </div>
-    );
-  }
-
+  useEffect(() => {
+    if (triggerSubmitRef) {
+      triggerSubmitRef.current = handleConfirm;
+    }
+  }, [handleConfirm]);
+ 
+  const slotsAvailable = availabilitySlots.length > 0;
+ 
   return (
-    <div className="modal-view modal-view--propose">
-      <h3 className="modal-view__title">Proponer modificación</h3>
-
-      <div className="form-field">
-        <label htmlFor="modality-select" className="form-field__label">Modalidad</label>
-        <select
-          id="modality-select"
-          className="form-field__select"
-          value={newModality}
-          onChange={(e) => setNewModality(e.target.value as Modality)}
-        >
-          <option value="">Sin cambio</option>
-          <option value="virtual">Virtual</option>
-          <option value="in-person">Presencial</option>
-        </select>
+    <div className="pmf">
+ 
+      {/* ── Fila 1: Modalidad + Tipo ── */}
+      <div className="pmf__row">
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-modality" className="form-field__label">Modalidad</label>
+            <select
+              id="pmf-modality"
+              className="form-field__select"
+              value={newModality}
+              onChange={(e) => setNewModality(e.target.value as Modality)}
+            >
+              <option value="">Sin cambio</option>
+              <option value="VIRT">Virtual</option>
+              <option value="PRES">Presencial</option>
+            </select>
+          </div>
+        </div>
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-duration" className="form-field__label">Duración</label>
+            <select
+              id="pmf-duration"
+              className="form-field__select"
+              value={newDurationHours}
+              onChange={(e) => setNewDurationHours(e.target.value)}
+            >
+              <option value="">Sin cambio</option>
+              <option value="1">1 hora</option>
+              <option value="1.5">1 hora 30 min</option>
+              <option value="2">2 horas</option>
+            </select>
+          </div>
+        </div>
+ 
       </div>
-
-      <div className="form-field">
-        <label htmlFor="duration-select" className="form-field__label">Duración (horas)</label>
-        <select
-          id="duration-select"
-          className="form-field__select"
-          value={newDurationHours}
-          onChange={(e) => setNewDurationHours(e.target.value)}
-        >
-          <option value="">Sin cambio</option>
-          <option value="1">1 hora</option>
-          <option value="1.5">1.5 horas</option>
-          <option value="2">2 horas</option>
-          <option value="2.5">2.5 horas</option>
-          <option value="3">3 horas</option>
-        </select>
+ 
+      {/* ── Fila 2: Disponibilidad ── */}
+      <div className="pmf__row pmf__row--full">
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-slot" className="form-field__label">Disponibilidad</label>
+            <select
+              id="pmf-slot"
+              className="form-field__select"
+              value={newAvailabilityId}
+              onChange={(e) => setNewAvailabilityId(e.target.value)}
+              disabled={!slotsAvailable}
+              title={!slotsAvailable ? 'Pendiente de disponibilidad del tutor' : undefined}
+            >
+              {slotsAvailable ? (
+                <>
+                  <option value="">Selecciona un horario</option>
+                  {availabilitySlots.map((slot) => (
+                    <option key={slot.id} value={slot.id}>{slot.label}</option>
+                  ))}
+                </>
+              ) : (
+                <option value="">Próximamente…</option>
+              )}
+            </select>
+            {!slotsAvailable && (
+              <p className="form-field__hint">
+                La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.
+              </p>
+            )}
+          </div>
+        </div>
+ 
       </div>
-
-      <div className="form-field">
-        <label htmlFor="slot-select" className="form-field__label">Horario</label>
-        <select
-          id="slot-select"
-          className="form-field__select"
-          value={newAvailabilityID}
-          onChange={(e) => setNewAvailabilityID(e.target.value)}
-          disabled
-          title="Pendiente confirmación del shape de slots (T003)"
-        >
-          <option value="">Próximamente…</option>
-        </select>
-        <p className="form-field__hint">
-          La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.
-        </p>
-      </div>
-
-      {error && <p className="modal-view__error" role="alert">{error}</p>}
-
-      <div className="modal-view__footer">
-        <button className="sdv-btn sdv-btn--propose" onClick={onBack} disabled={isSubmitting}>
-          Cancelar
-        </button>
-        <button className="sdv-btn sdv-btn--cancel" onClick={handleConfirm} disabled={isSubmitting}>
-          {isSubmitting ? 'Enviando…' : 'Confirmar'}
-        </button>
-      </div>
+ 
+      {error && <p className="pmf__error" role="alert">{error}</p>}
+ 
     </div>
   );
 };
-
-export default ProposeModificationView;
+ 
+export default ProposeModificationForm;
+ 

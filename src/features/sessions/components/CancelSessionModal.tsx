@@ -1,9 +1,12 @@
 // CancelSessionModal.tsx
+import './styles/CancelSessionModal.css';
+
 import { useState } from 'react';
 import type { Session } from '../types/session.types';
 
 interface Props {
   session: Session;
+  session_id : string;
   onClose: () => void;
   onSuccess: () => void;
   canCancel: (session: Session) => boolean;
@@ -14,6 +17,7 @@ interface Props {
 
 export const CancelSessionModal = ({
   session,
+  session_id,
   onClose,
   onSuccess,
   canCancel,

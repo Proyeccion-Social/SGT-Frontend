@@ -242,6 +242,7 @@ export interface AvailabilityQuery {
 export interface AvailabilitySlot {
   id: string;
   date: string;
+  dayOfWeek: string;
   startTime: string;
   endTime: string;
   available: boolean;
@@ -289,7 +290,7 @@ export interface EditSessionBody {
  
 export interface ModifySessionBody {
   newScheduledDate?: string;      // ISO date string
-  newAvailabilityID?: string;     // slot id from getTutorSlots
+  newAvailabilityId?: number;     // slot id from getTutorSlots
   newModality?: string;
   newDurationHours?: number;
 }

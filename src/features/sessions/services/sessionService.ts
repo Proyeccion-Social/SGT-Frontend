@@ -133,7 +133,7 @@ export async function cancelSession(
   reason: string
 ): Promise<CancelSessionResponse> {
   const res = await fetch(`/api/sessions/cancel`, {
-    method: 'POST',
+    method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sessionId, reason }),
   });

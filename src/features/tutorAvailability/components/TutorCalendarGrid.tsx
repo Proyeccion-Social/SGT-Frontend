@@ -66,6 +66,10 @@
         const fetchSlots = useCallback(async () => {
             try {
                 const res = await fetch('/api/tutor-availability/get-my-availability');
+                if (res.status === 401) {
+                    window.location.replace('/');
+                    return;
+                }
                 if (!res.ok) return;
 
                 const data = await res.json();
@@ -216,6 +220,10 @@
                         }),
                     })
                     .then((res) => {
+                            if (res.status === 401) {
+                                window.location.replace('/');
+                                return;
+                            }
                             if (res.ok) {
                                 window.dispatchEvent(new CustomEvent('refresh-slots'));
                             } else {

@@ -18,6 +18,10 @@
       const fetchSlots = useCallback(async () => {
       try {
           const res = await fetch("/api/tutor-availability/get-my-availability");
+          if (res.status === 401) {
+            window.location.replace("/");
+            return;
+          }
           if (!res.ok) {
             // Backend puede responder 404/204 cuando aún no existen franjas.
             if (res.status === 404 || res.status === 204) {

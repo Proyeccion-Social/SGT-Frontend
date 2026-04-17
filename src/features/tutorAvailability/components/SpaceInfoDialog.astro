@@ -256,6 +256,14 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
 
     let currentSlot: any = null;
 
+    function redirectOnUnauthorized(status: number) {
+        if (status === 401) {
+            window.location.replace("/");
+            return true;
+        }
+        return false;
+    }
+
     // =======================
     // HELPERS
     // =======================
@@ -377,6 +385,10 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
                 },
             );
 
+            if (redirectOnUnauthorized(response.status)) {
+                return;
+            }
+
             if (response.ok) {
                 window.dispatchEvent(new CustomEvent("refresh-slots"));
                 dialog.close();
@@ -412,6 +424,10 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
                     body: JSON.stringify(body),
                 },
             );
+
+            if (redirectOnUnauthorized(response.status)) {
+                return;
+            }
 
             if (response.ok) {
                 window.dispatchEvent(new CustomEvent("refresh-slots"));

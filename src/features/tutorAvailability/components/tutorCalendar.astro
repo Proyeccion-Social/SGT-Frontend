@@ -114,6 +114,11 @@ import TutorCalendarGrid from "@/features/tutorAvailability/components/TutorCale
                 },
             );
 
+            if (response.status === 401) {
+                window.location.replace("/");
+                return;
+            }
+
             if (response.ok) {
                 window.dispatchEvent(new CustomEvent("refresh-slots"));
             }

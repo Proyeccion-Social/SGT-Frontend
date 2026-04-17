@@ -76,6 +76,14 @@
             document.body.style.pointerEvents = "auto";
         };
 
+        const redirectOnUnauthorized = (status: number) => {
+            if (status === 401) {
+                window.location.replace("/");
+                return true;
+            }
+            return false;
+        };
+
         // 🔥 Abrir dialog
         window.addEventListener("open-hours-config-dialog", (e: any) => {
             const totalHoursRaw = parseFloat(e.detail);
@@ -145,6 +153,10 @@
                         body: JSON.stringify({ hours: value }),
                     },
                 );
+
+                if (redirectOnUnauthorized(response.status)) {
+                    return;
+                }
 
                 if (response.ok) {
                     window.dispatchEvent(new CustomEvent("refresh-slots"));

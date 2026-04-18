@@ -12,7 +12,7 @@ La característica `tutorAvailability` faculta de manera intuitiva y ágil a un 
 2. Buscando establecer disponibilidad un martes entre las diez y las once de la mañana, posiciona su ratón en el bloque del martes correspondiente a la celda "10:00", arrastra hacia abajo soltando el mouse en "11:00". (*Drag-to-Create*)
 3. En milisegundos y en segundo plano, la orden impacta contra la base de datos para forjar esa franja. Automáticamente la nueva franja florece a color a lo largo de su bloque correspondiente. Modalidad por defecto asumida: **Presencial**.
 4. Si decide **modificar** o se arrepiente, el tutor simplemente hará *un solo clic superficial* sobre la tarjeta de franja ya coloreada. Se interpondrá en su vista un cuadro de dialogo para alterarlo o eliminar el espacio de tajo. 
-5. Al presionar **Guardar disponibilidad**, se abre un diálogo para configurar el **límite de horas semanales**; este paso valida que exista al menos **1 hora total** de franjas creadas.
+5. Al presionar **Guardar disponibilidad**, se abre un diálogo para configurar el **límite de horas semanales**; este paso valida que exista al menos **1 hora total** de franjas creadas. El límite máximo permitido es de **8 horas**, incluso si el tutor tiene más disponibilidad creada.
 6. **Integración Onboarding**: Este proceso es obligatorio para nuevos tutores y se dispara automáticamente tras completar el perfil (ver [Onboarding Integration](./04_onboarding_integration.md)).
 
 ## 3. Topología de Componentes de Frontend

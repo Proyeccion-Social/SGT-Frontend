@@ -98,15 +98,19 @@
 
         // 🔥 Abrir dialog
         window.addEventListener("open-hours-config-dialog", (e: any) => {
-            const totalHoursRaw = parseFloat(e.detail);
-            hours = Math.floor(totalHoursRaw).toString();
+            const totalHoursRaw = parseFloat(e.detail);const floorHours = Math.floor(totalHoursRaw);
+            
+            // Si total < 8, el limite es total. Si total >= 8, el limite es 8.
+            const limit = floorHours < 8 ? floorHours : 8;
+            
+            hoursInput.value = limit.toString();
+            hoursInput.max = limit.toString(); 
 
-            hoursInput.value = hours;
-            hoursInput.max = hours;
-
-            maxHoursLabel.textContent = `Máximo permitido: ${hours} horas (Total de horas de franjas creadas ${totalHoursRaw})`;
-            errorText.textContent = `El valor debe ser menor o igual a ${hours} horas`;
-
+            maxHoursLabel.textContent = `Máximo permitido: ${limit} horas (Total de horas de franjas creadas ${totalHoursRaw})`;
+            errorText.textContent = `El valor debe ser menor o igual a ${limit} horas`;
+            
+            // Actualizamos la variable global 'hours' que se usa en validaciones
+            hours = limit.toString();
             // reset errores
             errorText.style.display = "none";
             minHoursError.style.display = "none";

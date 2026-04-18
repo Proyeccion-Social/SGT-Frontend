@@ -56,4 +56,11 @@ Se implementó un flujo obligatorio para que los tutores configuren su disponibi
 - **Contenedor Global:** Se creó `TutorAvailabilityOverlay.astro` para albergar todos los diálogos de disponibilidad, inyectándolo en `DashboardLayout.astro`.
 - **Flujo No-Saltable:** Se bloqueó la tecla `Escape` y eventos de `cancel` en `InitialConfigDialog` y `HoursConfigDialog` para forzar al usuario a seguir el proceso de configuración hasta el final.
 - **Consistencia de Pointer-Events:** Se aseguró que al abrir los modales de configuración se desbloqueen los `pointer-events` del `body` para permitir la interacción.
-- **Feedback de Usuario (Sileo):** Se integraron alertas de `sileo.promise` en `HoursConfigDialog` para informar sobre el estado del guardado (cargando, éxito o error).
+- **Feedback de Usuario (Sileo):** Se integraron alertas de `sileo` en todos los puntos de interacción para mejorar la comunicación:
+    - `HoursConfigDialog`: Alertas de éxito y error al guardar el límite semanal.
+    - `SpaceInfoDialog`: Alertas al guardar cambios o eliminar franjas.
+    - `TutorCalendarGrid`: Alerta de éxito concisa ("Franja creada") al arrastrar.
+    - `AvailabilitySideBar`: Alerta de éxito al validar la disponibilidad antes de pasar al límite de horas.
+    - `tutorCalendar`: Alertas de proceso, éxito y error al eliminar franjas.
+- **Corrección de Visibilidad (Top Layer):** Se añadió un retraso de 400ms al transicionar entre el sidebar y el diálogo de límites para permitir que el toast de éxito sea visible antes de ser cubierto por el modal en la "Top Layer".
+- **Nueva Lógica de Negocio (Límites):** En `HoursConfigDialog`, se implementó un tope de **8 horas semanales**. Si el tutor crea menos de 8 horas en franjas, su límite es el total creado; si crea más, el límite máximo permitido se bloquea en 8.

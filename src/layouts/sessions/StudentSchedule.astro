@@ -19,7 +19,20 @@ const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
 const { monday, weekRangeStr, prevOffset, nextOffset } = getWeekRangeFromOffset(weekOffset);
 
-const slots = await getAllTutorSlotsSSR({ onlyAvailable: true }).catch(() => []);
+const weekReference = [
+  monday.getFullYear(),
+  String(monday.getMonth() + 1).padStart(2, "0"),
+  String(monday.getDate()).padStart(2, "0"),
+].join("-");
+
+const slots = await getAllTutorSlotsSSR({
+  onlyAvailable: true,
+  weekStart: weekReference,
+}).catch((err) => {
+  console.error("[StudentSchedule] ERROR en getAllTutorSlotsSSR:", err);
+  return [];
+});
+
 ---
 
 <MainLayout title="Agendamiento">

@@ -10,6 +10,7 @@ interface Props {
 
 const { slots: rawSlots, baseDate = new Date(), mode: modeProp, role } = Astro.props;
 const mode = modeProp ?? (role === "STUDENT" ? "student" : "tutor");
+const weekDates = getWeekDates(baseDate);
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
 import {
@@ -28,8 +29,6 @@ import {
   getSlotsByDayStudent,
   timeToMinutes,
 } from "../utils/calendarUtils";
-
-const weekDates = getWeekDates(baseDate);
 
 const getSlotsForDay = (dayKey: string) =>
   mode === "student"
@@ -78,7 +77,6 @@ const systemToday = new Date();
             {hours.map((_) => (
               <div class='hour-cell' />
             ))}
-
             {getSlotsForDay( day.key).map((slot) => {
               const startMin = timeToMinutes(slot.startTime);
               const endMin = slot.endTime
@@ -493,9 +491,6 @@ const systemToday = new Date();
   }
 
   function setupDrag() {
-    console.log("setupDrag, slots encontrados:",
-      document.querySelectorAll('.slot-block:not(.slot-booked):not(.slot-past)').length
-    );
 
     document.querySelectorAll<HTMLElement>(
       '.slot-block:not(.slot-booked):not(.slot-past)'

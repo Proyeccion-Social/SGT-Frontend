@@ -16,6 +16,26 @@ export type SlotStatus = 'AVAILABLE' | 'BOOKED';
 //===============================================================
 // Interfaces
 //===============================================================
+export interface RawSlot {
+  slotId: string;
+  dayOfWeek: string;
+  dayOfWeekNumber: number;
+  startTime: string;
+  endTime: string;
+  modality: string;
+  duration: number;
+  isAvailable: boolean;
+}
+
+export interface TutorAvailabilityResponse {
+  tutorId: string;
+  tutorName: string;
+  weekReference: string; // "yyyy-mm-dd" — lunes de la semana consultada
+  totalSlots: number;
+  availableSlots: RawSlot[];
+  groupedByDay: Record<string, RawSlot[]>;
+}
+
 export interface Slot {
   id: string;
   dayOfWeek: DayOfWeek;
@@ -28,12 +48,14 @@ export interface Slot {
   tutorIds?: string[];
   subject?: string;
   subjectId?: string;
+  weekReference?: string;
 }
 
 export interface GetAvailabilityQueryDto {
     onlyAvailable?: boolean;
     onlyFuture?: boolean;
     modality?: Modality;
+    weekStart?: string;
 }
 
 export interface CreateSlotDto {
@@ -305,10 +327,15 @@ export async function getAllTutorSlotsSSR(
   const tutors = await getAllTutorsSSR();
 
   const params = new URLSearchParams();
-  if (query?.onlyAvailable !== undefined) params.append("onlyAvailable", query.onlyAvailable.toString());
-  if (query?.onlyFuture !== undefined) params.append("onlyFuture", query.onlyFuture.toString());
-  if (query?.modality !== undefined) params.append("modality", query.modality);
-  const queryString = params.toString() ? `?${params.toString()}` : "";
+    if (query?.onlyAvailable !== undefined)
+    params.append("onlyAvailable", query.onlyAvailable.toString());
+    if (query?.onlyFuture !== undefined)
+    params.append("onlyFuture", query.onlyFuture.toString());
+    if (query?.modality !== undefined)
+    params.append("modality", query.modality);
+    if (query?.weekStart !== undefined)
+    params.append("weekStart", query.weekStart); // ← nombre correcto
+    const queryString = params.toString() ? `?${params.toString()}` : "";
 
   const dayMap: Record<string, DayOfWeek> = {
     MONDAY: "LUNES", TUESDAY: "MARTES", WEDNESDAY: "MIERCOLES",
@@ -316,8 +343,7 @@ export async function getAllTutorSlotsSSR(
   };
 
   const allSlotsNested = await Promise.all(
-    tutors.map(async (tutor: { tutorId: string; tutorName: string; modalities: Modality[] }) => {
-      // Fetch paralelo: slots + info del tutor (para obtener subjects)
+    tutors.map(async (tutor) => {
       const [slotsResponse, tutorResponse] = await Promise.all([
         fetch(
           `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/${tutor.tutorId}/slots${queryString}`,
@@ -329,35 +355,47 @@ export async function getAllTutorSlotsSSR(
         ),
       ]);
 
-      const slotsResult = await handleResponse<any>(slotsResponse);
+      const slotsResult = await handleResponse<TutorAvailabilityResponse>(slotsResponse);
       const tutorInfo = await handleResponse<any>(tutorResponse);
 
-      // Extraer slots del groupedByDay
-      let rawSlots: any[] = [];
+      // weekReference viene del backend — sirve como ancla de semana para estos slots
+      const weekReference: string =
+        slotsResult.weekReference ?? "";
+
+      // Extraer slots del groupedByDay (incluye disponibles e no disponibles)
+      let rawSlots: RawSlot[] = [];
       if (slotsResult.groupedByDay) {
-        Object.values(slotsResult.groupedByDay).forEach((s: any) => rawSlots.push(...s));
+        Object.values(slotsResult.groupedByDay).forEach((s) =>
+          rawSlots.push(...s)
+        );
       } else {
-        rawSlots = slotsResult.availableSlots || (Array.isArray(slotsResult) ? slotsResult : []);
+        rawSlots =
+          slotsResult.availableSlots ??
+          (Array.isArray(slotsResult) ? (slotsResult as any) : []);
       }
 
-      const subjects: { id: string; name: string }[] = tutorInfo.subjects ?? [];
 
-      // Generar un slot por cada combinación slot+subject
-      return rawSlots.flatMap((s: any) =>
+      const subjects: { id: string; name: string }[] =
+        tutorInfo.subjects ?? [];
+      
+      const mapped = rawSlots.flatMap((s) =>
         subjects.map((subject) => ({
-          id: s.slotId,                                          // availabilityId real
-          dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
+          id: s.slotId,
+          dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] ?? s.dayOfWeek,
           startTime: s.startTime?.substring(0, 5),
           endTime: s.endTime?.substring(0, 5),
-          modality: s.modality ?? null,
+          modality: (s.modality as Modality) ?? null,
           isBooked: s.isAvailable === false,
           tutorIds: [tutor.tutorId],
           subject: subject.name,
-          subjectId: subject.id,                                 // guardamos subjectId
+          subjectId: subject.id,
+          weekReference: slotsResult.weekReference,
         }))
       );
+
+      return mapped;
     })
   );
-
-  return allSlotsNested.flat();
+    const flat = allSlotsNested.flat();
+    return flat;
 }

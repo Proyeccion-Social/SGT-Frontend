@@ -225,6 +225,11 @@
                                 return;
                             }
                             if (res.ok) {
+                                sileo.success({
+                                    title: "Franja creada",
+                                    fill: "#58d68d",
+                                    duration: 2000
+                                });
                                 window.dispatchEvent(new CustomEvent('refresh-slots'));
                             } else {
                                 res.json()

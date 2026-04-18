@@ -119,8 +119,16 @@ import infoIcon from "@/features/tutorAvailability/assets/infoIcon.svg";
 document.addEventListener("astro:page-load", () => {
     const dialog = document.getElementById("initial-config-dialog") as HTMLDialogElement;
 
-    // TODO: Remover esto cuando haya un disparador real
-    dialog?.showModal();
+    // Evitar que se cierre con la tecla Escape
+    dialog?.addEventListener('cancel', (event) => {
+        event.preventDefault();
+    });
+
+    dialog?.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+        }
+    });
 
     window.addEventListener("open-initial-config-dialog", () => {
         dialog?.showModal();

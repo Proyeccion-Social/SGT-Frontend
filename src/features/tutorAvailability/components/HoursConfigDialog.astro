@@ -49,7 +49,8 @@
 </style>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    import { sileo } from "sileo";
+    document.addEventListener("astro:page-load", () => {
         const dialog = document.getElementById(
             "hours-config-dialog",
         ) as HTMLDialogElement;
@@ -59,6 +60,17 @@
         const hoursInput = document.getElementById(
             "hoursInput",
         ) as HTMLInputElement;
+
+        // Evitar que se cierre con la tecla Escape
+        dialog?.addEventListener('cancel', (event) => {
+            event.preventDefault();
+        });
+
+        dialog?.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+            }
+        });
 
         const errorText = document.getElementById(
             "hoursError",
@@ -104,15 +116,12 @@
             );
             unlockPointerEvents();
 
-            // Espera un frame para dejar cerrar overlays antes de abrir el modal.
+            // Espera a que termine la animación del drawer antes de abrir el modal
             
                 if (!dialog.open) {
                     dialog.showModal();
                 }
-
-                
-
-                
+            
         });
 
         // 🔥 Prevenir escritura de decimales y otros caracteres no válidos
@@ -142,7 +151,7 @@
                 return;
             }
 
-            try {
+            await sileo.promise(async () => {
                 const response = await fetch(
                     "/api/tutor-availability/patch-tutor-limits",
                     {
@@ -158,14 +167,18 @@
                     return;
                 }
 
-                if (response.ok) {
-                    window.dispatchEvent(new CustomEvent("refresh-slots"));
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || "Error al actualizar horas");
                 }
-            } catch (error) {
-                console.log("Error al actualizar horas:", error);
-            }
 
-            dialog.close();
+                window.dispatchEvent(new CustomEvent("refresh-slots"));
+                dialog.close();
+            }, {
+                loading: { title: "Guardando límites...", fill: "#8751ff" },
+                success: { title: "Límites guardados con éxito", fill: "#58d68d" },
+                error: { title: "Error", description: "No se pudo guardar el límite de horas", fill: "#f35761" }
+            });
         });
 
         // 🔥 Validación en tiempo real

@@ -47,3 +47,13 @@ Además de la reactividad del calendario, durante esta sesión se ajustaron cont
 - **Coordinación Drawer (Vaul) + `<dialog>`:** se incorporaron eventos `space-info-dialog-open` / `space-info-dialog-close` y una guarda para que el click afuera cierre el Drawer, pero no lo cierre si el diálogo de detalle está abierto.
 - **Fix de interacción (mouse bloqueado):** al abrir `SpaceInfoDialog` desde una tarjeta del sidebar (`HoursCard`), primero se cierra el sidebar (evento `close-availability-sidebar`) y luego se abre el diálogo (evento `open-space-info-dialog` en el siguiente tick). Esto evita el caso donde Vaul deja la página sin clicks (TAB funciona pero mouse no).
 - **Manejo de backend sin slots:** `getMyAvailability()` y el sidebar toleran respuestas `404/204` y normalizan `groupedByDay` a `{}`.
+
+## 6. Automatización de Onboarding (Post-Perfil)
+
+Se implementó un flujo obligatorio para que los tutores configuren su disponibilidad inmediatamente después de completar su perfil:
+
+- **Trigger Automático:** El componente `VaulDrawer` (perfil) emite `open-initial-config-dialog` al finalizar con éxito.
+- **Contenedor Global:** Se creó `TutorAvailabilityOverlay.astro` para albergar todos los diálogos de disponibilidad, inyectándolo en `DashboardLayout.astro`.
+- **Flujo No-Saltable:** Se bloqueó la tecla `Escape` y eventos de `cancel` en `InitialConfigDialog` y `HoursConfigDialog` para forzar al usuario a seguir el proceso de configuración hasta el final.
+- **Consistencia de Pointer-Events:** Se aseguró que al abrir los modales de configuración se desbloqueen los `pointer-events` del `body` para permitir la interacción.
+- **Feedback de Usuario (Sileo):** Se integraron alertas de `sileo.promise` en `HoursConfigDialog` para informar sobre el estado del guardado (cargando, éxito o error).

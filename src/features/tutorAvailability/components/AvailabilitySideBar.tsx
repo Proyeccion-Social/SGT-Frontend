@@ -131,29 +131,34 @@
           };
 
 
-          const openHoursConfigDialog = (e: React.MouseEvent) => {
+        const openHoursConfigDialog = (e: React.MouseEvent) => {
           e.stopPropagation();
           const totalHours = slots.reduce((acc, slot) => {
-      return acc + getDurationInHours(slot.startTime, slot.endTime);
-  }, 0);
+            return acc + getDurationInHours(slot.startTime, slot.endTime);
+          }, 0);
 
-            if (totalHours < 1) {
-              sileo.error({
-                title: "No se puede guardar",
-                description: "Debes tener al menos 1 hora total en tus franjas.",
-                fill: "#f35761",
-                duration: 3500,
-              });
-              return;
-            }
+          if (totalHours < 1) {
+            sileo.error({
+              title: "No se puede guardar",
+              description: "Debes tener al menos 1 hora total en tus franjas.",
+              fill: "#f35761",
+              duration: 3500,
+            });
+            return;
+          }
+
+          sileo.success({
+            title: "Disponibilidad validada",
+            fill: "#58d68d",
+            duration: 3000
+          });
 
           console.log("HORAS:", totalHours);
           // Cierra el drawer localmente antes de abrir el dialog.
           setOpen(false);
           
           // Abre el dialog en el siguiente tick cuando el drawer ya terminó de cerrar.
-            window.dispatchEvent(new CustomEvent('open-hours-config-dialog', { detail: totalHours }));
-          
+          window.dispatchEvent(new CustomEvent('open-hours-config-dialog', { detail: totalHours }));
       };
 
     return (

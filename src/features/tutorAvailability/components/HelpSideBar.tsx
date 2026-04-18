@@ -29,9 +29,9 @@ export default function VaulDrawer() {
   </button>
 </Drawer.Trigger>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[1040]" />
         <Drawer.Content
-          className="left-6 top-6 bottom-6 fixed z-10 outline-none w-[378px]  h-[128px]"
+          className="left-6 top-6 bottom-6 fixed z-[1050] outline-none w-[378px]  h-[128px]"
           style={{ '--initial-transform': 'calc(100% + 50px)' } as React.CSSProperties}
         >
           <div className="bg-zinc-50 h-auto w-full grow flex flex-col rounded-[24px] border border-[#CFB9FF]">

@@ -24,6 +24,7 @@ import TutorCalendarGrid from "@/features/tutorAvailability/components/TutorCale
         align-items: center;
 
         background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
     }
 
     /* Contenedor exterior: borde redondeado + clip */
@@ -88,6 +89,8 @@ import TutorCalendarGrid from "@/features/tutorAvailability/components/TutorCale
 </style>
 
 <script>
+    import { sileo } from "sileo";
+
     const dialog = document.getElementById("tutor-calendar-dialog");
 
     window.addEventListener("open-tutor-calendar-dialog", () => {
@@ -102,7 +105,8 @@ import TutorCalendarGrid from "@/features/tutorAvailability/components/TutorCale
 
     window.addEventListener("delete-slot", async (e: Event) => {
         const event = e as CustomEvent;
-        try {
+        
+        await sileo.promise(async () => {
             const response = await fetch(
                 "/api/tutor-availability/delete-slots-by-range",
                 {
@@ -119,11 +123,16 @@ import TutorCalendarGrid from "@/features/tutorAvailability/components/TutorCale
                 return;
             }
 
-            if (response.ok) {
-                window.dispatchEvent(new CustomEvent("refresh-slots"));
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Error al eliminar el slot");
             }
-        } catch (error) {
-            console.log("Error al eliminar el slot:", error);
-        }
+
+            window.dispatchEvent(new CustomEvent("refresh-slots"));
+        }, {
+            loading: { title: "Eliminando franja...", fill: "#8751ff" },
+            success: { title: "Franja eliminada", fill: "#58d68d" },
+            error: { title: "Error", description: "No se pudo eliminar la franja", fill: "#f35761" }
+        });
     });
 </script>

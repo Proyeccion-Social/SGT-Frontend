@@ -241,6 +241,9 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
 </style>
 
 <script>
+import { sileo } from "sileo";
+
+document.addEventListener("astro:page-load", () => {
     const dialog = document.getElementById(
         "space-info-dialog",
     ) as HTMLDialogElement;
@@ -375,7 +378,7 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
             modality: newModality,
         };
 
-        try {
+        await sileo.promise(async () => {
             const response = await fetch(
                 "/api/tutor-availability/patch-slots-by-range",
                 {
@@ -389,16 +392,18 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
                 return;
             }
 
-            if (response.ok) {
-                window.dispatchEvent(new CustomEvent("refresh-slots"));
-                dialog.close();
-            } else {
-                const err = await response.json();
-                alert(err.message || "Error al guardar");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Error al guardar");
             }
-        } catch (error) {
-            console.error("Error al guardar:", error);
-        }
+
+            window.dispatchEvent(new CustomEvent("refresh-slots"));
+            dialog.close();
+        }, {
+            loading: { title: "Guardando cambios...", fill: "#8751ff" },
+            success: { title: "Cambios guardados", fill: "#58d68d" },
+            error: { title: "Error", description: "No se pudieron guardar los cambios", fill: "#f35761" }
+        });
     });
 
     // =======================
@@ -415,7 +420,7 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
             modality: currentSlot.modality || "NONE",
         };
 
-        try {
+        await sileo.promise(async () => {
             const response = await fetch(
                 "/api/tutor-availability/delete-slots-by-range",
                 {
@@ -429,16 +434,18 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
                 return;
             }
 
-            if (response.ok) {
-                window.dispatchEvent(new CustomEvent("refresh-slots"));
-                dialog.close();
-            } else {
-                const err = await response.json();
-                alert(err.message || "Error al eliminar");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Error al eliminar");
             }
-        } catch (error) {
-            console.error("Error al eliminar:", error);
-        }
+
+            window.dispatchEvent(new CustomEvent("refresh-slots"));
+            dialog.close();
+        }, {
+            loading: { title: "Eliminando franja...", fill: "#8751ff" },
+            success: { title: "Franja eliminada", fill: "#58d68d" },
+            error: { title: "Error", description: "No se pudo eliminar la franja", fill: "#f35761" }
+        });
     });
 
     // =======================
@@ -470,4 +477,5 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
     }
 
     hoursInputs?.forEach((input) => formatTimeInput(input));
+});
 </script>

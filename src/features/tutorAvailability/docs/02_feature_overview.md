@@ -13,6 +13,7 @@ La característica `tutorAvailability` faculta de manera intuitiva y ágil a un 
 3. En milisegundos y en segundo plano, la orden impacta contra la base de datos para forjar esa franja. Automáticamente la nueva franja florece a color a lo largo de su bloque correspondiente. Modalidad por defecto asumida: **Presencial**.
 4. Si decide **modificar** o se arrepiente, el tutor simplemente hará *un solo clic superficial* sobre la tarjeta de franja ya coloreada. Se interpondrá en su vista un cuadro de dialogo para alterarlo o eliminar el espacio de tajo. 
 5. Al presionar **Guardar disponibilidad**, se abre un diálogo para configurar el **límite de horas semanales**; este paso valida que exista al menos **1 hora total** de franjas creadas.
+6. **Integración Onboarding**: Este proceso es obligatorio para nuevos tutores y se dispara automáticamente tras completar el perfil (ver [Onboarding Integration](./04_onboarding_integration.md)).
 
 ## 3. Topología de Componentes de Frontend
 
@@ -41,6 +42,7 @@ La base de todo el feature consiste en una mezcolanza de Componentes de Archivo 
 - El sidebar se cierra al hacer click afuera, **excepto** cuando `SpaceInfoDialog` está abierto.
 - **Importante (interacción desde lista):** al hacer click en una tarjeta del sidebar (`HoursCard`) para editar una franja, el sidebar se **cierra primero** y luego se abre `SpaceInfoDialog`. Esto evita que Vaul deje el resto de la página sin clicks (caso “TAB funciona pero mouse no”).
 - **HoursConfigDialog y foco de interacción:** antes de abrir `HoursConfigDialog`, se oculta el overlay del calendario (`close-tutor-calendar-dialog`) y se restauran `pointer-events` globales para asegurar que el input y el botón sean clickeables.
+- **Flujo Forzado:** En el contexto de onboarding, los diálogos principales bloquean la tecla `Escape` y el click en el backdrop para asegurar que el tutor complete la configuración inicial.
 
 ## 4. Fundamentos Aritméticos e Interpolación (`calendarUtils.ts`)
 Con frecuencia para efectos de flexibilidad y almacenamiento óptimo, el Backend despacha franjas atómicas y modulares (P. ej: de 30 en 30 minutos). Pintar cada tarjetita de impacto separada fracturaría brutalmente la visual de horas completas.

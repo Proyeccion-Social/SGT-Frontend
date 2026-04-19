@@ -17,7 +17,12 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
     }
 
     const url = new URL(request.url);
-    const sessionId = url.searchParams.get('sessionId');
+    let sessionId = url.searchParams.get('sessionId');
+
+    const body = await request.json();
+    if (!sessionId && body.sessionId) {
+      sessionId = body.sessionId;
+    }
 
     if (!sessionId) {
       return new Response(
@@ -26,31 +31,41 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const body = await request.json();
-    const { attendances, tutorId} = body;
-    if (!attendances || !tutorId) {
+    const { attendances, tutorId, isCompletion } = body;
+    if (!attendances) {
       return new Response(
-        JSON.stringify({message: "Datos de asistencia o tutorId faltantes"}),
+        JSON.stringify({message: "Datos de asistencia faltantes"}),
         { status: 400, headers: { "Content-type": "application/json"}}
       )
     }
 
     const attendancePayload: RegisterAttendanceDTO = {attendances};
-    await registerAttendance(sessionId, attendancePayload, token);
+    const attendanceResult = await registerAttendance(sessionId, attendancePayload, token);
 
-    const completePayload: CompleteSessionBody = {tutorId};
-    const completionData = await registerCompletedSession(sessionId, completePayload, token);
+    // Si viene tutorId y no es solo registro de asistencia, intentamos completar
+    let completionData = null;
+    if (tutorId) {
+      try {
+        const completePayload: CompleteSessionBody = {tutorId};
+        completionData = await registerCompletedSession(sessionId, completePayload, token);
+      } catch (e: any) {
+        console.warn('[BFF] Error al intentar completar sesión:', e.message);
+        // Opcional: podrías decidir si fallar todo o solo advertir.
+        // Dado que la asistencia ya se registró, devolvemos éxito parcial o informamos del error.
+      }
+    }
 
 
     return new Response(JSON.stringify({
-      message: "Asistencia registrada y sesión completada con éxito",
-      data: completionData
+      message: "Asistencia registrada exitosamente",
+      attendance: attendanceResult,
+      completion: completionData
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
-    console.error('[BFF] Error orquestando asistencia y completado:', error);
+    console.error('[BFF] Error procesando asistencia:', error);
     return new Response(
       JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } },

@@ -72,6 +72,7 @@ export interface AttendanceRecord {
 
 export interface RegisterAttendanceDTO {
   attendances: AttendanceRecord[];
+  tutorId?: string;
 }
 
 export interface CompleteSessionBody {

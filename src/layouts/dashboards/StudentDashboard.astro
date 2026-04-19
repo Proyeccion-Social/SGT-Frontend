@@ -32,17 +32,19 @@ const userRole = payload.role as UserRole;
         </div>
 
         <div class="cards-container">
+
           <div class="left-side">
             <div class="incoming-sessions-container">
               <DashboardSessionManager role={userRole} client:only="react" />
             </div>
 
-            <div class="green-photo-space">
-              <Image src={ImageIcon} alt="Image" />
+            <div class="stats-container">
+              <StatCard type="student" client:only="react" />
             </div>
           </div>
-          <div class="stats-container">
-            <StatCard type="student" client:only="react" />
+
+          <div class="green-photo-space">
+            <Image src={ImageIcon} alt="Image" />
           </div>
         </div>
       </div>
@@ -58,6 +60,7 @@ const userRole = payload.role as UserRole;
     background-color: #f3edff;
     padding: 18px 20px 20px 0;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
   .content-wrapper {
@@ -107,8 +110,8 @@ const userRole = payload.role as UserRole;
   }
 
   .cards-container {
-    display: grid;
-    grid-template-columns: 64fr 36fr;
+    display: flex;
+    flex-direction: column;
     gap: clamp(15px, 3vw, 40px);
     margin: 0 10rem;
     width: auto;
@@ -120,8 +123,13 @@ const userRole = payload.role as UserRole;
 
   .left-side {
     display: flex;
-    flex-direction: column;
-    gap: clamp(15px, 3vw, 40px);
+    flex-direction: row;
+    gap: 40px;
+    width: 100%;
+  }
+
+  .incoming-sessions-container {
+    width: 100%;
   }
 
   .green-photo-space {

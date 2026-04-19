@@ -30,14 +30,15 @@
   line-height: 1;
 }
 
-.description {
+.stat-description {
   font-family: 'Caveat', sans-serif;
-  font-size: clamp(24px, 3vw, 40px);
+  font-size: 40px;
   font-weight: 700;
-  font-style: bold;
   color: #818181;
-  line-height: 1;
-  margin: 0;
+  justify-content: center;
+  margin: 0 48px;
+  letter-spacing: -2%;
+  line-height: 40px;
 }
 
 .decorative-avatar {

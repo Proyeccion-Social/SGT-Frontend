@@ -16,7 +16,7 @@ export const StatCard = ({ type }: Props) => {
     <div className="stat-card">
       <div className="content">
         <span className="value">{value}</span>
-        <p className="description">{description}</p>
+        <p className="stat-description">{description}</p>
       </div>
       
       <div className="decorative-avatar">

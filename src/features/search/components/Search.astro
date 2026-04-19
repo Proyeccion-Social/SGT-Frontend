@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+
+import SearchBar from "@/features/search/components/SearchBar.astro";
+import TutorList from "@/features/search/components/TutorList.astro";
+import TutorDetail from "@/features/search/components/TutorDetail.astro";
+---
+
+<div class='search-page'>
+  <article class='searchContent'>
+    <SearchBar />
+  </article>
+  <article class='tutorListContent'>
+    <TutorList />
+    <TutorDetail />
+  </article>
+</div>
+
+<style>
+  .tutorListContent {
+    width: 723px;
+  }
+
+  .search-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 16px;
+    overflow-y: auto;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    width: 100%;
+  }
+
+  .search-content {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .search-content {
+      flex-direction: column;
+    }
+  }
+</style>

@@ -1,0 +1,311 @@
+---
+import searchIcon from "@/features/search/assets/search.svg";
+import arrow from "@/features/search/assets/arrow.png";
+import { Image } from "astro:assets";
+import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
+---
+
+<div class='bg-difumination'></div>
+<section class='title-section' id='title-section'>
+  <h1 class='page-title'>
+    ¡Los<span class='highlight'>mejores</span> de la facultad!
+  </h1>
+  <article class='arrowTutores'>
+    <img src={arrow.src} class='arrow' />
+    <p class='arrow-text'>Tutores</p>
+  </article>
+</section>
+
+<section class='search-bar'>
+  <div class='search-bar-row'>
+    <div class='search-input-container'>
+      <input
+        type='text'
+        id='name-filter'
+        class='search-input'
+        placeholder='Buscar por nombre del tutor'
+      />
+      <button id='search-btn' class='search-button' type='button'>
+        <Image src={searchIcon} alt='Buscar' />
+      </button>
+      <div class='filters-row'>
+        <TutorFilters client:only='react' />
+      </div>
+    </div>
+  </div>
+</section>
+<script is:inline>
+  // Real-time search: filter on every keystroke
+  (function () {
+    var debounceTimer = null;
+    var input = document.getElementById("name-filter");
+    if (input) {
+      input.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          applyFilters();
+        }, 200);
+      });
+    }
+  })();
+
+  // Keep search button working too
+  document.getElementById("search-btn")?.addEventListener("click", () => {
+    applyFilters();
+  });
+
+  // Listen for filter changes from the React TutorFilters component
+  var __reactFilters = {};
+  document.addEventListener("react-filters-changed", function (e) {
+    __reactFilters = e.detail || {};
+    applyFilters();
+  });
+
+  /**
+   * Carga todos los tutores del backend una sola vez.
+   * Retorna los datos básicos de inmediato y enriquece en segundo plano.
+   */
+  async function loadAllTutors() {
+    if (window.__allTutors) return window.__allTutors;
+
+    const res = await fetch("/api/search");
+    const data = await res.json();
+    const tutors = data.data ?? data ?? [];
+
+    // Enriquecer cada tutor en segundo plano (no bloquea la carga inicial)
+    if (!window.__enrichPromise) {
+      window.__enrichPromise = Promise.all(
+        tutors.map((t) => {
+          const id = t.tutorId || t.id;
+          return fetch(`/api/search/${encodeURIComponent(id)}`)
+            .then((r) => (r.ok ? r.json() : t))
+            .catch(() => t);
+        }),
+      ).then((enriched) => {
+        window.__allTutors = enriched;
+        return enriched;
+      });
+    }
+
+    return tutors;
+  }
+
+  async function applyFilters(isInitial = false) {
+    const nameQuery = (document.getElementById("name-filter")?.value || "")
+      .trim()
+      .toLowerCase();
+
+    let tutors;
+
+    // Usar datos enriquecidos para búsquedas filtradas, básicos para carga inicial
+    if (window.__allTutors) {
+      tutors = window.__allTutors;
+    } else if (!isInitial && window.__enrichPromise) {
+      tutors = await window.__enrichPromise;
+    } else {
+      tutors = await loadAllTutors();
+    }
+
+    // Read filters from React component
+    var rf = __reactFilters || {};
+
+    /* ---------------- FILTRO MATERIA ---------------- */
+    var subjectIds = rf["subject"] || [];
+    if (subjectIds.length > 0) {
+      tutors = tutors.filter(function (t) {
+        var subjects = t.subjects || [];
+        return subjects.some(function (s) {
+          return subjectIds.indexOf(s.id || s._id || "") !== -1;
+        });
+      });
+    }
+
+    /* ---------------- FILTRO MODALIDAD ---------------- */
+    var mods = rf["modality"] || [];
+    if (mods.length > 0) {
+      tutors = tutors.filter(function (t) {
+        var modalities = t.availableModalities || [];
+        return mods.some(function (m) {
+          return modalities.indexOf(m) !== -1;
+        });
+      });
+    }
+
+    /* ---------------- FILTRO CALIFICACIÓN ---------------- */
+    var ratingArr = rf["rating"] || [];
+    if (ratingArr.length > 0) {
+      var minRating = parseFloat(ratingArr[0]);
+      if (!isNaN(minRating)) {
+        tutors = tutors.filter(function (t) {
+          return (t.averageRating || 0) >= minRating;
+        });
+      }
+    }
+
+    /* ---------------- FILTRO DISPONIBILIDAD (día) ---------------- */
+    var days = rf["availability"] || [];
+    if (days.length > 0) {
+      tutors = tutors.filter(function (t) {
+        var slots = t.availableSlots || [];
+        return days.some(function (d) {
+          return slots.some(function (slot) {
+            return slot.dayOfWeek === d;
+          });
+        });
+      });
+    }
+
+    /* ---------------- FILTRO NOMBRE ---------------- */
+    if (nameQuery) {
+      tutors = tutors.filter(function (t) {
+        var name = (t.tutorName || t.name || t.fullName || "").toLowerCase();
+        return name.indexOf(nameQuery) !== -1;
+      });
+    }
+
+    document.dispatchEvent(
+      new CustomEvent("tutors-updated", { detail: { tutors, isInitial } }),
+    );
+  }
+
+  // Inicializar con astro:page-load (soporta View Transitions, incluyendo carga inicial)
+  document.addEventListener("astro:page-load", function () {
+    if (!document.getElementById("accordion-container")) return;
+    window.__allTutors = null;
+    window.__enrichPromise = null;
+    applyFilters(true);
+  });
+</script>
+
+<style>
+  .title-section {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    opacity: 1;
+    position: relative;
+  }
+
+  .page-title {
+    text-align: center;
+    font-family: "Open Sauce Two";
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+    font-weight: 500;
+    font-size: 40px;
+    line-height: 48px;
+  }
+
+  .search-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .search-bar-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 36px;
+  }
+
+  .filters-row {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    right: 72px;
+
+  }
+
+  .search-input {
+    padding-left: 20px;
+    box-sizing: border-box;
+    width: 723px;
+    height: 72px;
+    box-shadow: 0px 4px 9px 2px rgba(135, 81, 255, 0.2);
+    border-radius: 40px;
+    border: 0.4px solid #e7dcff;
+    outline: none;
+    background: rgba(256, 256, 256, 0.6);
+  }
+
+  .search-input::placeholder {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+    color: #a3a3a3;
+  }
+
+  .search-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-button {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    left: 660px;
+    padding: 12px;
+    background: #9f74ff;
+    border-radius: 50%;
+    border: none;
+  }
+
+  .arrowTutores {
+    position: absolute;
+    width: 75px;
+    left: 250px;
+    top: -40px;
+    color: #e8e8e8;
+  }
+
+  .arrow {
+    width: 70%;
+  }
+
+  .arrow-text {
+    top: -24px;
+    left: 52px;
+    position: absolute;
+    font-family: "Caveat";
+    font-size: 32px;
+    color: #e8e8e8;
+    letter-spacing: -0.02em;
+  }
+
+  .highlight {
+    color: #9f74ff;
+    font-family: "Caveat";
+    font-size: 52px;
+    font-weight: 600;
+    padding: 0 8px;
+  }
+
+  .bg-difumination {
+    position: absolute;
+    z-index: 0;
+    left: 10%;
+    right: 10%;
+    top: 0%;
+    bottom: 20.63%;
+
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      #e7dcff 0%,
+      rgba(243, 237, 255, 0) 60%
+    );
+  }
+
+  .search-button:hover {
+    background: #a074ff97;
+  }
+</style>

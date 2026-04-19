@@ -1,23 +1,31 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import "@/styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import ToasterReact from "@/components/ui/ToasterReact";
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+interface Props {
+  title: string;
+  noToaster?: boolean;
+}
+
+const { title, noToaster = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang='es'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width' />
+    <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+    <meta name='generator' content={Astro.generator} />
+    <ClientRouter />
+    <title>{title}</title>
+  </head>
+  <body>
+    <TooltipProvider>
+      <slot />
+    </TooltipProvider>
+    {!noToaster && <ToasterReact client:load />}
+  </body>
+</html>

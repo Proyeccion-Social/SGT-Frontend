@@ -53,45 +53,20 @@ export function SessionsPagination({
 
   if (totalPages <= 1) return null;
 
+  const navBtnBase = "size-8 rounded-lg border border-[#e7dcff] bg-white text-[#9f74ff] hover:bg-[#f3edff] hover:text-[#7c3aed] transition-colors"
+  const navBtnDisabled = "pointer-events-none opacity-40"
+
   return (
-    <Pagination>
-      <PaginationContent>
-        {/* --- Botón Primera Página --- */}
-        <PaginationItem>
-          <PaginationLink 
-            href={isFirstPage ? undefined : getPageUrl(1)} 
-            size="icon" 
-            aria-label="Ir a la primera página"
-            aria-disabled={isFirstPage}
-            tabIndex={isFirstPage ? -1 : undefined}
-            className={isFirstPage ? "pointer-events-none opacity-50" : ""}
-          >
-            <ChevronFirstIcon className="size-4" />
-          </PaginationLink>
-        </PaginationItem>
-        
-        {/* --- Botón Página Anterior --- */}
-        <PaginationItem>
-          <PaginationLink 
-            href={isFirstPage ? undefined : getPageUrl(prevPage)} 
-            size="icon" 
-            aria-label="Ir a la página anterior"
-            aria-disabled={isFirstPage}
-            tabIndex={isFirstPage ? -1 : undefined}
-            className={isFirstPage ? "pointer-events-none opacity-50" : ""}
-          >
-            <ChevronLeftIcon className="size-4" />
-          </PaginationLink>
-        </PaginationItem>
-        
+    <Pagination className="w-auto justify-end">
+      <PaginationContent className="gap-1.5">
         {/* --- Dropdown Custom de Página --- */}
         <PaginationItem>
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex h-9 items-center gap-2 rounded-4xl border border-input bg-input/30 px-3 text-sm transition-colors outline-none hover:bg-input/50 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 cursor-pointer">
+            <DropdownMenuTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-[#e7dcff] bg-white px-4 py-2 text-[12px]! font-bold! text-[#b797ff]! tracking-[-0.02em] transition-colors outline-none hover:bg-[#f3edff] focus-visible:border-[#9f74ff] focus-visible:ring-2 focus-visible:ring-[#9f74ff]/30 cursor-pointer">
               Página {currentPage}
-              <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+              <ChevronDownIcon className="size-3 text-[#b797ff]" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="min-w-36 max-h-60 overflow-y-auto">
+            <DropdownMenuContent align="center" className="min-w-28 max-h-60 overflow-y-auto">
               <DropdownMenuRadioGroup
                 value={currentPage.toString()}
                 onValueChange={handlePageSelect}
@@ -105,34 +80,7 @@ export function SessionsPagination({
             </DropdownMenuContent>
           </DropdownMenu>
         </PaginationItem>
-        
-        {/* --- Botón Página Siguiente --- */}
-        <PaginationItem>
-          <PaginationLink 
-            href={isLastPage ? undefined : getPageUrl(nextPage)} 
-            size="icon" 
-            aria-label="Ir a la página siguiente"
-            aria-disabled={isLastPage}
-            tabIndex={isLastPage ? -1 : undefined}
-            className={isLastPage ? "pointer-events-none opacity-50" : ""}
-          >
-            <ChevronRightIcon className="size-4" />
-          </PaginationLink>
-        </PaginationItem>
-        
-        {/* --- Botón Última Página --- */}
-        <PaginationItem>
-          <PaginationLink 
-            href={isLastPage ? undefined : getPageUrl(totalPages)} 
-            size="icon" 
-            aria-label="Ir a la última página"
-            aria-disabled={isLastPage}
-            tabIndex={isLastPage ? -1 : undefined}
-            className={isLastPage ? "pointer-events-none opacity-50" : ""}
-          >
-            <ChevronLastIcon className="size-4" />
-          </PaginationLink>
-        </PaginationItem>
+
       </PaginationContent>
     </Pagination>
   )

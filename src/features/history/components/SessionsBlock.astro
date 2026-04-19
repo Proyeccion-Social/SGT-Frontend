@@ -1,7 +1,7 @@
 ---
-import FilterCard from "./FilterCard.astro";
 import { SessionsPagination } from "./SessionsPagination.tsx";
 import SessionDialogManager from "./SessionDialogManager.tsx";
+import { HistoryFilters } from "./HistoryFilters.tsx";
 
 const { data, currentStatus, userId } = Astro.props;
 
@@ -16,15 +16,33 @@ const pagination = data.meta;
   </div>
 
   <div class='sections-container'>
-    <FilterCard currentStatus={currentStatus} />
+    <section class='history-search-bar'>
+      <div class='search-bar-row'>
+        <input
+          type='text'
+          id='history-search'
+          class='search-input'
+          placeholder='Buscar por título de la sesión'
+        />
+        <HistoryFilters client:only='react' currentStatus={currentStatus} />
+      </div>
+      <div class='pagination-container'>
+        <SessionsPagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          currentUrl={Astro.url.href}
+          client:load
+        />
+      </div>
+    </section>
     <div class='table-container'>
       <table class='table-header'>
         <thead>
           <tr>
-            <th>Fecha</th>
-            <th>Título</th>
-            <th>Materia</th>
-            <th>Estado</th>
+            <th class='tableHeader'>Fecha</th>
+            <th class='tableHeader'>Título</th>
+            <th class='tableHeader'>Materia</th>
+            <th class='tableHeader'>Estado</th>
           </tr>
         </thead>
       </table>
@@ -38,7 +56,7 @@ const pagination = data.meta;
                   data-section-id={session.status}
                   data-session-id={session.id}
                 >
-                  <td>{session.scheduledDate}</td>
+                  <td class='tableDate'>{session.scheduledDate}</td>
                   <td>
                     <span class='title-column'>
                       <span
@@ -85,24 +103,17 @@ const pagination = data.meta;
       </div>
     </div>
 
-    <div class='pagination-container'>
-      <SessionsPagination
-        currentPage={pagination.page}
-        totalPages={pagination.totalPages}
-        currentUrl={Astro.url.href}
-        client:load
-      />
-    </div>
-
-    {/* React island: se monta una sola vez, recibe todos los datos */}
     <SessionDialogManager client:load sessions={sessions} userId={userId} />
   </div>
 </div>
 
 <script>
+  import { navigate } from "astro:transitions/client";
+
   document.addEventListener("astro:page-load", () => {
     const tableBody = document.querySelector("tbody");
 
+    // --- Row click → open session dialog ---
     tableBody?.addEventListener("click", (e) => {
       const row = (e.target as HTMLElement).closest(
         ".history-section",
@@ -118,6 +129,68 @@ const pagination = data.meta;
         );
       }
     });
+
+    // --- Client-side filtering: search text + subject ---
+    let activeSubjects: string[] = [];
+
+    const searchInput = document.getElementById(
+      "history-search",
+    ) as HTMLInputElement | null;
+    const rows = document.querySelectorAll<HTMLElement>(".history-section");
+
+    function applyClientFilters() {
+      const query = (searchInput?.value || "").trim().toLowerCase();
+
+      rows.forEach((row) => {
+        const title = (
+          row.querySelector(".title-column")?.textContent || ""
+        ).toLowerCase();
+        const subject = (
+          row.querySelector(".subject-name")?.textContent || ""
+        ).toLowerCase();
+
+        const matchesTitle = !query || title.includes(query);
+        const matchesSubject =
+          activeSubjects.length === 0 ||
+          activeSubjects.some((s) => subject === s.toLowerCase());
+
+        row.style.display = matchesTitle && matchesSubject ? "" : "none";
+      });
+    }
+
+    // Debounced search input
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    searchInput?.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(applyClientFilters, 200);
+    });
+
+    // Listen for filter changes from the React HistoryFilters component
+    document.addEventListener("history-filters-changed", ((e: CustomEvent) => {
+      const detail = e.detail || {};
+
+      // Status → navigate (server-side filtering)
+      const newStatus = detail.status;
+      const currentUrl = new URL(window.location.href);
+      const currentStatus = currentUrl.searchParams.get("status") || "all";
+
+      if (newStatus && newStatus !== currentStatus) {
+        const url = new URL(window.location.href);
+        if (newStatus === "all") {
+          url.searchParams.delete("status");
+        } else {
+          url.searchParams.set("status", newStatus);
+        }
+        url.searchParams.set("limit", "10");
+        url.searchParams.delete("page");
+        navigate(url.pathname + url.search);
+        return;
+      }
+
+      // Subject → client-side filtering
+      activeSubjects = detail.subjects || [];
+      applyClientFilters();
+    }) as EventListener);
   });
 </script>
 
@@ -125,7 +198,9 @@ const pagination = data.meta;
   .headerTitle {
     width: 100%;
     text-align: center;
+    display: none;
   }
+
   .sections-container {
     position: relative;
     width: 100%;
@@ -150,8 +225,8 @@ const pagination = data.meta;
   .pagination-container {
     display: flex;
     justify-content: end;
-    margin-top: 1rem;
   }
+
   .subject-name {
     font-size: 12px;
     border-radius: 16px;
@@ -169,25 +244,42 @@ const pagination = data.meta;
   }
 
   .modality-tag {
-    font-size: 11px;
-    border-radius: 16px;
-    padding: 3px 8px;
-    white-space: nowrap;
+    background: rgba(210, 210, 210, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(200, 200, 200);
+    color: var(--text-body);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    height: auto;
+    align-items: center;
+    display: flex;
+    font-family: "Cabinet Grotesk Variable";
   }
 
   .modality-pres {
-    background-color: rgba(218, 255, 170, 0.886);
-    color: rgb(45, 80, 22);
+    background-color: #f3edff;
+    color: #9f74ff;
+    border: 1px dashed #9f74ff;
+  }
+
+  .tableDate {
+    font-style: italic;
+    font-weight: 500;
+    font-size: 14px;
   }
 
   .modality-virt {
-    background-color: rgba(170, 215, 255, 0.886);
-    color: rgb(22, 55, 80);
+    background-color: #e6ffc7;
+    color: #9acc5b;
+    border: 1px dashed #9acc5b;
   }
 
   .table-container {
-    border-radius: 20px;
-    border: 1px solid #e8e8e8;
+    border-radius: 16px;
+    border: 1px solid var(--neutral-100);
     width: 90%;
     overflow: hidden;
   }
@@ -195,6 +287,16 @@ const pagination = data.meta;
   .table-wrapper {
     height: 440px;
     overflow-y: scroll;
+  }
+
+  .table-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 40px;
+  }
+
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: #e7dcff;
+    border-radius: 12px;
   }
 
   .table-header {
@@ -238,15 +340,16 @@ const pagination = data.meta;
   td {
     background-color: #ffffff;
     padding: 10px 20px;
-    height: 60px;
+    height: 52px;
     text-align: left;
-    border-bottom: 1px solid #e8e8e8;
-    color: #334155;
+    border-bottom: 1px solid var(--neutral-100);
+    color: var(--text-body);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     letter-spacing: -0.02em;
     font-size: 14px;
+    font-weight: 500;
   }
 
   th {
@@ -264,11 +367,56 @@ const pagination = data.meta;
     background-color: #8851ff33;
     cursor: pointer;
   }
+
+  .tableHeader {
+    font-size: 14px;
+    letter-spacing: -0.02em;
+    color: var(--primary-default);
+    font-weight: 700;
+  }
+
   .block-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin: 0 auto;
+  }
+
+  /* ---  bar styles --- */
+  .history-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 16px;
+    width: 90%;
+    justify-content: space-between;
+  }
+
+  .search-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .search-input {
+    padding: 20px;
+    box-sizing: border-box;
+    flex: 1;
+    height: 48px;
+    border-radius: 16px;
+    border: 0.4px solid #e7dcff;
+    outline: none;
+    background: rgba(256, 256, 256, 0.6);
+  }
+
+  .search-input::placeholder {
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+    color: #a3a3a3;
   }
 
   .hidden {
@@ -318,7 +466,7 @@ const pagination = data.meta;
     background-color: rgba(255, 255, 255, 0.95);
     padding: 1rem 2rem;
     border: 1px solid #e2e8f0;
-    color: #334155;
+    color: var(--text-body);
     animation: scaleUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
@@ -386,7 +534,7 @@ const pagination = data.meta;
     gap: 0.3rem;
     border-radius: 16px;
     font-weight: 500;
-    color: #334155;
+    color: var(--text-body);
     width: 160px;
   }
   .sc-date-time hr {
@@ -399,7 +547,7 @@ const pagination = data.meta;
     padding: 0.5rem 1rem;
     border-radius: 16px;
     font-weight: 500;
-    color: #334155;
+    color: var(--text-body);
     width: 160px;
   }
 
@@ -411,7 +559,7 @@ const pagination = data.meta;
     cursor: pointer;
     font-weight: 500;
     width: 160px;
-    color: #334155;
+    color: var(--text-body);
     transition: background-color 0.2s;
   }
   .sc-btn-eval:hover {

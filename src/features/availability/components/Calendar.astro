@@ -1,0 +1,373 @@
+---
+import type { Slot } from "@/features/availability/services/availabilityService";
+
+interface Props {
+  slots: Slot[];
+  baseDate?: Date;
+}
+
+const { slots: rawSlots, baseDate = new Date() } = Astro.props;
+const slots = Array.isArray(rawSlots) ? rawSlots : [];
+
+import {
+  DAYS,
+  DAY_COLORS,
+  DAY_TEXT_COLORS,
+  HOURS_ARRAY as hours,
+} from "../utils/calendarConstants";
+
+import {
+  getWeekDates,
+  isSlotInPast,
+  formatDuration,
+  getSlotStyle,
+  getSlotsByDay,
+  timeToMinutes,
+} from "../utils/calendarUtils";
+
+const weekDates = getWeekDates(baseDate);
+
+const systemToday = new Date();
+---
+
+<div class='calendar-outer'>
+  <div class='calendar-wrapper'>
+    <div class='calendar-header'>
+      <div class='time-gutter'></div>
+      {
+        DAYS.map((day) => {
+          const date = weekDates[day.key];
+          const isToday =
+            date &&
+            systemToday.getFullYear() === date.getFullYear() &&
+            systemToday.getMonth() === date.getMonth() &&
+            systemToday.getDate() === date.getDate();
+
+          return (
+            <div class={`day-header ${isToday ? "today" : ""}`}>
+              <span class='day-name'>{day.label}</span>
+              <span class='day-number'>
+                {date?.getDate().toString().padStart(2, "0")}
+              </span>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <div class='calendar-body'>
+      <div class='time-column'>
+        {hours.map((hour) => <div class='time-cell'>{hour}:00</div>)}
+      </div>
+
+      {
+        DAYS.map((day) => (
+          <div
+            class='day-column'
+            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
+          >
+            {hours.map((_) => (
+              <div class='hour-cell' />
+            ))}
+
+            {getSlotsByDay(slots, day.key).map((slot) => {
+              const startMin = timeToMinutes(slot.startTime);
+              const endMin = slot.endTime
+                ? timeToMinutes(slot.endTime)
+                : startMin + 60;
+              const isHalfHour = 30 >= endMin - startMin;
+
+              return (
+                <div
+                  class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
+                  style={getSlotStyle(slot)}
+                  data-slot-ids={slot.groupedIds.join(",")}
+                  data-day={slot.dayOfWeek}
+                  data-start={slot.startTime}
+                  data-end={slot.endTime}
+                  data-modality={slot.modality}
+                  data-is-booked={slot.isBooked}
+                >
+                  {isHalfHour ? (
+                    <div class='slot-half-hour-content'>
+                      <span class='slot-modality-text'>
+                        {slot.modality?.toString().toUpperCase() === "VIRT"
+                          ? "Virtual"
+                          : "Presencial"}
+                      </span>
+                      <span class='slot-duration-text-inline'>
+                        {formatDuration(slot.startTime, slot.endTime)}
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div class='slot-duration-text'>
+                        {formatDuration(slot.startTime, slot.endTime)}
+                      </div>
+                      <div class='slot-info'>
+                        <span class='slot-modality-text'>
+                          {slot.modality?.toString().toUpperCase() === "VIRT"
+                            ? "Virtual"
+                            : "Presencial"}
+                        </span>
+                        <span class='slot-badge-status'>
+                          {slot.isBooked ? (
+                            <svg
+                              width='10'
+                              height='10'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              stroke-width='2'
+                              stroke-linecap='round'
+                              stroke-linejoin='round'
+                            >
+                              <polyline points='20 6 9 17 4 12' />
+                            </svg>
+                          ) : (
+                            <svg
+                              width='10'
+                              height='10'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              stroke-width='2'
+                              stroke-linecap='round'
+                              stroke-linejoin='round'
+                            >
+                              <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' />
+                            </svg>
+                          )}
+                          {slot.isBooked ? "Reservado" : "Disponible"}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .calendar-outer {
+    width: 100%;
+    height: 100%;
+  }
+
+  .calendar-wrapper {
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .calendar-header {
+    display: grid;
+    grid-template-columns: 56px repeat(6, 1fr);
+    border-bottom: 1px solid #e8e8e8;
+    background: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .time-gutter {
+    border-right: 1px solid #e8e8e8;
+  }
+
+  .day-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 8px 10px;
+    border-right: 1px solid #e8e8e8;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .day-header:last-child {
+    border-right: none;
+  }
+
+  .day-header.today {
+    border: 3px solid #b797ff;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+
+  .day-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+  }
+
+  .day-number {
+    font-size: 1.20rem;
+    font-weight: 700;
+    color: #9f74ff;
+    line-height: 1;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+  }
+
+  .calendar-body {
+    display: grid;
+    grid-template-columns: 56px repeat(6, 1fr);
+  }
+
+  .calendar-body::-webkit-scrollbar {
+    display: no;
+  }
+
+  .time-column {
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .time-cell {
+    height: 64px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 5px 8px 0 0;
+    font-size: 0.68rem;
+    color: #9ca3af;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    border-bottom: 1px solid #e8e8e8;
+    white-space: nowrap;
+  }
+
+  .day-column {
+    position: relative;
+    border-right: 1px solid #e8e8e8d8;
+    min-width: 0;
+  }
+
+  .day-column:last-child {
+    border-right: none;
+  }
+
+  .hour-cell {
+    height: 64px;
+    border-bottom: 1px solid #e8e8e8;
+    flex-shrink: 0;
+  }
+
+  .slot-block {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    border-radius: 8px;
+    padding: 16px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    cursor: pointer;
+    background: var(--day-color, #f3f4f6);
+    color: rgba(0, 0, 0, 0.7);
+    transition:
+      filter 0.15s ease,
+      transform 0.15s ease;
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .slot-half-hour-block {
+    padding: 0 10px;
+    justify-content: center;
+  }
+
+  .slot-booked {
+    border: 2px dashed var(--day-text-color, rgba(0, 0, 0, 0.3));
+    opacity: 0.95;
+  }
+
+  .slot-booked .slot-badge-status {
+    background: rgba(255, 255, 255, 0.8);
+    color: #374151;
+  }
+
+  .slot-booked::after {
+    display: none;
+  }
+
+  .slot-block:hover {
+    filter: brightness(0.96);
+    transform: scale(0.985);
+  }
+
+  .slot-past {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    background: #e8e8e8;
+    color: #6b7280;
+    border: 1px dashed #a3a3a3;
+  }
+
+  .slot-past:hover {
+    filter: grayscale(1) brightness(0.93) !important;
+    transform: none !important;
+  }
+
+  .slot-duration-text {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--day-text-color, inherit);
+    opacity: 0.8;
+  }
+
+  .slot-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .slot-modality-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .slot-badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    width: max-content;
+  }
+
+  .slot-half-hour-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .slot-duration-text-inline {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--day-text-color, inherit);
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+</style>

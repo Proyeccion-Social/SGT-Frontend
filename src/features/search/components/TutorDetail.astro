@@ -1,0 +1,388 @@
+---
+import { Image } from "astro:assets";
+import profile from "@/features/search/assets/profile.png";
+
+import star from "@/features/search/assets/star-simple.svg";
+import fullStar from "@/features/search/assets/star-full.svg";
+import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
+import starSimpleUnfilled from "@/features/search/assets/star-simple-unfilled.svg";
+import active from "@/features/search/assets/active.svg"
+
+import arrow from "@/features/search/assets/arrow-detail.svg"
+import closeSvg from "@/features/search/assets/close.svg"
+---
+
+<dialog id="tutor-detail-section"
+  data-star={star.src}
+  data-star-full={fullStar.src}
+  data-star-unfilled={starUnfilled.src}
+  data-star-simple-unfilled={starSimpleUnfilled.src}
+>
+  <button id="close-dialog-btn" class="closeDialogBtn" aria-label="Cerrar">
+    <Image src={closeSvg} alt="Cerrar modal" />
+  </button>
+  <section class="upSectionDetail">
+    <div class="leftSideDetail">
+      <Image src={profile} alt="" class="profileImgShadow" />
+      <Image src={profile} alt="" class="profileImg" />
+      <div class="badgeActive">
+        <Image src={active} alt="" class="activeIcon" />
+        <p>Activo</p>
+      </div>
+    </div>
+    <div class="rightSideDetail">
+      <p class="informativeText">
+        Racha de 15 semanas dando al menos una tutoría
+      </p>
+      <h2 class="tutorName" id="tutor-name"></h2>
+      <div class="containerTutorSubjects" id="tutor-subjects"></div>
+      <div class="tutorRating">
+        <div class="stars" id="tutor-stars">
+
+        </div>
+        <div class="totalRatings">
+          <Image src={arrow} alt="" class="arrowRatings" />
+          <p class="labelTotalRatings" id="tutor-total-ratings"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="downSectionDetail">
+    <div class="tutor-slots-container">
+      <h3 class="section-title">Horarios disponibles</h3>
+      <ul id="tutor-slots" class="slots-list"></ul>
+    </div>
+  </section>  
+</dialog>
+
+<script is:inline>
+  const el = (id) => document.getElementById(id);
+  const dialog = el("tutor-detail-section");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Cerrar haciendo click en el fondo (overlay) nativo del dialog
+    dialog?.addEventListener("click", (e) => {
+      // e.target is the dialog itself when clicking exactly on the backdrop
+      if (e.target === dialog) {
+        dialog.close();
+      }
+    });
+
+    el("close-dialog-btn")?.addEventListener("click", () => {
+      dialog.close();
+    });
+  });
+
+  async function loadTutor(id) {
+    try {
+      const [profileRes, slotsRes] = await Promise.all([
+        fetch(`/api/search/${encodeURIComponent(id)}`),
+        fetch(`/api/search/${encodeURIComponent(id)}/availability`)
+      ]);
+
+      const tutor = await profileRes.json();
+      const { availableSlots = [] } = await slotsRes.json();
+
+      const subjectsHTML = tutor.subjects?.map(s => `
+        <div class="tutorSubjects">
+          <div class="subjectName" style="padding: 2.8px 8.4px; background: #E6FFC7; border-radius: 22.4px;">
+            <p>${s.name}</p>
+          </div>
+        </div>
+      `).join("") ?? "";
+
+      const slotsHTML = availableSlots
+        .map(slot =>
+          `<li>
+            <span class="slot-day">${slot.dayOfWeek}</span>
+            <span class="slot-time">${slot.startTime} – ${slot.endTime}</span>
+            <span class="slot-modality">${slot.modality}</span>
+          </li>`
+        )
+        .join("");
+
+      el("tutor-name").textContent = tutor.name;
+      el("tutor-subjects").innerHTML = subjectsHTML;
+      el("tutor-total-ratings").textContent = `${tutor.totalRatings} valoraciones`;
+
+      const rating = Math.round(tutor.averageRating ?? 0);
+      let starsHTML = '';
+      
+      const starSrc = dialog.getAttribute("data-star");
+      const starFullSrc = dialog.getAttribute("data-star-full");
+      const starUnfilledSrc = dialog.getAttribute("data-star-unfilled");
+      const starSimpleUnfilledSrc = dialog.getAttribute("data-star-simple-unfilled");
+
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+          if (i === 5) {
+            starsHTML += `<img src="${starFullSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+          } else {
+            starsHTML += `<img src="${starSrc}" alt="star" style="width: 31px; height: 29px; align-self: center; />`;
+          }
+        } else {
+          if (i === 5) {
+            starsHTML += `<img src="${starUnfilledSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+          } else {
+            starsHTML += `<img src="${starSimpleUnfilledSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
+          }
+        }
+      }
+
+      el("tutor-stars").innerHTML = starsHTML;
+      el("tutor-slots").innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
+
+      dialog.showModal();
+
+    } catch (error) {
+      console.error("Error cargando tutor:", error);
+    }
+  }
+</script>
+
+<style>
+  #tutor-detail-section {
+    width: 980px;
+    padding: 40px;
+    border-radius: 22.4px;
+    border: none;
+    outline: none;
+    position: relative; /* Para el boton de cerrar */
+  }
+
+  /* ── Boton Cerrar ── */
+  .closeDialogBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s, transform 0.2s;
+    z-index: 10;
+  }
+  .closeDialogBtn:hover {
+    transform: scale(1.1);
+  }
+
+  #tutor-detail-section[open] {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    animation: modalFadeIn 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  #tutor-detail-section::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+  }
+
+  #tutor-detail-section[open]::backdrop {
+    animation: backdropFadeIn 0.3s ease forwards;
+  }
+
+  @keyframes backdropFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .upSectionDetail {
+    width: 100%;
+    border: 1px solid #e7dcff;
+    border-bottom: none;
+    border-radius: 22.4px;
+    display: flex;
+    gap: 22px;
+    padding: 20px;
+    background: rgba(255, 252, 237, 0.5);
+    backdrop-filter: blur(34.3px);
+    position: relative;
+  }
+
+  .upSectionDetail::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #FFFFFF 0%, rgba(0, 0, 0, 0) 54%, #FFFFFF 100%);
+    border-radius: 0 0 22.4px 22.4px;
+  }
+
+  .leftSideDetail {
+    width: 260px;
+    height: 225px;
+    display: flex;
+    position: relative;
+  }
+
+  .profileImgShadow {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 22.4px;
+    filter: blur(28px);
+    opacity: 0.8;
+    z-index: 0;
+  }
+
+  .profileImg {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 22.4px;
+    z-index: 1;
+  }
+
+  .badgeActive {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 2.8px 5.6px;
+    gap: 2.8px;
+    background: #FFFFFF;
+    border-radius: 22.4px;
+    position: absolute;
+    margin: 8px;
+    z-index: 2;
+  }
+
+  .activeIcon {
+    width: 11.2px;
+    height: 11.2px;
+  }
+
+  .badgeActive p {
+    font-family: 'Cabinet Grotesk Variable';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16.8px;
+    line-height: 22px;
+    letter-spacing: -0.02em;
+    color: var(--text-headings);
+  }
+
+  .rightSideDetail {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .informativeText {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #C6C6C6;
+    margin-bottom: 2px;
+  }
+
+  .tutorName {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 34px;
+    letter-spacing: -0.02em;
+    color: #1A1A1A;
+  }
+
+  .containerTutorSubjects {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tutorSubjects {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 2.8px 8.4px;
+    background: #FAE9B7;
+    border-radius: 22.4px;
+  }
+
+  .tutorSubjects p {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16.8px;
+    line-height: 21px;
+    color: #3C3C3C;
+  }
+
+  .tutorRating {
+    display: flex;
+    width: 100%
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .stars {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    gap: 4px;
+    background: #F3EDFF;
+    border-radius: 16px;
+  }
+
+  .totalRatings {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .totalRatings p {
+    position: relative;
+    top: -10px;
+    left: 4px;
+    font-family: 'Caveat';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #9F74FF;
+  }
+
+  .downSectionDetail {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    display: none;
+  }
+
+
+</style>

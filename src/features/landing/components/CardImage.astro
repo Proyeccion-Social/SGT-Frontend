@@ -1,0 +1,37 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  imgSrc: ImageMetadata;
+  title: string;
+  rotation?: number;
+  position: string;
+}
+
+const { imgSrc, title, rotation = 0, position } = Astro.props;
+---
+
+<Image
+  src={imgSrc}
+  alt={title}
+  style={`transform: rotate(${rotation}deg); ${position === "left" ? "left: -120px; bottom: -120px;" : "right: -150px; top: -250px;"}`}
+/>
+
+<style>
+  img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    position: absolute;
+
+    border: 6px solid #ffffff;
+    border-radius: 24px;
+  }
+
+  @media (width <= 692px) {
+    img {
+      display: none;
+    }
+  }
+</style>

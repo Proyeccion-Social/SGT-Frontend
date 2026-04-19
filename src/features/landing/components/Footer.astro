@@ -1,0 +1,56 @@
+---
+import { Image } from "astro:assets";
+import Envelope from "../assets/icons/Envelope With Arrow.png"
+---
+
+<footer>
+  <div class="contact">
+    <p>
+      Diseñado por <span><a href="mailto:dev.cristianb@gmail.com">Cristian</a></span>
+    </p>
+    <Image src={Envelope} alt="Contact Us" />
+  </div>
+</footer>
+
+<style>
+  footer {
+    width: 97%;
+    height: 60px;
+    margin: auto;
+    background: #CFB9FF;
+    border-radius: 16px 16px 0px 0px;
+    display: flex;
+    align-items: center;
+  }
+
+  .contact {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 16px;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.02em;
+    margin-left: 22px;
+    color: #1A1A1A;
+    gap: 7px;
+  }
+
+  .contact p {
+    margin-top: 4px;
+  }
+
+  .contact a {
+    color: #1A1A1A;
+    font-family: "Cabinet Grotesk Variable";
+    letter-spacing: normal;
+    font-size: 21px;
+    font-weight: bolder;
+  }
+
+  img {
+    width: 25px;
+    height: 25px;
+  }
+</style>

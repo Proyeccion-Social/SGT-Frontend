@@ -1,3 +1,21 @@
 ---
-// Login page
+import Layout from "@/layouts/Layout.astro";
+import LoginForm from "@/features/auth/components/LoginForm.astro";
+import LoginCard from "@/features/auth/components/LoginCard.astro";
+import LoginHeader from "@/features/auth/components/LoginHeader.astro";
+import ForgotPasswordCard from "@/features/auth/components/ForgotPasswordCard.astro";
+import ForgotPasswordHeader from "@/features/auth/components/ForgotPasswordHeader.astro";
+import ForgotPasswordForm from "@/features/auth/components/ForgotPasswordForm.astro";
 ---
+
+<Layout title='Login Page'>
+  <LoginCard>
+    <LoginHeader />
+    <LoginForm />
+  </LoginCard>
+
+  <ForgotPasswordCard>
+    <ForgotPasswordHeader />
+    <ForgotPasswordForm />
+  </ForgotPasswordCard>
+</Layout>

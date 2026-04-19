@@ -1,0 +1,141 @@
+---
+import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+
+import UserHeader from "@/features/general/components/UserHeader.astro";
+import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
+import StatCard from "@/features/dashboards/components/StatCard.astro";
+
+const userRole = "tutor";
+
+const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
+const mockWorkload = {
+  scheduledHours: 2,
+  weeklyLimit: 8,
+};
+
+const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
+const usedPercent = Math.min(
+  (mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100,
+  100,
+);
+---
+
+<main class='content-wrapper'>
+  <div class='dashboard-content'>
+    <UserHeader userRole={userRole} />
+
+    <div class='welcome-banner-slot'>
+      <WelcomeBanner client:only='react' />
+    </div>
+
+    <div class='hours-bar'>
+      <div
+        class='hours-segment hours-scheduled'
+        style={`width: ${usedPercent}%; background-color: #DAFFAA;`}
+      >
+        <span class='scheduled-hours-text'
+          >{mockWorkload.scheduledHours} hora{
+            mockWorkload.scheduledHours !== 1 ? "s" : ""
+          } agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span
+        >
+      </div>
+      <div
+        class='hours-segment hours-remaining'
+        style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}
+      >
+        <span class='remaining-hours-text'
+          >{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span
+        >
+      </div>
+    </div>
+
+    <div class='cards-container'>
+      <div class='incoming-sessions-container'>
+        <IncomingSessionsCard sessions={[]} role={userRole as "tutor"} />
+      </div>
+
+      <div class='stats-container'>
+        <StatCard value={tutorStats.value} description={tutorStats.text} />
+      </div>
+    </div>
+  </div>
+</main>
+
+<style>
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 16px;
+    position: relative;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+  }
+
+  .content-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 100px;
+  }
+
+  .content-wrapper::-webkit-scrollbar-thumb {
+    background: #e7dcff;
+    border-radius: 10px;
+  }
+
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    box-sizing: border-box;
+  }
+
+  .welcome-banner-slot {
+    min-height: 72px;
+  }
+
+  .hours-bar {
+    display: flex;
+    position: relative;
+    min-height: 60px;
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 0 10rem;
+    width: auto;
+  }
+
+  .hours-segment {
+    display: flex;
+    align-items: center;
+    padding-left: 2rem;
+    transition: width 0.4s ease;
+  }
+
+  .scheduled-hours-text {
+    color: #4d662e;
+    font-weight: 400;
+    font-size: 20px 10px;
+  }
+
+  .remaining-hours-text {
+    color: #513199;
+    font-weight: 400;
+    font-size: 20px 10px;
+  }
+
+  .cards-container {
+    display: grid;
+    grid-template-columns: 64fr 36fr;
+    gap: clamp(15px, 3vw, 40px);
+    margin: 0 10rem;
+    width: auto;
+    align-items: start;
+    min-height: 0;
+    height: auto;
+    margin-bottom: 2rem;
+  }
+</style>

@@ -1,0 +1,15 @@
+---
+export const prerender = false;
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import CalendarSlots from "@/layouts/availability/CalendarSlots.astro";
+
+const token = Astro.cookies.get("access_token")?.value;
+
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
+---
+
+<DashboardLayout title='Tu Disponibilidad' rol='tutor'>
+  <CalendarSlots token={token} />
+</DashboardLayout>

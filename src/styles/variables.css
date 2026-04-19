@@ -1,1 +1,276 @@
-/* CSS custom properties */
+:root {
+  --color-moradops-50: #f3edff;
+  --color-moradops-100: #e7dcff;
+  --color-moradops-200: #cfb9ff;
+  --color-moradops-300: #b797ff;
+  --color-moradops-400: #9f74ff;
+  --color-moradops-500: #8751ff;
+  --color-moradops-600: #6c41cc;
+  --color-moradops-700: #513199;
+
+  --color-verdeps-100: #e6ffc7;
+  --color-verdeps-200: #daffaa;
+  --color-verdeps-300: #CDFF8E;
+  --color-verdeps-400: #C1FF72;
+  --color-verdeps-500: #9ACC5B;
+  --color-verdeps-600: #749944;
+  --color-verdeps-700: #4d662e;
+
+  --color-negrops-100: #e8e8e8;
+  --color-negrops-200: #c6c6c6;
+  --color-negrops-300: #a3a3a3;
+  --color-negrops-400: #818181;
+  --color-negrops-500: #5f5f5f;
+  --color-negrops-600: #3c3c3c;
+  --color-negrops-700: #1a1a1a;
+
+  --color-verde-50: #d5f5e3;
+  --color-verde-100: #abebc6;
+  --color-verde-200: #82e0aa;
+  --color-verde-300: #58d68d;
+  --color-verde-400: #2ecc71;
+  --color-verde-500: #25a35a;
+  --color-verde-600: #1c7a44;
+  --color-verde-700: #12522d;
+
+  --color-rojo-100: #fcd5d8;
+  --color-rojo-100-2: #f7969c;
+  --color-rojo-200: #f9abb0;
+  --color-rojo-300: #f68189;
+  --color-rojo-400: #f35761;
+  --color-rojo-500: #f02d3a;
+  --color-rojo-600: #c0242e;
+  --color-rojo-700: #901b23;
+
+  --color-amarillo-100: #fcf4db;
+  --color-amarillo-200: #fae9b7;
+  --color-amarillo-300: #f7df94;
+  --color-amarillo-400: #f5d470;
+  --color-amarillo-500: #f2c94c;
+  --color-amarillo-600: #c2a13d;
+  --color-amarillo-700: #91792e;
+
+  --color-violeta-100: #ebe8ff;
+  --color-violeta-200: #d7d1ff;
+  --color-violeta-300: #c3baff;
+  --color-violeta-400: #afa3ff;
+  --color-violeta-500: #9b8cff;
+  --color-violeta-600: #7c70cc;
+  --color-violeta-700: #5d5499;
+
+  --color-lavanda-100: #e5e1ee;
+  --color-lavanda-200: #cecad6;
+  --color-lavanda-300: #b7b4be;
+  --color-lavanda-400: #a09da7;
+  --color-lavanda-500: #89878f;
+  --color-lavanda-600: #727077;
+  --color-lavanda-700: #5c5a5f;
+
+  --color-gris-100: #d9d9d3;
+  --color-gris-200: #c5c5be;
+  --color-gris-300: #b2b2a8;
+  --color-gris-400: #9f9f92;
+  --color-gris-500: #7f7f75;
+  --color-gris-600: #5f5f58;
+  --color-gris-700: #40403a;
+
+  --color-color-black: #000000;
+  --color-color-white: #ffffff;
+
+  --scale-0: 0px;
+  --scale-25: 2px;
+  --scale-50: 4px;
+  --scale-100: 8px;
+  --scale-150: 12px;
+  --scale-200: 16px;
+  --scale-300: 24px;
+  --scale-400: 32px;
+  --scale-500: 40px;
+  --scale-600: 48px;
+  --scale-700: 56px;
+  --scale-800: 64px;
+  --scale-900: 72px;
+  --scale-1000: 80px;
+  --scale-1100: 88px;
+  --scale-1200: 96px;
+  --scale-1600: 144px;
+
+  --type-font-family-primary: "Open Sauce Two";
+  --type-font-family-secondary: "Cabinet Grotesk Variable";
+
+  --type-font-weigth-light: "light";
+  --type-font-weigth-regular: "regular";
+  --type-font-weigth-medium: "medium";
+  --type-font-weigth-semibold: "semibold";
+  --type-font-weigth-bold: "bold";
+
+  --primary-50: var(--color-moradops-50);
+  --primary-100: var(--color-moradops-100);
+  --primary-200: var(--color-moradops-200);
+  --primary-300: var(--color-moradops-300);
+  --primary-400: var(--color-moradops-400);
+  --primary-default: var(--color-moradops-500);
+  --primary-600: var(--color-moradops-600);
+  --primary-700: var(--color-moradops-700);
+
+  --secondary-100: var(--color-verdeps-100);
+  --secondary-200: var(--color-verdeps-200);
+  --secondary-300: var(--color-verdeps-300);
+  --secondary-default: var(--color-verdeps-400);
+  --secondary-500: var(--color-verdeps-500);
+  --secondary-600: var(--color-verdeps-600);
+  --secondary-700: var(--color-verdeps-700);
+
+  --success-50: var(--color-verde-50);
+  --success-100: var(--color-verde-50);
+  --success-200: var(--color-verde-200);
+  --success-300: var(--color-verde-300);
+  --success-default: var(--color-verde-400);
+  --success-500: var(--color-verde-500);
+  --success-600: var(--color-verde-600);
+  --success-700: var(--color-verde-700);
+
+  --error-100: var(--color-rojo-100);
+  --error-200: var(--color-rojo-200);
+  --error-300: var(--color-rojo-300);
+  --error-400: var(--color-rojo-400);
+  --error-default: var(--color-rojo-500);
+  --error-600: var(--color-rojo-600);
+  --error-700: var(--color-rojo-700);
+
+  --warning-100: var(--color-amarillo-100);
+  --warning-200: var(--color-amarillo-200);
+  --warning-300: var(--color-amarillo-300);
+  --warning-400: var(--color-amarillo-400);
+  --warning-default: var(--color-amarillo-500);
+  --warning-600: var(--color-amarillo-600);
+  --warning-700: var(--color-amarillo-700);
+
+  --loading-100: var(--color-violeta-100);
+  --loading-200: var(--color-violeta-200);
+  --loading-300: var(--color-violeta-300);
+  --loading-default: var(--color-violeta-400);
+  --loading-500: var(--color-violeta-500);
+  --loading-600: var(--color-violeta-600);
+  --loading-700: var(--color-violeta-700);
+
+  --information-100: var(--color-moradops-100);
+  --information-200: var(--color-moradops-200);
+  --information-300: var(--color-moradops-300);
+  --information-400: var(--color-moradops-400);
+  --information-default: var(--color-moradops-500);
+  --information-600: var(--color-moradops-600);
+  --information-700: var(--color-moradops-700);
+
+  --neutral-100: var(--color-negrops-100);
+  --neutral-200: var(--color-negrops-200);
+  --neutral-300: var(--color-negrops-300);
+  --neutral-400: var(--color-negrops-400);
+  --neutral-default: var(--color-negrops-500);
+  --neutral-600: var(--color-negrops-600);
+  --neutral-700: var(--color-negrops-700);
+  --neutral-negro: var(--color-color-black);
+  --neutral-blanco: var(--color-color-white);
+
+  --text-headings: var(--neutral-700);
+  --text-body: var(--neutral-600);
+  --text-action: var(--primary-default);
+  --text-action-hover: var(--primary-600);
+  --text-on-action: var(--neutral-blanco);
+  --text-disable: var(--neutral-300);
+  --text-on-disabled: var(--neutral-600);
+  --text-success: var(--success-default);
+  --text-error: var(--error-default);
+  --text-warning: var(--warning-default);
+  --text-information: var(--information-default);
+
+  --surface-page: var(--neutral-blanco);
+  --surface-primary: var(--neutral-blanco);
+  --surface-action: var(--primary-default);
+  --surface-action-hover: var(--primary-600);
+  --surface-focus: var(--primary-50);
+  --surface-disabled: var(--neutral-200);
+  --surface-success: var(--success-50);
+  --surface-error: var(--error-100);
+  --surface-warning: var(--warning-100);
+  --surface-information: var(--information-100);
+
+  --icon-primary: var(--neutral-default);
+  --icon-focus: var(--primary-300);
+  --icon-success: var(--success-default);
+  --icon-error: var(--error-default);
+  --icon-warning: var(--warning-default);
+  --icon-information: var(--information-default);
+
+  --border-primary: var(--neutral-200);
+  --border-secondary: var(--primary-default);
+  --border-action: var(--primary-default);
+  --border-action-hover: var(--primary-600);
+  --border-focus: var(--primary-300);
+  --border-success: var(--success-default);
+  --border-error: var(--error-default);
+  --border-warning: var(--warning-default);
+  --border-information: var(--information-default);
+
+  --border-radius-none: var(--scale-0);
+  --border-radius-sm: var(--scale-50);
+  --border-radius-md: var(--scale-100);
+  --border-radius-lg: var(--scale-200);
+  --border-radius-xl: var(--scale-300);
+  --border-radius-xxl: var(--scale-400);
+
+  --fontsize-body-sm: 12px;
+  --fontsize-body-md: 16px;
+  --fontsize-body-lg: 20px;
+
+  --fontsize-heading-h1: 60px;
+  --fontsize-heading-h2: 48px;
+  --fontsize-heading-h2m: 52px;
+  --fontsize-heading-h3: 40px;
+  --fontsize-heading-h4: 32px;
+  --fontsize-heading-h5: 24px;
+  --fontsize-heading-h6: 20px;
+
+  --lineheight-body-sm: 16px;
+  --lineheight-body-md: 20px;
+  --lineheight-body-lg: 24px;
+
+  --lineheight-heading-h1: 72px;
+  --lineheight-heading-h2: 56px;
+  --lineheight-heading-h3: 48px;
+  --lineheight-heading-h4: 40px;
+  --lineheight-heading-h5: 32px;
+  --lineheight-heading-h6: 24px;
+
+  --paragraph-spacing-body-sm: 16px;
+  --paragraph-spacing-body-md: 16px;
+  --paragraph-spacing-body-lg: 20px;
+
+  --paragraph-spacing-heading-h1: 48px;
+  --paragraph-spacing-heading-h2: 40px;
+  --paragraph-spacing-heading-h3: 36px;
+  --paragraph-spacing-heading-h4: 32px;
+  --paragraph-spacing-heading-h5: 28px;
+  --paragraph-spacing-heading-h6: 28px;
+
+    /* ========== Breakpoints (responsive)
+   * Usar estos valores en @media (width <= XXpx) o en max-width.
+   * sm: 640px  | md: 768px  | lg: 1024px  | xl: 1280px  | 2xl: 1536px
+   */
+   --bp-sm: 640px;
+   --bp-md: 768px;
+   --bp-lg: 1024px;
+   --bp-xl: 1280px;
+   --bp-2xl: 1536px;
+
+  --spacing-3xs: var(--scale-50);
+  --spacing-xxs: var(--scale-150);
+  --spacing-2xs: var(--scale-100);
+  --spacing-xs: var(--scale-200);
+  --spacing-sm: var(--scale-300);
+  --spacing-md: var(--scale-400);
+  --spacing-lg: var(--scale-600);
+  --spacing-xl: var(--scale-800);
+  --spacing-2xl: var(--scale-900);
+  --spacing-3xl: var(--scale-1000);
+}

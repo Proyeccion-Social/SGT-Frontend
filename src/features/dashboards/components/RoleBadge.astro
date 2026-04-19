@@ -1,0 +1,40 @@
+---
+import { Image } from 'astro:assets';
+import HandWrittenArrow from './icons/HandWrittenArrow.svg';
+import HandWrittenLine from './icons/HandWrittenLine.svg';
+import "../../../styles/badge.css";
+
+
+interface Props {
+  name: string;
+  role: string;
+}
+
+const { name, role } = Astro.props;
+var roleName = '';
+if (role === 'admin') {
+  roleName = 'Admin';
+} else if (role === 'student') {
+  roleName = 'Estudiante';
+} else if (role === 'tutor') {
+  roleName = 'Tutor';
+}
+---
+
+<div class="badge-container">
+  <div class="floating-tag">
+    {roleName ===  'Admin' || roleName === 'Tutor' ? (
+        <>
+          <span class="tag-text">Estás en modo <b>{roleName}</b></span>
+          <Image src={HandWrittenArrow} alt="Arrow" class="hand-drawn-arrow"/>
+        </>
+    ) : null}
+  </div>
+
+  <span class="highlight-name">
+    {name}
+    {roleName === 'Estudiante' && (
+      <Image src={HandWrittenLine} alt="Line" class="hand-drawn-line"/>
+    )}
+  </span>
+</div>

@@ -1,0 +1,53 @@
+---
+import { Image } from "astro:assets";
+import icon from "../assets/imgs/favicon.svg";
+---
+
+<article class='fullLogo'>
+  <Image src={icon} alt='Logo' />
+  <h5>Atlas</h5>
+</article>
+
+<style>
+  img {
+    height: 40px;
+    width: auto;
+    transform: rotate(23.31deg);
+    position: relative;
+    bottom: 1px;
+    left: 3px;
+  }
+
+  .fullLogo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  h5 {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 32px;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+  }
+
+  @media (width <= 692px) {
+
+    .fullLogo img {
+      height: 36px;
+    }
+    .fullLogo h5 {
+      font-size: 24px;
+    }
+  }
+
+  @media (width <= 581px) {
+    .fullLogo img {
+      /* height: 24px; */
+    }
+  }
+</style>

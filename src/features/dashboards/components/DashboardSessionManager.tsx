@@ -4,11 +4,15 @@
 
 import { useState, useEffect } from 'react';
 import type { Session } from '@/features/sessions/types/session.types';
-import { useSession } from '@/features/sessions/hooks/useSession';
+import { useSessionStore } from '@/store/sessionStore';
 import { IncomingSessionsCard } from './IncomingSessionsCard';
 import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
 import { UserRole } from '@/constants/roles';
+import { cancelSession as cancelSessionSvc } from '@/features/sessions/services/sessionService';
+import { fetchTutorDashboardBFF, fetchStudentDashboardBFF } from '../services/dashboardService';
+import { mapDashboardSessions } from '../utils/dashboardMapper';
+import { useAvailabilityStore } from '@/store/availabilityStore';
 
 interface Props {
   role: UserRole;
@@ -16,12 +20,43 @@ interface Props {
 
 export const DashboardSessionManager = ({ role }: Props) => {
   if (!role) return null;
-  const { cancelar, modificar, editar, sessions, loading, error, fetchMySessions: refetch } = useSession(role);
-  // canCancel es tu lógica de ventana de tiempo — ejemplo:
-  const canCancel = (session: Session) => {
-    // tu lógica aquí, ej: verificar que falten más de X horas
-    return true;
+  const { sessions, loading, error, setSessions } = useSessionStore();
+  const { setDashboardMetrics } = useAvailabilityStore();
+
+  const refetch = async () => {
+    try {
+      if (role === UserRole.TUTOR) {
+        const data = await fetchTutorDashboardBFF();
+        setSessions(mapDashboardSessions(data.upcomingSessions, role));
+        setDashboardMetrics({
+          weeklyHoursUsed: data.weeklyHoursUsed,
+          weeklyHoursLimit: data.weeklyHoursLimit,
+          weeklyHoursRemaining: data.weeklyHoursRemaining,
+          totalStudentsReached: data.totalStudentsReached
+        });
+      } else {
+        const data = await fetchStudentDashboardBFF();
+        setSessions(mapDashboardSessions(data.upcomingSessions, role));
+        setDashboardMetrics({
+          weeklySessionsCount: data.weeklySessionsCount
+        });
+      }
+    } catch (e) {}
   };
+
+  const cancelar = async (id: string, reason: string) => {
+    try {
+      await cancelSessionSvc(id, reason);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const modificar = () => Promise.resolve(true); // Placeholder
+  const editar = () => Promise.resolve(true); // Placeholder
+
+  const canCancel = (session: Session) => true;
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal]     = useState(false);
   const [sessionToCancel, setSessionToCancel]     = useState<Session | null>(null);
@@ -50,7 +85,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
   const handleCancelSuccess = () => {
     setShowCancelModal(false);
     setSessionToCancel(null);
-    refetch(true);
+    refetch();
   };
 
   return (
@@ -60,7 +95,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
         isLoading={loading}
         error={error}
         viewerRole={role}
-        onRefetch={() => refetch(true)}
+        onRefetch={() => refetch()}
       />
 
       {selectedSessionId && (

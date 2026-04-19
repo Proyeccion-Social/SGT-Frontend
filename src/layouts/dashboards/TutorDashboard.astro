@@ -3,9 +3,10 @@ import MainLayout from "../Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import DashboardSessionManager from "@/features/dashboards/components/DashboardSessionManager";
-import StatCard from "@/features/dashboards/components/StatCard.astro";
+import StatCard from "@/features/dashboards/components/StatCard";
 import { TutorAvailabilityManager } from "@/features/dashboards/components/TutorAvailabilityManager";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+import DashboardLoader from "@/features/dashboards/components/DashboardLoader";
 import { jwtDecode } from "jwt-decode";
 import { UserRole } from "@/constants/roles";
 
@@ -24,21 +25,10 @@ try {
     userName = decoded.name || "";
   }
 } catch (e) {}
-
-const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
-const mockWorkload = {
-  scheduledHours: 2,
-  weeklyLimit: 8,
-};
-
-const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
-const usedPercent = Math.min(
-  (mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100,
-  100,
-);
 ---
 
 <MainLayout title="Dashboard">
+  <DashboardLoader role={userRole} client:only="react" />
   <div class="dashboard-container">
     <Sidebar userRole={userRole} />
 
@@ -61,7 +51,7 @@ const usedPercent = Math.min(
           </div>
 
           <div class="stats-container">
-            <StatCard value={tutorStats.value} description={tutorStats.text} />
+            <StatCard type="tutor" client:only="react" />
           </div>
         </div>
       </div>

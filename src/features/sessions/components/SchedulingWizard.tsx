@@ -223,16 +223,22 @@ export default function SchedulingWizard({ slots }: Props) {
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "");
 
-    const today = new Date();
-    const todayDow = today.getDay() === 0 ? 7 : today.getDay();
     const targetDow = dayMap[normalizedDay] ?? 1;
-    const diff =
-      targetDow >= todayDow
-        ? targetDow - todayDow
-        : 7 - todayDow + targetDow;
-
-    const scheduledDate = new Date(today);
-    scheduledDate.setDate(today.getDate() + diff);
+    const weekRef = currentData.slot?.weekReference;
+    const scheduledDate = (() => {
+      if (weekRef) {
+        const [y, m, d] = weekRef.split("-").map(Number);
+        const monday = new Date(y, m - 1, d);
+        monday.setDate(monday.getDate() + (targetDow - 1));
+        return monday;
+      }
+      const today = new Date();
+      const todayDow = today.getDay() === 0 ? 7 : today.getDay();
+      const diff = targetDow >= todayDow ? targetDow - todayDow : 7 - todayDow + targetDow;
+      const d = new Date(today);
+      d.setDate(today.getDate() + diff);
+      return d;
+    })();
     const scheduledDateStr = [
       scheduledDate.getFullYear(),
       String(scheduledDate.getMonth() + 1).padStart(2, "0"),

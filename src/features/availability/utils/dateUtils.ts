@@ -3,7 +3,10 @@
  */
 export function getWeekRangeFromOffset(offset: number = 0) {
     const today = new Date();
-    today.setDate(today.getDate() + offset * 6);
+    if (today.getDay() === 0) {
+        today.setDate(today.getDate() + 1);
+    }
+    today.setDate(today.getDate() + offset * 7);
 
     const currentDay = today.getDay() === 0 ? 6 : today.getDay();
     const monday = new Date(today);

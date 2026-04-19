@@ -23,7 +23,7 @@ interface TutorInfo {
 interface Props {
   session: Session;
   tutorInfo: TutorInfo | null;
-  role: 'tutor' | 'student';
+  role: UserRole;
   isProposing?: boolean;
   isEditing?: boolean;
   availabilitySlots?: AvailabilitySlot[];
@@ -285,7 +285,7 @@ export const SessionDetailView = ({
               <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
                 Proponer modificación
               </button>
-              {role === 'tutor' && (
+              {role === UserRole.TUTOR && (
                 <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
                   Editar
                 </button>

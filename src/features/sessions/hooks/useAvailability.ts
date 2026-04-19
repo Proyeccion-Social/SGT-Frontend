@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import type { AvailabilitySlot as SlotFromAPI, AvailabilityQuery } from '../types/session.types';
-import type { AvailabilitySlot } from '../components/ProposeModificationView';
+import { useState, useEffect } from 'react';
+import type { AvailabilitySlot, AvailabilityQuery } from '../types/session.types';
 
 export function useTutorSlots(tutorId: string | null) {
   const [slots, setSlots]     = useState<AvailabilitySlot[]>([]);
@@ -23,10 +22,13 @@ export function useTutorSlots(tutorId: string | null) {
 
         console.log('[useTutorSlots] respuesta cruda:', data);
 
-        // Mapear Slot → AvailabilitySlot para ProposeModificationForm
-        const mapped: AvailabilitySlot[] = data.slots.map((s: SlotFromAPI) => ({
-          id: s.id,
-          label: `${s.dayOfWeek} ${s.startTime} – ${s.endTime}`,
+        const mapped: AvailabilitySlot[] = data.slots.map((s: Record<string, unknown>) => ({
+          id: String(s.id ?? ''),
+          date: String(s.date ?? ''),
+          dayOfWeek: String(s.dayOfWeek ?? ''),
+          startTime: String(s.startTime ?? ''),
+          endTime: String(s.endTime ?? ''),
+          available: s.isBooked === false,
         }));
         console.log('[useTutorSlots] slots mapeados:', mapped);
         setSlots(mapped);

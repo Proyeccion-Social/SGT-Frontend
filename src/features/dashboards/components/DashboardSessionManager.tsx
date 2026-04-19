@@ -9,7 +9,12 @@ import { IncomingSessionsCard } from './IncomingSessionsCard';
 import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
 import { UserRole } from '@/constants/roles';
-import { cancelSession as cancelSessionSvc } from '@/features/sessions/services/sessionService';
+import {
+  cancelSession as cancelSessionSvc,
+  modifySession as modifySessionSvc,
+  editSession as editSessionSvc,
+} from '@/features/sessions/services/sessionService';
+import type { ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { fetchTutorDashboardBFF, fetchStudentDashboardBFF } from '../services/dashboardService';
 import { mapDashboardSessions } from '../utils/dashboardMapper';
 import { useAvailabilityStore } from '@/store/availabilityStore';
@@ -53,8 +58,23 @@ export const DashboardSessionManager = ({ role }: Props) => {
     }
   };
 
-  const modificar = () => Promise.resolve(true); // Placeholder
-  const editar = () => Promise.resolve(true); // Placeholder
+  const modificar = async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
+    try {
+      const result = await modifySessionSvc(sessionId, data);
+      return result.success ?? false;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const editar = async (sessionId: string, data: EditSessionBody): Promise<boolean> => {
+    try {
+      const result = await editSessionSvc(sessionId, data);
+      return result.success ?? false;
+    } catch (e) {
+      return false;
+    }
+  };
 
   const canCancel = (session: Session) => true;
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);

@@ -130,14 +130,21 @@ export async function getTutorInfo(
  */
 export async function cancelSession(
     sessionId: string,
-    reason: string
+    reason: string,
+    token?: string
 ): Promise<CancelSessionResponse> {
-    const res = await fetch(`/api/sessions/cancel`, {
+    if (IS_SERVER && token) {
+        return request<CancelSessionResponse>(
+            `/scheduling/sessions/${sessionId}`,
+            token,
+            { method: 'DELETE', body: JSON.stringify({ reason }) }
+        );
+    }
+    const res = await fetch(`/api/sessions/cancel-session`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, reason }),
     });
-
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
         throw new Error(errorBody?.message ?? `Error al cancelar sesión`);
@@ -147,14 +154,21 @@ export async function cancelSession(
 
 export async function modifySession(
     sessionId: string,
-    body: ModifySessionBody
+    body: ModifySessionBody,
+    token?: string
 ): Promise<{ success: boolean; message: string }> {
-    const res = await fetch(`/api/sessions/modify`, {
+    if (IS_SERVER && token) {
+        return request<{ success: boolean; message: string }>(
+            `/scheduling/sessions/${sessionId}/propose-modification`,
+            token,
+            { method: 'POST', body: JSON.stringify(body) }
+        );
+    }
+    const res = await fetch(`/api/sessions/modify-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, ...body }),
     });
-
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
         throw new Error(errorBody?.message ?? `Error al proponer modificación`);
@@ -164,14 +178,21 @@ export async function modifySession(
 
 export async function editSession(
     sessionId: string,
-    body: EditSessionBody
+    body: EditSessionBody,
+    token?: string
 ): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
-    const res = await fetch(`/api/sessions/edit`, {
+    if (IS_SERVER && token) {
+        return request<{ success: boolean; message: string; requestId: string; expiresAt: string }>(
+            `/scheduling/sessions/${sessionId}/details`,
+            token,
+            { method: 'PATCH', body: JSON.stringify(body) }
+        );
+    }
+    const res = await fetch(`/api/sessions/edit-session`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, ...body }),
     });
-
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
         throw new Error(errorBody?.message ?? `Error al editar la sesión`);

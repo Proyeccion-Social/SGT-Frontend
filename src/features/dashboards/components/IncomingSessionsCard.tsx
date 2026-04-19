@@ -15,6 +15,7 @@ interface Props {
   error: string | null;
   /** Quién ve la tarjeta: condiciona botones tutor (Terminar / Asistencia). */
   viewerRole: UserRole;
+  onRefetch?: () => void;
 }
 
 export type SessionTimePhase = 'upcoming' | 'in_progress' | 'ended';
@@ -78,6 +79,8 @@ export function sortSessionsForDisplay(sessions: Session[]): Session[] {
     return p === 'ended' ? 0 : p === 'in_progress' ? 1 : 2;
   };
 
+  if (!Array.isArray(sessions)) return [];
+
   return [...sessions].sort((a, b) => {
     const ra = rank(a);
     const rb = rank(b);
@@ -107,11 +110,10 @@ const SkeletonCard = () => (
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }: Props) => {
+export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, onRefetch }: Props) => {
   const displaySessions = useMemo(() => {
-    // Filter out COMPLETED and CANCELLED sessions
-    const filtered = sessions.filter(s => s.status !== 'COMPLETED' && s.status !== 'CANCELLED');
-    return sortSessionsForDisplay(filtered);
+    // Show all sessions without status filtering as requested
+    return sortSessionsForDisplay(sessions || []);
   }, [sessions]);
 
   const [attendanceSession, setAttendanceSession] = useState<Session | null>(
@@ -250,6 +252,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole }:
           key={attendanceSession.id}
           session={attendanceSession}
           onClose={handleAttendanceClose}
+          onRefetch={onRefetch}
         />
       )}
 

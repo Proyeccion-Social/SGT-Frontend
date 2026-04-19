@@ -73,6 +73,25 @@
   background-color: #ffffff20 !important;
 }
 
+/* Local Toaster Support */
+.local-toaster-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10002; /* Above modal content */
+}
+
+/* Force sileo to be absolute instead of fixed when inside a local wrapper */
+.local-toaster-wrapper [data-sileo-toaster] {
+  position: absolute !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
 @font-face {
   font-family: "Caveat";
   src: url("/src/assets/fonts/Caveat-Regular.ttf") format("truetype");

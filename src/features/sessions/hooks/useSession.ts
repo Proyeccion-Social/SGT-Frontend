@@ -2,6 +2,9 @@ import { useCallback, useEffect } from 'react';
 import {
   createSession,
   cancelSession,
+  getSessions,
+  modifySession,
+  editSession,
 } from '../services/sessionService';
 import type { Session, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { useAuthStore } from '@/store/authStore';
@@ -19,7 +22,8 @@ interface UseSessionReturn {
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
 
-export function useSession(role: UserRole): UseSessionReturn {
+export function useSession(rawRole: UserRole | string): UseSessionReturn {
+  const role = String(rawRole).toUpperCase() as UserRole;
   const { sessions, loading, error, setSessions, setLoading, setError, lastFetched, setLastFetched } = useSessionStore();
   const _hasHydrated = useAuthStore(state => state._hasHydrated);
 
@@ -30,17 +34,8 @@ export function useSession(role: UserRole): UseSessionReturn {
     setLoading(true);
     setError(null);
     try {
-      const roleParam = role.toLowerCase();
-      const res = await fetch(`/api/sessions/my-sessions?role=${encodeURIComponent(roleParam)}`, {
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message ?? `HTTP ${res.status}`);
-      }
-      const json = await res.json();
-      const list = Array.isArray(json) ? json : (json?.data ?? []);
-      setSessions(Array.isArray(list) ? list : []);
+      const list = await getSessions(role);
+      setSessions(list);
       setLastFetched(Date.now());
     } catch (err) {
       console.error('[useSessions] error:', err);
@@ -51,9 +46,14 @@ export function useSession(role: UserRole): UseSessionReturn {
   }, [role, lastFetched, setSessions, setLoading, setError, setLastFetched]);
 
   useEffect(() => {
-    if (!_hasHydrated) return;
-    void fetchMySessions();
-  }, [_hasHydrated, fetchMySessions]);
+    // Si estamos en el cliente, intentamos fetch si no hay sesiones o si paso tiempo
+    if (typeof window !== 'undefined') {
+      // Forzamos fetch si no hay sesiones cargadas aún
+      if (sessions.length === 0 && !loading && !error && !lastFetched) {
+        void fetchMySessions(true);
+      }
+    }
+  }, [fetchMySessions, lastFetched, sessions.length, loading, error]);
 
   const agendar = useCallback(
     async (data: CreateSessionDTO): Promise<boolean> => {
@@ -70,7 +70,7 @@ export function useSession(role: UserRole): UseSessionReturn {
         setLoading(false);
       }
     },
-    []
+    [sessions, setSessions, setLoading, setError]
   );
 
   const cancelar = useCallback(async (sessionId: string, reason: string): Promise<boolean> => {
@@ -89,27 +89,21 @@ export function useSession(role: UserRole): UseSessionReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sessions, setSessions, setLoading, setError]);
 
   const modificar = useCallback(
     async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/sessions/modify-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId, ...data }),
-        });
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        const result = await modifySession(sessionId, data);
+        if (result.success) {
+          // If the modification was immediate (not a proposal), we'd update sessions here
+          // But usually this returns a message saying confirmation is pending.
+          // For now, let's refresh to be safe or rely on the toast/message.
+          return true;
         }
-
-        const updated: Session = await res.json();
-        setSessions(sessions.map(s => (s.id === sessionId ? { ...s, ...updated } : s)));
-        return true;
+        return false;
       } catch (err) {
         console.error('[useSessions] error:', err);
         setError(err instanceof Error ? err.message : 'Error modifying session');
@@ -118,34 +112,20 @@ export function useSession(role: UserRole): UseSessionReturn {
         setLoading(false);
       }
     },
-    []
+    [setLoading, setError]
   );
 
-  // ── EDITAR ─────────────────────────────────────────────────────────────────
-  // Diferente a modificar: usa PATCH /scheduling/sessions/{sessionId}
-  // Actualiza campos como virtualLink y location sobre una sesión existente
   const editar = useCallback(
     async (sessionId: string, data: EditSessionBody): Promise<boolean> => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/sessions/edit-session`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId, ...data }),
-        });
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        const result = await editSession(sessionId, data);
+        if (result.success) {
+          setSessions(sessions.map(s => (s.id === sessionId ? { ...s, ...data } : s)));
+          return true;
         }
-
-        const result = await res.json();
-
-        // Refrescamos la sesión actualizada en el estado local
-        setSessions(sessions.map(s => (s.id === sessionId ? { ...s, ...data } : s)));
-
-        return true;
+        return false;
       } catch (err) {
         console.error('[useSessions] editar error:', err);
         setError(err instanceof Error ? err.message : 'Error editing session');
@@ -154,9 +134,8 @@ export function useSession(role: UserRole): UseSessionReturn {
         setLoading(false);
       }
     },
-    []
+    [sessions, setSessions, setLoading, setError]
   );
-  // ──────────────────────────────────────────────────────────────────────────
 
   return { sessions, loading, error, fetchMySessions, agendar, cancelar, modificar, editar };
 }

@@ -13,7 +13,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 380px;
   box-shadow:
     0 8px 32px rgba(130, 80, 255, 0.2),
     inset 0 1px 1px rgba(255, 255, 255, 0.15);

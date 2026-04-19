@@ -15,6 +15,7 @@ interface Props {
 }
 
 export const DashboardSessionManager = ({ role }: Props) => {
+  if (!role) return null;
   const { cancelar, modificar, editar, sessions, loading, error, fetchMySessions: refetch } = useSession(role);
   // canCancel es tu lógica de ventana de tiempo — ejemplo:
   const canCancel = (session: Session) => {
@@ -59,6 +60,7 @@ export const DashboardSessionManager = ({ role }: Props) => {
         isLoading={loading}
         error={error}
         viewerRole={role}
+        onRefetch={() => refetch(true)}
       />
 
       {selectedSessionId && (

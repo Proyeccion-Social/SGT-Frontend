@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { getAvailability } from '../services/sessionService';
 import type { AvailabilitySlot as SlotFromAPI, AvailabilityQuery } from '../types/session.types';
 import type { AvailabilitySlot } from '../components/ProposeModificationView';
 

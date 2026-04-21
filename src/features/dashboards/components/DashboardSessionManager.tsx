@@ -9,11 +9,6 @@ import { IncomingSessionsCard } from './IncomingSessionsCard';
 import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
 import { UserRole } from '@/constants/roles';
-import {
-  cancelSession as cancelSessionSvc,
-  modifySession as modifySessionSvc,
-  editSession as editSessionSvc,
-} from '@/features/sessions/services/sessionService';
 import type { ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { fetchTutorDashboardBFF, fetchStudentDashboardBFF } from '../services/dashboardService';
 import { mapDashboardSessions } from '../utils/dashboardMapper';
@@ -51,7 +46,12 @@ export const DashboardSessionManager = ({ role }: Props) => {
 
   const cancelar = async (id: string, reason: string) => {
     try {
-      await cancelSessionSvc(id, reason);
+      const res = await fetch('/api/sessions/cancel-session', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: id, reason }),
+      });
+      if (!res.ok) throw new Error();
       return true;
     } catch (e) {
       return false;
@@ -60,8 +60,14 @@ export const DashboardSessionManager = ({ role }: Props) => {
 
   const modificar = async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
     try {
-      const result = await modifySessionSvc(sessionId, data);
-      return result.success ?? false;
+      const res = await fetch('/api/sessions/modify-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, ...data }),
+      });
+      if (!res.ok) throw new Error();
+      await refetch();
+      return true;
     } catch (e) {
       return false;
     }
@@ -69,8 +75,13 @@ export const DashboardSessionManager = ({ role }: Props) => {
 
   const editar = async (sessionId: string, data: EditSessionBody): Promise<boolean> => {
     try {
-      const result = await editSessionSvc(sessionId, data);
-      return result.success ?? false;
+      const res = await fetch('/api/sessions/edit-session', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, ...data }),
+      });
+      if (!res.ok) throw new Error();
+      return true;
     } catch (e) {
       return false;
     }

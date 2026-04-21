@@ -1,11 +1,13 @@
 import "@/features/sessions/styles/AttendancePostSession.css";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import CloseIcon from "@/features/sessions/images/CloseIcon.svg";
 import { UserRole } from "@/constants/roles";
+import { registerAttendance } from "@/features/sessions/services/sessionService";
 import { sileo } from "sileo";
 import ToasterReact from "@/components/ui/ToasterReact";
+import { useSessionDetail } from "../hooks/useSessionDetail";
 import type {
     AttendanceStatus,
     AttendanceRecord,
@@ -28,13 +30,21 @@ function participantsForAttendance(session: Session): SessionParticipant[] {
 
 type AttendanceMap = Record<string, AttendanceStatus>;
 
-export default function AttendencePostSession({ session, onClose, onRefetch }: Props) {
+export default function AttendancePostSession({ session: initialSession, onClose, onRefetch }: Props) {
     const [isOpen, setIsOpen] = useState(true);
     const [attendances, setAttendances] = useState<AttendanceMap>({});
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const rows = participantsForAttendance(session);
+    // Fetch full session details to get real participant IDs and the complete list
+    const { session: fullSession, isLoading: isLoadingDetail, error: detailError } = useSessionDetail(initialSession.id);
+
+    // Use fullSession if available, otherwise fallback to initialSession (which might be incomplete)
+    const currentSession = fullSession ?? initialSession;
+
+    const rows = useMemo(() => {
+        return participantsForAttendance(currentSession);
+    }, [currentSession]);
 
     const handleAttendanceClose = () => {
         if (isSaving) return;
@@ -60,30 +70,15 @@ export default function AttendencePostSession({ session, onClose, onRefetch }: P
             status: attendances[p.id] ?? "ABSENT",
         }));
 
-        const payload = {
-            attendances: records,
-            tutorId: session.tutor.id
-        };
-
         await sileo.promise(
             async () => {
                 setIsSaving(true);
                 setError(null);
                 
-                const res = await fetch(
-                    `/api/sessions/attendance?sessionId=${encodeURIComponent(session.id)}`,
-                    {
-                        method: "PATCH",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify(payload),
-                    }
-                );
-
-                if (!res.ok) {
-                    const body = await res.json().catch(() => ({}));
-                    throw new Error(body?.message ?? `HTTP ${res.status}`);
-                }
+                await registerAttendance(currentSession.id, {
+                    attendances: records,
+                    tutorId: currentSession.tutor.id
+                });
 
                 if (onRefetch) onRefetch();
                 handleAttendanceClose();
@@ -127,37 +122,47 @@ export default function AttendencePostSession({ session, onClose, onRefetch }: P
                     <img src={CloseIcon.src} alt="Cerrar" />
                 </Button>
                 <div className="attendance-session-meta">
-                    <p className="attendance-session-title">{session.title}</p>
-                    <p className="attendance-session-subject">{session.subject?.name}</p>
+                    <p className="attendance-session-title">{currentSession.title}</p>
+                    <p className="attendance-session-subject">{currentSession.subject?.name}</p>
                 </div>
                 <div className="attendance-header" id="attendance-dialog-title">
                     <h6>Nombre</h6>
                     <h6>Asistió</h6>
                 </div>
                 <div className="attendance-content">
-                    <div className="attendance-content-item">
-                        {rows.length === 0 ? (
-                            <p className="attendance-empty">
-                                No hay participantes para registrar asistencia en esta sesión.
-                            </p>
-                        ) : (
-                            rows.map((participant) => (
-                                <div
-                                    className="attendance-content-item-name"
-                                    key={participant.id}
-                                >
-                                    <p>{participant.name}</p>
-                                    <input
-                                        className="attendance-checkbox"
-                                        type="checkbox"
-                                        checked={attendances[participant.id] === "ATTENDED"}
-                                        onChange={() => toggleAttendance(participant.id)}
-                                        aria-label={`Asistió ${participant.name}`}
-                                    />
-                                </div>
-                            ))
-                        )}
-                    </div>
+                    {isLoadingDetail ? (
+                        <div className="attendance-loading">
+                            <p>Cargando lista de estudiantes...</p>
+                        </div>
+                    ) : detailError ? (
+                        <p className="attendance-error" role="alert">
+                            Error al cargar detalles: {detailError}
+                        </p>
+                    ) : (
+                        <div className="attendance-content-item">
+                            {rows.length === 0 ? (
+                                <p className="attendance-empty">
+                                    No hay participantes para registrar asistencia en esta sesión.
+                                </p>
+                            ) : (
+                                rows.map((participant) => (
+                                    <div
+                                        className="attendance-content-item-name"
+                                        key={participant.id}
+                                    >
+                                        <p>{participant.name}</p>
+                                        <input
+                                            className="attendance-checkbox"
+                                            type="checkbox"
+                                            checked={attendances[participant.id] === "ATTENDED"}
+                                            onChange={() => toggleAttendance(participant.id)}
+                                            aria-label={`Asistió ${participant.name}`}
+                                        />
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
                     {error && (
                         <p className="attendance-error" role="alert">
                             {error}
@@ -169,7 +174,7 @@ export default function AttendencePostSession({ session, onClose, onRefetch }: P
                         className="attendance-button"
                         variant="default"
                         onClick={handleSave}
-                        disabled={isSaving || rows.length === 0}
+                        disabled={isSaving || isLoadingDetail || rows.length === 0}
                     >
                         {isSaving ? "Guardando..." : "Guardar"}
                     </Button>
@@ -179,3 +184,4 @@ export default function AttendencePostSession({ session, onClose, onRefetch }: P
         document.body
     );
 }
+

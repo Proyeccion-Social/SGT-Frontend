@@ -90,10 +90,12 @@
 }
 
 .description {
+  font-family: 'Open Sauce Two';
   font-size: 12px;
+  font-weight: 400;
   color: #3c3c3c;
   margin: -2px 0;
-  font-weight: 400;
+  letter-spacing: -2%;
 }
 
 .card-footer {
@@ -126,18 +128,38 @@
 }
 
 .tag-status {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
   background: rgba(210, 210, 210, 0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 1px solid rgba(200, 200, 200, 0.35);
   color: #555;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
   height: auto;
-  align-items: center;
-  display: flex;
+}
+
+.tag-status.upcoming {
+  background: rgba(183, 223, 255, 0.45);
+  color: #2b5d8a;
+  border: 1px solid rgba(183, 223, 255, 0.5);
+}
+
+.tag-status.in_progress {
+  background: rgba(218, 255, 170, 0.45);
+  color: #5a7a2e;
+  border: 1px solid rgba(218, 255, 170, 0.5);
+}
+
+.tag-status.ended {
+  background: rgba(255, 183, 183, 0.35);
+  color: #8a2b2b;
+  border: 1px solid rgba(255, 183, 183, 0.4);
 }
 
 .time-label {

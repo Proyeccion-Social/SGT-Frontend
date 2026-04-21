@@ -221,7 +221,7 @@ export async function registerAttendance(
 ): Promise<RegisterAttendanceResult> {
     if (!IS_SERVER) {
         const res = await fetch(`/api/sessions/attendance`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId, ...body })
         });
@@ -243,7 +243,7 @@ export async function registerCompletedSession(
     if (!IS_SERVER) {
         // Shared endpoint in our current BFF for attendance/completion
         const res = await fetch(`/api/sessions/attendance`, {
-            method: 'POST',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId, ...body, isCompletion: true })
         });

@@ -70,7 +70,13 @@
                     window.location.replace('/');
                     return;
                 }
-                if (!res.ok) return;
+                if (!res.ok) {
+                    if (res.status === 404 || res.status === 204) {
+                        // setSlots([]);
+                        // return; 
+                    }
+                    throw new Error("Failed to fetch slots");
+                }
 
                 const data = await res.json();
                 const groupedByDay = data?.groupedByDay || {};

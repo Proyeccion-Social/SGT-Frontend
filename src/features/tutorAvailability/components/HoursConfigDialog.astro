@@ -122,7 +122,7 @@
 
             // Espera a que termine la animación del drawer antes de abrir el modal
             
-                if (!dialog.open) {
+                if (dialog && dialog.isConnected && !dialog.open) {
                     dialog.showModal();
                 }
             

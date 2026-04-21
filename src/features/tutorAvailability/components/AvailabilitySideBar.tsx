@@ -24,10 +24,10 @@
           }
           if (!res.ok) {
             // Backend puede responder 404/204 cuando aún no existen franjas.
-            if (res.status === 404 || res.status === 204) {
+            /* if (res.status === 404 || res.status === 204) {
               setSlots([]);
               return;
-            }
+            } */
             throw new Error("Failed to fetch slots");
           }
 

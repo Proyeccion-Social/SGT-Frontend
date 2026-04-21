@@ -131,7 +131,9 @@ document.addEventListener("astro:page-load", () => {
     });
 
     window.addEventListener("open-initial-config-dialog", () => {
-        dialog?.showModal();
+        if (dialog && dialog.isConnected) {
+            dialog.showModal();
+        }
     });
 
     const empezarBtn = dialog?.querySelector(".empezarBtn");

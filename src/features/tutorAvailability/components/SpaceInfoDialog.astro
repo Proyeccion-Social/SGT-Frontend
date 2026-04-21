@@ -357,7 +357,9 @@ document.addEventListener("astro:page-load", () => {
 
         window.dispatchEvent(new CustomEvent("space-info-dialog-open"));
 
-        dialog?.showModal();
+        if (dialog && dialog.isConnected) {
+            dialog.showModal();
+        }
     });
 
     // =======================

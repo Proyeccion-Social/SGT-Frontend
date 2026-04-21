@@ -9,9 +9,11 @@ export async function getMyAvailability(token?: string) {
     },
   });
 
-  if (response.status === 404 || response.status === 204) {
+  /* if (response.status === 404 || response.status === 204) {
+    const body = await response.json().catch(() => ({}));
+    console.log("DEBUG - Mensaje del Backend (404/204):", body.message || "Sin mensaje");
     return { groupedByDay: {} };
-  }
+  } */
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({

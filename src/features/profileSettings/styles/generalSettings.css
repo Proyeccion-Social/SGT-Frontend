@@ -1,0 +1,161 @@
+/* ============================================================
+   General Settings View
+   prefix: gs-
+   ============================================================ */
+
+/* ── View layout ─────────────────────────────────────────── */
+.gs-view {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ── Left sidebar (221px) ────────────────────────────────── */
+.gs-sidebar {
+  width: 221px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-right: 1px solid #f0eaff;
+  background-color: #faf8ff;
+}
+
+/*
+ * Botones cuadrados: 100px × 100px
+ * Como % del dialog → ancho: 12.5% (100/800), alto: 16.67% (100/600)
+ * Borde dashed 1px, dashes 8 gap 4 → via SVG background-image
+ */
+.gs-sidebar-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: background-color 0.15s ease;
+  background-color: #f3edff;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4B5FD' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.gs-sidebar-btn--selected {
+  background-color: #e7dcff;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%239F74FF' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.gs-sidebar-btn:hover:not(.gs-sidebar-btn--selected) {
+  background-color: #ede9fe;
+}
+
+.gs-sidebar-btn:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.gs-sidebar-btn__icon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.gs-sidebar-btn__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9F74FF;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* ── Main content area ───────────────────────────────────── */
+.gs-main {
+  flex: 1;
+  padding: 24px 28px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── Form ────────────────────────────────────────────────── */
+.gs-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 95%;
+  margin: 0 auto;
+  flex: 1;
+}
+
+.gs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gs-field [data-slot="input"] {
+  height: 42px;
+}
+
+.gs-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #8751FF;
+  letter-spacing: -0.002px;
+}
+
+/* Input con botón de toggle (contraseña) */
+.gs-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.gs-input-wrapper input {
+  padding-right: 36px;
+  width: 100%;
+}
+
+.gs-pw-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.gs-pw-toggle:hover {
+  color: #5b21b6;
+}
+
+.gs-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+.gs-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.gs-form-actions [data-slot="button"] {
+  background-color: #9F74FF;
+}
+
+.gs-form-actions [data-slot="button"]:hover:not(:disabled) {
+  background-color: #8a5cf6;
+}

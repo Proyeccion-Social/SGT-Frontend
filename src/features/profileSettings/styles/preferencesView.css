@@ -1,0 +1,169 @@
+/* ============================================================
+   Preferences View
+   prefix: pv-
+   ============================================================ */
+
+/* ── View layout ─────────────────────────────────────────── */
+.pv-view {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ── Left sidebar (221px) ────────────────────────────────── */
+.pv-sidebar {
+  width: 221px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-right: 1px solid #f0eaff;
+  background-color: #faf8ff;
+}
+
+/*
+ * Botones cuadrados: 100px × 100px
+ * Como % del dialog → ancho: 12.5% (100/800), alto: 16.67% (100/600)
+ * Borde dashed 1px, dashes 8 gap 4 → via SVG background-image
+ */
+.pv-sidebar-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: background-color 0.15s ease;
+  background-color: #f3edff;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4B5FD' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.pv-sidebar-btn--selected {
+  background-color: #e7dcff;
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%239F74FF' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.pv-sidebar-btn:hover:not(.pv-sidebar-btn--selected) {
+  background-color: #ede9fe;
+}
+
+.pv-sidebar-btn:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.pv-sidebar-btn__icon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.pv-sidebar-btn__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9F74FF;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* ── Main content area ───────────────────────────────────── */
+.pv-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── Materias (ChooseSubjects) ───────────────────────────── */
+.pv-subjects-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Overrides de ChooseSubjects dentro del dialog */
+.pv-subjects-wrapper .drawer-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 0;
+}
+
+.pv-subjects-wrapper .body-header-subjects {
+  display: none;
+}
+
+/* ── Header propio para la vista de materias ─────────────── */
+.pv-subjects-header {
+  padding: 14px 20px 8px;
+  flex-shrink: 0;
+}
+
+.pv-subjects-header__title {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #1a1a1a;
+}
+
+.pv-subjects-header__subtitle {
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 16px;
+  color: #3c3c3c;
+  margin-top: 2px;
+}
+
+.pv-subjects-wrapper .body-content {
+  position: relative;
+  height: 290px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Reducir tamaño de cada tag para que el scatter no genere solapamiento */
+.pv-subjects-wrapper .body-content .subject-tag {
+  font-size: 11px;
+  line-height: 16px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 14px;
+}
+
+.pv-subjects-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 28px;
+  flex-shrink: 0;
+  border-top: 1px solid #f0eaff;
+}
+
+.pv-subjects-actions [data-slot="button"] {
+  background-color: #9F74FF;
+}
+
+.pv-subjects-actions [data-slot="button"]:hover:not(:disabled) {
+  background-color: #8a5cf6;
+}
+
+/* ── Modalidad placeholder ───────────────────────────────── */
+.pv-modalidad-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  padding: 28px;
+}

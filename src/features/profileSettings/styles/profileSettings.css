@@ -1,0 +1,173 @@
+/* ============================================================
+   Profile Settings — Dialog shell
+   prefix: ps-
+   Dialog dimensions: 800px × 600px
+   ============================================================ */
+
+/* ── Dialog override ─────────────────────────────────────── */
+.ps-dialog {
+  width: 800px !important;
+  max-width: 800px !important;
+  height: 550px !important;
+  max-height: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  overflow: visible !important;
+  border-radius: 20px !important;
+}
+
+/* Clip solo el contenido interior para preservar border-radius visual */
+.ps-dialog > *:not(.ps-close-btn) {
+  overflow: hidden;
+}
+
+/* ── Botón de cierre custom ──────────────────────────────── */
+.ps-close-btn {
+  position: absolute;
+  /* Centro del botón (40×40px) en la esquina superior derecha del dialog */
+  top: -15px;
+  right: -15px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ps-close-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.85;
+}
+
+.ps-close-btn img {
+  width: 40px;
+  height: 40px;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.ps-header {
+  padding: 22px 28px 18px;
+  border-bottom: 1px solid #f0eaff;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.ps-title {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: -0.002px;
+  margin: 0;
+}
+
+.ps-title-black {
+  color: #1a1a1a;
+}
+
+.ps-title-purple {
+  color: #7c3aed;
+}
+
+.ps-description {
+  font-size: 0.8125rem !important;
+  color: #6b7280 !important;
+  margin: 0;
+}
+
+/* ── Content area (fills between header and bottom nav) ──── */
+.ps-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  min-height: 0;
+}
+
+/* ── Bottom navigation bar ───────────────────────────────── */
+.ps-bottom {
+  height: 60px;
+  flex-shrink: 0;
+  /* Ligeramente más opaco que el blanco del resto de las vistas */
+  background-color: rgba(245, 240, 255, 0.92);
+  border-top: 1px solid #ede9fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ps-bottom-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Botones de nav — 36px (spec: 25px, ampliado por área táctil mínima) */
+.ps-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background-color: #ede9fe;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 0.15s ease;
+  overflow: hidden;
+  outline: none;
+}
+
+.ps-nav-btn--active {
+  background-color: #7c3aed;
+}
+
+.ps-nav-btn:hover:not(.ps-nav-btn--active) {
+  background-color: #ddd6fe;
+}
+
+.ps-nav-btn:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.ps-nav-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.ps-nav-btn--active img {
+  filter: brightness(0) invert(1);
+}
+
+/* Foto de perfil circular (centro del bottom nav) */
+.ps-avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #c4b5fd;
+  background-color: #ede9fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ps-avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ps-avatar-fallback {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7c3aed;
+  user-select: none;
+}

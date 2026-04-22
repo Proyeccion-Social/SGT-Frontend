@@ -145,6 +145,38 @@
   filter: brightness(0) invert(1);
 }
 
+/* Variante sin fondo circular — el ícono se muestra en su tamaño original */
+.ps-nav-btn--raw {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background-color: transparent;
+  overflow: visible;
+}
+
+.ps-nav-btn--raw:hover:not(.ps-nav-btn--active) {
+  background-color: transparent;
+}
+
+.ps-nav-btn--raw.ps-nav-btn--active {
+  background-color: transparent;
+}
+
+.ps-nav-btn--raw img {
+  width: 32px;
+  height: 32px;
+}
+
+.ps-nav-btn--raw.ps-nav-btn--active img {
+  filter: none;
+  opacity: 0.6;
+}
+
+.ps-nav-btn--preferences img {
+  width: 28px;
+  height: 28px;
+}
+
 /* Foto de perfil circular (centro del bottom nav) */
 .ps-avatar-circle {
   width: 44px;

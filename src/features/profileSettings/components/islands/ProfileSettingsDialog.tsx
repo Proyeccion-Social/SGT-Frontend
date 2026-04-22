@@ -12,9 +12,9 @@ import { useAuthStore } from "@/store/authStore";
 import { GeneralSettingsView } from "./GeneralSettingsView";
 import { PreferencesView } from "./PreferencesView";
 
-import generalIconSrc from "../../assets/general.svg?url";
-import materiasIconSrc from "../../assets/materias.svg?url";
+import favoritoIconSrc from "../../assets/favorito.svg?url";
 import salirIconSrc from "../../assets/salir.svg?url";
+import settingsIconSrc from "../../assets/settings.svg?url";
 import "../../styles/profileSettings.css";
 
 type ActiveView = "general" | "preferences";
@@ -77,12 +77,12 @@ export function ProfileSettingsDialog({ open, onOpenChange }: ProfileSettingsDia
           <div className="ps-bottom-inner">
             <button
               type="button"
-              className={`ps-nav-btn${activeView === "general" ? " ps-nav-btn--active" : ""}`}
+              className={`ps-nav-btn ps-nav-btn--raw${activeView === "general" ? " ps-nav-btn--active" : ""}`}
               onClick={() => setActiveView("general")}
               aria-label="Configuración general"
               aria-pressed={activeView === "general"}
             >
-              <img src={generalIconSrc} alt="" aria-hidden="true" />
+              <img src={settingsIconSrc} alt="" aria-hidden="true" />
             </button>
 
             <div className="ps-avatar-circle">
@@ -92,12 +92,12 @@ export function ProfileSettingsDialog({ open, onOpenChange }: ProfileSettingsDia
 
             <button
               type="button"
-              className={`ps-nav-btn${activeView === "preferences" ? " ps-nav-btn--active" : ""}`}
+              className={`ps-nav-btn ps-nav-btn--raw ps-nav-btn--preferences${activeView === "preferences" ? " ps-nav-btn--active" : ""}`}
               onClick={() => setActiveView("preferences")}
               aria-label="Preferencias"
               aria-pressed={activeView === "preferences"}
             >
-              <img src={materiasIconSrc} alt="" aria-hidden="true" />
+              <img src={favoritoIconSrc} alt="" aria-hidden="true" />
             </button>
           </div>
         </nav>

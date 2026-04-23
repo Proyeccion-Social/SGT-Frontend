@@ -34,8 +34,12 @@ function SidebarButton({ icon, label, selected, onClick }: SidebarButtonProps) {
 
 // ─── Preferences View ─────────────────────────────────────────────────────────
 
-export function PreferencesView() {
-  const [activeTab, setActiveTab] = useState<PreferencesSubTab>("materias");
+interface PreferencesViewProps {
+  initialTab?: PreferencesSubTab;
+}
+
+export function PreferencesView({ initialTab }: PreferencesViewProps) {
+  const [activeTab, setActiveTab] = useState<PreferencesSubTab>(initialTab ?? "materias");
   const subjectsRef = useRef<StepHandle>(null);
 
   function handleSaveSubjects() {

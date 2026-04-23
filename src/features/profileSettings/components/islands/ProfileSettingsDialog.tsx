@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogClose,
@@ -22,15 +22,28 @@ type ActiveView = "general" | "preferences";
 export interface ProfileSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialView?: ActiveView;
+  initialGeneralTab?: "info" | "password";
+  initialPreferencesTab?: "materias" | "modalidad";
 }
 
-export function ProfileSettingsDialog({ open, onOpenChange }: ProfileSettingsDialogProps) {
-  const [activeView, setActiveView] = useState<ActiveView>("general");
+export function ProfileSettingsDialog({
+  open,
+  onOpenChange,
+  initialView,
+  initialGeneralTab,
+  initialPreferencesTab,
+}: ProfileSettingsDialogProps) {
+  const [activeView, setActiveView] = useState<ActiveView>(initialView ?? "general");
   const { user } = useAuthStore();
 
   const initials = user?.name
     ? user.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
     : "U";
+
+  useEffect(() => {
+    if (open) setActiveView(initialView ?? "general");
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,8 +81,12 @@ export function ProfileSettingsDialog({ open, onOpenChange }: ProfileSettingsDia
 
         {/* CONTENT — renderiza la view activa */}
         <div className="ps-content">
-          {activeView === "general" && <GeneralSettingsView user={user} />}
-          {activeView === "preferences" && <PreferencesView />}
+          {activeView === "general" && (
+            <GeneralSettingsView user={user} initialTab={initialGeneralTab} />
+          )}
+          {activeView === "preferences" && (
+            <PreferencesView initialTab={initialPreferencesTab} />
+          )}
         </div>
 
         {/* BOTTOM NAV */}

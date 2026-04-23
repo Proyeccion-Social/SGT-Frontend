@@ -87,10 +87,11 @@ function PasswordField({ id, label, value, onChange, error, placeholder, autoCom
 
 interface GeneralSettingsViewProps {
   user: { name: string; email: string; role: string } | null;
+  initialTab?: GeneralSubTab;
 }
 
-export function GeneralSettingsView({ user }: GeneralSettingsViewProps) {
-  const [activeTab, setActiveTab] = useState<GeneralSubTab>("info");
+export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewProps) {
+  const [activeTab, setActiveTab] = useState<GeneralSubTab>(initialTab ?? "info");
 
   // Info form
   const [name, setName] = useState(user?.name ?? "");

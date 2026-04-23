@@ -1,28 +1,9 @@
 ---
-import { jwtDecode } from "jwt-decode";
 import { Image } from "astro:assets";
-import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
+import UserMenuDropdown from "./islands/UserMenuDropdown";
 
 const { userRole } = Astro.props;
-
-let userDisplayName = "";
-const token = Astro.cookies.get("access_token")?.value;
-if (token) {
-    try {
-        const decoded = jwtDecode(token) as any;
-        userDisplayName = decoded.name || decoded.email || "";
-    } catch (e) {}
-}
-
-const initials = userDisplayName
-    ? userDisplayName
-          .split(" ")
-          .map((n: string) => n[0])
-          .join("")
-          .toUpperCase()
-          .substring(0, 2)
-    : "";
 ---
 
 <div class="user-header">
@@ -33,24 +14,10 @@ const initials = userDisplayName
             </button>
         )
     }
-    <button class="avatar" title={userDisplayName}>
-        {
-            initials ? (
-                <span class="initials">{initials}</span>
-            ) : (
-                <Image src={UserIcon} alt="User" />
-            )
-        }
-    </button>
+    <UserMenuDropdown client:load />
 </div>
 
 <style>
-    .initials {
-        color: #9f74ff;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-    
     .user-header {
         position: sticky;
         align-self: flex-end;
@@ -72,17 +39,5 @@ const initials = userDisplayName
         align-items: center;
         width: 29px;
         height: 29px;
-    }
-
-    .avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        background: none;
-        padding: 0;
     }
 </style>

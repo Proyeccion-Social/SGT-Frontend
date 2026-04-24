@@ -1,8 +1,18 @@
 import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const token = context.cookies.get('access_token')?.value;
   const url = new URL(context.request.url);
+
+  // Allow static assets to load without authentication
+  if (
+    url.pathname.startsWith('/_astro/') ||
+    url.pathname.startsWith('/favicon') ||
+    url.pathname.startsWith('/images')
+  ) {
+  return next();
+  }
+
+  const token = context.cookies.get('access_token')?.value;
   const protectedRoutes = ['/dashboard', '/change-password'];
 
   if (url.pathname === '/' && !url.searchParams.has('session') && token) {

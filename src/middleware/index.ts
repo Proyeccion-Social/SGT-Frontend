@@ -5,6 +5,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const url = new URL(context.request.url);
   const protectedRoutes = ['/dashboard', '/change-password'];
 
+  // ── Home con token válido → redirigir a dashboard ──
   if (url.pathname === '/' && !url.searchParams.has('session') && token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -16,9 +17,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // ── Rutas protegidas ──
   if (protectedRoutes.some(route => url.pathname.startsWith(route))) {
+    // Construir redirect param con path + search originales
+    const originalPath = url.pathname + url.search;
+    const redirectParam = encodeURIComponent(originalPath);
+
     if (!token) {
-      return context.redirect('/?session=expired');
+      return context.redirect(`/?session=expired&redirect=${redirectParam}`);
     }
 
     try {
@@ -30,7 +36,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
         if (!refreshToken) {
           context.cookies.delete('access_token', { path: '/' });
-          return context.redirect('/');
+          return context.redirect(`/?session=expired&redirect=${redirectParam}`);
         }
 
         const API_URL = import.meta.env.API_URL;
@@ -43,7 +49,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         if (!res.ok) {
           context.cookies.delete('access_token', { path: '/' });
           context.cookies.delete('refresh_token', { path: '/' });
-          return context.redirect('/');
+          return context.redirect(`/?session=expired&redirect=${redirectParam}`);
         }
 
         const data = await res.json();
@@ -58,7 +64,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     } catch {
         context.cookies.delete('access_token', { path: '/' });
         context.cookies.delete('refresh_token', { path: '/' });
-        return context.redirect('/?session=expired');
+        return context.redirect(`/?session=expired&redirect=${redirectParam}`);
     }
   }
 

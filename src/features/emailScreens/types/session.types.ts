@@ -4,9 +4,36 @@ export type SessionType = 'INDIVIDUAL' | 'COLLABORATIVE';
 
 export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
+  | 'SCHEDULED'
+  | 'PENDING_MODIFICATION'
+  | 'REJECTED_BY_TUTOR'
+  | 'CANCELLED_BY_STUDENT'
+  | 'CANCELLED_BY_TUTOR'
+  | 'CANCELLED_BY_ADMIN'
   | 'CONFIRMED'
   | 'COMPLETED'
   | 'CANCELLED';
+
+// ─── Bodies para operaciones de sesión ──────────────────────
+
+export interface ModifySessionBody {
+  newModality?: Modality;
+  newDurationHours?: number;
+  newAvailabilityId?: number;
+}
+
+export interface EditSessionBody {
+  title?: string;
+  description?: string;
+  virtualLink?: string;
+  location?: string;
+}
+
+export interface CancelSessionResponse {
+  message: string;
+  sessionId: string;
+  status: string;
+}
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
 

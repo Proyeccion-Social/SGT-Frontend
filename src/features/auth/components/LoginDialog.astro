@@ -92,5 +92,14 @@ import LoginForm from "../components/LoginForm.astro";
       closeDialog();
     }
   });
+
+  // ── Auto-open login when redirect param exists (email action flow) ──
+  const currentUrl = new URL(window.location.href);
+  if (currentUrl.searchParams.has('redirect')) {
+    // Small delay to ensure DOM is fully ready
+    setTimeout(() => {
+      openDialog();
+    }, 300);
+  }
 </script>
 

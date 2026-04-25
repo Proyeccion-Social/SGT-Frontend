@@ -2,6 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import VaulDrawer from "@/components/ui/drawer";
+import EmailActionController from "@/features/emailScreens/components/EmailActionController";
 
 interface Props {
   title?: string;
@@ -20,6 +21,7 @@ if (!token) return Astro.redirect("/?session=expired");
     <slot />
   </div>
   {rol === "tutor" && <VaulDrawer client:load transition:persist />}
+  <EmailActionController client:only="react" />
 </Layout>
 
 <style>

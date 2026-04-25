@@ -1,0 +1,661 @@
+import { useState, useEffect } from "react";
+import SessionCardView from "./SessionCardView";
+import MultiStepDialog from "./MultiStepRating";
+
+interface Props {
+  sessions: any[];
+  userId: string;
+}
+
+export default function SessionDialogManager({ sessions, userId }: Props) {
+  const [activeSession, setActiveSession] = useState<any>(null);
+  const [view, setView] = useState<"card" | "evaluation">("card");
+
+  // Escuchar clicks en la tabla
+  useEffect(() => {
+    function handler(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      const session = sessions.find((s) => s.id === detail.sessionId);
+      if (session) {
+        setActiveSession(session);
+        setView("card");
+      }
+    }
+
+    document.addEventListener("open-session-dialog", handler);
+    return () => document.removeEventListener("open-session-dialog", handler);
+  }, [sessions]);
+
+  function handleClose() {
+    setActiveSession(null);
+    setView("card");
+  }
+
+  if (!activeSession) return null;
+
+  return (
+    <div className="sdm-backdrop" onClick={handleClose}>
+      <div className="sdm-content" onClick={(e) => e.stopPropagation()}>
+        {view === "card" ? (
+          <SessionCardView
+            session={activeSession}
+            userId={userId}
+            onClose={handleClose}
+            onEvaluate={() => setView("evaluation")}
+          />
+        ) : (
+          <MultiStepDialog
+            session={activeSession}
+            userId={userId}
+            onClose={handleClose}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+---
+import SessionsBlock from "./SessionsBlock.astro";
+import Layout from "@/layouts/Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
+
+interface Props {
+  token: string;
+}
+
+const { token } = Astro.props;
+
+const currentStatus = Astro.url.searchParams.get("status") || "all";
+const page = Astro.url.searchParams.get("page") || "1";
+const limit = Astro.url.searchParams.get("limit");
+
+const apiUrl = new URL("/api/history", Astro.url);
+if (currentStatus !== "all") {
+  apiUrl.searchParams.append("status", currentStatus);
+}
+apiUrl.searchParams.append("page", page);
+apiUrl.searchParams.append("limit", limit || "10");
+
+const res = await fetch(apiUrl, {
+  headers: Astro.request.headers,
+});
+const history = await res.json();
+
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userIdProp = payload.userId;Expand commentComment on line R31
+
+const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";Expand commentComment on lines R30 to R33
+
+
+let userId = getUserIdFromCookie(Astro.cookies);
+// 3. Si no hay ID (no está logueado), rediriges
+if (!userId) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Historial de sesiones">
+  <div class="history-layout">
+    <Sidebar userRole={userRole} />
+    <div class="search-page">
+      <SessionsBlock
+        data={history}
+        currentStatus={currentStatus}
+        userId={userId}
+      />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .history-layout {
+    display: flex;
+    height: 100vh;
+    overflow-y: hidden;
+  }
+  .search-page {
+    position: relative;
+    display: flex;
+    justify-content: start;
+    width: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+</style>
+
+
+import { useState, useEffect } from "react";
+import starUnfilled from "@/features/history/assets/star-simple-unfilled.svg";
+import starFilled from "@/features/history/assets/star-simple.svg";
+import starFull from "@/features/history/assets/star-full.svg";
+import starFullUnfilled from "@/features/history/assets/star-full-unfilled.svg";
+import checkedIcon from "@/features/history/assets/checked.png";
+import vectorFinal from "@/features/history/assets/vectorfinal.png";
+import vectorInicial from "@/features/history/assets/vectorInicial.png";
+import "@/features/history/css/multiStepRating.css";
+
+interface MultiStepDialogProps {
+  session: any;
+  userId?: string;
+  onClose: () => void;
+}
+
+const description1: Record<string, string> = {
+  CLARITY: "Nada claro",
+  PATIENCE: "Mala actitud",
+  PUNCTUALITY: "No fue puntual",
+  KNOWLEDGE: "Sin dominio",
+};
+const description2: Record<string, string> = {
+  CLARITY: "Muy claro",
+  PATIENCE: "Excelente actitud",
+  PUNCTUALITY: "Fue puntual",
+  KNOWLEDGE: "Dominio total",
+};
+
+export default function MultiStepDialog({
+  session,
+  userId,
+  onClose,
+}: MultiStepDialogProps) {
+
+  // ========== TODOS LOS HOOKS AL INICIO ==========
+  const [questionnaire, setQuestionnaire] = useState<any>(null);
+  const [canRate, setCanRate] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState(0);
+  const [formData, setFormData] = useState<{
+    answers: Record<string, number>;
+    comment: string;
+    overallRating: number;
+  }>({
+    answers: {},
+    comment: "",
+    overallRating: 1,
+  });
+
+  // Fetch the data always
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/history/evaluation-questions");
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled) setQuestionnaire(data.questionnaire);
+        }
+
+        if (userId) {
+          const resEval = await fetch(
+            `/api/history/evaluation-status?sessionId=${session.id}&studentId=${userId}`
+          );
+          if (resEval.ok) {
+            const hasEvaluated = await resEval.json();
+            if (!cancelled) setCanRate(hasEvaluated === false);
+          }
+        }
+      } catch (err) {
+        console.error("Error cargando datos de evaluación:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    if (loading) fetchData();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Cuando questionnaire se carga, inicializar las respuestas
+  useEffect(() => {
+    if (questionnaire?.questions) {
+      const initial = Object.fromEntries(
+        questionnaire.questions.map((q: any) => [q.aspect, 1])
+      );
+      setFormData({ answers: initial, comment: "", overallRating: 1 });
+    }
+  }, [questionnaire]);
+
+  // Cuando canRate se resuelve, ajustar el paso inicial
+  useEffect(() => {
+    if (canRate === false) setStep(3);
+  }, [canRate]);
+
+  // Auto-cerrar en paso final
+  useEffect(() => {
+    if (step === 3 || canRate === false) {
+      const timer = setTimeout(() => onClose(), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [step, canRate]);
+
+  // ========== FUNCIONES ==========
+  const next = () => setStep((s) => s + 1);
+
+  const updateAnswer = (aspect: string, value: number) => {
+    setFormData((prev) => {
+      const updatedAnswers = { ...prev.answers, [aspect]: value };
+      const values = Object.values(updatedAnswers) as number[];
+      const average = values.length
+        ? values.reduce((a, b) => a + b, 0) / values.length
+        : 0;
+      return { ...prev, answers: updatedAnswers, overallRating: average };
+    });
+  };
+
+  const submitEvaluation = async () => {
+    try {
+      const ratings = Object.fromEntries(
+        Object.entries(formData.answers).map(([key, value]) => [
+          key.toLowerCase(),
+          value,
+        ])
+      );
+      const response = await fetch("/api/history/send-evaluation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: session.id,
+          ratings,
+          overallRating: formData.overallRating,
+          comments: formData.comment,
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = "/";
+          return;
+        }
+        throw new Error(result.error || "Error al enviar");
+      }
+
+      console.log("✅ Enviado:", result);
+      next();
+    } catch (error) {
+      console.error("❌ Error:", error);
+      alert("Error enviando la evaluación");
+    }
+  };
+
+  // ========== RENDER ==========
+
+  // Loading
+  if (loading || !questionnaire) return null;
+
+  const steps = [
+    { title: "Inicio" },
+    { title: "Evaluación", questions: questionnaire.questions },
+    { title: "Comentarios", comments: questionnaire.comments },
+    { title: "Final" },
+  ];
+  const current = steps[step];
+
+  return (
+    <div className="container-dialog">
+      {current.title === "Inicio" && (
+        <div className="vector-inicial-container">
+          <img src={vectorInicial.src} alt="vector" className="vector-inicial" />
+          <p>¿El Tutor asistió a la tutoría?</p>
+          <div className="buttons-container-inicial">
+            <button className="btn-yes" onClick={next}>Si</button>
+            <button className="btn-no" onClick={onClose}>No</button>
+          </div>
+        </div>
+      )}
+
+      {(current.title === "Evaluación" || current.title === "Comentarios") && (
+        <div className="evaluation-card-header">
+          <div className="evaluation-card-header-title">
+            <h3>
+              Estas calificando a{" "}
+              <span className="tutor-name">{session.tutor.name}</span>
+            </h3>
+            <p>{session.title}</p>
+          </div>
+          <div className="evaluation-card-header-buttons">
+            {step < steps.length - 2 ? (
+              <button onClick={next} className="btn-continue">Continuar</button>
+            ) : step === 2 && (
+              <button onClick={submitEvaluation} className="btn-continue">Guardar</button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {current.title !== "Inicio" && (
+        <div className="evaluation-card-body">
+          {current.questions && (
+            <div className="evaluation-card-body-question-container">
+              <div className="evaluation-card-body-question">
+                {current.questions.map((q: any) => (
+                  <div key={q.aspect} className="evaluation-card-body-question-item">
+                    <p className="question-title">{q.label}</p>
+                    <p className="question-description">
+                      <span className="star-description">1 Estrella</span> ={" "}
+                      {description1[q.aspect]} ·{" "}
+                      <span className="star-description">5 Estrellas</span> ={" "}
+                      {description2[q.aspect]}
+                    </p>
+                    <div className="evaluation-card-body-question-item-buttons">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          className="btn-rating"
+                          onClick={() => updateAnswer(q.aspect, n)}
+                        >
+                          <img
+                            src={
+                              n === 5
+                                ? formData.answers[q.aspect] >= 5
+                                  ? starFull.src
+                                  : starFullUnfilled.src
+                                : formData.answers[q.aspect] >= n
+                                  ? starFilled.src
+                                  : starUnfilled.src
+                            }
+                            alt="star"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {current.comments?.enabled && (
+            <div className="evaluation-card-body-comment-container">
+              <p className="question-title">Comentarios Adicionales</p>
+              <p className="question-description">
+                ¿Tienes alguna sugerencia o comentario adicional? Tu opinión ayuda a mejorar Atlas
+              </p>
+              <textarea
+                className="comment-textarea"
+                placeholder={current.comments.placeholder}
+                value={formData.comment}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, comment: e.target.value }))
+                }
+              />
+            </div>
+          )}
+
+          {current.title === "Final" && (
+            <div className="evaluation-card-body-final-container">
+              <div className="checked-icon-container">
+                <img src={checkedIcon.src} alt="checked" className="checked-icon" />
+              </div>
+              <div className="final-message-container">
+                {canRate ? (
+                  <>
+                    <p className="final-message">Has calificado a </p>
+                    <div
+                      className="tutor-name-container"
+                      style={{ backgroundImage: `url(${vectorFinal.src})` }}
+                    >
+                      <span className="tutor-name-final">{session.tutor.name}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="final-message">Ya has calificado a </p>
+                    <div
+                      className="tutor-name-container"
+                      style={{ backgroundImage: `url(${vectorFinal.src})` }}
+                    >
+                      <span className="tutor-name-final">{session.tutor.name}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+import { mockEvaluationQuestionnaire } from "@/features/history/mocks/evaluationQuestionnaire";
+
+const API_URL = import.meta.env.API_URL;
+const USE_MOCK = false; //  cambia a false cuando tengas backend
+
+export async function getEvaluationQuestions(token?: string) {
+
+  if (USE_MOCK) {
+    return mockEvaluationQuestionnaire;
+  }
+
+  const response = await fetch(
+    `${API_URL}/session-execution/evaluations/questions`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+
+  if (!response.ok) {
+    const errorJson = await response.json();
+    const error = new Error(errorJson.message || "Error fetching questionnaire") as any;
+    error.status = response.status;
+    throw error;
+  }
+
+  return await response.json();
+}
+
+const API_URL = import.meta.env.API_URL;
+
+export async function getSessionEvaluationStatus(
+  sessionId: string,
+  studentId: string,
+  token?: string
+) {
+  const response = await fetch(
+    `${API_URL}/session-execution/sessions/${sessionId}/evaluation-status/${studentId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const error = new Error(
+      errorData.message || "Error al obtener el estado de evaluación"
+    ) as any;
+    error.status = response.status;
+    throw error;
+  }
+
+  return await response.json();
+}
+
+const API_URL = import.meta.env.API_URL;
+import { mockSendEvaluation } from "@/features/history/mocks/sendEvaluation";
+
+export interface EvaluationPayload {
+  ratings: {
+    clarity: number;
+    patience: number;
+    punctuality: number;
+    knowledge: number;
+  };
+  overallRating?: number;
+  comments?: string;
+}
+const USE_MOCK = false;
+    
+export async function sendSessionEvaluation(
+  sessionId: string,
+  payload: EvaluationPayload,
+  token?: string
+) {
+  if (USE_MOCK) {
+    //  simulamos delay real
+    await new Promise((res) => setTimeout(res, 800));
+
+    return mockSendEvaluation(sessionId, payload);
+  }
+
+  const response = await fetch(
+    `${API_URL}/session-execution/sessions/${sessionId}/evaluation`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`Expand commentComment on line R34Resolved
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const error = new Error(data.message || "Error sending evaluation") as any;
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+import type { APIRoute } from "astro";
+import { getEvaluationQuestions } from "@/features/history/services/getEvaluationQuestions";
+
+export const GET: APIRoute = async ({ cookies }) => {
+  try {
+    const token = cookies.get("access_token")?.value;
+
+    if (!token) {
+            return new Response(JSON.stringify({
+                error: "Token not found"
+            }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+    const data = await getEvaluationQuestions(token);
+Expand commentComment on lines R4 to R18
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (error: any) {
+    return new Response(
+      JSON.stringify({
+        error: error.message || "Failed to fetch evaluation questions"
+      }),
+      {
+        status: error.status || 500,
+        headers: { "Content-Type": "application/json" }
+      }
+    );
+}
+};
+
+import type { APIRoute } from "astro";
+import { getSessionEvaluationStatus } from "@/features/history/services/getSessionEvaluationStatus";
+
+export const GET: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get("access_token")?.value;
+
+    if (!token) {
+      return new Response(
+        JSON.stringify({
+          error: "Token not found",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const url = new URL(request.url);
+    const sessionId = url.searchParams.get("sessionId");
+    const studentId = url.searchParams.get("studentId");
+
+    if (!sessionId || !studentId) {
+      return new Response(
+        JSON.stringify({
+          error: "sessionId and studentId are required",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const data = await getSessionEvaluationStatus(sessionId, studentId, token);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error: any) {
+    return new Response(
+      JSON.stringify({
+        error: error.message || "Failed to fetch evaluation status",
+      }),
+      {
+        status: error.status || 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+import type { APIRoute } from "astro";
+import { sendSessionEvaluation } from "@/features/history/services/sendSessionEvaluation";
+
+export const POST: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get("access_token")?.value;
+
+    if (!token) {
+            return new Response(JSON.stringify({
+                error: "Token not found"
+            }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" }
+            });
+        }
+
+    const { sessionId, ...payload } = await request.json();
+
+    const data = await sendSessionEvaluation(sessionId, payload, token);
+Expand commentComment on lines R4 to R20
+    return new Response(JSON.stringify(data), {
+      status: 201,
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (error: any) {
+  return new Response(
+    JSON.stringify({
+      error: error.message,
+    }),
+    {
+      status: error.status || 400,
+      headers: { "Content-Type": "application/json" }
+    }
+  );
+}
+};
+
+

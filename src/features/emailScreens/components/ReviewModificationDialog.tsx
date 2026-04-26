@@ -3,7 +3,8 @@
 // Task 1 — Vista de aceptar/rechazar propuesta de modificación
 
 import { useState, useEffect, useCallback } from 'react';
-import '../styles/emailScreens.css';
+import '../styles/ReviewModificationDialog.css';
+import { Monitor, Clock, Calendar, CheckCircle, X } from 'lucide-react';
 
 interface Props {
   requestId: string;
@@ -14,6 +15,7 @@ interface ModificationRequest {
   id: string;
   sessionId: string;
   sessionTitle?: string;
+  sessionDescription?: string;
   currentModality?: string;
   currentDurationHours?: number;
   currentSchedule?: string;
@@ -40,6 +42,7 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
   const [error, setError]                 = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [success, setSuccess]             = useState<string | null>(null);
+  const [showCurrent, setShowCurrent]     = useState(false);
 
   useEffect(() => {
     fetch(`/api/emailScreens/modification-requests/${requestId}`)
@@ -50,7 +53,10 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
         }
         return res.json();
       })
-      .then(setRequest)
+      .then((data) => {
+        console.log('[Frontend] Detalle de modificación recibido:', data);
+        setRequest(data);
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [requestId]);
@@ -80,7 +86,7 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId }),
+        body: JSON.stringify({ requestId, sessionId: request.sessionId }),
       });
 
       if (!res.ok) {
@@ -130,47 +136,82 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
 
         {!loading && !error && !success && request && (
           <>
-            <h2 className="es-title">Revisar propuesta de modificación</h2>
-
-            {request.sessionTitle && (
-              <p className="es-session-name">{request.sessionTitle}</p>
-            )}
-
-            {/* Current vs proposed — clearly differentiated */}
-            <div className="es-session-details">
-              {request.currentModality && (
-                <div className="es-detail-item">
-                  <div className="es-detail-item__label">Modalidad actual</div>
-                  <div className="es-detail-item__value">{modalityLabel(request.currentModality)}</div>
-                </div>
-              )}  
-              {request.newModality && (
-                <div className="es-detail-item" style={{ borderColor: '#7c3aed' }}>
-                  <div className="es-detail-item__label">Modalidad propuesta</div>
-                  <div className="es-detail-item__value" style={{ color: '#7c3aed' }}>
-                    {modalityLabel(request.newModality)}
-                  </div>
-                </div>
-              )}
-              {request.currentDurationHours && (
-                <div className="es-detail-item">
-                  <div className="es-detail-item__label">Duración actual</div>
-                  <div className="es-detail-item__value">{request.currentDurationHours}h</div>
-                </div>
-              )}
-              {request.newDurationHours && (
-                <div className="es-detail-item" style={{ borderColor: '#7c3aed' }}>
-                  <div className="es-detail-item__label">Duración propuesta</div>
-                  <div className="es-detail-item__value" style={{ color: '#7c3aed' }}>
-                    {request.newDurationHours}h
-                  </div>
-                </div>
-              )}
+            {/* Header section */}
+            <div className="es-header">
+              <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                {request.proposedBy?.charAt(0) ?? 'T'}
+              </div>
+              <div className="es-header-text" style={{ opacity: showCurrent ? 0.7 : 1 }}>
+                <h2 className="es-title">{request.sessionTitle || 'Propuesta de sesión'}</h2>
+                <p className="es-description">{request.sessionDescription || 'Sin descripción disponible.'}</p>
+              </div>
             </div>
 
-            {/* Expiration */}
-            {request.expiresAt && (
-              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''}`}>
+            {/* Tags row */}
+            <div className="es-tags">
+              <span className="es-tag es-tag--subject">Diferencial</span>
+              <span className="es-tag es-tag--tutor">
+                <span className="es-tag__dot" />
+                {request.proposedBy}
+              </span>
+              <span className="es-tag es-tag--status">Pendiente</span>
+              <a href="#" className="es-tag es-tag--link" onClick={(e) => e.preventDefault()}>
+                🔗 Ver detalles
+              </a>
+            </div>
+
+            {/* Modification section */}
+            <h3 className="es-section-title">
+              <span className="es-section-dot" />
+              Propuesta de modificación
+              <span 
+                className="es-section-link" 
+                onClick={() => setShowCurrent(!showCurrent)}
+                style={{ cursor: 'pointer' }}
+              >
+                {showCurrent ? 'Ver propuesta' : 'Ver estado actual'}
+              </span>
+            </h3>
+
+            <div className="es-mod-row">
+              <div className={`es-info-card--mod ${showCurrent ? 'es-info-card--current' : ''}`}>
+                <div className="es-info-card__icon">
+                  <Monitor size={18} />
+                </div>
+                <span className="es-info-card__label">
+                  {showCurrent ? modalityLabel(request.currentModality) : modalityLabel(request.newModality)}
+                </span>
+              </div>
+              
+              <div className={`es-info-card--mod ${showCurrent ? 'es-info-card--current' : ''}`}>
+                <div className="es-info-card__icon">
+                  <CheckCircle size={18} />
+                </div>
+                <span className="es-info-card__label">
+                  {showCurrent ? 'Cerrada' : 'Abierta'}
+                </span>
+              </div>
+            </div>
+
+            <div className={`es-info-card--mod es-info-card--full ${showCurrent ? 'es-info-card--current' : ''}`} style={{ marginBottom: 20 }}>
+               <div className="es-info-card__icon">
+                 <Calendar size={18} />
+               </div>
+               <span className="es-info-card__label">
+                 {showCurrent 
+                   ? (request.currentSchedule || 'Fecha original') 
+                   : (request.newSchedule || 'Fecha propuesta')
+                 }
+               </span>
+            </div>
+
+            {/* Status or Expiration Message */}
+            {request.status !== 'PENDING' ? (
+              <div className="es-expiration" style={{ marginBottom: 20, background: '#f1f5f9', color: '#475569', textAlign: 'center' }}>
+                ✓ Esta propuesta ya ha sido {request.status === 'ACCEPTED' ? 'aceptada' : 'procesada'}.
+              </div>
+            ) : request.expiresAt && (
+              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''}`} style={{ marginBottom: 20 }}>
                 {isExpired
                   ? '⚠ Esta propuesta ha expirado'
                   : `Expira: ${new Date(request.expiresAt).toLocaleString('es-CO')}`
@@ -178,21 +219,21 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
               </div>
             )}
 
-            {!isExpired && (
+            {!isExpired && request.status === 'PENDING' && (
               <div className="es-footer">
-                <button
-                  className="es-btn es-btn--reject"
-                  onClick={() => handleAction('reject')}
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? 'Procesando…' : 'Rechazar'}
-                </button>
                 <button
                   className="es-btn es-btn--confirm"
                   onClick={() => handleAction('accept')}
                   disabled={actionLoading}
                 >
                   {actionLoading ? 'Procesando…' : 'Aceptar'}
+                </button>
+                <button
+                  className="es-btn es-btn--reject"
+                  onClick={() => handleAction('reject')}
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? 'Procesando…' : 'Rechazar'}
                 </button>
               </div>
             )}

@@ -3,8 +3,9 @@
 // Task 2 — Vista de confirmar/rechazar solicitud de sesión
 
 import { useState, useEffect, useCallback } from 'react';
-import '../styles/emailScreens.css';
+import '../styles/ConfirmSessionDialog.css';
 import type { Session } from '@features/emailScreens/types/session.types';
+import { Monitor, Clock, Calendar, MapPin, X } from 'lucide-react';
 
 interface Props {
   sessionId: string;
@@ -133,38 +134,81 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
 
         {!loading && !error && !success && session && (
           <>
-            <h2 className="es-title">Confirmar solicitud de tutoría</h2>
-            <p className="es-session-name">{session.title}</p>
-
-            {/* Session details grid */}
-            <div className="es-session-details">
-              <div className="es-detail-item">
-                <div className="es-detail-item__label">Estudiante</div>
-                <div className="es-detail-item__value">{session.student?.name ?? '—'}</div>
-              </div>
-              <div className="es-detail-item">
-                <div className="es-detail-item__label">Materia</div>
-                <div className="es-detail-item__value">{String(session.subject?.name ?? session.subject)}</div>
-              </div>
-              <div className="es-detail-item">
-                <div className="es-detail-item__label">Fecha y hora</div>
-                <div className="es-detail-item__value">
-                  {formatDate(session.scheduledDate, session.startTime)}
+            {/* Header section */}
+            <div className="es-header">
+              {session.tutor?.photo ? (
+                <img src={session.tutor.photo} alt={session.tutor.name} className="es-avatar" />
+              ) : (
+                <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                  {session.tutor?.name?.charAt(0) ?? 'T'}
                 </div>
-              </div>
-              <div className="es-detail-item">
-                <div className="es-detail-item__label">Modalidad</div>
-                <div className="es-detail-item__value">{statusLabel(String(session.modality))}</div>
+              )}
+              <div className="es-header-text">
+                <h2 className="es-title">{session.title}</h2>
+                <p className="es-description">{session.description || 'Sin descripción disponible.'}</p>
               </div>
             </div>
 
-            {session.description && (
-              <p className="es-description">{session.description}</p>
-            )}
+            {/* Tags row */}
+            <div className="es-tags">
+              <span className="es-tag es-tag--subject">
+                {String(session.subject?.name ?? session.subject)}
+              </span>
+              <span className="es-tag es-tag--tutor">
+                <span className="es-tag__dot" />
+                {session.tutor?.name}
+              </span>
+              <span className="es-tag es-tag--status">
+                {session.status}
+              </span>
+              {session.modality === 'VIRT' && (
+                <a href="#" className="es-tag es-tag--link" onClick={(e) => e.preventDefault()}>
+                  🔗 Enlace de la sesión
+                </a>
+              )}
+            </div>
 
-            {/* Expiration */}
-            {session.expiresAt && (
-              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''}`}>
+            {/* 4-Grid info cards */}
+            <div className="es-grid">
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <Monitor size={20} />
+                </div>
+                <span className="es-info-card__label">{session.modality === 'VIRT' ? 'Virtual' : 'Presencial'}</span>
+              </div>
+              
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <Clock size={20} />
+                </div>
+                <span className="es-info-card__label">{session.duration} horas</span>
+              </div>
+
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <Calendar size={20} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span className="es-info-card__label">{formatDate(session.scheduledDate, '').split(' · ')[0]}</span>
+                  <span className="es-info-card__sublabel">{session.startTime.substring(0, 5)}</span>
+                </div>
+              </div>
+
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <MapPin size={20} />
+                </div>
+                <span className="es-info-card__label">Pendiente</span>
+              </div>
+            </div>
+
+            {/* Expiration or Status Message */}
+            {session.status !== 'PENDING_TUTOR_CONFIRMATION' ? (
+              <div className="es-expiration" style={{ marginBottom: 20, background: '#f1f5f9', color: '#475569', textAlign: 'center' }}>
+                ✓ Esta sesión ya ha sido {session.status === 'SCHEDULED' ? 'confirmada' : 'procesada'}.
+              </div>
+            ) : session.expiresAt && (
+              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''}`} style={{ marginBottom: 20 }}>
                 {isExpired
                   ? '⚠ Esta solicitud ha expirado'
                   : `Expira: ${new Date(session.expiresAt).toLocaleString('es-CO')}`
@@ -184,21 +228,21 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
               />
             )}
 
-            {!isExpired && (
+            {!isExpired && session.status === 'PENDING_TUTOR_CONFIRMATION' && (
               <div className="es-footer">
+                <button
+                  className="es-btn es-btn--confirm"
+                  onClick={() => handleAction('confirm')}
+                  disabled={actionLoading || showRejectReason}
+                >
+                  {actionLoading ? 'Procesando…' : 'Aceptar'}
+                </button>
                 <button
                   className="es-btn es-btn--reject"
                   onClick={() => handleAction('reject')}
                   disabled={actionLoading || (showRejectReason && rejectReason.trim() === '')}
                 >
                   {actionLoading ? 'Procesando…' : 'Rechazar'}
-                </button>
-                <button
-                  className="es-btn es-btn--confirm"
-                  onClick={() => handleAction('confirm')}
-                  disabled={actionLoading || showRejectReason}
-                >
-                  {actionLoading ? 'Procesando…' : 'Confirmar'}
                 </button>
               </div>
             )}

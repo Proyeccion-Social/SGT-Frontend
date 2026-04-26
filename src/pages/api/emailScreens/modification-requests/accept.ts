@@ -14,15 +14,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const { requestId } = await request.json();
-    if (!requestId) {
+    const { requestId, sessionId } = await request.json();
+    if (!requestId || !sessionId) {
       return new Response(
-        JSON.stringify({ message: 'requestId es requerido' }),
+        JSON.stringify({ message: 'requestId y sessionId son requeridos' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const data = await acceptModificationRequest(requestId, token);
+    const data = await acceptModificationRequest(sessionId, requestId, token);
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

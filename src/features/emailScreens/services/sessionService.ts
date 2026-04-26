@@ -9,7 +9,7 @@ import type {
   EditSessionBody,
 } from '../types/session.types';
 
-const API_URL = import.meta.env.PUBLIC_API_URL;
+const API_URL = import.meta.env.API_URL || import.meta.env.PUBLIC_API_URL;
 
 // ─── Generic request helper (server-side, with token) ───────
 async function request<T>(
@@ -169,26 +169,29 @@ export function getModificationRequest(
   requestId: string,
   token: string
 ): Promise<any> {
-  return request(`/scheduling/modification-requests/${requestId}`, token);
+  // Nota: Según tu hallazgo, el backend usa :id para el requestId en esta ruta específica
+  return request(`/scheduling/sessions/${requestId}/modification-request`, token);
 }
 
 // ─── Aceptar modification-request (server-side) ─────────────
 export function acceptModificationRequest(
+  sessionId: string,
   requestId: string,
   token: string
 ): Promise<{ message: string }> {
-  return request(`/scheduling/modification-requests/${requestId}/accept`, token, {
-    method: 'POST',
+  return request(`/scheduling/sessions/${sessionId}/modifications/${requestId}/accept`, token, {
+    method: 'PATCH',
   });
 }
 
 // ─── Rechazar modification-request (server-side) ────────────
 export function rejectModificationRequest(
+  sessionId: string,
   requestId: string,
   token: string
 ): Promise<{ message: string }> {
-  return request(`/scheduling/modification-requests/${requestId}/reject`, token, {
-    method: 'POST',
+  return request(`/scheduling/sessions/${sessionId}/modifications/${requestId}/reject`, token, {
+    method: 'PATCH',
   });
 }
 

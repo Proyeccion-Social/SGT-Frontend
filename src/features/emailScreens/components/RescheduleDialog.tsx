@@ -1,7 +1,7 @@
 // RescheduleDialog.tsx
 // Task 3 — Vista de reagendar sesión
 import { useState, useEffect, useCallback } from 'react';
-import '../styles/emailScreens.css';
+import '../styles/RescheduleDialog.css';
 import type { Session } from '@features/emailScreens/types/session.types';
 
 interface Props {
@@ -48,7 +48,8 @@ export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
     const subjectId = session?.subject?.id ?? '';
     const params = new URLSearchParams();
     if (subjectId) params.set('subjectId', String(subjectId));
-    window.location.href = `/dashboard?view=search${params.toString() ? '&' + params.toString() : ''}`;
+    // Redirigir a la página real de búsqueda
+    window.location.href = `/search/${params.toString() ? '?' + params.toString() : ''}`;
   };
 
   return (

@@ -74,6 +74,8 @@ export interface Session {
   createdAt: string;                 // ISO date-time
   cancelledAt: string | null;
   cancellationReason: string | null;
+  expiresAt?: string;                // Para solicitudes expirables
+  student?: { name: string };        // Para simplificar vista de confirmación
 }
 
 export type EvaluationAspect =

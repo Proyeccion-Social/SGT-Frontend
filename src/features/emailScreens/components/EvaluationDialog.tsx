@@ -1,7 +1,8 @@
 // EvaluationDialog.tsx
 // Task 4 — Vista de calificación post-sesión
 import { useState, useEffect, useCallback } from 'react';
-import '../styles/emailScreens.css';
+import '../styles/EvaluationDialog.css';
+import { Monitor, Clock, Calendar, CheckCircle, X } from 'lucide-react';
 
 interface Props {
   sessionId: string;
@@ -16,10 +17,11 @@ interface EvalAspect {
 }
 
 const ASPECTS: Omit<EvalAspect, 'value'>[] = [
-  { key: 'topicMastery', label: 'Dominio del tema' },
+  { key: 'knowledge', label: 'Dominio del tema' },
   { key: 'clarity', label: 'Claridad en explicación' },
   { key: 'punctuality', label: 'Disponibilidad y puntualidad' },
-  { key: 'attitude', label: 'Paciencia y actitud' },
+  { key: 'patience', label: 'Paciencia y actitud' },
+  { key: 'usefulness', label: 'Utilidad de la sesión' },
 ];
 
 const StarRow = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
@@ -41,6 +43,7 @@ const StarRow = ({ value, onChange }: { value: number; onChange: (v: number) => 
 export const EvaluationDialog = ({ sessionId, isReminder = false, onClose }: Props) => {
   const [loading, setLoading] = useState(true);
   const [sessionTitle, setSessionTitle] = useState('');
+  const [sessionDescription, setSessionDescription] = useState('');
   const [alreadyRated, setAlreadyRated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -48,7 +51,7 @@ export const EvaluationDialog = ({ sessionId, isReminder = false, onClose }: Pro
 
   // Form state
   const [ratings, setRatings] = useState<Record<string, number>>({
-    topicMastery: 0, clarity: 0, punctuality: 0, attitude: 0,
+    knowledge: 0, clarity: 0, punctuality: 0, patience: 0, usefulness: 0,
   });
   const [modalityAdequate, setModalityAdequate] = useState<boolean | null>(null);
   const [topicCovered, setTopicCovered] = useState<string | null>(null);
@@ -62,6 +65,7 @@ export const EvaluationDialog = ({ sessionId, isReminder = false, onClose }: Pro
       })
       .then((data) => {
         setSessionTitle(data.title ?? 'Sesión');
+        setSessionDescription(data.description ?? '');
         if (data.evaluation) setAlreadyRated(true);
       })
       .catch((err) => setError(err.message))
@@ -140,56 +144,68 @@ export const EvaluationDialog = ({ sessionId, isReminder = false, onClose }: Pro
               <div className="es-reminder-banner">📩 Este es un recordatorio para calificar tu sesión</div>
             )}
 
-            <h2 className="es-title">Califica tu sesión</h2>
-            <p className="es-session-name">{sessionTitle}</p>
+            {/* Header section */}
+            <div className="es-header">
+              <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                T
+              </div>
+              <div className="es-header-text">
+                <h2 className="es-title">{sessionTitle}</h2>
+                <p className="es-description">{sessionDescription || 'Sin descripción disponible.'}</p>
+              </div>
+            </div>
 
-            <div className="es-eval">
-              {ASPECTS.map((aspect) => (
-                <div key={aspect.key} className="es-eval__section">
-                  <label className="es-eval__label">{aspect.label}</label>
-                  <StarRow value={ratings[aspect.key]} onChange={(v) => setRating(aspect.key, v)} />
+            {/* Tags row */}
+            <div className="es-tags">
+              <span className="es-tag es-tag--subject">Diferencial</span>
+              <span className="es-tag es-tag--tutor">
+                <span className="es-tag__dot" />
+                Daniel Camacho
+              </span>
+              <span className="es-tag es-tag--status">Cerrada</span>
+              <a href="#" className="es-tag es-tag--link" onClick={(e) => e.preventDefault()}>
+                🔗 Enlace de la sesión
+              </a>
+            </div>
+
+            {/* 4-Grid summary */}
+            <div className="es-grid">
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <Monitor size={20} />
                 </div>
-              ))}
+                <span className="es-info-card__label">Virtual</span>
+              </div>
+              
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <Clock size={20} />
+                </div>
+                <span className="es-info-card__label">2 horas</span>
+              </div>
 
-              {/* Modality question */}
-              <div className="es-eval__section">
-                <label className="es-eval__label">¿La modalidad fue adecuada?</label>
-                <div className="es-radio-group">
-                  <button type="button"
-                    className={`es-radio ${modalityAdequate === true ? 'es-radio--selected' : ''}`}
-                    onClick={() => setModalityAdequate(true)}>Sí</button>
-                  <button type="button"
-                    className={`es-radio ${modalityAdequate === false ? 'es-radio--selected' : ''}`}
-                    onClick={() => setModalityAdequate(false)}>No</button>
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <Calendar size={20} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span className="es-info-card__label">12 de Marzo</span>
+                  <span className="es-info-card__sublabel">2:00pm</span>
                 </div>
               </div>
 
-              {/* Topic covered question */}
-              <div className="es-eval__section">
-                <label className="es-eval__label">¿Se cubrió el tema?</label>
-                <div className="es-radio-group">
-                  {['Sí', 'Parcialmente', 'No'].map((opt) => (
-                    <button key={opt} type="button"
-                      className={`es-radio ${topicCovered === opt ? 'es-radio--selected' : ''}`}
-                      onClick={() => setTopicCovered(opt)}>{opt}</button>
-                  ))}
+              <div className="es-info-card">
+                <div className="es-info-card__icon">
+                  <CheckCircle size={20} />
                 </div>
-              </div>
-
-              {/* Optional comment */}
-              <div className="es-eval__section">
-                <label className="es-eval__label">Comentario (opcional)</label>
-                <textarea className="es-textarea" value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder="Comparte tu experiencia…" rows={3} />
+                <span className="es-info-card__label">Terminada</span>
               </div>
             </div>
 
             <div className="es-footer">
-              <button className="es-btn es-btn--reject" onClick={onClose}>Cancelar</button>
               <button className="es-btn es-btn--confirm" onClick={handleSubmit}
-                disabled={!canSubmit || submitting}>
-                {submitting ? 'Enviando…' : 'Enviar calificación'}
+                disabled={submitting} style={{ padding: '12px 64px' }}>
+                {submitting ? 'Enviando…' : 'Calificar'}
               </button>
             </div>
           </>

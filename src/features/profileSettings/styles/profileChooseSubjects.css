@@ -1,0 +1,92 @@
+/* ============================================================
+   Profile Choose Subjects
+   prefix: pcs-
+   Scatter picker adaptado a las dimensiones del dialog de perfil.
+   ============================================================ */
+
+.pcs-root {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Zona de scatter — rellena todo el espacio disponible */
+.pcs-content {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Estado de carga / vacío */
+.pcs-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #9ca3af;
+    font-size: 0.8125rem;
+}
+
+/* ── Tag base ────────────────────────────────────────────── */
+.pcs-tag {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.28rem 0.7rem;
+    border-radius: 14px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 17px;
+    color: #3c3c3c;
+    white-space: nowrap;
+    user-select: none;
+    /* El transform ancla la esquina superior-izquierda del tag en el punto calculado */
+    transform: translate(-20%, -20%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.3s ease;
+}
+
+.pcs-tag:hover {
+    transform: translate(-20%, -20%) scale(1.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.pcs-tag:active {
+    transform: translate(-20%, -20%) scale(0.95);
+}
+
+/* Último tag seleccionado — doble anillo de color */
+.pcs-tag--last {
+    box-shadow: 0 0 0 3px var(--subject-color), 0 0 0 6px var(--subject-border);
+    z-index: 10;
+}
+
+/* ── Tick de confirmación ────────────────────────────────── */
+.pcs-tick {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--subject-border);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pcs-tick-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes pcs-tick-pop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}

@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import ChooseSubjects from "@/features/tutorProfile/components/ChooseSubjects";
-import type { StepHandle } from "@/features/tutorProfile/components/ChooseSubjects";
+import ProfileChooseSubjects from "./ProfileChooseSubjects";
+import type { PCSHandle } from "./ProfileChooseSubjects";
 
 import materiasIconSrc from "../../assets/materias.svg?url";
 import modalidadIconSrc from "../../assets/modalidad.svg?url";
@@ -40,20 +40,41 @@ interface PreferencesViewProps {
 
 export function PreferencesView({ initialTab }: PreferencesViewProps) {
   const [activeTab, setActiveTab] = useState<PreferencesSubTab>(initialTab ?? "materias");
-  const subjectsRef = useRef<StepHandle>(null);
+  const [initialSelected, setInitialSelected] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const subjectsRef = useRef<PCSHandle>(null);
 
-  function handleSaveSubjects() {
-    const data = subjectsRef.current?.getData?.() as { subject_ids: string[] } | undefined;
+  // Cargar materias de interés actuales del estudiante al montar
+  useEffect(() => {
+    fetch("/api/settings/subjects")
+      .then((r) => r.json())
+      .then((data) => {
+        const ids: string[] = (data.subjects ?? []).map((s: { id: string }) => s.id);
+        setInitialSelected(ids);
+      })
+      .catch(() => {/* silencioso: el componente arranca sin selección previa */});
+  }, []);
+
+  async function handleSaveSubjects() {
+    const data = subjectsRef.current?.getData();
     if (!data) return;
 
-    // TODO: llamar BFF para guardar materias seleccionadas del perfil
-    // fetch('/api/bff/profile/subjects', {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ subject_ids: data.subject_ids }),
-    // })
-    //   .then(res => res.json())
-    //   .then(() => { /* feedback al usuario */ });
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings/subjects", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subjectIds: data.subjectIds }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        console.error("Error guardando materias:", err);
+      }
+    } catch (e) {
+      console.error("Error de red al guardar materias:", e);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -76,20 +97,20 @@ export function PreferencesView({ initialTab }: PreferencesViewProps) {
       <main className="pv-main">
         {activeTab === "materias" && (
           <div className="pv-subjects-wrapper">
-            <ChooseSubjects
+            <div className="pv-subjects-header">
+              <p className="pv-subjects-header__title">Materias de tu interés</p>
+              <p className="pv-subjects-header__subtitle">Máximo {10} materias</p>
+            </div>
+
+            <ProfileChooseSubjects
               ref={subjectsRef}
-              onNext={(data) => {
-                // TODO: llamar BFF para guardar materias (invocado via triggerContinue)
-                // fetch('/api/bff/profile/subjects', {
-                //   method: 'PUT',
-                //   headers: { 'Content-Type': 'application/json' },
-                //   body: JSON.stringify(data),
-                // });
-              }}
+              initialSelected={initialSelected}
+              maxSelections={10}
             />
+
             <div className="pv-subjects-actions">
-              <Button type="button" onClick={handleSaveSubjects}>
-                Guardar
+              <Button type="button" onClick={handleSaveSubjects} disabled={saving}>
+                {saving ? "Guardando…" : "Guardar"}
               </Button>
             </div>
           </div>

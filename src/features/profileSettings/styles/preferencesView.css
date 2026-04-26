@@ -92,17 +92,10 @@
   min-height: 0;
 }
 
-/* Overrides de ChooseSubjects dentro del dialog */
-.pv-subjects-wrapper .drawer-body {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+/* ProfileChooseSubjects ocupa el espacio restante entre header y actions */
+.pv-subjects-wrapper .pcs-root {
   flex: 1;
-  padding: 0;
-}
-
-.pv-subjects-wrapper .body-header-subjects {
-  display: none;
+  min-height: 0;
 }
 
 /* ── Header propio para la vista de materias ─────────────── */
@@ -126,20 +119,6 @@
   margin-top: 2px;
 }
 
-.pv-subjects-wrapper .body-content {
-  position: relative;
-  height: 290px;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-/* Reducir tamaño de cada tag para que el scatter no genere solapamiento */
-.pv-subjects-wrapper .body-content .subject-tag {
-  font-size: 11px;
-  line-height: 16px;
-  padding: 0.25rem 0.65rem;
-  border-radius: 14px;
-}
 
 .pv-subjects-actions {
   display: flex;

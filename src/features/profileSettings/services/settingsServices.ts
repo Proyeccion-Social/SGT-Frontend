@@ -1,0 +1,138 @@
+const API_URL = import.meta.env.API_URL;
+const STUDENTS_PATH = '/students/me';
+
+//===============================================================
+// Types
+//===============================================================
+export type PreferredModality = 'PRES' | 'VIRT';
+
+export interface StudentPreferences {
+    career: string | null;
+    preferredModality: PreferredModality | null;
+}
+
+export interface UpdatePreferencesDto {
+    career?: string;
+    preferredModality?: PreferredModality;
+}
+
+export interface Subject {
+    id: string;
+    name: string;
+}
+
+export interface ApiError {
+    code: string;
+    httpStatus: number | string;
+    message: string;
+    description: string;
+}
+
+//===============================================================
+// Helpers
+//===============================================================
+function getToken(): string | null {
+    if (typeof document === 'undefined') return null;
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; access_token=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+}
+
+function buildAuthHeaders(): HeadersInit {
+    const token = getToken();
+    if (!token) throw new Error('AUTH_05: No hay token de sesión. Por favor inicia sesión.');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+    };
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+    if (response.ok) return response.json() as Promise<T>;
+
+    const errorBody: ApiError = await response.json().catch(() => ({
+        code: 'INTERNAL_01',
+        httpStatus: response.status,
+        message: 'Error interno del servidor',
+        description: 'Error al procesar la respuesta del servidor',
+    }));
+    throw errorBody;
+}
+
+//===============================================================
+// Services — Preferences
+//===============================================================
+
+/**
+ * GET /api/v1/students/me/preferences
+ * Obtiene las preferencias del estudiante autenticado (carrera y modalidad preferida).
+ * Cualquier campo puede llegar como null si no ha sido configurado.
+ */
+export async function getStudentPreferences(): Promise<StudentPreferences> {
+    const headers = buildAuthHeaders();
+    const response = await fetch(`${API_URL}${STUDENTS_PATH}/preferences`, {
+        method: 'GET',
+        headers,
+    });
+    return handleResponse<StudentPreferences>(response);
+}
+
+/**
+ * PATCH /api/v1/students/me/preferences
+ * Actualiza carrera o modalidad preferida. Ambos campos son opcionales.
+ *
+ * Posibles errores:
+ * - VALIDATION_01 (400): career fuera de rango (mín 3 / máx 100 chars) o preferredModality inválida.
+ * - AUTH_01 (401): Token inválido o expirado.
+ * - AUTH_05 (401): No hay token de sesión.
+ */
+export async function updateStudentPreferences(dto: UpdatePreferencesDto): Promise<StudentPreferences> {
+    const headers = buildAuthHeaders();
+    const response = await fetch(`${API_URL}${STUDENTS_PATH}/preferences`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(dto),
+    });
+    return handleResponse<StudentPreferences>(response);
+}
+
+//===============================================================
+// Services — Interested Subjects
+//===============================================================
+
+/**
+ * GET /api/v1/students/me/interested-subjects
+ * Obtiene las materias de interés del estudiante autenticado.
+ * Si no tiene materias registradas, subjects llega como array vacío.
+ */
+export async function getStudentSubjects(): Promise<Subject[]> {
+    const headers = buildAuthHeaders();
+    const response = await fetch(`${API_URL}${STUDENTS_PATH}/interested-subjects`, {
+        method: 'GET',
+        headers,
+    });
+    const result = await handleResponse<{ subjects: Subject[] }>(response);
+    return result.subjects ?? [];
+}
+
+/**
+ * PATCH /api/v1/students/me/interested-subjects
+ * Reemplaza toda la lista de materias de interés.
+ * Enviar array vacío limpia la selección.
+ *
+ * Posibles errores:
+ * - VALIDATION_01 (400): UUIDs inválidos, más de 10 elementos, o duplicados.
+ * - AUTH_01 (401): Token inválido o expirado.
+ * - AUTH_05 (401): No hay token de sesión.
+ */
+export async function updateStudentSubjects(subjectIds: string[]): Promise<Subject[]> {
+    const headers = buildAuthHeaders();
+    const response = await fetch(`${API_URL}${STUDENTS_PATH}/interested-subjects`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ subjectIds }),
+    });
+    const result = await handleResponse<{ subjects: Subject[] }>(response);
+    return result.subjects ?? [];
+}

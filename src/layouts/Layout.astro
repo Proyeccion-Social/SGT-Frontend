@@ -3,6 +3,8 @@ import "@/styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToasterReact from "@/components/ui/ToasterReact";
+import { AstroFont } from "astro-font";
+import { join } from "node:path";
 
 interface Props {
   title: string;
@@ -20,6 +22,63 @@ const { title, noToaster = false } = Astro.props;
     <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
     <meta name='generator' content={Astro.generator} />
     <ClientRouter />
+    <AstroFont
+      config={[
+        {
+          name: "Cabinet Grotesk Variable",
+          src: [
+            {
+              style: 'normal',
+              weight: '100 900',
+              path: join(process.cwd(), 'src', 'assets', 'fonts', 'CabinetGrotesk-Variable.ttf')
+            }
+          ],
+          preload: true,
+          display: "swap",
+          selector: "body",
+          fallback: "sans-serif"
+        },
+        {
+          name: "Caveat",
+          src: [
+            {
+              style: 'normal',
+              weight: '400',
+              path: join(process.cwd(), 'src', 'assets', 'fonts', 'Caveat-Regular.ttf')
+            }
+          ],
+          preload: true,
+          display: "swap",
+          selector: "body",
+          fallback: "sans-serif"
+        },
+        {
+          name: "Open Sauce Two",
+          src: [
+            { weight: '300', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-Light.ttf') },
+            { weight: '400', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-Regular.ttf') },
+            { weight: '500', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-Medium.ttf') },
+            { weight: '600', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-SemiBold.ttf') },
+            { weight: '700', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-Bold.ttf') },
+            { weight: '800', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-ExtraBold.ttf') },
+            { weight: '900', style: 'normal', path: join(process.cwd(), 'src', 'assets', 'fonts', 'sans', 'OpenSauceSans-Black.ttf') }
+          ],
+          preload: true,
+          display: "swap",
+          selector: "body",
+          fallback: "sans-serif"
+        },
+        {
+          name: "Figtree Variable",
+          src: [],
+          googleFontsURL: 'https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap',
+          preload: true,
+          display: "swap",
+          selector: "body",
+          fallback: "sans-serif"
+        }
+      ]}
+    />
     <title>{title}</title>
   </head>
   <body>

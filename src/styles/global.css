@@ -2,17 +2,9 @@
 @import "sileo/styles.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/figtree";
 @import "./variables.css";
 @custom-variant dark (&:is(.dark *));
 
-@font-face {
-  font-family: "Cabinet Grotesk Variable";
-  src: url("/src/assets/fonts/CabinetGrotesk-Variable.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
 
 :root {
   font-family:
@@ -73,72 +65,6 @@
   background-color: #ffffff20 !important;
 }
 
-@font-face {
-  font-family: "Caveat";
-  src: url("/src/assets/fonts/Caveat-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-Light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-Regular.ttf")
-    format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-SemiBold.ttf")
-    format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-ExtraBold.ttf")
-    format("truetype");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Open Sauce Two";
-  src: url("/src/assets/fonts/sans/OpenSauceSans-Black.ttf") format("truetype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
 
 /* CSS Reset */
 *,

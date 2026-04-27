@@ -11,7 +11,7 @@ src/features/emailScreens/
 ├── components/          # Diálogos interactivos (Confirm, Review, etc.)
 ├── docs/                # Documentación técnica y de diseño
 ├── services/            # Lógica de comunicación con el BFF
-├── styles/              # EmailScreensShared.css y estilos por componente
+├── styles/              # Estilos compartidos y específicos (ResetPasswordForm.css)
 └── types/               # Definiciones de TypeScript para la feature
 ```
 
@@ -20,6 +20,7 @@ src/features/emailScreens/
 2. **Revisión de Modificación**: Comparar el estado actual vs. la propuesta y decidir.
 3. **Reprogramación (Reschedule)**: Seleccionar nuevos horarios.
 4. **Evaluación**: Calificar sesiones completadas con métricas y comentarios.
+5. **Restablecimiento de Contraseña**: Página pública para cambiar contraseñas mediante tokens de recuperación.
 
 ---
 Documentación generada por Antigravity.

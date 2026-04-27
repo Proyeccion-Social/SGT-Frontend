@@ -33,3 +33,9 @@ Se utilizan iconos SVG inline para evitar dependencias de archivos externos y as
 - `IconTimer`: Reloj para duración.
 - `IconCalendar`: Calendario para fecha.
 - `IconPin`: Pin de ubicación para estado/lugar.
+
+## 5. Diseño Premium (Reset Password)
+Para el restablecimiento de contraseña, se implementó un diseño "Premium Full-Page":
+- **Tipografía**: Uso extensivo de `Cabinet Grotesk Variable` para títulos de gran impacto.
+- **Layout**: Diseño de doble columna (Formulario | Ilustración/Icono Atlas).
+- **Feedback**: Estados de éxito y error con micro-animaciones (`scale-in`, `slide-up`) y confirmaciones visuales mediante Sileo.

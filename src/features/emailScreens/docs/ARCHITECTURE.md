@@ -13,6 +13,7 @@ Todas las solicitudes pasan por rutas de API locales para manejar la seguridad y
 - `src/pages/api/emailScreens/sessions/[sessionId].ts`
 - `src/pages/api/emailScreens/modification-requests/[requestId].ts`
 - `src/pages/api/emailScreens/evaluations/submit.ts`
+- `src/pages/api/emailScreens/reset-password.ts`
 
 Estas rutas actúan como proxies hacia el API principal (`PUBLIC_API_URL`), transformando los errores en mensajes legibles para el frontend.
 
@@ -27,3 +28,9 @@ Estas rutas actúan como proxies hacia el API principal (`PUBLIC_API_URL`), tran
 ## 4. Manejo de Errores
 - Los errores de red o lógica del backend se capturan en bloques `try/catch`.
 - Se muestran visualmente dentro del diálogo utilizando la clase `.es-card__error` para mantener la consistencia.
+
+## 5. Acciones Públicas (Reset Password)
+A diferencia de los diálogos de sesión, el restablecimiento de contraseña es una **página completa independiente** (`/reset-password`):
+- **Exclusión de Middleware**: No requiere autenticación.
+- **Validación de Token**: El token se extrae de la URL y se valida contra el backend.
+- **Seguridad**: El BFF utiliza `new URL()` y `searchParams` para asegurar que el token se reenvíe al backend de forma segura y codificada.

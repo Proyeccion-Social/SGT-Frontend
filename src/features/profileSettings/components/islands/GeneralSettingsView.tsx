@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { sileo } from "sileo";
+
+const PW_SPECIAL = /[@$!%*?&]/;
+const PW_REGEX   = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
 import generalIconSrc from "../../assets/general.svg?url";
 import contrasenaIconSrc from "../../assets/contraseña.svg?url";
@@ -125,29 +129,46 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
     setTimeout(() => setSavingInfo(false), 800);
   }
 
-  function handleSavePassword() {
+  async function handleSavePassword() {
     const errors = { current: "", newPw: "", confirm: "" };
-    if (!pwForm.current) errors.current = "Campo requerido.";
-    if (!pwForm.newPw || pwForm.newPw.length < 8) errors.newPw = "Mínimo 8 caracteres.";
-    if (pwForm.newPw !== pwForm.confirm) errors.confirm = "Las contraseñas no coinciden.";
+
+    if (!pwForm.current || pwForm.current.length < 8)
+      errors.current = "Mínimo 8 caracteres.";
+
+    if (!PW_REGEX.test(pwForm.newPw))
+      errors.newPw = "Debe tener mayúscula, minúscula, número y carácter especial (@$!%*?&).";
+
+    if (pwForm.newPw !== pwForm.confirm)
+      errors.confirm = "Las contraseñas no coinciden.";
+
     setPwErrors(errors);
     if (Object.values(errors).some(Boolean)) return;
 
     setSavingPw(true);
-
-    // TODO: llamar BFF para cambiar contraseña
-    // fetch('/api/bff/profile/password', {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ currentPassword: pwForm.current, newPassword: pwForm.newPw }),
-    // })
-    //   .then(res => res.json())
-    //   .finally(() => setSavingPw(false));
-
-    setTimeout(() => {
-      setSavingPw(false);
-      setPwForm({ current: "", newPw: "", confirm: "" });
-    }, 800);
+    await sileo.promise(
+      fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword:    pwForm.current,
+          newPassword:        pwForm.newPw,
+          confirmNewPassword: pwForm.confirm,
+        }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.message ?? "Error al cambiar la contraseña");
+        }
+        return res;
+      }),
+      {
+        loading: { title: "Actualizando contraseña…", fill: "#8751ff" },
+        success: { title: "Contraseña actualizada",   fill: "#58d68d" },
+        error:   { title: "No se pudo cambiar la contraseña", fill: "#f35761" },
+      },
+    )
+      .then(() => setPwForm({ current: "", newPw: "", confirm: "" }))
+      .finally(() => setSavingPw(false));
   }
 
   return (
@@ -230,7 +251,7 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
               value={pwForm.newPw}
               onChange={(val) => setPwForm((f) => ({ ...f, newPw: val }))}
               error={pwErrors.newPw}
-              placeholder="Mínimo 8 caracteres"
+              placeholder="Mín. 8 car., mayúscula, número y símbolo"
               autoComplete="new-password"
             />
             <PasswordField

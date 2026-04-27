@@ -33,7 +33,11 @@ function cleanQueryParams() {
   window.history.replaceState({}, '', url.pathname + (url.search || ''));
 }
 
-export const EmailActionController = () => {
+interface Props {
+  userId?: string;
+}
+
+export const EmailActionController = ({ userId }: Props) => {
   const [action, setAction] = useState<EmailAction>(null);
   const [resourceId, setResourceId] = useState<string | null>(null);
   const [isReminder, setIsReminder] = useState(false);
@@ -69,7 +73,7 @@ export const EmailActionController = () => {
     case 'reschedule':
       return <RescheduleDialog sessionId={resourceId} onClose={handleClose} />;
     case 'evaluate':
-      return <EvaluationDialog sessionId={resourceId} isReminder={isReminder} onClose={handleClose} />;
+      return <EvaluationDialog sessionId={resourceId} userId={userId} isReminder={isReminder} onClose={handleClose} />;
     default:
       return null;
   }

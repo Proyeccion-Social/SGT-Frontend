@@ -44,6 +44,8 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
   const [success, setSuccess]             = useState<string | null>(null);
   const [showCurrent, setShowCurrent]     = useState(false);
 
+  console.log("🆔 [Review Dialog] El Request ID que estás viendo es:", requestId);
+
   useEffect(() => {
     fetch(`/api/emailScreens/modification-requests/${requestId}`)
       .then(async (res) => {
@@ -83,10 +85,13 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
         ? '/api/emailScreens/modification-requests/accept'
         : '/api/emailScreens/modification-requests/reject';
 
+      const payload = { requestId, sessionId: request.sessionId };
+      console.log(`🚀 [Frontend] Enviando acción "${action}":`, payload);
+
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId, sessionId: request.sessionId }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {

@@ -1,4 +1,12 @@
-import { useState, useEffect, useRef, useImperativeHandle, forwardRef, useMemo } from "react";
+import {
+    useState,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useImperativeHandle,
+    forwardRef,
+    useMemo,
+} from "react";
 import "../../styles/profileChooseSubjects.css";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -15,7 +23,7 @@ interface ProfileChooseSubjectsProps {
     onChange?: (ids: string[]) => void;
 }
 
-// ─── Color palette (identical to ChooseSubjects) ─────────────────────────────
+// ─── Color palette (idéntica a ChooseSubjects) ────────────────────────────────
 
 const SUBJECT_COLORS = [
     { color: "#E8D5FF", borderColor: "#D1C4F5" },
@@ -31,65 +39,89 @@ const SUBJECT_COLORS = [
 
 // ─── Position algorithm ───────────────────────────────────────────────────────
 
-/**
- * Pseudorandom float [0,1) determinístico para un seed dado.
- * Basado en sin — suficiente distribución para scatter visual.
- */
 function seededRandom(seed: number): number {
     const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453123;
     return x - Math.floor(x);
 }
 
 /**
- * Distribuye N tags en una grilla dinámica con jitter controlado.
- * Devuelve posiciones como porcentajes del contenedor para que funcionen
- * a cualquier tamaño real del elemento.
+ * Estima el ancho en píxeles de un tag dado su nombre.
+ * Fuente: 11px, padding horizontal 0.7rem × 2 ≈ 22px.
+ */
+function estimateTagPx(name: string): { w: number; h: number } {
+    // ~6.2px por carácter promedio a 11px de fuente
+    return { w: Math.ceil(name.length * 6.2 + 24), h: 26 };
+}
+
+/**
+ * Distribuye N tags en una grilla centrada sin que ninguno quede fuera
+ * del contenedor ni se superponga estructuralmente con otro.
  *
  * Estrategia:
- * 1. Calcular cols/rows óptimos según la proporción del contenedor (aspect ~2:1).
- * 2. Crear tantos slots como celdas (cols×rows) y barajarlos con seed = count,
- *    de modo que el orden cambie cuando hay más o menos materias.
- * 3. Asignar a cada materia el slot i-ésimo del array barajado.
- * 4. Desplazar el centro de la celda con un jitter de hasta ±25 % del tamaño
- *    de la celda, asegurando que los tags queden dentro del rango seguro.
+ * 1. Calcular cols/rows usando el ancho promedio estimado de los tags.
+ * 2. Ordenar las celdas por distancia euclídea al centro (center-out).
+ * 3. Asignar sujeto[i] → celda[i] según ese orden.
+ * 4. Jitter seeded dentro del margen libre de la celda.
+ * 5. Clamp en px con margen de seguridad para que el tag nunca se corte.
  */
-function computePositions(count: number): Array<{ left: string; top: string }> {
-    if (count === 0) return [];
+function computePositions(
+    subjects: Subject[],
+    containerW: number,
+    containerH: number,
+): Array<{ left: number; top: number }> {
+    const n = subjects.length;
+    if (n === 0 || containerW === 0 || containerH === 0) return [];
 
-    // Relación ancho:alto aproximada del área de scatter (dialog 579px × 277px)
-    const ASPECT = 579 / 277;
+    const GAP = 14; // separación mínima entre tags
+    const SAFE = 6; // margen de seguridad respecto al borde del contenedor
 
-    const cols = Math.max(1, Math.ceil(Math.sqrt(count * ASPECT)));
-    const rows = Math.max(1, Math.ceil(count / cols));
+    const avgTagW =
+        subjects.reduce((s, sub) => s + estimateTagPx(sub.name).w, 0) / n;
+    const tagH = 26;
 
-    const cellW = 100 / cols;   // % por celda en X
-    const cellH = 100 / rows;   // % por celda en Y
+    // Número de columnas que caben cómodamente
+    const cols = Math.max(1, Math.floor(containerW / (avgTagW + GAP)));
+    const rows = Math.max(1, Math.ceil(n / cols));
 
-    // Barajar slots (Fisher-Yates con seed = count)
-    const slots = Array.from({ length: cols * rows }, (_, i) => i);
-    for (let i = slots.length - 1; i > 0; i--) {
-        const j = Math.floor(seededRandom(count * 100 + i) * (i + 1));
-        [slots[i], slots[j]] = [slots[j], slots[i]];
+    // Tamaño de celda que reparte uniformemente todo el contenedor
+    const cellW = containerW / cols;
+    const cellH = containerH / rows;
+
+    // Ordenar celdas: la más cercana al centro primero
+    const centerCol = (cols - 1) / 2;
+    const centerRow = (rows - 1) / 2;
+
+    const cells: Array<{ col: number; row: number }> = [];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            cells.push({ col: c, row: r });
+        }
     }
+    cells.sort((a, b) => {
+        const da = Math.hypot(a.col - centerCol, a.row - centerRow);
+        const db = Math.hypot(b.col - centerCol, b.row - centerRow);
+        return da - db;
+    });
 
-    return Array.from({ length: count }, (_, i) => {
-        const slot = slots[i];
-        const col = slot % cols;
-        const row = Math.floor(slot / cols);
+    return subjects.map((sub, i) => {
+        const cell = cells[i % cells.length];
+        const { w, h } = estimateTagPx(sub.name);
 
-        // Centro de la celda (%)
-        const cx = (col + 0.5) * cellW;
-        const cy = (row + 0.5) * cellH;
+        // Centro de la celda
+        const cx = (cell.col + 0.5) * cellW;
+        const cy = (cell.row + 0.5) * cellH;
 
-        // Jitter: ±25 % del tamaño de la celda, único por índice
-        const jx = (seededRandom(i * 7 + 3) - 0.5) * cellW * 0.5;
-        const jy = (seededRandom(i * 7 + 5) - 0.5) * cellH * 0.5;
+        // Jitter acotado al espacio libre dentro de la celda
+        const freeX = Math.max(0, cellW - w);
+        const freeY = Math.max(0, cellH - h);
+        const jx = (seededRandom(i * 7 + 1) - 0.5) * freeX * 0.55;
+        const jy = (seededRandom(i * 7 + 2) - 0.5) * freeY * 0.55;
 
-        // Rango seguro: 3 %–82 % (deja margen para el tag)
-        const left = Math.max(3, Math.min(82, cx + jx));
-        const top  = Math.max(3, Math.min(82, cy + jy));
+        // Esquina superior-izquierda del tag, clampeada en px
+        const left = Math.max(SAFE, Math.min(containerW - w - SAFE, cx + jx - w / 2));
+        const top  = Math.max(SAFE, Math.min(containerH - h - SAFE, cy + jy - h / 2));
 
-        return { left: `${left.toFixed(2)}%`, top: `${top.toFixed(2)}%` };
+        return { left, top };
     });
 }
 
@@ -97,12 +129,15 @@ function computePositions(count: number): Array<{ left: string; top: string }> {
 
 const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
     ({ initialSelected = [], maxSelections = 10, onChange }, ref) => {
-        const [subjects, setSubjects] = useState<Subject[]>([]);
-        const [selected, setSelected] = useState<string[]>(initialSelected);
-        const [loading, setLoading] = useState(true);
+        const [subjects, setSubjects]     = useState<Subject[]>([]);
+        const [selected, setSelected]     = useState<string[]>(initialSelected);
+        const [loading, setLoading]       = useState(true);
+        const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
 
-        // Sincronizar initialSelected cuando el padre lo cargue (lazy fetch)
-        const didInitRef = useRef(false);
+        const contentRef  = useRef<HTMLDivElement>(null);
+        const didInitRef  = useRef(false);
+
+        // Sincronizar initialSelected cuando el padre lo cargue
         useEffect(() => {
             if (!didInitRef.current && initialSelected.length > 0) {
                 setSelected(initialSelected);
@@ -110,7 +145,27 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
             }
         }, [initialSelected]);
 
-        // Fetch de todas las materias disponibles en el sistema
+        // Medir el contenedor y escuchar cambios de tamaño
+        useLayoutEffect(() => {
+            const el = contentRef.current;
+            if (!el) return;
+
+            const measure = () => {
+                const { width, height } = el.getBoundingClientRect();
+                setContainerSize((prev) =>
+                    prev.w === width && prev.h === height
+                        ? prev
+                        : { w: width, h: height },
+                );
+            };
+
+            measure();
+            const ro = new ResizeObserver(measure);
+            ro.observe(el);
+            return () => ro.disconnect();
+        }, []);
+
+        // Fetch de todas las materias disponibles
         useEffect(() => {
             fetch("/api/subjects")
                 .then((r) => r.json())
@@ -119,13 +174,15 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
                 .finally(() => setLoading(false));
         }, []);
 
-        // Exposición del handle para que PreferencesView recoja los datos
         useImperativeHandle(ref, () => ({
             getData: () => ({ subjectIds: selected }),
         }), [selected]);
 
-        // Posiciones calculadas solo cuando cambia la cantidad de materias
-        const positions = useMemo(() => computePositions(subjects.length), [subjects.length]);
+        // Recalcular posiciones solo cuando cambia el listado o el contenedor
+        const positions = useMemo(
+            () => computePositions(subjects, containerSize.w, containerSize.h),
+            [subjects, containerSize],
+        );
 
         function toggleSubject(id: string) {
             setSelected((prev) => {
@@ -146,7 +203,7 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
         if (loading) {
             return (
                 <div className="pcs-root">
-                    <div className="pcs-content">
+                    <div className="pcs-content" ref={contentRef}>
                         <div className="pcs-empty">Cargando materias…</div>
                     </div>
                 </div>
@@ -156,7 +213,7 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
         if (subjects.length === 0) {
             return (
                 <div className="pcs-root">
-                    <div className="pcs-content">
+                    <div className="pcs-content" ref={contentRef}>
                         <div className="pcs-empty">No hay materias disponibles</div>
                     </div>
                 </div>
@@ -165,34 +222,38 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
 
         return (
             <div className="pcs-root">
-                <div className="pcs-content">
-                    {subjects.map((subject, index) => {
-                        const isSelected  = selected.includes(subject.id);
-                        const isLast      = subject.id === lastSelectedId;
-                        const pos         = positions[index];
-                        const colors      = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
+                <div className="pcs-content" ref={contentRef}>
+                    {positions.length > 0 &&
+                        subjects.map((subject, index) => {
+                            const isSelected = selected.includes(subject.id);
+                            const isLast     = subject.id === lastSelectedId;
+                            const pos        = positions[index];
+                            const colors     = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
 
-                        return (
-                            <button
-                                key={subject.id}
-                                type="button"
-                                className={`pcs-tag${isLast ? " pcs-tag--last" : ""}`}
-                                style={{
-                                    backgroundColor: colors.color,
-                                    left: pos.left,
-                                    top:  pos.top,
-                                    "--subject-color":  colors.color,
-                                    "--subject-border": colors.borderColor,
-                                    opacity: !isSelected && selected.length >= maxSelections ? 0.45 : 1,
-                                } as React.CSSProperties}
-                                onClick={() => toggleSubject(subject.id)}
-                                aria-pressed={isSelected}
-                            >
-                                {isSelected && <span className="pcs-tick">✓</span>}
-                                {subject.name}
-                            </button>
-                        );
-                    })}
+                            return (
+                                <button
+                                    key={subject.id}
+                                    type="button"
+                                    className={`pcs-tag${isLast ? " pcs-tag--last" : ""}`}
+                                    style={{
+                                        left: pos.left,
+                                        top:  pos.top,
+                                        backgroundColor: colors.color,
+                                        "--subject-color":  colors.color,
+                                        "--subject-border": colors.borderColor,
+                                        opacity:
+                                            !isSelected && selected.length >= maxSelections
+                                                ? 0.4
+                                                : 1,
+                                    } as React.CSSProperties}
+                                    onClick={() => toggleSubject(subject.id)}
+                                    aria-pressed={isSelected}
+                                >
+                                    {isSelected && <span className="pcs-tick">✓</span>}
+                                    {subject.name}
+                                </button>
+                            );
+                        })}
                 </div>
             </div>
         );

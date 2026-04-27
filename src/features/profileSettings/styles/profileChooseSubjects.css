@@ -2,6 +2,7 @@
    Profile Choose Subjects
    prefix: pcs-
    Scatter picker adaptado a las dimensiones del dialog de perfil.
+   Posiciones calculadas en px con clamping estricto al contenedor.
    ============================================================ */
 
 .pcs-root {
@@ -47,19 +48,19 @@
     color: #3c3c3c;
     white-space: nowrap;
     user-select: none;
-    /* El transform ancla la esquina superior-izquierda del tag en el punto calculado */
-    transform: translate(-20%, -20%);
+    transform-origin: center center;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-                box-shadow 0.3s ease;
+                box-shadow 0.3s ease,
+                opacity 0.2s ease;
 }
 
 .pcs-tag:hover {
-    transform: translate(-20%, -20%) scale(1.08);
+    transform: scale(1.09);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .pcs-tag:active {
-    transform: translate(-20%, -20%) scale(0.95);
+    transform: scale(0.95);
 }
 
 /* Último tag seleccionado — doble anillo de color */

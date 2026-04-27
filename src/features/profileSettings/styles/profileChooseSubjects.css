@@ -63,11 +63,6 @@
     transform: scale(0.95);
 }
 
-/* Último tag seleccionado — doble anillo de color */
-.pcs-tag--last {
-    box-shadow: 0 0 0 3px var(--subject-color), 0 0 0 6px var(--subject-border);
-    z-index: 10;
-}
 
 /* ── Tick de confirmación ────────────────────────────────── */
 .pcs-tick {

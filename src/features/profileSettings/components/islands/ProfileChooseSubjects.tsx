@@ -198,8 +198,6 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
             });
         }
 
-        const lastSelectedId = selected.length > 0 ? selected[selected.length - 1] : null;
-
         if (loading) {
             return (
                 <div className="pcs-root">
@@ -226,15 +224,14 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
                     {positions.length > 0 &&
                         subjects.map((subject, index) => {
                             const isSelected = selected.includes(subject.id);
-                            const isLast     = subject.id === lastSelectedId;
-                            const pos        = positions[index];
-                            const colors     = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
+                            const pos    = positions[index];
+                            const colors = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
 
                             return (
                                 <button
                                     key={subject.id}
                                     type="button"
-                                    className={`pcs-tag${isLast ? " pcs-tag--last" : ""}`}
+                                    className="pcs-tag"
                                     style={{
                                         left: pos.left,
                                         top:  pos.top,

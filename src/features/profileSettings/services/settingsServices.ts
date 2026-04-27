@@ -39,12 +39,13 @@ function getToken(): string | null {
     return null;
 }
 
-function buildAuthHeaders(): HeadersInit {
-    const token = getToken();
-    if (!token) throw new Error('AUTH_05: No hay token de sesión. Por favor inicia sesión.');
+// token puede venir del caller (server-side BFF) o de document.cookie (client-side)
+function buildAuthHeaders(token?: string): HeadersInit {
+    const tok = token ?? getToken();
+    if (!tok) throw new Error('AUTH_05: No hay token de sesión. Por favor inicia sesión.');
     return {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${tok}`,
     };
 }
 
@@ -69,8 +70,8 @@ async function handleResponse<T>(response: Response): Promise<T> {
  * Obtiene las preferencias del estudiante autenticado (carrera y modalidad preferida).
  * Cualquier campo puede llegar como null si no ha sido configurado.
  */
-export async function getStudentPreferences(): Promise<StudentPreferences> {
-    const headers = buildAuthHeaders();
+export async function getStudentPreferences(token?: string): Promise<StudentPreferences> {
+    const headers = buildAuthHeaders(token);
     const response = await fetch(`${API_URL}${STUDENTS_PATH}/preferences`, {
         method: 'GET',
         headers,
@@ -87,8 +88,8 @@ export async function getStudentPreferences(): Promise<StudentPreferences> {
  * - AUTH_01 (401): Token inválido o expirado.
  * - AUTH_05 (401): No hay token de sesión.
  */
-export async function updateStudentPreferences(dto: UpdatePreferencesDto): Promise<StudentPreferences> {
-    const headers = buildAuthHeaders();
+export async function updateStudentPreferences(dto: UpdatePreferencesDto, token?: string): Promise<StudentPreferences> {
+    const headers = buildAuthHeaders(token);
     const response = await fetch(`${API_URL}${STUDENTS_PATH}/preferences`, {
         method: 'PATCH',
         headers,
@@ -106,8 +107,8 @@ export async function updateStudentPreferences(dto: UpdatePreferencesDto): Promi
  * Obtiene las materias de interés del estudiante autenticado.
  * Si no tiene materias registradas, subjects llega como array vacío.
  */
-export async function getStudentSubjects(): Promise<Subject[]> {
-    const headers = buildAuthHeaders();
+export async function getStudentSubjects(token?: string): Promise<Subject[]> {
+    const headers = buildAuthHeaders(token);
     const response = await fetch(`${API_URL}${STUDENTS_PATH}/interested-subjects`, {
         method: 'GET',
         headers,
@@ -126,8 +127,8 @@ export async function getStudentSubjects(): Promise<Subject[]> {
  * - AUTH_01 (401): Token inválido o expirado.
  * - AUTH_05 (401): No hay token de sesión.
  */
-export async function updateStudentSubjects(subjectIds: string[]): Promise<Subject[]> {
-    const headers = buildAuthHeaders();
+export async function updateStudentSubjects(subjectIds: string[], token?: string): Promise<Subject[]> {
+    const headers = buildAuthHeaders(token);
     const response = await fetch(`${API_URL}${STUDENTS_PATH}/interested-subjects`, {
         method: 'PATCH',
         headers,

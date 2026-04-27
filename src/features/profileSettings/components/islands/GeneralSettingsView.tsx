@@ -132,8 +132,8 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
   async function handleSavePassword() {
     const errors = { current: "", newPw: "", confirm: "" };
 
-    if (!pwForm.current || pwForm.current.length < 8)
-      errors.current = "Mínimo 8 caracteres.";
+    // if (!pwForm.current || pwForm.current.length < 8)
+    //   errors.current = "Mínimo 8 caracteres.";
 
     if (!PW_REGEX.test(pwForm.newPw))
       errors.newPw = "Debe tener mayúscula, minúscula, número y carácter especial (@$!%*?&).";

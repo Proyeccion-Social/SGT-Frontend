@@ -21,23 +21,25 @@ function errorResponse(error: unknown): Response {
     );
 }
 
+function extractToken(request: Request): string | null {
+    return request.headers.get("cookie")?.match(/access_token=([^;]+)/)?.[1] ?? null;
+}
+
 /**
  * GET /api/settings/subjects
  * Obtiene las materias de interés del estudiante autenticado.
- * Reenvía el cookie access_token como Bearer al backend.
  */
 export const GET: APIRoute = async ({ request }) => {
     try {
-        const cookieHeader = request.headers.get("cookie") ?? "";
-        const tokenMatch = cookieHeader.match(/access_token=([^;]+)/);
-        if (!tokenMatch) {
+        const token = extractToken(request);
+        if (!token) {
             return new Response(
                 JSON.stringify({ code: "AUTH_05", message: "No hay token de sesión" }),
                 { status: 401, headers: { "Content-Type": "application/json" } },
             );
         }
 
-        const subjects = await getStudentSubjects();
+        const subjects = await getStudentSubjects(token);
         return new Response(JSON.stringify({ subjects }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -54,6 +56,14 @@ export const GET: APIRoute = async ({ request }) => {
  */
 export const PATCH: APIRoute = async ({ request }) => {
     try {
+        const token = extractToken(request);
+        if (!token) {
+            return new Response(
+                JSON.stringify({ code: "AUTH_05", message: "No hay token de sesión" }),
+                { status: 401, headers: { "Content-Type": "application/json" } },
+            );
+        }
+
         const body = await request.json().catch(() => null);
         if (!body || !Array.isArray(body.subjectIds)) {
             return new Response(
@@ -62,7 +72,7 @@ export const PATCH: APIRoute = async ({ request }) => {
             );
         }
 
-        const subjects = await updateStudentSubjects(body.subjectIds as string[]);
+        const subjects = await updateStudentSubjects(body.subjectIds as string[], token);
         return new Response(JSON.stringify({ subjects }), {
             status: 200,
             headers: { "Content-Type": "application/json" },

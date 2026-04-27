@@ -21,22 +21,25 @@ function errorResponse(error: unknown): Response {
     );
 }
 
+function extractToken(request: Request): string | null {
+    return request.headers.get("cookie")?.match(/access_token=([^;]+)/)?.[1] ?? null;
+}
+
 /**
  * GET /api/settings/preferences
  * Obtiene la carrera y modalidad preferida del estudiante autenticado.
  */
 export const GET: APIRoute = async ({ request }) => {
     try {
-        const cookieHeader = request.headers.get("cookie") ?? "";
-        const tokenMatch = cookieHeader.match(/access_token=([^;]+)/);
-        if (!tokenMatch) {
+        const token = extractToken(request);
+        if (!token) {
             return new Response(
                 JSON.stringify({ code: "AUTH_05", message: "No hay token de sesión" }),
                 { status: 401, headers: { "Content-Type": "application/json" } },
             );
         }
 
-        const preferences = await getStudentPreferences();
+        const preferences = await getStudentPreferences(token);
         return new Response(JSON.stringify(preferences), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -53,6 +56,14 @@ export const GET: APIRoute = async ({ request }) => {
  */
 export const PATCH: APIRoute = async ({ request }) => {
     try {
+        const token = extractToken(request);
+        if (!token) {
+            return new Response(
+                JSON.stringify({ code: "AUTH_05", message: "No hay token de sesión" }),
+                { status: 401, headers: { "Content-Type": "application/json" } },
+            );
+        }
+
         const body = await request.json().catch(() => null);
         if (!body || typeof body !== "object") {
             return new Response(
@@ -67,7 +78,7 @@ export const PATCH: APIRoute = async ({ request }) => {
             dto.preferredModality = body.preferredModality;
         }
 
-        const preferences = await updateStudentPreferences(dto);
+        const preferences = await updateStudentPreferences(dto, token);
         return new Response(JSON.stringify(preferences), {
             status: 200,
             headers: { "Content-Type": "application/json" },

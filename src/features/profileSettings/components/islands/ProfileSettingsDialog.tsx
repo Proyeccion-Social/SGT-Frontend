@@ -43,7 +43,7 @@ export function ProfileSettingsDialog({
 
   useEffect(() => {
     if (open) setActiveView(initialView ?? "general");
-  }, [open]);
+  }, [open, initialView]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 
 import generalIconSrc from "../../assets/general.svg?url";
 import contrasenaIconSrc from "../../assets/contraseña.svg?url";
+import "../../styles/sidebar.css";
 import "../../styles/generalSettings.css";
 
 type GeneralSubTab = "info" | "password";
@@ -21,12 +22,12 @@ function SidebarButton({ icon, label, selected, onClick }: SidebarButtonProps) {
   return (
     <button
       type="button"
-      className={`gs-sidebar-btn${selected ? " gs-sidebar-btn--selected" : ""}`}
+      className={`ps-sidebar-btn${selected ? " ps-sidebar-btn--selected" : ""}`}
       onClick={onClick}
       aria-pressed={selected}
     >
-      <img src={icon} alt="" aria-hidden="true" className="gs-sidebar-btn__icon" />
-      <span className="gs-sidebar-btn__label">{label}</span>
+      <img src={icon} alt="" aria-hidden="true" className="ps-sidebar-btn__icon" />
+      <span className="ps-sidebar-btn__label">{label}</span>
     </button>
   );
 }
@@ -151,7 +152,7 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
 
   return (
     <div className="gs-view">
-      <aside className="gs-sidebar">
+      <aside className="ps-sidebar">
         <SidebarButton
           icon={generalIconSrc}
           label="General"

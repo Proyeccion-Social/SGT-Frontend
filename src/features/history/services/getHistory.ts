@@ -5,6 +5,7 @@ import { mockHistory } from "../mocks/mockHistory";
 
 interface GetHistoryParams {
     token: string;
+    role: 'STUDENT' | 'TUTOR';
     page?: number;
     limit?: number;
     status?: string;
@@ -12,9 +13,10 @@ interface GetHistoryParams {
 
 export async function getHistory({
     token,
+    role,
     page = 1,
-    limit, // 🔥 CAMBIO: Eliminamos el límite por defecto para que lo maneje el backend
-    status // opcional: "completed", "upcoming", etc.
+    limit,
+    status
 }: GetHistoryParams) {
 
     // 🔥 MOCK (puedes luego simular filtros si quieres)
@@ -53,7 +55,8 @@ export async function getHistory({
         queryParams.append("status", status);
     }
 
-    const url = `${API_URL}/scheduling/sessions/my-sessions/student?${queryParams.toString()}`;
+    const endpoint = role === 'TUTOR' ? 'my-sessions/tutor' : 'my-sessions/student';
+    const url = `${API_URL}/scheduling/sessions/${endpoint}?${queryParams.toString()}`;
 
     const response = await fetch(url, {
         headers: {
@@ -62,7 +65,9 @@ export async function getHistory({
     });
 
     if (!response.ok) {
-        throw new Error("Error fetching history");
+        const errBody = await response.json().catch(() => null);
+        console.error(`[getHistory] Backend ${response.status}:`, errBody);
+        throw new Error(`Error fetching history: ${response.status} ${JSON.stringify(errBody)}`);
     }
 
     return await response.json();

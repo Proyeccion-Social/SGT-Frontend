@@ -259,16 +259,17 @@ export default function SchedulingWizard({ slots }: Props) {
     const sessionData = {
       tutorId: currentData.tutorId,
       subjectId: currentData.subjectId,
-      availabilityId: currentData.slot?.id,
+      availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
       modality: currentData.modality ?? slotContext?.modality ?? "PRES",
-      durationHours,
       title: currentData.title,
+      durationHours,
       description: currentData.description,
     };
     
     const res = await fetch("/api/sessions/scheduleapi", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(sessionData),
     });
 

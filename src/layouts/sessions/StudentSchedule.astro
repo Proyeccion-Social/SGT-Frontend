@@ -17,7 +17,8 @@ const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
 const offsetParam = Astro.url.searchParams.get("offset");
 const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-const { monday, weekRangeStr, prevOffset, nextOffset } = getWeekRangeFromOffset(weekOffset);
+const { monday, weekRangeStr, prevOffset, nextOffset } =
+  getWeekRangeFromOffset(weekOffset);
 
 const weekReference = [
   monday.getFullYear(),
@@ -25,59 +26,76 @@ const weekReference = [
   String(monday.getDate()).padStart(2, "0"),
 ].join("-");
 
-const slots = await getAllTutorSlotsSSR({
-  onlyAvailable: true,
-  weekStart: weekReference,
-}).catch((err) => {
+const slots = await getAllTutorSlotsSSR(
+  {
+    onlyAvailable: true,
+    weekStart: weekReference,
+  },
+  token,
+).catch((err) => {
   console.error("[StudentSchedule] ERROR en getAllTutorSlotsSSR:", err);
   return [];
 });
-
 ---
 
-<MainLayout title="Agendamiento">
-  <div class="dashboard-container">
+<MainLayout title='Agendamiento'>
+  <div class='dashboard-container'>
     <Sidebar userRole={userRole} />
 
-    <main class="content-wrapper">
-      <div class="dashboard-content">
-
-        <div class="schedule-header">
-          <div class="header-left">
-            <div class="header-title">
+    <main class='content-wrapper'>
+      <div class='dashboard-content'>
+        <div class='schedule-header'>
+          <div class='header-left'>
+            <div class='header-title'>
               <h1>Tu Semana</h1>
               <!-- Navegación de semanas -->
-              <div class="week-nav">
-                {weekOffset > 0 ? (
-                  <a href={`?offset=${prevOffset}`} class="week-nav__arrow" aria-label="Semana anterior">
-                    &#8592;
-                  </a>
-                ) : (
-                  <span class="week-nav__arrow week-nav__arrow--disabled">&#8592;</span>
-                )}
-                <span class="date-range">{weekRangeStr}</span>
-                {weekOffset < 1 ? (
-                  <a href={`?offset=${nextOffset}`} class="week-nav__arrow" aria-label="Semana siguiente">
-                    &#8594;
-                  </a>
-                ) : (
-                  <span class="week-nav__arrow week-nav__arrow--disabled">&#8594;</span>
-                )}
+              <div class='week-nav'>
+                {
+                  weekOffset > 0 ? (
+                    <a
+                      href={`?offset=${prevOffset}`}
+                      class='week-nav__arrow'
+                      aria-label='Semana anterior'
+                    >
+                      &#8592;
+                    </a>
+                  ) : (
+                    <span class='week-nav__arrow week-nav__arrow--disabled'>
+                      &#8592;
+                    </span>
+                  )
+                }
+                <span class='date-range'>{weekRangeStr}</span>
+                {
+                  weekOffset < 1 ? (
+                    <a
+                      href={`?offset=${nextOffset}`}
+                      class='week-nav__arrow'
+                      aria-label='Semana siguiente'
+                    >
+                      &#8594;
+                    </a>
+                  ) : (
+                    <span class='week-nav__arrow week-nav__arrow--disabled'>
+                      &#8594;
+                    </span>
+                  )
+                }
               </div>
             </div>
-            <span class="badge">Espacios disponibles para tutoría</span>
+            <span class='badge'>Espacios disponibles para tutoría</span>
           </div>
-          <button class="avatar">
-            <Image src={UserIcon} alt="User" />
+          <button class='avatar'>
+            <Image src={UserIcon} alt='User' />
           </button>
         </div>
 
-        <div class="calendar-scroll-area">
+        <div class='calendar-scroll-area'>
           <!-- Pasar monday como baseDate para que el calendario muestre la semana correcta -->
-          <WeeklyCalendar slots={slots} mode="student" baseDate={monday} />
+          <WeeklyCalendar slots={slots} mode='student' baseDate={monday} />
         </div>
 
-        <SchedulingWizard client:only="react" slots={slots} />
+        <SchedulingWizard client:only='react' slots={slots} />
       </div>
     </main>
   </div>
@@ -90,42 +108,42 @@ const slots = await getAllTutorSlotsSSR({
   .dashboard-container {
     display: flex;
     width: 100vw;
-    height: 100vh;        /* altura fija — igual que availability-container */
+    height: 100vh; /* altura fija — igual que availability-container */
     background-color: #f3edff;
     box-sizing: border-box;
-    overflow: hidden;     /* contención total, sin scroll en el root */
+    overflow: hidden; /* contención total, sin scroll en el root */
   }
 
   .week-nav__arrow--disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  pointer-events: none;
-}
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 
   .week-nav {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-.week-nav__arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #f3edff;
-  color: var(--color-moradops-400);
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 600;
-  transition: background 0.15s ease;
-}
+  .week-nav__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f3edff;
+    color: var(--color-moradops-400);
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background 0.15s ease;
+  }
 
-.week-nav__arrow:hover {
-  background: #e9d5ff;
-}
+  .week-nav__arrow:hover {
+    background: #e9d5ff;
+  }
 
   /* ── Columna derecha ── */
   .content-wrapper {
@@ -133,7 +151,7 @@ const slots = await getAllTutorSlotsSSR({
     display: flex;
     padding: 19px 20px 20px 0;
     min-width: 0;
-    overflow: hidden;     /* punto de contención — igual que en layout de tutor */
+    overflow: hidden; /* punto de contención — igual que en layout de tutor */
   }
 
   /* ── Panel blanco ── */
@@ -143,7 +161,7 @@ const slots = await getAllTutorSlotsSSR({
     flex-direction: column;
     background-color: #fff;
     border-radius: 16px;
-    overflow: hidden;     /* contiene el calendario — NO overflow-y: auto aquí */
+    overflow: hidden; /* contiene el calendario — NO overflow-y: auto aquí */
     min-width: 0;
   }
 
@@ -155,7 +173,7 @@ const slots = await getAllTutorSlotsSSR({
     width: 100%;
     padding: 40px 50px 40px 50px;
     box-sizing: border-box;
-    flex-shrink: 0;       /* nunca se comprime */
+    flex-shrink: 0; /* nunca se comprime */
     border-bottom: 1px solid #e7dcff;
   }
 
@@ -187,9 +205,9 @@ const slots = await getAllTutorSlotsSSR({
 
   .badge {
     display: inline-block;
-    background-color: #E2D5FF;
+    background-color: #e2d5ff;
     width: fit-content;
-    color: #3C3C3C;
+    color: #3c3c3c;
     font-size: 13px;
     font-weight: 500;
     padding: 3px 10px;
@@ -214,7 +232,7 @@ const slots = await getAllTutorSlotsSSR({
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    overflow-x: hidden;   /* bloquea scroll horizontal aquí adentro */
+    overflow-x: hidden; /* bloquea scroll horizontal aquí adentro */
     min-width: 0;
   }
 

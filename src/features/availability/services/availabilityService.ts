@@ -308,13 +308,14 @@ export async function getTutorWorkload(): Promise<{
     return handleResponse(response);
 }
 
-export async function getAllTutorsSSR(): Promise<{ tutorId: string; tutorName: string; modalities: Modality[] }[]> {
+export async function getAllTutorsSSR(token: string): Promise<{ tutorId: string; tutorName: string; modalities: Modality[] }[]> {
   const response = await fetch(
     `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots`,
-    { method: "GET", headers: { "Content-Type": "application/json" } }
+    { method: "GET", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } }
   );
-  const result = await handleResponse<any[]>(response);
-  return result.map((t: any) => ({
+  const result = await handleResponse<any>(response);
+  const tutors: any[] = Array.isArray(result) ? result : (result.data ?? []);
+  return tutors.map((t: any) => ({
     tutorId: t.tutorId,
     tutorName: t.tutorName,
     modalities: t.modalities ?? [],
@@ -322,9 +323,10 @@ export async function getAllTutorsSSR(): Promise<{ tutorId: string; tutorName: s
 }
 
 export async function getAllTutorSlotsSSR(
-  query?: GetAvailabilityQueryDto
+  query?: GetAvailabilityQueryDto,
+  token?: string
 ): Promise<Slot[]> {
-  const tutors = await getAllTutorsSSR();
+  const tutors = await getAllTutorsSSR(token ?? '');
 
   const params = new URLSearchParams();
     if (query?.onlyAvailable !== undefined)
@@ -344,14 +346,19 @@ export async function getAllTutorSlotsSSR(
 
   const allSlotsNested = await Promise.all(
     tutors.map(async (tutor) => {
+      const authHeaders: HeadersInit = {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      };
+
       const [slotsResponse, tutorResponse] = await Promise.all([
         fetch(
           `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/${tutor.tutorId}/slots${queryString}`,
-          { method: "GET", headers: { "Content-Type": "application/json" } }
+          { method: "GET", headers: authHeaders }
         ),
         fetch(
           `${import.meta.env.API_URL}/tutors/${tutor.tutorId}`,
-          { method: "GET", headers: { "Content-Type": "application/json" } }
+          { method: "GET", headers: authHeaders }
         ),
       ]);
 

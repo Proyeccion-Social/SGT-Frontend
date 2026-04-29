@@ -232,7 +232,7 @@ export interface AvailabilitySlot {
 
 export interface CreateSessionDTO {
   tutorId: string;
-  availabilityId : string;
+  availabilityId: number;
   scheduledDate : string;
   title: string;
   description: string;

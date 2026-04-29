@@ -13,7 +13,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const token = context.cookies.get('access_token')?.value;
-  const protectedRoutes = ['/dashboard', '/change-password'];
+  const protectedRoutes = ['/dashboard', '/change-password', '/search', '/availability'];
 
   if (url.pathname === '/' && !url.searchParams.has('session') && token) {
     try {

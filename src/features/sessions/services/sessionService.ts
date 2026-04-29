@@ -1,6 +1,6 @@
 import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery } from '../types/session.types';
 
-const API_URL = import.meta.env.PUBLIC_API_URL;
+const API_URL = import.meta.env.API_URL;
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (res.status === 401) {

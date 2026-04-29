@@ -75,7 +75,8 @@
 
 .ps-description {
   font-size: 0.8125rem !important;
-  color: #6b7280 !important;
+  font-weight: 400;
+  color: #1A1A1A !important;
   margin: 0;
 }
 

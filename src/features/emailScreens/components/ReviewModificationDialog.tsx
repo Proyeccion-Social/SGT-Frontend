@@ -160,8 +160,22 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
                 {request.proposedBy}
               </span>
               <span className="es-tag es-tag--status">Pendiente</span>
-              <a href="#" className="es-tag es-tag--link" onClick={(e) => e.preventDefault()}>
-                🔗 Ver detalles
+              <a 
+                href={request.currentModality === 'VIRT' ? (request.currentVirtualLink || '#') : '#'} 
+                target={request.currentModality === 'VIRT' && request.currentVirtualLink ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                className={`es-tag es-tag--link ${request.currentModality === 'PRES' ? 'es-tag--pres' : ''}`} 
+                onClick={(e) => {
+                  if (request.currentModality === 'PRES' || !request.currentVirtualLink) {
+                    e.preventDefault();
+                    if (request.currentModality === 'PRES' && request.currentLocation) {
+                      alert(`Ubicación: ${request.currentLocation}`);
+                    }
+                  }
+                }}
+                title={request.currentModality === 'VIRT' ? 'Abrir link de sesión' : 'Ver ubicación física'}
+              >
+                🔗 {request.currentModality === 'VIRT' ? 'Ver link de sesión' : (request.currentLocation || 'Ver ubicación')}
               </a>
             </div>
 

@@ -17,7 +17,8 @@ async function request<T>(
   token: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const separator = path.includes('?') ? '&' : '?';
+  const res = await fetch(`${API_URL}${path}${separator}t=${Date.now()}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -169,7 +170,7 @@ export function getModificationRequest(
   requestId: string,
   token: string
 ): Promise<any> {
-  // Nota: Según tu hallazgo, el backend usa :id para el requestId en esta ruta específica
+  // Nota: El backend ya corrigió el bug del @Param('id'), así que usamos la ruta original
   return request(`/scheduling/sessions/${requestId}/modification-request`, token);
 }
 

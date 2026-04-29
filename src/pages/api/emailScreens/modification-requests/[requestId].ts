@@ -50,13 +50,18 @@ export const GET: APIRoute = async ({ params, cookies }) => {
       status: modData.status,
       proposedBy: sessionData.tutor?.name || 'Usuario',
       expiresAt: modData.expiresAt,
+      currentVirtualLink: sessionData.virtualLink,
+      currentLocation: sessionData.location,
     };
 
     console.log('[BFF] Datos combinados enviados al Front:', JSON.stringify(combinedData, null, 2));
 
     return new Response(JSON.stringify(combinedData), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
+      },
     });
   } catch (error: any) {
     console.error('[BFF] Error al combinar datos de modificación:', error);

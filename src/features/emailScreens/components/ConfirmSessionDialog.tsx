@@ -230,20 +230,45 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
 
             {!isExpired && session.status === 'PENDING_TUTOR_CONFIRMATION' && (
               <div className="es-footer">
-                <button
-                  className="es-btn es-btn--confirm"
-                  onClick={() => handleAction('confirm')}
-                  disabled={actionLoading || showRejectReason}
-                >
-                  {actionLoading ? 'Procesando…' : 'Aceptar'}
-                </button>
-                <button
-                  className="es-btn es-btn--reject"
-                  onClick={() => handleAction('reject')}
-                  disabled={actionLoading || (showRejectReason && rejectReason.trim() === '')}
-                >
-                  {actionLoading ? 'Procesando…' : 'Rechazar'}
-                </button>
+                {!showRejectReason ? (
+                  <>
+                    <button
+                      className="es-btn es-btn--confirm"
+                      onClick={() => handleAction('confirm')}
+                      disabled={actionLoading}
+                    >
+                      {actionLoading ? 'Procesando…' : 'Aceptar'}
+                    </button>
+                    <button
+                      className="es-btn es-btn--reject"
+                      onClick={() => setShowRejectReason(true)}
+                      disabled={actionLoading}
+                    >
+                      Rechazar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="es-btn"
+                      style={{ background: '#f1f5f9', color: '#475569' }}
+                      onClick={() => {
+                        setShowRejectReason(false);
+                        setRejectReason('');
+                      }}
+                      disabled={actionLoading}
+                    >
+                      Volver
+                    </button>
+                    <button
+                      className="es-btn es-btn--reject"
+                      onClick={() => handleAction('reject')}
+                      disabled={actionLoading || rejectReason.trim() === ''}
+                    >
+                      {actionLoading ? 'Procesando…' : 'Confirmar Rechazo'}
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </>

@@ -23,12 +23,16 @@ export const GET: APIRoute = async ({ params, cookies }) => {
     }
 
     const data = await getSessionDetail(sessionId, token);
+    console.log(`[BFF] Datos de sesión ${sessionId} obtenidos:`, data);
     return new Response(JSON.stringify(data), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, max-age=0'
+      },
     });
   } catch (error: any) {
-    console.error('[BFF] Error en session detail:', error);
+    console.error(`[BFF] ERROR en session detail para ${params.sessionId}:`, error);
     return new Response(
       JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

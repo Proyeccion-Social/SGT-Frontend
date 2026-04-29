@@ -10,11 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProfileSettingsDialog } from "@/features/profileSettings/components/islands/ProfileSettingsDialog";
+import { TutorProfileDialog } from "@/features/profileSettings/components/islands/TutorProfileDialog";
+import type { TutorProfileDialogProps } from "@/features/profileSettings/components/islands/TutorProfileDialog";
 
-import generalIconSrc from "../../assets/general.svg?url";
-import materiasIconSrc from "../../assets/materias.svg?url";
+import generalIconSrc    from "../../assets/general.svg?url";
+import materiasIconSrc   from "../../assets/materias.svg?url";
 import contrasenaIconSrc from "../../assets/contraseña.svg?url";
-import logoutIconSrc from "../../assets/logout.svg?url";
+import logoutIconSrc     from "../../assets/logout.svg?url";
+import horasIconSrc      from "@/features/profileSettings/assets/horas.svg?url";
 
 import "../../styles/userMenuDropdown.css";
 
@@ -29,6 +32,10 @@ export default function UserMenuDropdown() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTarget, setDialogTarget] = useState<DialogTarget>({ view: "general" });
 
+  const [tutorDialogOpen, setTutorDialogOpen]     = useState(false);
+  const [tutorView, setTutorView]                 = useState<TutorProfileDialogProps["initialView"]>("general");
+  const [tutorGeneralMode, setTutorGeneralMode]   = useState<"info" | "password">("info");
+
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -41,6 +48,15 @@ export default function UserMenuDropdown() {
   function openDialog(target: DialogTarget) {
     setDialogTarget(target);
     setDialogOpen(true);
+  }
+
+  function openTutorDialog(
+    view: TutorProfileDialogProps["initialView"],
+    generalMode: "info" | "password" = "info",
+  ) {
+    setTutorView(view);
+    setTutorGeneralMode(generalMode);
+    setTutorDialogOpen(true);
   }
 
   function handleLogout() {
@@ -96,9 +112,14 @@ export default function UserMenuDropdown() {
             )}
             {isTutor && (
               <>
-                <DropdownMenuItem>Opción 1</DropdownMenuItem>
-                <DropdownMenuItem>Opción 2</DropdownMenuItem>
-                <DropdownMenuItem>Opción 3</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openTutorDialog("general")}>
+                  <img src={generalIconSrc} alt="" aria-hidden="true" className="umd-item-icon" />
+                  Mi perfil
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openTutorDialog("hours")}>
+                  <img src={horasIconSrc} alt="" aria-hidden="true" className="umd-item-icon" />
+                  Horas semanales
+                </DropdownMenuItem>
               </>
             )}
           </DropdownMenuGroup>
@@ -112,21 +133,15 @@ export default function UserMenuDropdown() {
               <DropdownMenuItem
                 onSelect={() => openDialog({ view: "general", generalTab: "password" })}
               >
-                <img
-                  src={contrasenaIconSrc}
-                  alt=""
-                  aria-hidden="true"
-                  className="umd-item-icon"
-                />
+                <img src={contrasenaIconSrc} alt="" aria-hidden="true" className="umd-item-icon" />
                 Cambiar contraseña
               </DropdownMenuItem>
             )}
             {isTutor && (
-              <>
-                <DropdownMenuItem>Opción 1</DropdownMenuItem>
-                <DropdownMenuItem>Opción 2</DropdownMenuItem>
-                <DropdownMenuItem>Opción 3</DropdownMenuItem>
-              </>
+              <DropdownMenuItem onSelect={() => openTutorDialog("general", "password")}>
+                <img src={contrasenaIconSrc} alt="" aria-hidden="true" className="umd-item-icon" />
+                Cambiar contraseña
+              </DropdownMenuItem>
             )}
           </DropdownMenuGroup>
 
@@ -147,6 +162,13 @@ export default function UserMenuDropdown() {
         onOpenChange={setDialogOpen}
         initialView={dialogTarget.view}
         initialGeneralTab={dialogTarget.generalTab}
+      />
+
+      <TutorProfileDialog
+        open={tutorDialogOpen}
+        onOpenChange={setTutorDialogOpen}
+        initialView={tutorView}
+        initialGeneralMode={tutorGeneralMode}
       />
     </>
   );

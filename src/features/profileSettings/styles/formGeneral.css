@@ -1,0 +1,92 @@
+/* ============================================================
+   FormGeneral — tutor info / password card
+   prefix: fg-
+   ============================================================ */
+
+.fg-card {
+  flex: 1;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #f0eaff;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.fg-body {
+  flex: 1;
+  padding: 20px 24px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+/* ── Fields ──────────────────────────────────────────────── */
+.fg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fg-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8751ff;
+}
+
+.fg-field [data-slot="input"] {
+  height: 40px;
+  font-size: 13px;
+}
+
+.fg-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+/* ── Password toggle wrapper ─────────────────────────────── */
+.fg-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fg-input-wrapper [data-slot="input"] {
+  padding-right: 36px;
+  width: 100%;
+}
+
+.fg-pw-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.fg-pw-toggle:hover { color: #5b21b6; }
+
+.fg-pw-icon { transition: filter 0.15s ease; }
+.fg-pw-toggle:hover .fg-pw-icon {
+  filter: invert(18%) sepia(60%) saturate(2500%) hue-rotate(255deg) brightness(85%);
+}
+
+/* ── Half in / half out actions ──────────────────────────── */
+.fg-actions {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}

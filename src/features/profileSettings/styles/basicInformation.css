@@ -1,0 +1,112 @@
+/* ============================================================
+   BasicInformation — tutor left panel card
+   prefix: bi-
+   ============================================================ */
+
+.bi-card {
+  width: 245px;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-radius: 19.2px;
+  background: linear-gradient(to bottom, #b797ff 55%, #e7dcff 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Status badge (top-right) ────────────────────────────── */
+.bi-status {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 1;
+  background: #ffffff;
+  border-radius: 22.4px;
+  padding: 5px 10px;
+}
+
+.bi-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bi-status-dot--active    { background: #4ade80; }
+.bi-status-dot--inactive  { background: #9ca3af; }
+.bi-status-dot--suspended { background: #f87171; }
+
+.bi-status-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+/* ── Photo area (upper half) ─────────────────────────────── */
+.bi-photo-area {
+  width: 100%;
+  padding-top: 20.2px;
+  padding-left: 24px;
+  padding-right: 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.bi-margen-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.bi-margen {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bi-avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 142px;
+  height: 142px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #c4b5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #7c3aed;
+  user-select: none;
+}
+
+/* ── Name ────────────────────────────────────────────────── */
+.bi-name {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 12px 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ── Role badge ──────────────────────────────────────────── */
+.bi-role {
+  margin-top: 6px;
+  padding: 4px 14px;
+  border-radius: 19.2px;
+  background: #e6ffc7;
+  color: #749944;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}

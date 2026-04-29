@@ -1,0 +1,99 @@
+/* ============================================================
+   HoursLimit — tutor weekly hours card
+   prefix: hl-
+   ============================================================ */
+
+.hl-card {
+  flex: 1;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #f0eaff;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 28px 32px 20px;
+}
+
+/* ── Title ───────────────────────────────────────────────── */
+.hl-title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* "Límite de horas" with resaltado.svg overlaid beneath */
+.hl-highlight {
+  position: relative;
+  display: inline-block;
+}
+
+.hl-resaltado {
+  position: absolute;
+  bottom: -0.5px;
+  left: -1px;
+  width: calc(100% + 8px);
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hl-highlight-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Description ─────────────────────────────────────────── */
+.hl-description {
+  font-family: "Open Sauce Two", sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: #6b7280;
+  max-width: 280px;
+  margin: 0;
+}
+
+/* ── Number input ────────────────────────────────────────── */
+.hl-input-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.hl-input {
+  width: 120px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #c6c6c6;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  outline: none;
+  padding: 0 12px;
+  transition: border-color 0.15s ease;
+  background: #fff;
+}
+
+.hl-input:focus { border-color: #b797ff; }
+
+.hl-input::-webkit-inner-spin-button,
+.hl-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.hl-input[type="number"] { -moz-appearance: textfield; }
+
+/* ── Half in / half out action ───────────────────────────── */
+.hl-actions {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+}

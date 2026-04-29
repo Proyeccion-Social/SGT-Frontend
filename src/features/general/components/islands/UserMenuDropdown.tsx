@@ -147,7 +147,6 @@ export default function UserMenuDropdown() {
         onOpenChange={setDialogOpen}
         initialView={dialogTarget.view}
         initialGeneralTab={dialogTarget.generalTab}
-        initialPreferencesTab={dialogTarget.preferencesTab}
       />
     </>
   );

@@ -24,7 +24,6 @@ export interface ProfileSettingsDialogProps {
   onOpenChange: (open: boolean) => void;
   initialView?: ActiveView;
   initialGeneralTab?: "info" | "password";
-  initialPreferencesTab?: "materias" | "modalidad";
 }
 
 export function ProfileSettingsDialog({
@@ -32,7 +31,6 @@ export function ProfileSettingsDialog({
   onOpenChange,
   initialView,
   initialGeneralTab,
-  initialPreferencesTab,
 }: ProfileSettingsDialogProps) {
   const [activeView, setActiveView] = useState<ActiveView>(initialView ?? "general");
   const { user } = useAuthStore();
@@ -71,11 +69,22 @@ export function ProfileSettingsDialog({
         {/* HEADER */}
         <DialogHeader className="ps-header">
           <DialogTitle className="ps-title">
-            <span className="ps-title-black">Informacion de</span>{" "}
-            <span className="ps-title-purple">mi perfil</span>
+            {activeView === "preferences" ? (
+              <>
+                <span className="ps-title-black">Tus</span>{" "}
+                <span className="ps-title-purple">preferencias</span>
+              </>
+            ) : (
+              <>
+                <span className="ps-title-black">Informacion de</span>{" "}
+                <span className="ps-title-purple">mi perfil</span>
+              </>
+            )}
           </DialogTitle>
           <DialogDescription className="ps-description">
-            Revisa tu información persona y actualiza si es necesario
+            {activeView === "preferences"
+              ? "Revisa tus preferencias y actualiza para una mejor experiencia"
+              : "Revisa tu información persona y actualiza si es necesario"}
           </DialogDescription>
         </DialogHeader>
 
@@ -85,7 +94,7 @@ export function ProfileSettingsDialog({
             <GeneralSettingsView user={user} initialTab={initialGeneralTab} />
           )}
           {activeView === "preferences" && (
-            <PreferencesView initialTab={initialPreferencesTab} />
+            <PreferencesView />
           )}
         </div>
 

@@ -73,7 +73,7 @@ function computePositions(
     if (n === 0 || containerW === 0 || containerH === 0) return [];
 
     const GAP = 14; // separación mínima entre tags
-    const SAFE = 6; // margen de seguridad respecto al borde del contenedor
+    const SAFE = 22; // margen de seguridad respecto al borde del contenedor
 
     const avgTagW =
         subjects.reduce((s, sub) => s + estimateTagPx(sub.name).w, 0) / n;

@@ -3,10 +3,18 @@ import { getAllTutors } from "@/features/search/services/getAllTutors";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
     try {
-        const tutors = await getAllTutors();
+        const accessToken = cookies.get("access_token")?.value;
 
+        if (!accessToken) {
+            return new Response(JSON.stringify({ message: "Acceso no autorizado" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+        const tutors = await getAllTutors(accessToken);
+        
         return new Response(JSON.stringify(tutors), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
@@ -17,4 +25,4 @@ export const GET: APIRoute = async () => {
             headers: { 'Content-Type': 'application/json' },
         });
     }
-}
+}

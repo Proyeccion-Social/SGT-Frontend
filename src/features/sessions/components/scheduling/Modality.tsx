@@ -1,6 +1,7 @@
 import { useState } from "react";
 import presencialIcon from "../../assets/presencial.svg";
 import virtualIcon from "../../assets/virtual.svg";
+import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
 import "../../assets/styles/Modality.css";
 
 interface Props {
@@ -41,21 +42,7 @@ export default function ModalityStep({ onNext, onBack }: Props) {
               {/* ── Indicador de selección ── */}
               {selected === value && (
                 <div className="modality-option__check-badge">
-                  <svg
-                    width="10"
-                    height="8"
-                    viewBox="0 0 10 8"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M1 3.5L3.5 6.5L9 1"
-                      stroke="#3C3C3C"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <img src={checkmarkIcon.src} alt="" aria-hidden="true" width="10" height="8" />
                 </div>
               )}
 

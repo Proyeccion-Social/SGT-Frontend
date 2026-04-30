@@ -77,7 +77,7 @@ const systemToday = new Date();
         DAYS.map((day) => (
           <div
             class='day-column'
-            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: #9ACC5B;`}
+            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
             {hours.map((_) => (
               <div class='hour-cell' />
@@ -485,7 +485,7 @@ const systemToday = new Date();
   const HOUR_HEIGHT = 64;
   const SLOT_INTERVAL = 30;
 
-  function minutesToTime(minutes: number): string {
+  function minutesToTime(minutes) {
     const h = Math.floor(minutes / 60)
       .toString()
       .padStart(2, "0");
@@ -493,21 +493,21 @@ const systemToday = new Date();
     return `${h}:${m}`;
   }
 
-  function timeToMinutes(time: string): number {
+  function timeToMinutes(time) {
     const [h, m] = time.split(":").map(Number);
     return h * 60 + m;
   }
 
-  function pixelsToMinutes(px: number): number {
+  function pixelsToMinutes(px) {
     return (px / HOUR_HEIGHT) * 60;
   }
 
-  function formatModalityLabel(modality: string | undefined): string {
+  function formatModalityLabel(modality) {
     if (!modality || modality === "null") return "Presencial o Virtual";
     return modality.toUpperCase() === "VIRT" ? "Virtual" : "Presencial";
   }
 
-  function createOverlay(): HTMLElement {
+  function createOverlay() {
     const overlay = document.createElement("div");
     overlay.id = "drag-overlay";
     overlay.style.cssText = `
@@ -531,21 +531,21 @@ const systemToday = new Date();
 
   function setupDrag() {
     document
-      .querySelectorAll<HTMLElement>(
+      .querySelectorAll(
         ".slot-block:not(.slot-booked):not(.slot-past)",
       )
       .forEach((slotBlock) => {
         let isDragging = false;
         let dragStartY = 0;
         let dragStartMinutes = 0;
-        let overlay: HTMLElement | null = null;
+        let overlay = null;
 
         const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
         const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
         const slotTopPx = slotBlock.offsetTop;
         const modality = slotBlock.dataset.modality;
 
-        slotBlock.addEventListener("mousedown", (e: MouseEvent) => {
+        slotBlock.addEventListener("mousedown", (e) => {
           e.preventDefault();
           isDragging = true;
 
@@ -564,7 +564,7 @@ const systemToday = new Date();
           slotBlock.parentElement?.appendChild(overlay);
         });
 
-        document.addEventListener("mousemove", (e: MouseEvent) => {
+        document.addEventListener("mousemove", (e) => {
           if (!isDragging || !overlay) return;
 
           const deltaY = e.clientY - dragStartY;
@@ -584,7 +584,7 @@ const systemToday = new Date();
           overlay.dataset.endMinutes = clampedEndMinutes.toString();
         });
 
-        document.addEventListener("mouseup", (e: MouseEvent) => {
+        document.addEventListener("mouseup", (e) => {
           if (!isDragging || !overlay) return;
           isDragging = false;
 

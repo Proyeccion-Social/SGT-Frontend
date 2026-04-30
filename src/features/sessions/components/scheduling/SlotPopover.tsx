@@ -1,5 +1,6 @@
 import { useFloating, autoPlacement, offset, shift } from "@floating-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import "../assets/styles/SlotPopover.css";
 
 interface Props {
   subjects: string[];
@@ -107,7 +108,7 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
   return (
     <>
       <svg
-        style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 90 }}
+        className="slot-popover__backdrop"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -127,43 +128,29 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
         <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)" mask="url(#slot-hole-mask)" />
       </svg>
 
-
-
       <div
         className="slot-popover"
         ref={refs.setFloating}
-        style={{
-          ...floatingStyles,
-          background: "#fff",
-          borderRadius: "14px",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.15)",
-          padding: "16px",
-          zIndex: 99,
-          minWidth: "220px",
-        }}
+        style={floatingStyles}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-          <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "#4ade80", flexShrink: 0 }} />
-          <span style={{ fontWeight: 600, fontSize: "14px", color: "#1f2937" }}>Materias disponibles</span>
+        <div className="slot-popover__header">
+          <div className="slot-popover__dot" />
+          <span className="slot-popover__title">Materias disponibles</span>
         </div>
 
-        <p style={{ fontSize: "12px", color: "#9ca3af", margin: "0 0 12px 18px" }}>
+        <p className="slot-popover__date">
           {dateLabel}
         </p>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <div className="slot-popover__subjects">
           {subjects.map((subject, i) => {
             const color = BADGE_COLORS[i % BADGE_COLORS.length];
             return (
               <button
                 key={subject}
                 onClick={() => onSelect(subject)}
-                style={{
-                  background: color.bg, color: color.text,
-                  border: "none", borderRadius: "999px",
-                  padding: "5px 14px", fontSize: "13px",
-                  fontWeight: 500, cursor: "pointer",
-                }}
+                className="slot-popover__subject-btn"
+                style={{ background: color.bg, color: color.text }}
               >
                 {subject}
               </button>

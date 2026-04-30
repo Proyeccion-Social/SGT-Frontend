@@ -1,0 +1,58 @@
+.slot-popover {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 99;
+  min-width: 220px;
+}
+
+.slot-popover__backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 90;
+}
+
+.slot-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.slot-popover__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+}
+
+.slot-popover__title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.slot-popover__date {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0 0 12px 18px;
+}
+
+.slot-popover__subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-popover__subject-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}

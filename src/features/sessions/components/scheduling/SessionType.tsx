@@ -1,6 +1,7 @@
 import { useState } from "react";
 import grupalIcon from "../../assets/grupal.svg";
 import individualIcon from "../../assets/individiual.svg";
+import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
 import "../../assets/styles/SessionType.css";
 
 interface Props {
@@ -41,21 +42,7 @@ export default function SessionTypeStep({ onNext, onBack }: Props) {
               {/* ── Indicador de selección ── */}
               {selected === value && (
                 <div className="session-type-option__check-badge">
-                  <svg
-                    width="10"
-                    height="8"
-                    viewBox="0 0 10 8"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M1 3.5L3.5 6.5L9 1"
-                      stroke="#3C3C3C"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <img src={checkmarkIcon.src} alt="" aria-hidden="true" width="10" height="8" />
                 </div>
               )}
 

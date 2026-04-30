@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Slot } from "../../../availability/services/availabilityService";
+import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
 import "../../assets/styles/Availability.css";
 
 interface TutorInfo {
@@ -13,12 +13,11 @@ interface TutorInfo {
 
 interface Props {
   tutorIds: string[];
-  slot: Slot | null;
   subject: string;
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: Props) {
+export default function AvailabilityStep({ tutorIds, subject, onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [tutors, setTutors] = useState<Record<string, TutorInfo>>({});
   const [loading, setLoading] = useState(false);
@@ -94,21 +93,7 @@ export default function AvailabilityStep({ tutorIds, slot, subject, onSelect }: 
                 {/* ── Indicador de selección ── */}
                 {isSelected && (
                   <div className="tutor-card__check-badge">
-                    <svg
-                      width="10"
-                      height="8"
-                      viewBox="0 0 10 8"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M1 3.5L3.5 6.5L9 1"
-                        stroke="#3C3C3C"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
+                    <img src={checkmarkIcon.src} alt="" aria-hidden="true" width="10" height="8" />
                   </div>
                 )}
 

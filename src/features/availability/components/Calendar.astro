@@ -533,35 +533,53 @@ const systemToday = new Date();
   // Module-level drag state shared across all slot interactions
   let activeDrag = null;
 
-  function handleMouseMove(e) {
+  function cleanupDrag() {
+    const overlay = document.getElementById("drag-overlay");
+    if (overlay) overlay.remove();
+    activeDrag = null;
+  }
+
+  function handlePointerMove(e) {
     if (!activeDrag) return;
-    const { overlay, dragStartY, dragStartMinutes, slotStartMin, slotEndMin, slotTopPx } = activeDrag;
+    const {
+      overlay,
+      dragStartY,
+      dragStartMinutes,
+      slotStartMin,
+      slotEndMin,
+      slotTopPx,
+    } = activeDrag;
     if (!overlay) return;
 
     const deltaY = e.clientY - dragStartY;
     const deltaMinutes = pixelsToMinutes(deltaY);
-    const roundedDelta = Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-    const rawEndMinutes = dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
+    const roundedDelta =
+      Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+    const rawEndMinutes =
+      dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
     const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
 
-    const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
-    const durationPx = ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
+    const startPxInSlot =
+      ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+    const durationPx =
+      ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
     overlay.style.top = `${slotTopPx + startPxInSlot}px`;
     overlay.style.height = `${durationPx}px`;
     overlay.dataset.endMinutes = clampedEndMinutes.toString();
   }
 
-  function handleMouseUp() {
+  function handlePointerUp(e) {
     if (!activeDrag) return;
     const { overlay, dragStartMinutes, slotBlock, modality } = activeDrag;
     if (!overlay) return;
 
     const endMinutes =
-      parseInt(overlay.dataset.endMinutes || "") || dragStartMinutes + SLOT_INTERVAL;
+      parseInt(overlay.dataset.endMinutes || "") ||
+      dragStartMinutes + SLOT_INTERVAL;
     const overlayRect = overlay.getBoundingClientRect();
 
-    overlay.remove();
-    activeDrag = null;
+    slotBlock.releasePointerCapture(e.pointerId);
+    cleanupDrag();
 
     if (endMinutes <= dragStartMinutes) return;
 
@@ -581,6 +599,7 @@ const systemToday = new Date();
             height: overlayRect.height,
           },
           dayOfWeek: slotBlock.dataset.day,
+          date: slotBlock.dataset.date,
           startTime,
           endTime,
           modality,
@@ -590,21 +609,19 @@ const systemToday = new Date();
     );
   }
 
-  function handleMouseLeave() {
-    if (!activeDrag) return;
-    const overlay = document.getElementById("drag-overlay");
-    if (overlay) overlay.remove();
-    activeDrag = null;
-  }
-
   function setupDrag() {
     document
       .querySelectorAll(".slot-block:not(.slot-booked):not(.slot-past)")
       .forEach((slotBlock) => {
-        slotBlock.addEventListener("mousedown", (e) => {
+        slotBlock.addEventListener("pointerdown", (e) => {
           e.preventDefault();
+          // Limpiar cualquier overlay residual antes de crear uno nuevo
+          document.getElementById("drag-overlay")?.remove();
+          slotBlock.setPointerCapture(e.pointerId);
 
-          const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
+          const slotStartMin = timeToMinutes(
+            slotBlock.dataset.start || "00:00",
+          );
           const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
           const slotTopPx = slotBlock.offsetTop;
           const modality = slotBlock.dataset.modality;
@@ -612,10 +629,12 @@ const systemToday = new Date();
           const relativeY = e.clientY - slotBlock.getBoundingClientRect().top;
           const clickedMinutes = pixelsToMinutes(relativeY);
           const dragStartMinutes =
-            slotStartMin + Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+            slotStartMin +
+            Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
 
           const overlay = createOverlay();
-          const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+          const startPxInSlot =
+            ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
           overlay.style.top = `${slotTopPx + startPxInSlot}px`;
           overlay.style.height = `${HOUR_HEIGHT / 2}px`;
           slotBlock.parentElement?.appendChild(overlay);
@@ -630,19 +649,28 @@ const systemToday = new Date();
             overlay,
             slotBlock,
           };
+
+          slotBlock.addEventListener("pointermove", handlePointerMove);
+          slotBlock.addEventListener("pointerup", handlePointerUp, {
+            once: true,
+          });
+          slotBlock.addEventListener("pointercancel", cleanupDrag, {
+            once: true,
+          });
         });
       });
 
-    // Remove before re-adding to prevent duplicate listeners on astro:page-load
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
-    document.removeEventListener("mouseleave", handleMouseLeave);
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-    document.addEventListener("mouseleave", handleMouseLeave);
+    // Global escape/blur fallbacks for edge cases (popover backdrop click, tab switch, etc.)
+    window.removeEventListener("blur", cleanupDrag);
+    window.addEventListener("blur", cleanupDrag);
+    document.removeEventListener("keydown", handleEscape);
+    document.addEventListener("keydown", handleEscape);
   }
 
-  // Ejecutar en carga inicial y en navegaciones de Astro
-  document.addEventListener("DOMContentLoaded", setupDrag);
+  function handleEscape(e) {
+    if (e.key === "Escape") cleanupDrag();
+  }
+
+  // astro:page-load se dispara en carga inicial Y en cada navegación — no usar DOMContentLoaded
   document.addEventListener("astro:page-load", setupDrag);
 </script>

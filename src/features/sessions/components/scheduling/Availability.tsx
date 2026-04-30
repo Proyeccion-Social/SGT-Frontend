@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
 import type { Slot } from "@features/availability/services/availabilityService";
 import "../../assets/styles/Availability.css";
 

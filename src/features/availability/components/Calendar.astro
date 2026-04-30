@@ -529,105 +529,116 @@ const systemToday = new Date();
     return overlay;
   }
 
+  // Module-level drag state shared across all slot interactions
+  let activeDrag = null;
+
+  function handleMouseMove(e) {
+    if (!activeDrag) return;
+    const { overlay, dragStartY, dragStartMinutes, slotStartMin, slotEndMin, slotTopPx } = activeDrag;
+    if (!overlay) return;
+
+    const deltaY = e.clientY - dragStartY;
+    const deltaMinutes = pixelsToMinutes(deltaY);
+    const roundedDelta = Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+    const rawEndMinutes = dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
+    const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
+
+    const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+    const durationPx = ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
+    overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+    overlay.style.height = `${durationPx}px`;
+    overlay.dataset.endMinutes = clampedEndMinutes.toString();
+  }
+
+  function handleMouseUp() {
+    if (!activeDrag) return;
+    const { overlay, dragStartMinutes, slotBlock, modality } = activeDrag;
+    if (!overlay) return;
+
+    const endMinutes =
+      parseInt(overlay.dataset.endMinutes || "") || dragStartMinutes + SLOT_INTERVAL;
+    const overlayRect = overlay.getBoundingClientRect();
+
+    overlay.remove();
+    activeDrag = null;
+
+    if (endMinutes <= dragStartMinutes) return;
+
+    const startTime = minutesToTime(dragStartMinutes);
+    const endTime = minutesToTime(endMinutes);
+
+    document.dispatchEvent(
+      new CustomEvent("slot:clicked", {
+        detail: {
+          slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
+          overlayRect: {
+            top: overlayRect.top,
+            bottom: overlayRect.bottom,
+            left: overlayRect.left,
+            right: overlayRect.right,
+            width: overlayRect.width,
+            height: overlayRect.height,
+          },
+          dayOfWeek: slotBlock.dataset.day,
+          startTime,
+          endTime,
+          modality,
+        },
+        bubbles: true,
+      }),
+    );
+  }
+
+  function handleMouseLeave() {
+    if (!activeDrag) return;
+    const overlay = document.getElementById("drag-overlay");
+    if (overlay) overlay.remove();
+    activeDrag = null;
+  }
+
   function setupDrag() {
     document
-      .querySelectorAll(
-        ".slot-block:not(.slot-booked):not(.slot-past)",
-      )
+      .querySelectorAll(".slot-block:not(.slot-booked):not(.slot-past)")
       .forEach((slotBlock) => {
-        let isDragging = false;
-        let dragStartY = 0;
-        let dragStartMinutes = 0;
-        let overlay = null;
-
-        const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
-        const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
-        const slotTopPx = slotBlock.offsetTop;
-        const modality = slotBlock.dataset.modality;
-
         slotBlock.addEventListener("mousedown", (e) => {
           e.preventDefault();
-          isDragging = true;
+
+          const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
+          const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
+          const slotTopPx = slotBlock.offsetTop;
+          const modality = slotBlock.dataset.modality;
 
           const relativeY = e.clientY - slotBlock.getBoundingClientRect().top;
           const clickedMinutes = pixelsToMinutes(relativeY);
-          const roundedOffset =
-            Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-          dragStartMinutes = slotStartMin + roundedOffset;
-          dragStartY = e.clientY;
+          const dragStartMinutes =
+            slotStartMin + Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
 
-          overlay = createOverlay();
-          const startPxInSlot =
-            ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+          const overlay = createOverlay();
+          const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
           overlay.style.top = `${slotTopPx + startPxInSlot}px`;
           overlay.style.height = `${HOUR_HEIGHT / 2}px`;
           slotBlock.parentElement?.appendChild(overlay);
-        });
 
-        document.addEventListener("mousemove", (e) => {
-          if (!isDragging || !overlay) return;
-
-          const deltaY = e.clientY - dragStartY;
-          const deltaMinutes = pixelsToMinutes(deltaY);
-          const roundedDelta =
-            Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-          const rawEndMinutes =
-            dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
-          const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
-
-          const startPxInSlot =
-            ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
-          const durationPx =
-            ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
-          overlay.style.top = `${slotTopPx + startPxInSlot}px`;
-          overlay.style.height = `${durationPx}px`;
-          overlay.dataset.endMinutes = clampedEndMinutes.toString();
-        });
-
-        document.addEventListener("mouseup", (e) => {
-          if (!isDragging || !overlay) return;
-          isDragging = false;
-
-          const endMinutes =
-            parseInt(overlay.dataset.endMinutes || "") ||
-            dragStartMinutes + SLOT_INTERVAL;
-          const overlayRect = overlay.getBoundingClientRect();
-
-          overlay.remove();
-          overlay = null;
-
-          if (endMinutes <= dragStartMinutes) return;
-
-          const startTime = minutesToTime(dragStartMinutes);
-          const endTime = minutesToTime(endMinutes);
-
-          document.dispatchEvent(
-            new CustomEvent("slot:clicked", {
-              detail: {
-                slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
-                overlayRect: {
-                  top: overlayRect.top,
-                  bottom: overlayRect.bottom,
-                  left: overlayRect.left,
-                  right: overlayRect.right,
-                  width: overlayRect.width,
-                  height: overlayRect.height,
-                },
-                dayOfWeek: slotBlock.dataset.day,
-                startTime,
-                endTime,
-                modality,
-              },
-              bubbles: true,
-            }),
-          );
+          activeDrag = {
+            dragStartY: e.clientY,
+            dragStartMinutes,
+            slotStartMin,
+            slotEndMin,
+            slotTopPx,
+            modality,
+            overlay,
+            slotBlock,
+          };
         });
       });
 
-    document.addEventListener("mouseleave", () => {
-      const overlay = document.getElementById("drag-overlay");
-      if (overlay) overlay.remove();
-    });
+    // Remove before re-adding to prevent duplicate listeners on astro:page-load
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("mouseleave", handleMouseLeave);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseleave", handleMouseLeave);
   }
 
   // Ejecutar en carga inicial y en navegaciones de Astro

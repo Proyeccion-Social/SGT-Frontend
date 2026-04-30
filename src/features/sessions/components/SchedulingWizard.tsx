@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import type { VirtualElement as FloatingVirtualElement } from "@floating-ui/core";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
 import DetailsStep from "./scheduling/Details";
@@ -26,10 +25,6 @@ export interface WizardData {
   description: string;
   sessionType: "INDIVIDUAL" | "GRUPAL" | null;
   modality: "VIRT" | "PRES" | null;
-}
-
-interface VirtualElement {
-  getBoundingClientRect: () => DOMRect;
 }
 
 interface PopoverData {
@@ -83,7 +78,7 @@ export default function SchedulingWizard({ slots }: Props) {
       sileo.action({
         title: "Franja seleccionada",
         description: (
-          <span style={{ display: "block", textAlign: "center", width: "100%" }}>
+          <span className="wizard-sileo-description">
             {`${custom.detail.startTime} → ${custom.detail.endTime} · ${
               !custom.detail.modality || custom.detail.modality === "null"
                 ? "Presencial o Virtual"
@@ -357,7 +352,6 @@ export default function SchedulingWizard({ slots }: Props) {
                 {step === 1 && (
                   <AvailabilityStep
                     tutorIds={tutorIds}
-                    slot={data.slot}
                     subject={data.subject}
                     onSelect={(tutorId) => {
                       setData((prev) => ({ ...prev, tutorId }));

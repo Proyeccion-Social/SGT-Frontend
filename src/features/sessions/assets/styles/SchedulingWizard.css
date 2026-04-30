@@ -80,3 +80,9 @@
   height: 25px;
   opacity: 1;
 }
+/* ── Descripción de notificación centrada ── */
+.wizard-sileo-description {
+  display: block;
+  text-align: center;
+  width: 100%;
+}

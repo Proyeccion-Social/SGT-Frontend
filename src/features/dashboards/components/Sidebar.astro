@@ -396,9 +396,9 @@ const currentPath = Astro.url.pathname;
   logoutButton?.addEventListener("click", async () => {
     await sileo.promise(
       async () => {
-        const authUserStr = sessionStorage.getItem("auth_user");
-        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
-        const userId = authUser?.user?.id;
+        const authStorageStr = localStorage.getItem("auth-storage");
+        const authStorage = authStorageStr ? JSON.parse(authStorageStr) : null;
+        const userId = authStorage?.state?.user?.id;
 
         if (!userId) {
           throw new Error("No hay sesión activa");
@@ -417,7 +417,7 @@ const currentPath = Astro.url.pathname;
           throw new Error(data.message || "Error al cerrar sesión");
         }
 
-        sessionStorage.removeItem("auth_user");
+        localStorage.removeItem("auth-storage");
       },
       {
         loading: { title: "Cerrando sesión...", fill: "#8751ff" },

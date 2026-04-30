@@ -8,7 +8,12 @@ interface Props {
   role?: "ADMIN" | "TUTOR" | "STUDENT";
 }
 
-const { slots: rawSlots, baseDate = new Date(), mode: modeProp, role } = Astro.props;
+const {
+  slots: rawSlots,
+  baseDate = new Date(),
+  mode: modeProp,
+  role,
+} = Astro.props;
 const mode = modeProp ?? (role === "STUDENT" ? "student" : "tutor");
 const weekDates = getWeekDates(baseDate);
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
@@ -77,7 +82,7 @@ const systemToday = new Date();
             {hours.map((_) => (
               <div class='hour-cell' />
             ))}
-            {getSlotsForDay( day.key).map((slot) => {
+            {getSlotsForDay(day.key).map((slot) => {
               const startMin = timeToMinutes(slot.startTime);
               const endMin = slot.endTime
                 ? timeToMinutes(slot.endTime)
@@ -99,21 +104,22 @@ const systemToday = new Date();
                   {mode === "student" ? (
                     isHalfHour ? (
                       // Slot de media hora en modo estudiante — layout horizontal compacto
-                      <div class="slot-student-half">
-                        <span class="slot-student-half__count">
-                          {slot.tutorCount} disponible{slot.tutorCount !== 1 ? "s" : ""}
+                      <div class='slot-student-half'>
+                        <span class='slot-student-half__count'>
+                          {slot.tutorCount} disponible
+                          {slot.tutorCount !== 1 ? "s" : ""}
                         </span>
-                        <span class="slot-student-half__time">
+                        <span class='slot-student-half__time'>
                           {slot.startTime} → {slot.endTime}
                         </span>
                       </div>
                     ) : (
                       // Slot normal en modo estudiante — layout actual
-                      <div class="slot-student-info">
-                        <span class="slot-tutor-count">
+                      <div class='slot-student-info'>
+                        <span class='slot-tutor-count'>
                           Tutorías disponibles: {slot.tutorCount}
                         </span>
-                        <span class="slot-time-range">
+                        <span class='slot-time-range'>
                           {slot.startTime} → {slot.endTime}
                         </span>
                       </div>
@@ -122,7 +128,9 @@ const systemToday = new Date();
                     // Slot de media hora en modo tutor — layout actual, sin cambio
                     <div class='slot-half-hour-content'>
                       <span class='slot-modality-text'>
-                        {slot.modality?.toString().toUpperCase() === "VIRT" ? "Virtual" : "Presencial"}
+                        {slot.modality?.toString().toUpperCase() === "VIRT"
+                          ? "Virtual"
+                          : "Presencial"}
                       </span>
                       <span class='slot-duration-text-inline'>
                         {formatDuration(slot.startTime, slot.endTime)}
@@ -136,17 +144,35 @@ const systemToday = new Date();
                       </div>
                       <div class='slot-info'>
                         <span class='slot-modality-text'>
-                          {slot.modality?.toString().toUpperCase() === "VIRT" ? "Virtual" : "Presencial"}
+                          {slot.modality?.toString().toUpperCase() === "VIRT"
+                            ? "Virtual"
+                            : "Presencial"}
                         </span>
                         <span class='slot-badge-status'>
                           {slot.isBooked ? (
-                            <svg width='10' height='10' viewBox='0 0 24 24' fill='none'
-                              stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                            <svg
+                              width='10'
+                              height='10'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              stroke-width='2'
+                              stroke-linecap='round'
+                              stroke-linejoin='round'
+                            >
                               <polyline points='20 6 9 17 4 12' />
                             </svg>
                           ) : (
-                            <svg width='10' height='10' viewBox='0 0 24 24' fill='none'
-                              stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+                            <svg
+                              width='10'
+                              height='10'
+                              viewBox='0 0 24 24'
+                              fill='none'
+                              stroke='currentColor'
+                              stroke-width='2'
+                              stroke-linecap='round'
+                              stroke-linejoin='round'
+                            >
                               <polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' />
                             </svg>
                           )}
@@ -166,7 +192,6 @@ const systemToday = new Date();
 </div>
 
 <style>
-
   .calendar-outer {
     width: 100%;
     height: 100%;
@@ -225,9 +250,9 @@ const systemToday = new Date();
   }
 
   .day-number {
-    font-size: 1.20rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    color: #9ACC5B;
+    color: #9acc5b;
     line-height: 1;
     font-family: "Cabinet Grotesk Variable", sans-serif;
   }
@@ -384,64 +409,76 @@ const systemToday = new Date();
     white-space: nowrap;
   }
 
-  
   .slot-student-info {
-  position: absolute;
-  top: 10px;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 
-.slot-tutor-count {
-  font-size: 0.78rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 3px 8px;
-  border-radius: 999px;
-  color: #1f2937;
-}
+  .slot-tutor-count {
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 3px 8px;
+    border-radius: 999px;
+    color: #1f2937;
+  }
 
-.slot-time-range {
-  font-size: 0.70rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-}
+  .slot-time-range {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+  }
 
   .slot-student-half {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 10px;
-  gap: 6px;
-  overflow: hidden;
-}
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+    gap: 6px;
+    overflow: hidden;
+  }
 
-.slot-student-half__count {
-  font-size: 0.70rem;
-  font-weight: 600;
-  color: #1f2937;
-  background: rgba(255, 255, 255, 0.7);
-  padding: 2px 7px;
-  border-radius: 999px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 1;
-  min-width: 0;
-}
+  .slot-student-half__count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #1f2937;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+  }
 
-.slot-student-half__time {
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+  .slot-student-half__time {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.55);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .slot-selected {
+    z-index: 100;
+    overflow: visible;
+  }
+
+  .slot-selected::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 10px; /* border-radius del elemento + 2px */
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%237c3aed' stroke-width='4' stroke-dasharray='13%2c 13' stroke-linecap='square'/%3e%3c/svg%3e");
+    pointer-events: none;
+  }
 </style>
 
 <script>
@@ -449,7 +486,9 @@ const systemToday = new Date();
   const SLOT_INTERVAL = 30;
 
   function minutesToTime(minutes: number): string {
-    const h = Math.floor(minutes / 60).toString().padStart(2, "0");
+    const h = Math.floor(minutes / 60)
+      .toString()
+      .padStart(2, "0");
     const m = (minutes % 60).toString().padStart(2, "0");
     return `${h}:${m}`;
   }
@@ -491,90 +530,99 @@ const systemToday = new Date();
   }
 
   function setupDrag() {
+    document
+      .querySelectorAll<HTMLElement>(
+        ".slot-block:not(.slot-booked):not(.slot-past)",
+      )
+      .forEach((slotBlock) => {
+        let isDragging = false;
+        let dragStartY = 0;
+        let dragStartMinutes = 0;
+        let overlay: HTMLElement | null = null;
 
-    document.querySelectorAll<HTMLElement>(
-      '.slot-block:not(.slot-booked):not(.slot-past)'
-    ).forEach((slotBlock) => {
-      let isDragging = false;
-      let dragStartY = 0;
-      let dragStartMinutes = 0;
-      let overlay: HTMLElement | null = null;
+        const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
+        const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
+        const slotTopPx = slotBlock.offsetTop;
+        const modality = slotBlock.dataset.modality;
 
-      const slotStartMin = timeToMinutes(slotBlock.dataset.start || "00:00");
-      const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
-      const slotTopPx = slotBlock.offsetTop;
-      const modality = slotBlock.dataset.modality;
+        slotBlock.addEventListener("mousedown", (e: MouseEvent) => {
+          e.preventDefault();
+          isDragging = true;
 
-      slotBlock.addEventListener("mousedown", (e: MouseEvent) => {
-        e.preventDefault();
-        isDragging = true;
+          const relativeY = e.clientY - slotBlock.getBoundingClientRect().top;
+          const clickedMinutes = pixelsToMinutes(relativeY);
+          const roundedOffset =
+            Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+          dragStartMinutes = slotStartMin + roundedOffset;
+          dragStartY = e.clientY;
 
-        const relativeY = e.clientY - slotBlock.getBoundingClientRect().top;
-        const clickedMinutes = pixelsToMinutes(relativeY);
-        const roundedOffset = Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-        dragStartMinutes = slotStartMin + roundedOffset;
-        dragStartY = e.clientY;
+          overlay = createOverlay();
+          const startPxInSlot =
+            ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+          overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+          overlay.style.height = `${HOUR_HEIGHT / 2}px`;
+          slotBlock.parentElement?.appendChild(overlay);
+        });
 
-        overlay = createOverlay();
-        const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
-        overlay.style.top = `${slotTopPx + startPxInSlot}px`;
-        overlay.style.height = `${HOUR_HEIGHT / 2}px`;
-        slotBlock.parentElement?.appendChild(overlay);
-      });
+        document.addEventListener("mousemove", (e: MouseEvent) => {
+          if (!isDragging || !overlay) return;
 
-      document.addEventListener("mousemove", (e: MouseEvent) => {
-        if (!isDragging || !overlay) return;
+          const deltaY = e.clientY - dragStartY;
+          const deltaMinutes = pixelsToMinutes(deltaY);
+          const roundedDelta =
+            Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+          const rawEndMinutes =
+            dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
+          const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
 
-        const deltaY = e.clientY - dragStartY;
-        const deltaMinutes = pixelsToMinutes(deltaY);
-        const roundedDelta = Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-        const rawEndMinutes = dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
-        const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
+          const startPxInSlot =
+            ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+          const durationPx =
+            ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
+          overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+          overlay.style.height = `${durationPx}px`;
+          overlay.dataset.endMinutes = clampedEndMinutes.toString();
+        });
 
-        const startPxInSlot = ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
-        const durationPx = ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
-        overlay.style.top = `${slotTopPx + startPxInSlot}px`;
-        overlay.style.height = `${durationPx}px`;
-        overlay.dataset.endMinutes = clampedEndMinutes.toString();
-      });
+        document.addEventListener("mouseup", (e: MouseEvent) => {
+          if (!isDragging || !overlay) return;
+          isDragging = false;
 
-      document.addEventListener("mouseup", (e: MouseEvent) => {
-        if (!isDragging || !overlay) return;
-        isDragging = false;
+          const endMinutes =
+            parseInt(overlay.dataset.endMinutes || "") ||
+            dragStartMinutes + SLOT_INTERVAL;
+          const overlayRect = overlay.getBoundingClientRect();
 
-        const endMinutes = parseInt(overlay.dataset.endMinutes || "") || (dragStartMinutes + SLOT_INTERVAL);
-        const overlayRect = overlay.getBoundingClientRect();
+          overlay.remove();
+          overlay = null;
 
-        overlay.remove();
-        overlay = null;
+          if (endMinutes <= dragStartMinutes) return;
 
-        if (endMinutes <= dragStartMinutes) return;
+          const startTime = minutesToTime(dragStartMinutes);
+          const endTime = minutesToTime(endMinutes);
 
-        const startTime = minutesToTime(dragStartMinutes);
-        const endTime = minutesToTime(endMinutes);
-
-        document.dispatchEvent(
-          new CustomEvent("slot:clicked", {
-            detail: {
-              slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
-              overlayRect: {
-                top: overlayRect.top,
-                bottom: overlayRect.bottom,
-                left: overlayRect.left,
-                right: overlayRect.right,
-                width: overlayRect.width,
-                height: overlayRect.height,
+          document.dispatchEvent(
+            new CustomEvent("slot:clicked", {
+              detail: {
+                slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
+                overlayRect: {
+                  top: overlayRect.top,
+                  bottom: overlayRect.bottom,
+                  left: overlayRect.left,
+                  right: overlayRect.right,
+                  width: overlayRect.width,
+                  height: overlayRect.height,
+                },
+                dayOfWeek: slotBlock.dataset.day,
+                startTime,
+                endTime,
+                modality,
               },
-              dayOfWeek: slotBlock.dataset.day,
-              startTime,
-              endTime,
-              modality,
-            },
-            bubbles: true,
-          })
-        );
+              bubbles: true,
+            }),
+          );
+        });
       });
-    });
 
     document.addEventListener("mouseleave", () => {
       const overlay = document.getElementById("drag-overlay");

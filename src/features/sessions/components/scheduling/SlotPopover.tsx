@@ -1,6 +1,5 @@
 import { useFloating, autoPlacement, offset, shift } from "@floating-ui/react";
 import { useEffect, useRef, useState } from "react";
-import { DAY_BORDER_COLORS } from "../../../availability/utils/calendarConstants.ts";
 
 interface Props {
   subjects: string[];
@@ -86,6 +85,12 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
     };
   }, [update, anchorEl]);
 
+  useEffect(() => {
+    if (!anchorEl) return;
+    anchorEl.classList.add("slot-selected");
+    return () => anchorEl.classList.remove("slot-selected");
+  }, [anchorEl]);
+
   if (!anchorEl) return null;
 
   // Rect del subintervalo calculado en tiempo real desde el DOM
@@ -96,55 +101,33 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
     slotData.endTime
   );
 
-  const dayColor = DAY_BORDER_COLORS[slotData.dayOfWeek as string] ?? "#7c3aed";
   const today = new Date();
   const dateLabel = `${dayLabels[slotData.dayOfWeek]}, ${today.getDate()} de ${today.toLocaleDateString("es-CO", { month: "long" })}`;
 
   return (
     <>
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        backdropFilter: "blur(3px)",
-        background: "rgba(0,0,0,0.15)",
-        zIndex: 90,
-        clipPath: `polygon(
-          0% 0%, 100% 0%, 100% 100%, 0% 100%,
-          0% 0%,
-          ${subRect.left}px ${subRect.top}px,
-          ${subRect.left}px ${subRect.bottom}px,
-          ${subRect.right}px ${subRect.bottom}px,
-          ${subRect.right}px ${subRect.top}px,
-          ${subRect.left}px ${subRect.top}px
-        )`,
-      }} />
+      <svg
+        style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh", zIndex: 90 }}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <mask id="slot-hole-mask">
+            <rect width="100%" height="100%" fill="white" />
+            <rect
+              x={subRect.left}
+              y={subRect.top}
+              width={subRect.width}
+              height={subRect.height}
+              rx="8"
+              ry="8"
+              fill="black"
+            />
+          </mask>
+        </defs>
+        <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)" mask="url(#slot-hole-mask)" />
+      </svg>
 
-      <div
-        ref={refs.setReference as any}
-        style={{
-          position: "fixed",
-          top: subRect.top - 4,
-          left: subRect.left - 4,
-          width: subRect.width + 8,
-          height: subRect.height + 8,
-          borderRadius: "14px",
-          zIndex: 93,
-          pointerEvents: "none",
-          backgroundImage: `repeating-linear-gradient(
-            90deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
-          ), repeating-linear-gradient(
-            180deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
-          ), repeating-linear-gradient(
-            90deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
-          ), repeating-linear-gradient(
-            180deg, ${dayColor} 0px, ${dayColor} 6px, transparent 6px, transparent 12px
-          )`,
-          backgroundSize: "12px 2px, 2px 12px, 12px 2px, 2px 12px",
-          backgroundPosition: "0 0, 100% 0, 0 100%, 0 0",
-          backgroundRepeat: "repeat-x, repeat-y, repeat-x, repeat-y",
-          animation: "march 0.8s linear infinite",
-        }}
-      />
+
 
       <div
         className="slot-popover"

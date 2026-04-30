@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { sileo } from "sileo";
 import ojoSrc      from "../../assets/ojo.svg?url";
@@ -11,6 +11,7 @@ const PW_REGEX    = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 interface FormGeneralProps {
   user: { name: string; email: string } | null;
   initialMode?: "info" | "password";
+  initialPhone?: string;
 }
 
 // ─── Password field with visibility toggle ────────────────
@@ -60,26 +61,48 @@ function PwField({ id, label, value, onChange, error, placeholder, autoComplete 
 
 // ─── FormGeneral ──────────────────────────────────────────
 
-export function FormGeneral({ user, initialMode = "info" }: FormGeneralProps) {
+export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGeneralProps) {
   const [mode, setMode] = useState<"info" | "password">(initialMode);
 
-  const [phone, setPhone]         = useState("");
+  const [phone, setPhone]         = useState(initialPhone ?? "");
   const [phoneError, setPhoneError] = useState("");
   const [savingInfo, setSavingInfo] = useState(false);
+
+  useEffect(() => {
+    if (initialPhone) setPhone(initialPhone);
+  }, [initialPhone]);
 
   const [pwForm, setPwForm]     = useState({ current: "", newPw: "", confirm: "" });
   const [pwErrors, setPwErrors] = useState({ current: "", newPw: "", confirm: "" });
   const [savingPw, setSavingPw] = useState(false);
 
-  function handleSaveInfo() {
+  async function handleSaveInfo() {
     if (!PHONE_REGEX.test(phone)) {
       setPhoneError("El número debe tener exactamente 10 dígitos.");
       return;
     }
     setPhoneError("");
     setSavingInfo(true);
-    // TODO: BFF endpoint para actualizar teléfono
-    setTimeout(() => setSavingInfo(false), 800);
+    await sileo
+      .promise(
+        fetch("/api/settings/tutor-profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.message ?? "Error al actualizar el perfil");
+          }
+          return res;
+        }),
+        {
+          loading: { title: "Guardando perfil…",   fill: "#8751ff" },
+          success: { title: "Perfil actualizado",  fill: "#58d68d" },
+          error:   { title: "No se pudo guardar el perfil", fill: "#f35761" },
+        },
+      )
+      .finally(() => setSavingInfo(false));
   }
 
   async function handleSavePassword() {
@@ -142,7 +165,7 @@ export function FormGeneral({ user, initialMode = "info" }: FormGeneralProps) {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                placeholder="10 dígitos"
+                placeholder={phone ? undefined : "10 dígitos"}
                 aria-invalid={!!phoneError}
               />
               {phoneError && <span className="fg-error">{phoneError}</span>}

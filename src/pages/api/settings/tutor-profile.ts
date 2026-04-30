@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
 import {
-    getStudentPreferences,
-    updateStudentPreferences,
+    getTutorProfileData,
+    updateTutorProfile,
 } from "@/features/profileSettings/services/settingsServices";
-import type { UpdatePreferencesDto } from "@/features/profileSettings/services/settingsServices";
+import type { UpdateTutorProfileDto } from "@/features/profileSettings/services/settingsServices";
 
 export const prerender = false;
 
@@ -32,8 +32,8 @@ function extractToken(request: Request): string | null {
 }
 
 /**
- * GET /api/settings/preferences
- * Obtiene la carrera y modalidad preferida del estudiante autenticado.
+ * GET /api/settings/tutor-profile
+ * Obtiene el perfil del tutor autenticado (teléfono, etc.).
  */
 export const GET: APIRoute = async ({ request }) => {
     try {
@@ -45,8 +45,8 @@ export const GET: APIRoute = async ({ request }) => {
             );
         }
 
-        const preferences = await getStudentPreferences(token);
-        return new Response(JSON.stringify(preferences), {
+        const profile = await getTutorProfileData(token);
+        return new Response(JSON.stringify(profile), {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });
@@ -56,9 +56,9 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 /**
- * PATCH /api/settings/preferences
- * Body: { career?: string; preferredModality?: "PRES" | "VIRT" }
- * Actualiza parcialmente las preferencias del estudiante.
+ * PATCH /api/settings/tutor-profile
+ * Body: { phone?: string }
+ * Actualiza el perfil del tutor autenticado.
  */
 export const PATCH: APIRoute = async ({ request }) => {
     try {
@@ -78,17 +78,12 @@ export const PATCH: APIRoute = async ({ request }) => {
             );
         }
 
-        const dto: UpdatePreferencesDto = {};
-        if (typeof body.career === "string") dto.career = body.career;
-        if (body.preferredModality === "PRES" || body.preferredModality === "VIRT") {
-            dto.preferredModality = body.preferredModality;
-        }
+        const dto: UpdateTutorProfileDto = {};
+        if (typeof body.phone === "string") dto.phone = body.phone;
+        if (typeof body.max_weekly_hours === "number") dto.max_weekly_hours = body.max_weekly_hours;
 
-        const preferences = await updateStudentPreferences(dto, token);
-        return new Response(JSON.stringify(preferences), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
+        await updateTutorProfile(dto, token);
+        return new Response(null, { status: 204 });
     } catch (error) {
         return errorResponse(error);
     }

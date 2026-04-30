@@ -1,22 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sileo } from "sileo";
+import { useAuthStore } from "@/store/authStore";
 import resaltadoSrc from "../../assets/resaltado.svg?url";
 import "../../styles/hoursLimit.css";
 
 export function HoursLimit() {
   const [hours, setHours]   = useState<number | "">("");
   const [saving, setSaving] = useState(false);
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch(`/api/settings/tutor-hours?tutorId=${user.id}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data) setHours(data.weeklyHoursUsed + data.weeklyHoursRemaining);
+      })
+      .catch(() => {});
+  }, [user?.id]);
+
+  async function verifyUpdate() {
+    if (!user?.id) return;
+    const res = await fetch(`/api/settings/tutor-hours?tutorId=${user.id}`).catch(() => null);
+    if (!res?.ok) return;
+    const data = await res.json().catch(() => null);
+    if (data) setHours(data.weeklyHoursUsed + data.weeklyHoursRemaining);
+  }
 
   async function handleSave() {
     if (hours === "" || (hours as number) < 1) return;
     setSaving(true);
-    // TODO: BFF endpoint para actualizar límite de horas
     await sileo
-      .promise(new Promise<void>((res) => setTimeout(res, 800)), {
-        loading: { title: "Guardando límite…",  fill: "#8751ff" },
-        success: { title: "Límite actualizado", fill: "#58d68d" },
-        error:   { title: "No se pudo guardar", fill: "#f35761" },
-      })
+      .promise(
+        fetch("/api/settings/tutor-profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ max_weekly_hours: hours }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.message ?? "Error al actualizar el límite");
+          }
+          return res;
+        }),
+        {
+          loading: { title: "Guardando límite…",  fill: "#8751ff" },
+          success: { title: "Límite actualizado", fill: "#58d68d" },
+          error:   { title: "No se pudo guardar", fill: "#f35761" },
+        },
+      )
+      .then(() => verifyUpdate())
       .finally(() => setSaving(false));
   }
 

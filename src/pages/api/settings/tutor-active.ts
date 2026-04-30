@@ -1,9 +1,5 @@
 import type { APIRoute } from "astro";
-import {
-    getStudentPreferences,
-    updateStudentPreferences,
-} from "@/features/profileSettings/services/settingsServices";
-import type { UpdatePreferencesDto } from "@/features/profileSettings/services/settingsServices";
+import { toggleTutorActive } from "@/features/profileSettings/services/settingsServices";
 
 export const prerender = false;
 
@@ -32,33 +28,9 @@ function extractToken(request: Request): string | null {
 }
 
 /**
- * GET /api/settings/preferences
- * Obtiene la carrera y modalidad preferida del estudiante autenticado.
- */
-export const GET: APIRoute = async ({ request }) => {
-    try {
-        const token = extractToken(request);
-        if (!token) {
-            return new Response(
-                JSON.stringify({ code: "AUTH_05", message: "No hay token de sesión" }),
-                { status: 401, headers: { "Content-Type": "application/json" } },
-            );
-        }
-
-        const preferences = await getStudentPreferences(token);
-        return new Response(JSON.stringify(preferences), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (error) {
-        return errorResponse(error);
-    }
-};
-
-/**
- * PATCH /api/settings/preferences
- * Body: { career?: string; preferredModality?: "PRES" | "VIRT" }
- * Actualiza parcialmente las preferencias del estudiante.
+ * PATCH /api/settings/tutor-active
+ * Body: { isActive: boolean }
+ * Activa o desactiva la cuenta del tutor autenticado.
  */
 export const PATCH: APIRoute = async ({ request }) => {
     try {
@@ -71,21 +43,15 @@ export const PATCH: APIRoute = async ({ request }) => {
         }
 
         const body = await request.json().catch(() => null);
-        if (!body || typeof body !== "object") {
+        if (!body || typeof body.isActive !== "boolean") {
             return new Response(
-                JSON.stringify({ code: "VALIDATION_01", message: "Cuerpo de solicitud inválido" }),
+                JSON.stringify({ code: "VALIDATION_01", message: "isActive (boolean) es requerido" }),
                 { status: 400, headers: { "Content-Type": "application/json" } },
             );
         }
 
-        const dto: UpdatePreferencesDto = {};
-        if (typeof body.career === "string") dto.career = body.career;
-        if (body.preferredModality === "PRES" || body.preferredModality === "VIRT") {
-            dto.preferredModality = body.preferredModality;
-        }
-
-        const preferences = await updateStudentPreferences(dto, token);
-        return new Response(JSON.stringify(preferences), {
+        await toggleTutorActive(body.isActive, token);
+        return new Response(JSON.stringify({ message: "Tutor status updated successfully" }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });

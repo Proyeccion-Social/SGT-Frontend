@@ -16,10 +16,11 @@ export function BasicInformation() {
     : "T";
 
   const status      = user?.status ?? "INACTIVE";
+  const isActive    = status === "ACTIVE";
   const statusLabel = STATUS_LABEL[status] ?? status;
 
   return (
-    <div className="bi-card">
+    <div className={`bi-card${isActive ? "" : " bi-card--inactive"}`}>
       <div className="bi-status">
         <span className={`bi-status-dot bi-status-dot--${status.toLowerCase()}`} />
         <span className="bi-status-label">{statusLabel}</span>
@@ -33,7 +34,7 @@ export function BasicInformation() {
       </div>
 
       <p className="bi-name">{user?.name ?? "Tutor"}</p>
-      <span className="bi-role">Tutor</span>
+      <span className="bi-role">{isActive ? "Tutor" : "Inactivo"}</span>
     </div>
   );
 }

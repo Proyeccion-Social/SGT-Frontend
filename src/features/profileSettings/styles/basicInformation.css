@@ -14,6 +14,11 @@
   align-items: center;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.bi-card--inactive {
+  background: linear-gradient(to bottom, #f35761 55%, #ffd6d8 100%);
 }
 
 /* ── Status badge (top-right) ────────────────────────────── */
@@ -38,8 +43,8 @@
 }
 
 .bi-status-dot--active    { background: #4ade80; }
-.bi-status-dot--inactive  { background: #9ca3af; }
-.bi-status-dot--suspended { background: #f87171; }
+.bi-status-dot--inactive  { background: #f35761; }
+.bi-status-dot--suspended { background: #f35761; }
 
 .bi-status-label {
   font-size: 11px;

@@ -97,8 +97,9 @@
   outline: none;
 }
 
-.tp-nav-icon-btn--calendar  { background-color: #9f74ff; }
+.tp-nav-icon-btn--calendar   { background-color: #9f74ff; }
 .tp-nav-icon-btn--activacion { background-color: #9acc5b; }
+.tp-nav-icon-btn--inactive   { background-color: #f35761; }
 
 .tp-nav-icon-btn:hover        { opacity: 0.85; }
 .tp-nav-icon-btn:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }

@@ -11,6 +11,7 @@ import { useAuthStore } from "@/store/authStore";
 import { BasicInformation } from "./BasicInformation";
 import { FormGeneral } from "./FormGeneral";
 import { HoursLimit } from "./HoursLimit";
+import { sileo } from "sileo";
 
 import salirIconSrc      from "../../assets/salir.svg?url";
 import settingsIconSrc   from "../../assets/settings.svg?url";
@@ -20,7 +21,7 @@ import activacionIconSrc from "../../assets/activacion.svg?url";
 import "../../styles/profileSettings.css";
 import "../../styles/tutorProfile.css";
 
-type TutorView = "general" | "hours" | "status";
+type TutorView = "general" | "hours";
 
 export interface TutorProfileDialogProps {
   open: boolean;
@@ -39,15 +40,54 @@ export function TutorProfileDialog({
   calendarHref,
 }: TutorProfileDialogProps) {
   const [activeView, setActiveView] = useState<TutorView>(initialView ?? "general");
-  const { user } = useAuthStore();
+  const [phone, setPhone]           = useState<string | null>(null);
+  const [toggling, setToggling]     = useState(false);
+  const { user, setUser } = useAuthStore();
+
+  const isActive = user?.status === "ACTIVE";
 
   const initials = user?.name
     ? user.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
     : "T";
 
   useEffect(() => {
-    if (open) setActiveView(initialView ?? "general");
+    if (open) {
+      setActiveView(initialView ?? "general");
+      fetch("/api/settings/tutor-profile")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { setPhone(data?.phone ?? null); })
+        .catch(() => { setPhone(null); });
+    }
   }, [open, initialView]);
+
+  async function handleToggleActive() {
+    if (toggling || !user) return;
+    const next = !isActive;
+    setToggling(true);
+    await sileo
+      .promise(
+        fetch("/api/settings/tutor-active", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: next }),
+        }).then(async (res) => {
+          if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.message ?? "Error al cambiar el estado");
+          }
+          return res;
+        }),
+        {
+          loading: { title: next ? "Activando cuenta…"   : "Desactivando cuenta…", fill: "#8751ff" },
+          success: { title: next ? "Cuenta activada"     : "Cuenta desactivada",   fill: next ? "#9acc5b" : "#f35761" },
+          error:   { title: "No se pudo cambiar el estado", fill: "#f35761" },
+        },
+      )
+      .then(() => {
+        setUser({ ...user, status: next ? "ACTIVE" : "INACTIVE" });
+      })
+      .finally(() => setToggling(false));
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -84,15 +124,13 @@ export function TutorProfileDialog({
         <div className="tp-body">
           <BasicInformation />
           <div className="tp-panel">
-            {activeView === "general" && <FormGeneral user={user} initialMode={initialGeneralMode} />}
+            {activeView === "general" && <FormGeneral user={user} initialMode={initialGeneralMode} initialPhone={phone ?? undefined} />}
             {activeView === "hours"   && <HoursLimit />}
-            {/* status: vista pendiente de implementar */}
           </div>
         </div>
 
         <nav className="tp-bottom" aria-label="Navegación del perfil de tutor">
           <div className="tp-bottom-inner">
-            {/* Calendario — navega a página externa cuando calendarHref esté disponible */}
             {calendarHref ? (
               <a
                 href={calendarHref}
@@ -138,10 +176,11 @@ export function TutorProfileDialog({
 
             <button
               type="button"
-              className={`tp-nav-icon-btn tp-nav-icon-btn--activacion${activeView === "status" ? " tp-nav-active" : ""}`}
-              onClick={() => setActiveView("status")}
-              aria-label="Activación"
-              aria-pressed={activeView === "status"}
+              className={`tp-nav-icon-btn tp-nav-icon-btn--activacion${isActive ? "" : " tp-nav-icon-btn--inactive"}`}
+              onClick={handleToggleActive}
+              disabled={toggling}
+              aria-label={isActive ? "Desactivar cuenta" : "Activar cuenta"}
+              aria-pressed={isActive}
             >
               <img src={activacionIconSrc} alt="" aria-hidden="true" />
             </button>

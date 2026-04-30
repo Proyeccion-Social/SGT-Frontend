@@ -1,8 +1,5 @@
 import type { APIRoute } from "astro";
-import {
-    getStudentSubjects,
-    updateStudentSubjects,
-} from "@/features/profileSettings/services/settingsServices";
+import { getTutorHoursStatus } from "@/features/profileSettings/services/settingsServices";
 
 export const prerender = false;
 
@@ -31,8 +28,8 @@ function extractToken(request: Request): string | null {
 }
 
 /**
- * GET /api/settings/subjects
- * Obtiene las materias de interés del estudiante autenticado.
+ * GET /api/settings/tutor-hours?tutorId=uuid
+ * Obtiene el estado de horas semanales del tutor autenticado.
  */
 export const GET: APIRoute = async ({ request }) => {
     try {
@@ -44,41 +41,17 @@ export const GET: APIRoute = async ({ request }) => {
             );
         }
 
-        const subjects = await getStudentSubjects(token);
-        return new Response(JSON.stringify({ subjects }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (error) {
-        return errorResponse(error);
-    }
-};
-
-/**
- * PATCH /api/settings/subjects
- * Body: { subjectIds: string[] }
- * Reemplaza la lista completa de materias de interés del estudiante.
- */
-export const PATCH: APIRoute = async ({ request }) => {
-    try {
-        const token = extractToken(request);
-        if (!token) {
+        const { searchParams } = new URL(request.url);
+        const tutorId = searchParams.get("tutorId");
+        if (!tutorId) {
             return new Response(
-                JSON.stringify({ code: "AUTH_05", message: "No hay token de sesión" }),
-                { status: 401, headers: { "Content-Type": "application/json" } },
-            );
-        }
-
-        const body = await request.json().catch(() => null);
-        if (!body || !Array.isArray(body.subjectIds)) {
-            return new Response(
-                JSON.stringify({ code: "VALIDATION_01", message: "subjectIds debe ser un array" }),
+                JSON.stringify({ code: "VALIDATION_01", message: "tutorId es requerido" }),
                 { status: 400, headers: { "Content-Type": "application/json" } },
             );
         }
 
-        const subjects = await updateStudentSubjects(body.subjectIds as string[], token);
-        return new Response(JSON.stringify({ subjects }), {
+        const status = await getTutorHoursStatus(tutorId, token);
+        return new Response(JSON.stringify(status), {
             status: 200,
             headers: { "Content-Type": "application/json" },
         });

@@ -6,12 +6,7 @@ export interface StepHandle {
     getData?: () => Record<string, unknown>;
 }
 
-type Subject = {
-    id: string;
-    name: string;
-};
-
-const SUBJECT_COLORS = [
+const FALLBACK_COLORS = [
     { color: "#E8D5FF", borderColor: "#D1C4F5" },
     { color: "#FFE5D5", borderColor: "#FFCCBB" },
     { color: "#D5FFE8", borderColor: "#BBE9D1" },
@@ -22,6 +17,13 @@ const SUBJECT_COLORS = [
     { color: "#D5FFF5", borderColor: "#BBFFEE" },
     { color: "#FFECD5", borderColor: "#FFD9BB" },
 ];
+
+type Subject = {
+    id: string;
+    name: string;
+    color?: string | null;
+    borderColor?: string | null;
+};
 
 const MAX_SELECTIONS = 3;
 
@@ -91,7 +93,11 @@ const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: st
                         const isSelected = selected.includes(subject.id);
                         const isLastSelected = subject.id === lastSelectedId;
                         const pos = POSITION_OFFSETS[index % POSITION_OFFSETS.length];
-                        const colors = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
+                        const fallback = FALLBACK_COLORS[index % FALLBACK_COLORS.length];
+                        const colors = {
+                            color: subject.color ?? fallback.color,
+                            borderColor: subject.borderColor ?? fallback.borderColor,
+                        };
 
                         return (
                             <button

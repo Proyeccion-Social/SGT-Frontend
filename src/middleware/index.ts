@@ -27,22 +27,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   if (protectedRoutes.some(route => url.pathname.startsWith(route))) {
+    let needsRefresh = false;
+
     if (!token) {
-      return context.redirect('/?session=expired');
+      needsRefresh = true;
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          needsRefresh = true;
+        }
+      } catch {
+        needsRefresh = true;
+      }
     }
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const isExpired = payload.exp * 1000 < Date.now();
+    if (needsRefresh) {
+      const refreshToken = context.cookies.get('refresh_token')?.value;
 
-      if (isExpired) {
-        const refreshToken = context.cookies.get('refresh_token')?.value;
+      if (!refreshToken) {
+        context.cookies.delete('access_token', { path: '/' });
+        return context.redirect('/?session=expired');
+      }
 
-        if (!refreshToken) {
-          context.cookies.delete('access_token', { path: '/' });
-          return context.redirect('/');
-        }
-
+      try {
         const API_URL = import.meta.env.API_URL;
         const res = await fetch(`${API_URL}/auth/refresh`, {
           method: 'POST',
@@ -53,7 +61,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         if (!res.ok) {
           context.cookies.delete('access_token', { path: '/' });
           context.cookies.delete('refresh_token', { path: '/' });
-          return context.redirect('/');
+          return context.redirect('/?session=expired');
         }
 
         const data = await res.json();
@@ -61,14 +69,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set('access_token', data.accessToken, {
           httpOnly: true,
           path: '/',
-          maxAge: 60 * 60, // 1 hora
+          maxAge: 60 * 15, // 15 minutos, consistente con el inicio de sesión
           sameSite: 'strict',
         });
-      }
-    } catch {
+      } catch {
         context.cookies.delete('access_token', { path: '/' });
         context.cookies.delete('refresh_token', { path: '/' });
         return context.redirect('/?session=expired');
+      }
     }
   }
 

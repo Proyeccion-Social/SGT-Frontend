@@ -2,6 +2,8 @@
 import { SessionsPagination } from "./SessionsPagination.tsx";
 import SessionDialogManager from "./SessionDialogManager.tsx";
 import { HistoryFilters } from "./HistoryFilters.tsx";
+import CalendarAdd from "../assets/calendar-add.svg";
+import { Image } from "astro:assets";
 
 const { data, currentStatus, userId } = Astro.props;
 
@@ -35,7 +37,22 @@ const pagination = data.meta;
         />
       </div>
     </section>
-    <div class='table-container'>
+    {
+      sessions.length === 0 && (
+        <div class='sessions-empty-state'>
+          <Image src={CalendarAdd} alt='No sessions' class='empty-icon' />
+          <p class='empty-title'>¡Aún no tienes sesiones registradas!</p>
+          <p class='empty-subtitle'>
+            Empieza tu camino: busca un tutor y agenda tu primera sesión.
+          </p>
+          <a href='/search' class='empty-cta'>
+            Buscar tutores
+          </a>
+        </div>
+      )
+    }
+
+    <div class={`table-container${sessions.length === 0 ? " hidden" : ""}`}>
       <table class='table-header'>
         <thead>
           <tr>
@@ -102,6 +119,31 @@ const pagination = data.meta;
         </table>
       </div>
     </div>
+
+    {
+      sessions.length > 0 && sessions.length < 3 && (
+        <div class='sessions-low-hint'>
+          <svg
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='#b797ff'
+            stroke-width='2'
+            stroke-linecap='round'
+            stroke-linejoin='round'
+          >
+            <circle cx='12' cy='12' r='10' />
+            <line x1='12' y1='8' x2='12' y2='12' />
+            <line x1='12' y1='16' x2='12.01' y2='16' />
+          </svg>
+          <span>
+            ¿Quieres más sesiones? <a href='/search'>Encuentra un tutor</a> y
+            sigue aprendiendo.
+          </span>
+        </div>
+      )
+    }
 
     <SessionDialogManager client:load sessions={sessions} userId={userId} />
   </div>
@@ -279,6 +321,7 @@ const pagination = data.meta;
   }
 
   .table-container {
+    width: 100%;
     border-top: 1px solid var(--neutral-200);
     overflow: hidden;
   }
@@ -342,7 +385,7 @@ const pagination = data.meta;
     height: 52px;
     text-align: left;
     border-bottom: 1px solid var(--neutral-100);
-    color: var(--text-body);
+    color: var(--neutral-default);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -370,11 +413,13 @@ const pagination = data.meta;
   .tableHeader {
     font-size: 14px;
     letter-spacing: -0.02em;
-    color: var(--primary-default);
+    color: var(--primary-400);
     font-weight: 700;
   }
 
   .block-container {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -391,7 +436,7 @@ const pagination = data.meta;
     gap: 0.75rem;
     margin-bottom: 16px;
     width: 90%;
-    justify-content: space-between;
+    justify-content: center;
   }
 
   .search-bar-row {
@@ -409,6 +454,7 @@ const pagination = data.meta;
     border: 0.4px solid var(--neutral-200);
     outline: none;
     background: rgba(256, 256, 256, 0.6);
+    width: 400px;
   }
 
   .search-input::placeholder {
@@ -423,6 +469,95 @@ const pagination = data.meta;
 
   .hidden {
     display: none;
+  }
+
+  /* ─── Empty / low-sessions states ─── */
+  .sessions-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 65dvh;
+    border-top: 1px solid var(--neutral-200);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .sessions-empty-state img {
+    width: 52px;
+    height: auto;
+  }
+
+  .empty-title {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 24px;
+    letter-spacing: -0.02em;
+    color: #3c3c3c;
+  }
+
+  .empty-subtitle {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    /* or 125% */
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.02em;
+
+    color: var(--neutral-400);
+  }
+
+  .empty-cta {
+    justify-content: center;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 10px;
+    background: #9f74ff;
+    border-radius: 16px;
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-top: 16px;
+  }
+
+  .empty-cta:hover {
+    background: #9f74ff;
+    color: #fff;
+    transform: scale(1.02);
+  }
+
+  .sessions-low-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--neutral-200);
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 13px;
+    color: #a3a3a3;
+    position: absolute;
+    width: 100%;
+  }
+
+  .sessions-low-hint a {
+    color: #9f74ff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .sessions-low-hint a:hover {
+    text-decoration: underline;
   }
 </style>
 

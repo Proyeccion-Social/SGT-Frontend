@@ -62,9 +62,9 @@ export function SessionsPagination({
         {/* --- Dropdown Custom de Página --- */}
         <PaginationItem>
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-[#e7dcff] bg-white px-4 py-2 text-[12px]! font-bold! text-[#b797ff]! tracking-[-0.02em] transition-colors outline-none hover:bg-[#f3edff] focus-visible:border-[#9f74ff] focus-visible:ring-2 focus-visible:ring-[#9f74ff]/30 cursor-pointer">
+            <DropdownMenuTrigger className="flex h-8 items-center gap-1.5 rounded-lg border border-[var(--neutral-200,#e7dcff)] bg-white px-4 py-2 text-[12px]! font-bold! text-[var(--neutral-400)]! tracking-[-0.02em] font-['Cabinet_Grotesk_Variable'] font-medium! transition-colors outline-none hover:bg-[#f3edff] focus-visible:border-[#9f74ff] focus-visible:ring-2 focus-visible:ring-[#9f74ff]/30 cursor-pointer">
               Página {currentPage}
-              <ChevronDownIcon className="size-3 text-[#b797ff]" />
+              <ChevronDownIcon className="size-3 text-[var(--neutral-300, #a3a3a3)]" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="min-w-28 max-h-60 overflow-y-auto">
               <DropdownMenuRadioGroup

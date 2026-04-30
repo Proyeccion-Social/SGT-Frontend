@@ -1,0 +1,41 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import VaulDrawer from "@/components/ui/drawer";
+import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
+
+interface Props {
+  title?: string;
+  rol: "admin" | "tutor" | "student";
+}
+
+const { rol, title = "Atlas" } = Astro.props;
+
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) return Astro.redirect("/?session=expired");
+---
+
+<Layout title={title}>
+  <div class='dashboardContainer'>
+    <Sidebar userRole={rol} transition:persist />
+    <slot />
+  </div>
+  {rol === "tutor" && (
+    <>
+      <VaulDrawer client:load transition:persist />
+      <TutorAvailabilityOverlay />
+    </>
+  )}
+</Layout>
+
+<style>
+  .dashboardContainer {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: #f3edff;
+    padding: 18px 20px 20px 0;
+    box-sizing: border-box;
+    overflow-y: hidden;
+  }
+</style>

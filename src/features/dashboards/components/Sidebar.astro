@@ -151,12 +151,12 @@ const currentPath = Astro.url.pathname;
   }
 
   .navbar-header {
-    margin-top: -1rem;
     margin-bottom: auto;
     position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
     padding-left: 0;
     height: auto;
     transition: padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
@@ -164,7 +164,7 @@ const currentPath = Astro.url.pathname;
 
   .sidebar.expanded .navbar-header {
     padding-left: 10px;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .navbar-header img {
@@ -247,7 +247,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container,
   .dashboard-container,
-  .notification-container {
+  .notification-container,
+  .logout-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -266,7 +267,8 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container a,
   .dashboard-container a,
-  .notification-container a {
+  .notification-container a,
+  .logout-container button {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -301,6 +303,7 @@ const currentPath = Astro.url.pathname;
     border: 0.5px solid rgba(0, 0, 0, 0.1);
     box-shadow: inset 0px 3.2px 13px #e7dcff;
   }
+
 
   .notification-container {
     background: #e7dcff;

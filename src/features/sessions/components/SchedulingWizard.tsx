@@ -6,7 +6,7 @@ import DetailsStep from "./scheduling/Details";
 import SessionTypeStep from "./scheduling/SessionType";
 import ModalityStep from "./scheduling/Modality";
 import SlotPopover from "./scheduling/SlotPopover";
-import type { Slot } from "../../../features/availability/services/availabilityService";
+import type { Slot } from "@features/availability/services/availabilityService";
 import { sileo } from "sileo";
 
 import StepOne from "../assets/StepOne.svg";

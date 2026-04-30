@@ -1,5 +1,5 @@
 import { useFloating, autoPlacement, offset, shift } from "@floating-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
   subjects: string[];
@@ -102,7 +102,17 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
   );
 
   const today = new Date();
-  const dateLabel = `${dayLabels[slotData.dayOfWeek]}, ${today.getDate()} de ${today.toLocaleDateString("es-CO", { month: "long" })}`;
+  const dateLabel = (() => {
+    const dayName = dayLabels[slotData.dayOfWeek] ?? slotData.dayOfWeek;
+    if (slotData.date) {
+      const [y, m, d] = slotData.date.split("-").map(Number);
+      const ref = new Date(y, m - 1, d);
+      const day = ref.getDate();
+      const month = ref.toLocaleDateString("es-CO", { month: "long" });
+      return `${dayName}, ${day} de ${month}`;
+    }
+    return dayName;
+  })();
 
   return (
     <>
@@ -126,7 +136,6 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
         </defs>
         <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)" mask="url(#slot-hole-mask)" />
       </svg>
-
 
 
       <div

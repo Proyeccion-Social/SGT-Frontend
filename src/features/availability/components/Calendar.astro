@@ -96,6 +96,7 @@ const systemToday = new Date();
                   style={getSlotStyle(slot)}
                   data-slot-ids={slot.groupedIds.join(",")}
                   data-day={slot.dayOfWeek}
+                  data-date={weekDates[day.key]?.toISOString().slice(0, 10)}
                   data-start={slot.startTime}
                   data-end={slot.endTime}
                   data-modality={slot.modality}
@@ -614,6 +615,7 @@ const systemToday = new Date();
                   height: overlayRect.height,
                 },
                 dayOfWeek: slotBlock.dataset.day,
+                date: slotBlock.dataset.date,
                 startTime,
                 endTime,
                 modality,

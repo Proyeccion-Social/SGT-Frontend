@@ -1,6 +1,6 @@
 // useCancelSession.ts — 24h validation + cancel execution
 import { useState } from 'react';
-import { useAuthStore } from '../../../store/authStore';
+import { useAuthStore } from '@store/authStore';
 import { cancelSession } from '../services/sessionService';
 import type { Session } from '../types/session.types';
 

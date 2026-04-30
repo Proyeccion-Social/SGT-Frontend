@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { createSession } from '../../../features/sessions/services/sessionService';
-import { getTutorInfo } from "../../../features/availability/services/tutorServices" // ajusta la ruta si es necesario
+import { createSession } from '@features/sessions/services/sessionService';
+import { getTutorInfo } from "@features/availability/services/tutorServices" // ajusta la ruta si es necesario
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   try {

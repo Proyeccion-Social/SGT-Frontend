@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Slot } from "../../../availability/services/availabilityService";
+import type { Slot } from "@features/availability/services/availabilityService";
 import "../../assets/styles/Availability.css";
 
 interface TutorInfo {

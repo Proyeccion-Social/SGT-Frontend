@@ -1,6 +1,6 @@
 // useSessionDetail.ts — Fetch session detail + tutor info in parallel
 import { useState, useEffect } from 'react';
-import { useAuthStore } from '../../../store/authStore';
+import { useAuthStore } from '@store/authStore';
 import { getSessionDetail, getTutorInfo } from '../services/sessionService';
 import type { Session, TutorInfo } from '../types/session.types';
 

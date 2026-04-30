@@ -1,6 +1,6 @@
 // useSessions.ts — Fetch authenticated user's session list by role
 import { useState, useEffect, useCallback } from 'react';
-import { useAuthStore } from '../../../store/authStore';
+import { useAuthStore } from '@store/authStore';
 import { getSessions } from '../services/sessionService';
 import type { Session } from '../types/session.types';
 

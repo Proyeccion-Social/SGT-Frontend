@@ -84,10 +84,14 @@ const currentPath = Astro.url.pathname;
               <Image src={ConfigIcon} alt='Config' class='icon' />
               <span class='nav-label'>Configuración</span>
             </a>
-            <a href='/history'>
-              <Image src={HistoryIcon} alt='History' class='icon' />
-              <span class='nav-label'>Historial</span>
-            </a>
+            <div
+              class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
+            >
+              <a href='/history'>
+                <Image src={HistoryIcon} alt='History' class='icon' />
+                <span class='nav-label'>Historial</span>
+              </a>
+            </div>
           </>
         )
       }
@@ -95,10 +99,14 @@ const currentPath = Astro.url.pathname;
       {
         userRole === "student" && (
           <>
-            <a href='/history'>
-              <Image src={HistoryIcon} alt='History' class='icon' />
-              <span class='nav-label'>Historial</span>
-            </a>
+            <div
+              class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
+            >
+              <a href='/history'>
+                <Image src={HistoryIcon} alt='History' class='icon' />
+                <span class='nav-label'>Historial</span>
+              </a>
+            </div>
             <a
               href='/search'
               class={currentPath.startsWith("/search") ? "active-link" : ""}
@@ -248,6 +256,7 @@ const currentPath = Astro.url.pathname;
   .calendar-container,
   .dashboard-container,
   .notification-container,
+  .history-container,
   .logout-container {
     display: flex;
     justify-content: center;
@@ -268,6 +277,7 @@ const currentPath = Astro.url.pathname;
   .calendar-container a,
   .dashboard-container a,
   .notification-container a,
+  .history-container a,
   .logout-container button {
     display: flex;
     flex-direction: row;
@@ -283,6 +293,7 @@ const currentPath = Astro.url.pathname;
   .sidebar.expanded .calendar-container,
   .sidebar.expanded .dashboard-container,
   .sidebar.expanded .notification-container,
+  .sidebar.expanded .history-container,
   .sidebar.expanded {
     width: 90%;
     justify-content: flex-start;
@@ -293,6 +304,7 @@ const currentPath = Astro.url.pathname;
   .sidebar.expanded .calendar-container a,
   .sidebar.expanded .dashboard-container a,
   .sidebar.expanded .notification-container a,
+  .sidebar.expanded .history-container a,
   .sidebar.expanded {
     justify-content: flex-start;
   }
@@ -303,7 +315,6 @@ const currentPath = Astro.url.pathname;
     border: 0.5px solid rgba(0, 0, 0, 0.1);
     box-shadow: inset 0px 3.2px 13px #e7dcff;
   }
-
 
   .notification-container {
     background: #e7dcff;
@@ -347,7 +358,8 @@ const currentPath = Astro.url.pathname;
 
   /* Active link highlight */
   .active-link,
-  .dashboard-container.active-link {
+  .dashboard-container.active-link,
+  .history-container.active-link {
     background: #e7dcff;
     border-radius: 8px;
   }

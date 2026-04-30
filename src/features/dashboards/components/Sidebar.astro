@@ -1,11 +1,11 @@
 ---
 import { Image } from "astro:assets";
+
+import SidebarIcon from "./icons/SidebarIcon.svg";
 import DashboardIcon from "./icons/DashboardIcon.svg";
 import ConfigIcon from "./icons/ConfigIcon.svg";
 import NotificationIcon from "./icons/NotificationIcon.svg";
-import LogoutIcon from "./icons/LogoutIcon.svg";
 import WindowIcon from "./icons/WindowIcon.svg";
-import CollapseIcon from "./icons/CollapseIcon.svg";
 import HistoryIcon from "./icons/HistoryIcon.svg";
 import CalendarIcon from "./icons/CalendarIcon.svg";
 import BinocularIcon from "./icons/BinocularIcon.svg";
@@ -21,151 +21,135 @@ const currentPath = Astro.url.pathname;
 ---
 
 <aside class='sidebar' id='main-sidebar'>
-  <div class='navbar-header'>
-    <a href='/'><img src='/favicon.svg' alt='Logo' /></a>
-  </div>
-  <button class='collapse-button' id='sidebar-toggle'>
-    <Image src={CollapseIcon} alt='Collapse' class='collapse-icon' />
-  </button>
-
   <div class='navbar-items'>
-    {
-      userRole === "student" && (
-        <div class='calendar-container'>
-          <a href='/availability/student/slots'>
-            <Image src={CalendarIcon} alt='Calendar' class='icon' />
-            <span class='nav-label'>Calendario</span>
-          </a>
-        </div>
-      )
-    }
+    <div class='nav-group'>
+      <div class='sidebarShow'>
+        <Image src={SidebarIcon} alt='Menu' class='icon' />
+      </div>
 
-    <div class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}>
-
-
-      <a href='/dashboard'>
-        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
-        <span class='nav-label'>Dashboard</span>
-      </a>
-
-
-
-
-
-
+      <div
+        class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+      >
+        <a href='/dashboard'>
+          <Image src={DashboardIcon} alt='Dashboard' class='icon' />
+          <span class='nav-label'>Dashboard</span>
+        </a>
+      </div>
     </div>
 
-    {
-      userRole === "admin" && (
-        <>
-          <a href='#'>
-            <Image src={WindowIcon} alt='Window' class='icon' />
-            <span class='nav-label'>Gestión</span>
-          </a>
-          <a href='#'>
-            <Image src={ConfigIcon} alt='Config' class='icon' />
-            <span class='nav-label'>Configuración</span>
-          </a>
-        </>
-      )
-    }
+    <hr class='nav-divider' />
 
-    {
-      userRole === "tutor" && (
-        <>
-          <a
-            href='/availability/tutor/slots'
-            class={
-              currentPath.startsWith("/availability/tutor") ? "active-link" : ""
-            }
-          >
-            <Image src={WindowIcon} alt='Slots' class='icon' />
-            <span class='nav-label'>Tu Disponibilidad</span>
-          </a>
-          <a href='#'>
-            <Image src={ConfigIcon} alt='Config' class='icon' />
-            <span class='nav-label'>Configuración</span>
-          </a>
-          <a href='#'>
-            <Image src={HistoryIcon} alt='History' class='icon' />
-            <span class='nav-label'>Historial</span>
-          </a>
-        </>
-      )
-    }
+    <div class='nav-group-main'>
+      {
+        userRole === "student" && (
+          <div class='calendar-container'>
+            <a href='/availability/student/slots'>
+              <Image src={CalendarIcon} alt='Calendar' class='icon' />
+              <span class='nav-label'>Calendario</span>
+            </a>
+          </div>
+        )
+      }
 
-    {
-      userRole === "student" && (
-        <>
-          <a 
-            href="/search"
-            class={
-              currentPath.startsWith("/search") ? "active-link" : ""
-            }
-          >
-            <Image src={SearchIcon} alt='Search' class='icon' />
-            <span class='nav-label'>Buscar</span>
-          </a>
-          <a href='#'>
-            <Image src={BinocularIcon} alt='Binocular' class='icon' />
-            <span class='nav-label'>Explorar</span>
-          </a>
-          <a href='#'>
-            <Image src={CommunityIcon} alt='Community' class='icon' />
-            <span class='nav-label'>Comunidad</span>
-          </a>
-          <a href='#'>
-            <Image src={HistoryIcon} alt='History' class='icon' />
-            <span class='nav-label'>Historial</span>
-          </a>
-        </>
-      )
-    }
+      {
+        userRole === "admin" && (
+          <>
+            <a href='#'>
+              <Image src={WindowIcon} alt='Window' class='icon' />
+              <span class='nav-label'>Gestión</span>
+            </a>
+            <a href='#'>
+              <Image src={ConfigIcon} alt='Config' class='icon' />
+              <span class='nav-label'>Configuración</span>
+            </a>
+          </>
+        )
+      }
+
+      {
+        userRole === "tutor" && (
+          <>
+            <a
+              href='/availability/tutor/slots'
+              class={
+                currentPath.startsWith("/availability/tutor")
+                  ? "active-link"
+                  : ""
+              }
+            >
+              <Image src={WindowIcon} alt='Slots' class='icon' />
+              <span class='nav-label'>Tu Disponibilidad</span>
+            </a>
+            <a href='#'>
+              <Image src={ConfigIcon} alt='Config' class='icon' />
+              <span class='nav-label'>Configuración</span>
+            </a>
+            <a href='/history'>
+              <Image src={HistoryIcon} alt='History' class='icon' />
+              <span class='nav-label'>Historial</span>
+            </a>
+          </>
+        )
+      }
+
+      {
+        userRole === "student" && (
+          <>
+            <a href='/history'>
+              <Image src={HistoryIcon} alt='History' class='icon' />
+              <span class='nav-label'>Historial</span>
+            </a>
+            <a
+              href='/search'
+              class={currentPath.startsWith("/search") ? "active-link" : ""}
+            >
+              <Image src={SearchIcon} alt='Search' class='icon' />
+              <span class='nav-label'>Buscar</span>
+            </a>
+            <a href='#'>
+              <Image src={BinocularIcon} alt='Binocular' class='icon' />
+              <span class='nav-label'>Explorar</span>
+            </a>
+            <a href='#'>
+              <Image src={CommunityIcon} alt='Community' class='icon' />
+              <span class='nav-label'>Comunidad</span>
+            </a>
+          </>
+        )
+      }
+      <div class='notification-container'>
+        <a href='#'>
+          <Image src={NotificationIcon} alt='Notification' class='icon' />
+          <span class='notification-label'>Notificaciones</span>
+        </a>
+      </div>
+    </div>
   </div>
 
   <div class='navbar-footer'>
-    <div class='notification-container'>
-      <a href='#'>
-        <Image src={NotificationIcon} alt='Notification' class='icon' />
-        <span class='notification-label'>Notificaciones</span>
-      </a>
-    </div>
-
-    <div class='logout-container'>
-      <button type="button" id='logout-button'>
-        <Image src={LogoutIcon} alt='Logout' class='icon' />
-        <span class='nav-label'>Cerrar Sesión</span>
-      </button>
+    <div class='navbar-header'>
+      <img src='/favicon.svg' alt='Logo' />
     </div>
   </div>
 </aside>
 
 <style>
   .sidebar {
-    width: 100px;
+    width: 80px;
     height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30px 0;
+    padding: 24px 0px 0px 0px;
     transition:
       width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
       padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
     position: relative;
     z-index: 50;
-    background: #fff;
+    background: #f6f1ff;
     overflow: visible;
-    border-right: 1px solid #e8e8e8;
   }
 
-  .sidebar.expanded {
-    width: 260px;
-    align-items: flex-start;
-    padding-left: 20px;
-    z-index: 50;
-  }
-
-  /* Header y Logo */
   .navbar-header {
     margin-top: -1rem;
     margin-bottom: auto;
@@ -174,6 +158,7 @@ const currentPath = Astro.url.pathname;
     display: flex;
     justify-content: center;
     padding-left: 0;
+    height: auto;
     transition: padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
@@ -183,39 +168,17 @@ const currentPath = Astro.url.pathname;
   }
 
   .navbar-header img {
-    height: 4rem;
-    width: auto;
-  }
-
-  /* Botón de Colapso - positioned on sidebar, not navbar-header */
-  .collapse-button {
-    position: absolute;
-    top: 20px;
-    right: -19px;
-    background: white;
-    border: none;
-    border-radius: 24px;
-    width: 39px;
-    height: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 60;
-  }
-
-  .collapse-icon {
-    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-  }
-
-  .sidebar.expanded .collapse-icon {
-    transform: rotate(180deg);
+    width: 100px;
+    max-width: none;
+    height: auto;
+    position: relative;
+    transform: rotate(20deg);
+    left: -16px;
+    bottom: -18px;
   }
 
   /* Contenedores de Navegación */
   .navbar-items {
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -230,26 +193,47 @@ const currentPath = Astro.url.pathname;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
+  }
+
+  .nav-group,
+  .nav-group-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 16px;
     width: 100%;
-    margin-bottom: 2rem;
-    transition: align-items 0s;
+  }
+
+  .nav-group {
+    gap: 28px;
+  }
+
+  .nav-divider {
+    width: 50%;
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 8px 0;
+    align-self: center;
   }
 
   .sidebar.expanded .navbar-items,
-  .sidebar.expanded .navbar-footer {
+  .sidebar.expanded .navbar-footer,
+  .sidebar.expanded .nav-group,
+  .sidebar.expanded .nav-group-main {
     align-items: flex-start;
   }
 
   /* Estilos generales para enlaces y contenedores de iconos */
-  .navbar-items > a,
+  .nav-group > a,
+  .nav-group-main > a,
   .navbar-footer > a {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     transition:
       width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
       padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
@@ -263,14 +247,13 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container,
   .dashboard-container,
-  .notification-container,
-  .logout-container {
+  .notification-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     transition:
       width 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
       padding-left 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
@@ -283,8 +266,7 @@ const currentPath = Astro.url.pathname;
 
   .calendar-container a,
   .dashboard-container a,
-  .notification-container a,
-  .logout-container button {
+  .notification-container a {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -293,12 +275,13 @@ const currentPath = Astro.url.pathname;
     white-space: nowrap;
   }
 
-  .sidebar.expanded .navbar-items > a,
+  .sidebar.expanded .nav-group > a,
+  .sidebar.expanded .nav-group-main > a,
   .sidebar.expanded .navbar-footer > a,
   .sidebar.expanded .calendar-container,
   .sidebar.expanded .dashboard-container,
   .sidebar.expanded .notification-container,
-  .sidebar.expanded .logout-container {
+  .sidebar.expanded {
     width: 90%;
     justify-content: flex-start;
     padding-left: 10px;
@@ -308,23 +291,27 @@ const currentPath = Astro.url.pathname;
   .sidebar.expanded .calendar-container a,
   .sidebar.expanded .dashboard-container a,
   .sidebar.expanded .notification-container a,
-  .sidebar.expanded .logout-container button {
+  .sidebar.expanded {
     justify-content: flex-start;
   }
 
   /* Ajustes específicos de contenedores con fondo */
   .calendar-container {
-    background: #cdff8e;
+    background: #b797ff;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0px 3.2px 13px #e7dcff;
   }
 
   .notification-container {
-    background: #e6ffc7;
+    background: #e7dcff;
+    width: 40px;
+    height: 40px;
   }
 
   /* Iconos */
   .icon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
   }
 
@@ -355,78 +342,15 @@ const currentPath = Astro.url.pathname;
     transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.15s;
   }
 
-
-
-
-
-
   /* Active link highlight */
   .active-link,
   .dashboard-container.active-link {
     background: #e7dcff;
-    border-radius: 12px;
+    border-radius: 8px;
   }
 
   a.active-link {
     background: #e7dcff;
-    border-radius: 12px;
+    border-radius: 8px;
   }
 </style>
-
-<script>
-  document.addEventListener("astro:page-load", () => {
-    const sidebar = document.getElementById("main-sidebar");
-    const toggle = document.getElementById("sidebar-toggle");
-
-    if (sidebar && toggle) {
-      toggle.addEventListener("click", () => {
-        sidebar.classList.toggle("expanded");
-      });
-
-      window.addEventListener("force-sidebar-expand", () => {
-        sidebar.classList.add("expanded");
-      });
-
-      window.addEventListener("force-sidebar-collapse", () => {
-        sidebar.classList.remove("expanded");
-      });
-    }
-  });
-
-  import { sileo } from "sileo";
-  const logoutButton = document.getElementById("logout-button");
-  logoutButton?.addEventListener("click", async () => {
-    await sileo.promise(
-      async () => {
-        const authUserStr = sessionStorage.getItem("auth_user");
-        const authUser = authUserStr ? JSON.parse(authUserStr) : null;
-        const userId = authUser?.user?.id;
-
-        if (!userId) {
-          throw new Error("No hay sesión activa");
-        }
-
-        const res = await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ id: userId }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.message || "Error al cerrar sesión");
-        }
-
-        sessionStorage.removeItem("auth_user");
-      },
-      {
-        loading: { title: "Cerrando sesión...", fill: "#8751ff" },
-        success: { title: "Sesión cerrada exitosamente", fill: "#58d68d" },
-        error: { title: "Error al cerrar sesión", fill: "#f35761" },
-      },
-    );
-    window.location.href = "/";
-  });
-</script>

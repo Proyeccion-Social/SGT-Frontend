@@ -117,8 +117,8 @@ const usedPercent = Math.min(
     width: 100%;
     height: 100vh;
     background-color: #f3edff;
-    padding: 18px 20px 20px 0;
     box-sizing: border-box;
+    overflow-y: hidden;
   }
 
   .content-wrapper {
@@ -126,7 +126,8 @@ const usedPercent = Math.min(
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    border-radius: 16px;
+    border-radius: 32px 0px 0px 32px;
+    border: 1px solid var(--neutral-200);   
     position: relative;
     justify-content: flex-start;
     overflow-x: hidden;

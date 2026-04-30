@@ -204,11 +204,12 @@ const pagination = data.meta;
   .sections-container {
     position: relative;
     width: 100%;
+    height: 100%;
     text-align: center;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: end;
   }
 
   .title {
@@ -278,14 +279,12 @@ const pagination = data.meta;
   }
 
   .table-container {
-    border-radius: 16px;
-    border: 1px solid var(--neutral-100);
-    width: 90%;
+    border-top: 1px solid var(--neutral-200);
     overflow: hidden;
   }
 
   .table-wrapper {
-    height: 440px;
+    height: 60vh;
     overflow-y: scroll;
   }
 
@@ -380,6 +379,9 @@ const pagination = data.meta;
     flex-direction: column;
     justify-content: center;
     margin: 0 auto;
+    border-radius: 32px 0px 0px 32px;
+    border: 1px solid var(--neutral-200);
+    background: #fff;
   }
 
   /* ---  bar styles --- */
@@ -404,7 +406,7 @@ const pagination = data.meta;
     flex: 1;
     height: 48px;
     border-radius: 16px;
-    border: 0.4px solid #e7dcff;
+    border: 0.4px solid var(--neutral-200);
     outline: none;
     background: rgba(256, 256, 256, 0.6);
   }

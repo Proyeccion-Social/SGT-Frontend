@@ -1,6 +1,6 @@
 import { useFloating, autoPlacement, offset, shift } from "@floating-ui/react";
 import { useEffect, useState } from "react";
-import "../assets/styles/SlotPopover.css";
+import "../../assets/styles/SlotPopover.css";
 
 interface Props {
   subjects: string[];

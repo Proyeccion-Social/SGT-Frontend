@@ -1,0 +1,27 @@
+---
+import StudentSchedule from "@features/sessions/components/StudentSchedule.astro";
+import { fade } from "astro:transitions";
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+
+const token = Astro.cookies.get("access_token")?.value;
+
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
+---
+
+<DashboardLayout title="Programar sesión" rol="student">
+  <article class="sessions-wrapper" transition:animate={fade({ duration: "0.3s" })}>
+    <StudentSchedule />
+  </article>
+</DashboardLayout>
+
+<style>
+  .sessions-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+</style>

@@ -20,7 +20,10 @@
       ],
       "@styles/*": [
         "src/styles/*"
-      ]
+      ],
+      "@store/*": [
+        "src/store/*"
+      ],
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"

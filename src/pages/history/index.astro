@@ -1,8 +1,8 @@
 ---
 import HistoryView from "@/features/history/components/HistoryView.astro";
-
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/");
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
 ---
+<DashboardLayout title='Historial de tutorías' rol='student'>
+    <HistoryView />
+</DashboardLayout>
 
-<HistoryView token={token} />

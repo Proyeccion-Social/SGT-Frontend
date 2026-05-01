@@ -187,6 +187,10 @@ h6 {
   overflow-wrap: break-word;
 }
 
+[data-sileo-viewport] {
+  z-index: 200 !important;
+}
+
 button {
   cursor: pointer;
 }

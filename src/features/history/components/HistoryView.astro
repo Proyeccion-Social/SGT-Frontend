@@ -1,14 +1,7 @@
 ---
 import SessionsBlock from "./SessionsBlock.astro";
 import Layout from "@/layouts/Layout.astro";
-import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
-
-interface Props {
-  token: string;
-}
-
-const { token } = Astro.props;
 
 const currentStatus = Astro.url.searchParams.get("status") || "all";
 const page = Astro.url.searchParams.get("page") || "1";
@@ -26,13 +19,6 @@ const res = await fetch(apiUrl, {
 });
 const history = await res.json();
 
-
-const payload = JSON.parse(atob(token.split(".")[1]));
-const userIdProp = payload.userId;
-
-const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
-
-
 let userId = getUserIdFromCookie(Astro.cookies);
 // 3. Si no hay ID (no está logueado), rediriges
 if (!userId) {
@@ -42,7 +28,6 @@ if (!userId) {
 
 <Layout title="Historial de sesiones">
   <div class="history-layout">
-    <Sidebar userRole={userRole} />
     <div class="search-page">
       <SessionsBlock
         data={history}

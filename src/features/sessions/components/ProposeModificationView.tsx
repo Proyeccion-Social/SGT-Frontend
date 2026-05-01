@@ -4,7 +4,10 @@
 import './styles/ProposeModificationView.css'
 
 import { useCallback, useEffect, useState } from 'react';
+import { sileo } from 'sileo';
 import type { Session, ModifySessionBody, Modality } from '../types/session.types';
+import { CustomSelect } from './CustomSelect';
+import type { SelectOption } from './CustomSelect';
 
 
 export type SessionType = 'individual' | 'grupal' | '';
@@ -37,11 +40,9 @@ export const ProposeModificationForm = ({
   const [newModality,       setNewModality]       = useState<Modality>();
   const [newDurationHours, setNewDurationHours] = useState<string>('');
   const [newAvailabilityId, setNewAvailabilityId] = useState('');
-  const [error,             setError]             = useState<string | null>(null);
  
  
   const handleConfirm = useCallback(async () => {
-    setError(null);
     onSubmittingChange?.(true);
 
     const body: ModifySessionBody = {
@@ -50,21 +51,20 @@ export const ProposeModificationForm = ({
   ...(newAvailabilityId && { newAvailabilityId: Number(newAvailabilityId) }),
 };
 
-    try {
-      console.log('[ProposeModification] handleConfirm ejecutado', { sessionId: session.id, body });
-      const ok = await modificar(session.id, body);
-      if (ok) {
-        console.log('ejecutada la modificacion con exito');
+    await sileo.promise(
+      async () => {
+        const ok = await modificar(session.id, body);
+        if (!ok) throw new Error('No se pudo proponer la modificación.');
         onSuccess();
-      } else {
-        console.error('FALLO EL MODIFICAR');
-        setError('No se pudo proponer la modificación.');
+      },
+      {
+        loading: { title: 'Proponiendo modificación...' },
+        success: { title: 'Modificación propuesta',    description: 'El tutor recibirá tu solicitud.', fill: '#2ecc71' },
+        error:   { title: 'Error al proponer',          fill: '#f35761' },
       }
-    } catch (err: any) {
-      setError(err?.message ?? 'Error al proponer modificación.');
-    } finally {
+    ).finally(() => {
       onSubmittingChange?.(false);
-    }
+    });
   }, [newModality, newDurationHours, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
 
   useEffect(() => {
@@ -73,85 +73,63 @@ export const ProposeModificationForm = ({
     }
   }, [handleConfirm]);
  
+  const currentModalityLabel = session.modality === 'VIRT' ? 'Virtual' : 'Presencial';
+  const currentDurationLabel = session.duration === 1 ? '1 hora'
+    : session.duration === 1.5 ? '1 hora 30 min'
+    : session.duration === 2 ? '2 horas'
+    : `${session.duration}h`;
+
+  const modalityOptions: SelectOption[] = [
+    { value: '', label: currentModalityLabel },
+    ...(session.modality !== 'VIRT' ? [{ value: 'VIRT', label: 'Virtual' }] : []),
+    ...(session.modality !== 'PRES' ? [{ value: 'PRES', label: 'Presencial' }] : []),
+  ];
+
+  const durationOptions: SelectOption[] = [
+    { value: '', label: currentDurationLabel },
+    ...(session.duration !== 1   ? [{ value: '1',   label: '1 hora' }] : []),
+    ...(session.duration !== 1.5 ? [{ value: '1.5', label: '1 hora 30 min' }] : []),
+    ...(session.duration !== 2   ? [{ value: '2',   label: '2 horas' }] : []),
+  ];
+
   const slotsAvailable = availabilitySlots.length > 0;
+
+  const slotOptions: SelectOption[] = slotsAvailable
+    ? [
+        { value: '', label: 'Selecciona un horario' },
+        ...availabilitySlots.map((s) => ({ value: s.id, label: s.label })),
+      ]
+    : [{ value: '', label: 'Próximamente…' }];
  
   return (
     <div className="pmf">
  
-      {/* ── Fila 1: Modalidad + Tipo ── */}
+      {/* ── Fila 1: Modalidad + Duración ── */}
       <div className="pmf__row">
- 
-        <div className="pmf__card">
-          <div className="form-field">
-            <label htmlFor="pmf-modality" className="form-field__label">Modalidad</label>
-            <select
-              id="pmf-modality"
-              className="form-field__select"
-              value={newModality}
-              onChange={(e) => setNewModality(e.target.value as Modality)}
-            >
-              <option value="">Sin cambio</option>
-              <option value="VIRT">Virtual</option>
-              <option value="PRES">Presencial</option>
-            </select>
-          </div>
-        </div>
- 
-        <div className="pmf__card">
-          <div className="form-field">
-            <label htmlFor="pmf-duration" className="form-field__label">Duración</label>
-            <select
-              id="pmf-duration"
-              className="form-field__select"
-              value={newDurationHours}
-              onChange={(e) => setNewDurationHours(e.target.value)}
-            >
-              <option value="">Sin cambio</option>
-              <option value="1">1 hora</option>
-              <option value="1.5">1 hora 30 min</option>
-              <option value="2">2 horas</option>
-            </select>
-          </div>
-        </div>
- 
+        <CustomSelect
+          options={modalityOptions}
+          value={newModality ?? ''}
+          onChange={(v) => setNewModality(v as Modality)}
+        />
+        <CustomSelect
+          options={durationOptions}
+          value={newDurationHours}
+          onChange={setNewDurationHours}
+        />
       </div>
  
       {/* ── Fila 2: Disponibilidad ── */}
       <div className="pmf__row pmf__row--full">
- 
-        <div className="pmf__card">
-          <div className="form-field">
-            <label htmlFor="pmf-slot" className="form-field__label">Disponibilidad</label>
-            <select
-              id="pmf-slot"
-              className="form-field__select"
-              value={newAvailabilityId}
-              onChange={(e) => setNewAvailabilityId(e.target.value)}
-              disabled={!slotsAvailable}
-              title={!slotsAvailable ? 'Pendiente de disponibilidad del tutor' : undefined}
-            >
-              {slotsAvailable ? (
-                <>
-                  <option value="">Selecciona un horario</option>
-                  {availabilitySlots.map((slot) => (
-                    <option key={slot.id} value={slot.id}>{slot.label}</option>
-                  ))}
-                </>
-              ) : (
-                <option value="">Próximamente…</option>
-              )}
-            </select>
-            {!slotsAvailable && (
-              <p className="form-field__hint">
-                La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.
-              </p>
-            )}
-          </div>
-        </div>
- 
+        <CustomSelect
+          options={slotOptions}
+          value={newAvailabilityId}
+          onChange={setNewAvailabilityId}
+          disabled={!slotsAvailable}
+          hint={!slotsAvailable ? 'La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.' : undefined}
+        />
       </div>
  
-      {error && <p className="pmf__error" role="alert">{error}</p>}
+      {/* error is handled by sileo.promise */}
  
     </div>
   );

@@ -136,7 +136,7 @@ export default function AttendancePostSession({ session: initialSession, onClose
                         </div>
                     ) : detailError ? (
                         <p className="attendance-error" role="alert">
-                            Error al cargar detalles: {detailError}
+                            Error al cargar detalles de la sesión
                         </p>
                     ) : (
                         <div className="attendance-content-item">

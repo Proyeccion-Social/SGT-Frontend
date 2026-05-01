@@ -8,7 +8,6 @@
   -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   border-radius: 20px;
-  padding: 1.5rem 1.5rem 0 1.5rem;
   color: white;
   position: relative;
   display: flex;
@@ -20,11 +19,17 @@
   max-height: 380px;
 }
 
+.session-container-header {
+  padding: 20px;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.25);  
+}
+
 .main-title {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
-  margin-bottom: 1.2rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
+
 
 .cards-stack {
   display: flex;
@@ -32,6 +37,7 @@
   gap: 1rem;
   overflow-y: auto;
   scrollbar-width: none;
+  padding: 20px;
 }
 
 .cards-stack::-webkit-scrollbar {

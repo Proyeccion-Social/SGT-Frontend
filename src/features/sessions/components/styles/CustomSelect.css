@@ -1,0 +1,162 @@
+/* CustomSelect.css — custom styled dropdown matching SDV design system */
+
+/* ── Contenedor raíz ── */
+.cs {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Trigger (el "select cerrado") — tiene el estilo del pmf__card ── */
+.cs__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px dashed var(--neutral-200);
+  background: rgba(243, 237, 255, 0.5);
+  backdrop-filter: blur(34.3px);
+  -webkit-backdrop-filter: blur(34.3px);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--neutral-600);
+  text-align: center;
+  outline: none;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    background-color 0.18s;
+  box-sizing: border-box;
+}
+
+.cs__trigger:hover {
+  border-color: var(--loading-default);
+  background: rgba(243, 237, 255, 0.85);
+}
+
+.cs--open .cs__trigger {
+  border-color: var(--primary-300);
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(135, 81, 255, 0.12);
+  background: var(--primary-50);
+}
+
+/* Disabled */
+.cs--disabled .cs__trigger {
+  background: var(--neutral-100);
+  border-color: var(--neutral-200);
+  color: var(--neutral-300);
+  cursor: not-allowed;
+}
+
+/* ── Valor mostrado ── */
+.cs__value {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-default);
+}
+
+/* ── Chevron ── */
+.cs__chevron {
+  flex-shrink: 0;
+  color: var(--sdv-violet, #7c3aed);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cs--open .cs__chevron {
+  transform: rotate(180deg);
+}
+
+.cs--disabled .cs__chevron {
+  color: var(--neutral-300);
+}
+
+/* ── Dropdown panel ── */
+.cs__dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: var(--neutral-blanco);
+  border: 1.5px solid var(--sdv-border, var(--primary-100));
+  border-radius: 14px;
+  box-shadow:
+    0 8px 24px rgba(135, 81, 255, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  animation: cs-drop-in 0.15s cubic-bezier(0.22, 0.68, 0, 1.2);
+}
+
+/* ── Opción individual ── */
+.cs__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-default);
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+  letter-spacing: -0.02em;
+}
+
+.cs__option:hover {
+  background: rgba(243, 237, 255, 0.8);
+  color: var(--sdv-violet, #7c3aed);
+}
+
+.cs__option--selected {
+  background: rgba(124, 58, 237, 0.07);
+  color: var(--sdv-violet, #7c3aed);
+  font-weight: 600;
+
+}
+
+/* ── Check icon en opción seleccionada ── */
+.cs__option-check {
+  flex-shrink: 0;
+  color: var(--sdv-violet, #7c3aed);
+}
+
+/* ── Hint debajo del trigger ── */
+.cs__hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--neutral-default);
+  line-height: 1.4;
+  text-align: center;
+  padding: 0 4px;
+}
+
+/* ── Animación ── */
+@keyframes cs-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

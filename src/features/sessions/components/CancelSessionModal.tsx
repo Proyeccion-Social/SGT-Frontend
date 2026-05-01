@@ -2,6 +2,7 @@
 import './styles/CancelSessionModal.css';
 
 import { useState } from 'react';
+import { sileo, Toaster } from 'sileo';
 import type { Session } from '../types/session.types';
 
 interface Props {
@@ -27,6 +28,7 @@ export const CancelSessionModal = ({
 }: Props) => {
   const [reason, setReason] = useState('');
   const [windowWarning, setWindowWarning] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const handleCancel = async () => {
     if (!canCancel(session)) {
@@ -34,20 +36,32 @@ export const CancelSessionModal = ({
       return;
     }
     setWindowWarning(false);
-    const ok = await cancelar(session.id, reason);
-    if (ok) onSuccess();
+    setIsCancelling(true);
+    await sileo.promise(
+      async () => {
+        const ok = await cancelar(session.id, reason);
+        if (!ok) throw new Error('No se pudo cancelar la sesión.');
+        onSuccess();
+      },
+      {
+        loading: { title: 'Cancelando sesión...' },
+        success: { title: 'Sesión cancelada',  description: 'La tutoría ha sido cancelada exitosamente.', fill: '#2ecc71' },
+        error:   { title: 'Error al cancelar', fill: '#f35761' },
+      }
+    ).finally(() => {
+      setIsCancelling(false);
+    });
   };
 
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Cancel session">
+      <Toaster />
       <div className="modal-card modal-card--cancel">
         <button className="modal-card__close" onClick={onClose} aria-label="Close">✕</button>
 
         <h2 className="cancel-modal__title">
           Antes de irte, explica por qué quieres cancelar esta tutoría
         </h2>
-
-        <p className="cancel-modal__session-name">{session.title}</p>
 
         <textarea
           className="cancel-modal__textarea"
@@ -65,22 +79,16 @@ export const CancelSessionModal = ({
           </p>
         )}
 
-        {error && (
-          <p className="cancel-modal__error" role="alert" aria-live="polite">
-            {error}
-          </p>
-        )}
-
         <div className="cancel-modal__footer">
-          <button className="sdv-btn sdv-btn--propose" onClick={onClose} disabled={isLoading}>
+          <button className="sdv-btn sdv-btn--propose" onClick={onClose} disabled={isCancelling}>
             Volver
           </button>
           <button
             className="sdv-btn sdv-btn--cancel"
             onClick={handleCancel}
-            disabled={reason.trim() === '' || isLoading}
+            disabled={reason.trim() === '' || isCancelling}
           >
-            {isLoading ? 'Cancelando…' : 'Cancelar tutoría'}
+            {isCancelling ? 'Cancelando…' : 'Cancelar tutoría'}
           </button>
         </div>
       </div>

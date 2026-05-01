@@ -1,5 +1,6 @@
 // SessionDetailView.tsx — styled to match design
 import { useRef, useState } from 'react';
+import { Toaster } from 'sileo';
 
 import './styles/SessionDetailView.css'
 import { UserRole } from '@/constants/roles';
@@ -27,6 +28,7 @@ interface Props {
   isProposing?: boolean;
   isEditing?: boolean;
   availabilitySlots?: AvailabilitySlot[];
+  onClose: () => void;
   onProposeModification: () => void;
   onBack: () => void;
   onEdit: () => void;
@@ -149,6 +151,7 @@ export const SessionDetailView = ({
   isProposing = false,
   isEditing   = false,
   availabilitySlots = [],
+  onClose,
   onProposeModification,
   onBack,
   onEdit,
@@ -167,8 +170,10 @@ export const SessionDetailView = ({
   const isAltView = isProposing || isEditing;
  
   return (
-    <div className='sdv-overlay'>
+    <>
+      <Toaster />
       <div className="sdv">
+        <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
  
         {/* ── Top: photo + title + description ── */}
         <div className="sdv__top">
@@ -223,7 +228,7 @@ export const SessionDetailView = ({
           <div className="sdv__cards">
  
             <div className="sdv-card">
-              <div className="sdv-card__icon sdv-card__icon--blue">
+              <div className="sdv-card__icon">
                 {modalityIcon(String(session.modality))}
               </div>
               <span className="sdv-card__label">
@@ -298,8 +303,7 @@ export const SessionDetailView = ({
         </div>
  
       </div>
-
-    </div>
+    </>
   );
 };
  

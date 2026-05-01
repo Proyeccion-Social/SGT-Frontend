@@ -63,7 +63,9 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
 
   return (
     <div className="session-container">
-      <h2 className="main-title">Tus proximas sesiones</h2>
+      <div className="session-container-header">
+        <h2 className="main-title">Tus proximas sesiones</h2>
+      </div>
 
       <div className="cards-stack">
         {isLoading && (
@@ -177,9 +179,8 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
         })}
       </div>
 
-      <div className="bottom-overlay">
-        <span className="view-more">Ver más</span>
-      </div>
+      {/* <div className="bottom-overlay">
+      </div> */}
 
       {attendanceSession && (
         <AttendancePostSession

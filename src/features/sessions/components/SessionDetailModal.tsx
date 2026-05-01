@@ -51,20 +51,18 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
       aria-modal="true"
       aria-label="Session detail"
     >
-      <div className="modal-card">
-        <button className="modal-card__close" onClick={onClose} aria-label="Close modal">
-          ✕
-        </button>
+      <div>
  
         {isLoading && (
           <div className="modal-card__loading" aria-live="polite">
+            <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
             <p>Cargando sesión…</p>
           </div>
         )}
  
         {!isLoading && error && (
           <div className="modal-card__error" role="alert">
-            <p>Error al cargar la sesión: {error}</p>
+            <p>Error al cargar la sesión</p>
             <button className="sdv-btn sdv-btn--propose" onClick={onClose}>Cerrar</button>
           </div>
         )}
@@ -77,6 +75,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
             isProposing={view === 'propose'}
             isEditing={view === 'edit'}
             availabilitySlots={availabilitySlots}
+            onClose={onClose}
             onProposeModification={() => setView('propose')}
             onBack={() => setView('detail')}
             onEdit={() => setView('edit')}

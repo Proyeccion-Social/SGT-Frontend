@@ -1,0 +1,284 @@
+/* SessionDetailModal.css — styles for modal overlay, card, and SessionDetailView */
+
+/* ─── Overlay ────────────────────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+/* ─── Card shell ─────────────────────────────────────────────────────────────── */
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  scrollbar-width: none;
+}
+
+.modal-card::-webkit-scrollbar { display: none; }
+
+.modal-card__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #aaa;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.modal-card__close:hover {
+  color: #555;
+  background: #f5f5f5;
+}
+
+.modal-card__loading,
+.modal-card__error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* ─── SessionDetailView (sdv) ────────────────────────────────────────────────── */
+
+.sdv {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Top: avatar + title/description */
+
+.sdv__top {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.sdv-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.sdv-avatar--fallback {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #c4b0ff, #9b7aff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sdv__header-text {
+  flex: 1;
+}
+
+.sdv__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.sdv__description {
+  font-size: 0.82rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Tags row */
+
+.sdv__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sdv-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.sdv-tag--subject {
+  background: rgba(255, 210, 100, 0.2);
+  color: #8a6800;
+  border: 1px solid rgba(255, 210, 100, 0.4);
+}
+
+.sdv-tag--tutor {
+  background: rgba(160, 120, 255, 0.12);
+  color: #6b3fc4;
+  border: 1px solid rgba(160, 120, 255, 0.25);
+}
+
+.sdv-tag--status {
+  background: rgba(200, 200, 200, 0.25);
+  color: #555;
+  border: 1px solid rgba(180, 180, 180, 0.35);
+}
+
+.sdv-tag--link {
+  background: rgba(100, 180, 255, 0.12);
+  color: #1a6fb5;
+  border: 1px solid rgba(100, 180, 255, 0.25);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sdv-tag__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sdv-tag__dot--purple { background: #9b7aff; }
+
+/* 4 Info cards */
+
+.sdv__cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .sdv__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sdv-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  border: 1.5px solid #f0eeff;
+  border-radius: 14px;
+  background: #fafafa;
+  text-align: center;
+}
+
+.sdv-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sdv-card__icon--blue {
+  background: rgba(100, 160, 255, 0.12);
+  color: #3a7bd5;
+}
+
+.sdv-card__icon--purple {
+  background: rgba(155, 122, 255, 0.12);
+  color: #7c4dff;
+}
+
+.sdv-card__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+.sdv-card__sublabel {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #888;
+}
+
+/* Footer buttons */
+
+.sdv__footer {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+.sdv-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sdv-btn--propose {
+  background: rgba(100, 220, 130, 0.15);
+  color: #1a7a3a;
+  border: 1.5px solid rgba(100, 220, 130, 0.35);
+}
+
+.sdv-btn--propose:hover {
+  background: rgba(100, 220, 130, 0.25);
+}
+
+.sdv-btn--edit {
+  background: rgba(155, 122, 255, 0.12);
+  color: #6b3fc4;
+  border: 1.5px solid rgba(155, 122, 255, 0.3);
+}
+
+.sdv-btn--edit:hover {
+  background: rgba(155, 122, 255, 0.22);
+}
+
+.sdv-btn--cancel {
+  background: #ff4d5e;
+  color: white;
+  border: 1.5px solid transparent;
+}
+
+.sdv-btn--cancel:hover {
+  background: #e03040;
+}

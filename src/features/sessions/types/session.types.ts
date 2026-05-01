@@ -1,6 +1,4 @@
-export type Modality = 'VIRT' | 'PRES';
-
-export type SessionType = 'INDIVIDUAL' | 'COLLABORATIVE';
+export type Modality = 'VIRT' | 'PRES' | "";
 
 export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
@@ -37,8 +35,7 @@ export interface Session {
   scheduledDate: string;             // "YYYY-MM-DD"
   startTime: string;                 // "HH:mm:ss"
   endTime: string;                   // "HH:mm:ss"
-  duration: number;                  // en horas
-  type: SessionType;
+  duration: number;
   modality: Modality;
   status: SessionStatus;
   title: string;
@@ -235,13 +232,13 @@ export interface AvailabilitySlot {
 
 export interface CreateSessionDTO {
   tutorId: string;
-  date: string;
-  duration: number;
+  availabilityId: number;
+  scheduledDate : string;
   title: string;
   description: string;
-  modalidad: Modality;
-  type?: SessionType;
+  modality: Modality;
   subjectId?: string;
+  durationHours: number;
 }
 
 // ─── Errores del API ─────────────────────────────────────────
@@ -263,3 +260,30 @@ export interface ApiError {
   message: string;
   errors?: Array<{ field: string; message: string }>;
 }
+
+export interface TutorInfo {
+  id: string;
+  name: string;
+  photo: string;
+  subjects: Array<{ id: string; name: string }>;
+}
+
+export interface CancelSessionResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ModifySessionBody {
+  newScheduledDate?: string;    // ISO date string
+  newAvailabilityID?: string;   // ID del slot de disponibilidad del tutor
+  newModality?: string;
+  newDurationHours?: number;
+}
+
+export interface EditSessionBody {
+  title: string;
+  description: string;
+}
+
+// Controls which sub-view is rendered inside SessionDetailModal
+export type ModalView = 'detail' | 'propose' | 'edit';

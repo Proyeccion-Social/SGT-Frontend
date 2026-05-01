@@ -168,7 +168,6 @@ video,
 canvas,
 svg {
   display: block;
-  max-width: 100%;
 }
 
 input,
@@ -186,6 +185,10 @@ h4,
 h5,
 h6 {
   overflow-wrap: break-word;
+}
+
+[data-sileo-viewport] {
+  z-index: 200 !important;
 }
 
 button {

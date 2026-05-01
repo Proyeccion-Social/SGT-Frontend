@@ -1,13 +1,10 @@
 // src/pages/api/sessions/detail.ts
-// BFF: reads HttpOnly cookie, calls getSessionDetail
-
 import type { APIRoute } from 'astro';
 import { getSessionDetail } from '@features/sessions/services/sessionService';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   try {
     const token = cookies.get('access_token')?.value;
-
     if (!token) {
       return new Response(
         JSON.stringify({ message: 'No autenticado' }),
@@ -15,9 +12,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const url       = new URL(request.url);
+    const url = new URL(request.url);
     const sessionId = url.searchParams.get('sessionId');
-
     if (!sessionId) {
       return new Response(
         JSON.stringify({ message: 'sessionId requerido' }),
@@ -26,11 +22,11 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     }
 
     const data = await getSessionDetail(sessionId, token);
-
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
+
   } catch (error: any) {
     console.error('[BFF] Error en session detail:', error);
     return new Response(

@@ -1,0 +1,56 @@
+---
+import SessionsBlock from "./SessionsBlock.astro";
+import Layout from "@/layouts/Layout.astro";
+import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
+
+const currentStatus = Astro.url.searchParams.get("status") || "all";
+const page = Astro.url.searchParams.get("page") || "1";
+const limit = Astro.url.searchParams.get("limit");
+
+const apiUrl = new URL("/api/history", Astro.url);
+if (currentStatus !== "all") {
+  apiUrl.searchParams.append("status", currentStatus);
+}
+apiUrl.searchParams.append("page", page);
+apiUrl.searchParams.append("limit", limit || "10");
+
+const res = await fetch(apiUrl, {
+  headers: Astro.request.headers,
+});
+const history = await res.json();
+
+let userId = getUserIdFromCookie(Astro.cookies);
+// 3. Si no hay ID (no está logueado), rediriges
+if (!userId) {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Historial de sesiones">
+  <div class="history-layout">
+    <div class="search-page">
+      <SessionsBlock
+        data={history}
+        currentStatus={currentStatus}
+        userId={userId}
+      />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .history-layout {
+    display: flex;
+    height: 100vh;
+    overflow-y: hidden;
+    background: #F6F1FF;
+  }
+  .search-page {
+    position: relative;
+    display: flex;
+    justify-content: start;
+    width: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+  }
+</style>

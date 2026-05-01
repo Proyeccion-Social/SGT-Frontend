@@ -3,12 +3,10 @@ const IS_SERVER = typeof window === 'undefined';
 
 // trae todas las materias disponibles
 // GET /api/v1/subjects (público)
-export async function getAllSubjects() {
-    const url = IS_SERVER
-        ? `${API_URL}/subjects`
-        : `/api/search/subjects`;
-
-    const response = await fetch(url);
+export async function getAllSubjects(token?: string) {
+    const response = await fetch(`${API_URL}/subjects`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
     
     if (!response.ok) {
         const errorBody = await response.json().catch(() => ({

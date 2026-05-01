@@ -1,9 +1,10 @@
 ---
-import AdminDashboard from "../layouts/dashboards/AdminDashboard.astro";
-import StudentDashboard from "../layouts/dashboards/StudentDashboard.astro";
-import TutorDashboard from "../layouts/dashboards/TutorDashboard.astro";
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import AdminDashboard from "@/layouts/dashboards/AdminDashboard.astro";
+import StudentDashboard from "@/layouts/dashboards/StudentDashboard.astro";
+import TutorDashboard from "@/layouts/dashboards/TutorDashboard.astro";
 import { fade } from "astro:transitions";
-import { UserRole } from "@/constants/roles";
+
 const token = Astro.cookies.get("access_token")?.value;
 
 if (!token) {
@@ -11,10 +12,26 @@ if (!token) {
 }
 
 const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role;
+const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
+
+const titles: Record<string, string> = {
+  admin: "Dashboard - Admin | Atlas",
+  tutor: "Dashboard - Tutor | Atlas",
+  student: "Dashboard - Estudiante | Atlas",
+};
 ---
-<article transition:animate={fade({duration: "0.5s"})} >
-  {userRole === UserRole.ADMIN && <AdminDashboard />}
-  {userRole === UserRole.TUTOR && <TutorDashboard />}
-  {userRole === UserRole.STUDENT && <StudentDashboard />}
-</article>
+
+<DashboardLayout title={titles[userRole]} rol={userRole}>
+  <article transition:animate={fade({ duration: "0.3s" })}>
+    {userRole === "admin" && <AdminDashboard />}
+    {userRole === "tutor" && <TutorDashboard />}
+    {userRole === "student" && <StudentDashboard />}
+  </article>
+</DashboardLayout>
+
+<style>
+  article {
+    width: 100%;
+    height: 100%;
+  }
+</style>

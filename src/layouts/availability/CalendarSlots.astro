@@ -6,14 +6,10 @@ import { getTutorSlots } from "@/features/availability/services/availabilityServ
 import type { Slot } from "@/features/availability/services/availabilityService";
 import MainLayout from "@/layouts/Layout.astro";
 
-import { UserRole } from "@/constants/roles";
-import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
 import RightCalendarMenu from "@/features/availability/components/RightCalendarMenu.astro";
 
-import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
-import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
 import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";
 
 const tutorId = getUserIdFromCookie(Astro.cookies);
@@ -35,83 +31,48 @@ const { today, prevOffset, nextOffset, weekRangeStr } =
 const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
 ---
 
-<MainLayout title='Availability'>
-  <div class='availability-container'>
-    <div id='sidebar-container'>
-      <Sidebar userRole={UserRole.TUTOR} />
+<main class={`content-wrapper ${isMenuOpen ? "no-scroll" : ""}`}>
+  <div class={`overlay ${isMenuOpen ? "active" : ""}`} id='menu-overlay'></div>
+  <div class='calendar-header'>
+    <div class='week-selector'>
+      <h3>Tu Semana</h3>
+      <p>{weekRangeStr}</p>
+      <button class='mes-btn' id='right-menu-toggle'
+        >Mes <Image src={ArrowUpIcon} alt='Arrow Up' /></button
+      >
+      <UserHeader userRole='tutor' />
     </div>
-
-    <main class={`content-wrapper ${isMenuOpen ? "no-scroll" : ""}`}>
-      <div class={`overlay ${isMenuOpen ? "active" : ""}`} id='menu-overlay'>
-      </div>
-      <div class='calendar-header'>
-        <div class='week-selector'>
-          <h3>Tu Semana</h3>
-          <p>{weekRangeStr}</p>
-          <a href={`?offset=${prevOffset}`} class='nav-button'>
-            <Image src={BackArrowIcon} alt='Back' />
-          </a>
-          <a href={`?offset=${nextOffset}`} class='nav-button'>
-            <Image src={ForwardArrowIcon} alt='Forward' />
-          </a>
-          <button class='mes-btn' id='right-menu-toggle'
-            >Mes <Image src={ArrowUpIcon} alt='Arrow Up' /></button
-          >
-          <UserHeader userRole={UserRole.TUTOR} />
-        </div>
-        <div class='legend'>
-          <p>Franjas horarias disponibles de tu semana</p>
-        </div>
-      </div>
-
-      <div class='calendar-container'>
-        <Calendar slots={Slots} baseDate={today} />
-      </div>
-
-      <div id='right-menu' class={isMenuOpen ? "active" : ""}>
-        <RightCalendarMenu
-          slots={Slots}
-          baseDate={today}
-          offset={weekOffset}
-          prevOffset={prevOffset}
-          nextOffset={nextOffset}
-        />
-      </div>
-    </main>
+    <div class='legend'>
+      <p>Franjas horarias disponibles de tu semana</p>
+    </div>
   </div>
-</MainLayout>
+
+  <div class='calendar-container'>
+    <Calendar slots={Slots} baseDate={today} />
+  </div>
+
+  <div id='right-menu' class={isMenuOpen ? "active" : ""}>
+    <RightCalendarMenu
+      slots={Slots}
+      baseDate={today}
+      offset={weekOffset}
+      prevOffset={prevOffset}
+      nextOffset={nextOffset}
+    />
+  </div>
+</main>
 
 <style>
-  body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Bloquea scroll vertical y horizontal global */
-    width: 100vw;
-    height: 100vh;
-  }
-
-  .availability-container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    background-color: #f3edff;
-    padding: 18px 20px 20px 0;
-    box-sizing: border-box;
-    overflow: hidden;
-    align-items: stretch;
-    z-index: 1001;
-  }
-
   .content-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    border-radius: 16px;
     position: relative;
     justify-content: flex-start;
     overflow: hidden;
-    z-index: 1000;
+    border-radius: 32px 0px 0px 32px;
+    border: 1px solid var(--neutral-200);
   }
 
   .content-wrapper.no-scroll {
@@ -209,16 +170,6 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     border-radius: 10px;
   }
 
-  #sidebar-container {
-    z-index: 1001;
-    top: 0;
-    height: 100%;
-    display: flex;
-    position: relative;
-    margin-top: -1rem;
-    margin-bottom: -1.5rem;
-  }
-
   /* Menu contextual */
   #right-menu {
     position: absolute;
@@ -245,7 +196,7 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 900;
+    z-index: 15;
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -271,6 +222,8 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     display: flex;
     align-items: center;
     gap: 4px;
+    transition: all 0.3s ease;
+    overflow: hidden;
   }
 </style>
 
@@ -284,13 +237,15 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     const openMenu = () => {
       rightMenu?.classList.add("active");
       overlay?.classList.add("active");
+      toggleButton?.classList.add("active");
       contentWrapper?.classList.add("no-scroll");
-      //   window.dispatchEvent(new CustomEvent("force-sidebar-expand"));
+      window.dispatchEvent(new CustomEvent("force-sidebar-expand"));
     };
 
     const closeMenu = () => {
       rightMenu?.classList.remove("active");
       overlay?.classList.remove("active");
+      toggleButton?.classList.remove("active");
       contentWrapper?.classList.remove("no-scroll");
       window.dispatchEvent(new CustomEvent("force-sidebar-collapse"));
     };

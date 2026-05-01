@@ -1,0 +1,82 @@
+.badge-container {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+  z-index: 1;
+  width: auto;
+  height: auto;
+}
+
+/* Compartido: tutor y student */
+.welcome-container {
+  display: flex;
+  flex-direction: row;
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: bold;
+  flex-shrink: 0;
+  padding: 0 10rem;
+  color: var(--text-body);
+}
+
+.welcome-container p {
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 60px;
+  line-height: 72px;
+  letter-spacing: -0.02em;
+  color: var(--text-body);
+}
+
+/* Solo admin */
+.welcome-container--admin {
+  justify-content: center;
+  align-items: center;
+  font-size: 60px;
+  padding: 0;
+  flex-shrink: unset;
+}
+
+.floating-tag {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+}
+
+.tag-text {
+  position: relative;
+  right: -35px;
+  top: 15px;
+  font-family: "Caveat", sans-serif;
+  font-weight: lighter;
+  font-size: 24px;
+  color: #9f74ff;
+  align-self: flex-end;
+}
+
+.hand-drawn-arrow {
+  position: relative;
+  width: 200px;
+  height: auto;
+  z-index: -1;
+  opacity: 0.6;
+}
+
+.highlight-name {
+  color: #9f74ff;
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: bold;
+  position: relative;
+  display: inline-block;
+}
+
+.hand-drawn-line {
+  position: relative;
+  width: 100%;
+  height: auto;
+  z-index: -1;
+  opacity: 0.6;
+}

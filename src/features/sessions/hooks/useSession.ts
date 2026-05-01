@@ -11,9 +11,9 @@ import { useAuthStore } from '@/store/authStore';
 import { useSessionStore } from '@/store/sessionStore';
 import { UserRole } from '@/constants/roles';
 
-interface UseSessionReturn {
+interface UseSessionsReturn {
   sessions: Session[];
-  loading: boolean;
+  isLoading: boolean;
   error: string | null;
   fetchMySessions: (force?: boolean) => Promise<void>;
   agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
@@ -41,7 +41,7 @@ export function useSession(rawRole: UserRole | string): UseSessionReturn {
       console.error('[useSessions] error:', err);
       setError(err instanceof Error ? err.message : 'Error fetching sessions');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [role, lastFetched, setSessions, setLoading, setError, setLastFetched]);
 

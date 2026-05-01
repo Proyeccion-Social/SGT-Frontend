@@ -1,0 +1,261 @@
+.body-header-availability {
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    gap: 0.5rem;
+    text-wrap: balance;
+}
+/* ── Days grid ─────────────────────────────────────────── */
+.availability-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 2.5rem 3.375rem;
+}
+
+/* ── Single day row ───────────────────────────────────── */
+.day-row {
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.day-row--open {
+    border-color: #E7DCFF;
+}
+
+/* ── Day header button ────────────────────────────────── */
+.day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background-color: #F5F0FF;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-radius 0.2s ease;
+    width: 100%;
+    text-align: left;
+}
+
+.day-row--open .day-header {
+    border-radius: 14px 14px 0 0;
+    background-color: #EDE5FF;
+}
+
+.day-header:hover {
+    background-color: #e7dcff;
+}
+
+.day-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.day-name {
+    font-family: "Open Sauce Two", sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #1A1A1A;
+}
+
+.day-badge {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    color: #9F74FF;
+    background-color: #EDE5FF;
+    border-radius: 20px;
+    padding: 0.15rem 0.6rem;
+}
+
+.day-row--open .day-badge {
+    background-color: #D9CCFF;
+}
+
+.day-chevron {
+    width: 20px;
+    height: 20px;
+    color: #9F74FF;
+    transition: transform 0.25s ease;
+}
+
+.day-row--open .day-chevron {
+    transform: rotate(180deg);
+}
+
+/* ── Expanded panel ───────────────────────────────────── */
+.day-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: #FDFBFF;
+    border-top: 1px solid #E7DCFF;
+    animation: panel-slide-in 0.2s ease both;
+}
+
+@keyframes panel-slide-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Slot row ─────────────────────────────────────────── */
+.slot-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.slot-label {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: #6B6B6B;
+    min-width: 60px;
+}
+
+.slot-input {
+    border: 1.5px solid #E7DCFF;
+    border-radius: 10px;
+    padding: 0.45rem 2rem 0.45rem 0.75rem;
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: #1A1A1A;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='none' stroke='%239F74FF' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 7.5l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.55rem center;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 130px;
+}
+
+.slot-input:focus {
+    border-color: #9F74FF;
+    box-shadow: 0 0 0 3px rgba(159, 116, 255, 0.12);
+}
+
+.slot-separator {
+    font-size: 18px;
+    color: #9F74FF;
+    font-weight: 500;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.slot-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #C4AFF5;
+    padding: 0.3rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    margin-left: auto;
+}
+
+.slot-delete-btn:hover {
+    color: #E05C5C;
+    background-color: #FFF0F0;
+}
+
+/* ── Error/warning messages ───────────────────────────── */
+.slot-error {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 12px;
+    color: #D94F4F;
+    margin-top: -0.25rem;
+    padding-left: 0.25rem;
+    animation: fade-in 0.15s ease both;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ── Add slot button ──────────────────────────────────── */
+.add-slot-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: 1.5px dashed #C4AFF5;
+    border-radius: 10px;
+    padding: 0.4rem 0.9rem;
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #9F74FF;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    margin-top: 0.25rem;
+    width: fit-content;
+}
+
+.add-slot-btn:hover {
+    background-color: #F0EAFF;
+    border-color: #9F74FF;
+}
+
+.add-slot-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* ── Weekly summary bar ───────────────────────────────── */
+.weekly-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 3.375rem 1.5rem 3.375rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    background-color: #F5F0FF;
+    border: 1px solid #E7DCFF;
+}
+
+.weekly-summary-text {
+    font-family: "Open Sauce Two", sans-serif;
+    font-size: 14px;
+    color: #3C3C3C;
+    flex: 1;
+}
+
+.weekly-summary-text strong {
+    color: #9F74FF;
+}
+
+.weekly-progress-bar {
+    flex: 1;
+    height: 6px;
+    background-color: #E7DCFF;
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.weekly-progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background-color: #9F74FF;
+    transition: width 0.3s ease;
+}
+
+.weekly-progress-fill--warn {
+    background-color: #E8A020;
+}
+
+.weekly-progress-fill--full {
+    background-color: #D94F4F;
+}

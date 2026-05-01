@@ -1,9 +1,6 @@
 ---
-import { Image } from "astro:assets";
 import type { Slot } from "@/features/availability/services/availabilityService";
 import { DAYS } from "../utils/calendarConstants";
-import BackArrowIcon from "@/features/availability/components/assets/imgs/BackArrowIcon.svg";
-import ForwardArrowIcon from "@/features/availability/components/assets/imgs/ForwardArrowIcon.svg";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import { UserRole } from "@/constants/roles";
 
@@ -123,14 +120,6 @@ const slotsByDay = DAYS.map((day) => {
   <div class='mini-calendar'>
     <div class='calendar-header'>
       <h4>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}</h4>
-      <div class='calendar-nav'>
-        <a href={`?offset=${prevOffset}&openMenu=true`} class='cal-nav-btn'>
-          <Image src={BackArrowIcon} alt='Back' />
-        </a>
-        <a href={`?offset=${nextOffset}&openMenu=true`} class='cal-nav-btn'>
-          <Image src={ForwardArrowIcon} alt='Forward' />
-        </a>
-      </div>
     </div>
 
     <div class='calendar-grid'>
@@ -145,12 +134,8 @@ const slotsByDay = DAYS.map((day) => {
       {
         days.map((item) =>
           item.day ? (
-            <div
-              class={`grid-day ${item.isSelected ? "selected" : ""} ${item.isFirstOfWeek ? "week-start" : ""} ${item.isLastOfWeek ? "week-end" : ""}`}
-            >
-              <span
-                class={`day-num ${item.isFirstOfWeek || item.isLastOfWeek ? "circle-endpoint" : ""}`}
-              >
+            <div class={`grid-day ${item.isSelected ? "selected" : ""} ${item.isFirstOfWeek ? "week-start" : ""} ${item.isLastOfWeek ? "week-end" : ""}`}>
+              <span class={`day-num ${item.isFirstOfWeek || item.isLastOfWeek ? "circle-endpoint" : ""}`}>
                 {item.day}
               </span>
             </div>
@@ -184,7 +169,7 @@ const slotsByDay = DAYS.map((day) => {
                     {slot.startTime} - {slot.endTime}
                   </span>
                   <button class='remove-slot' data-id={slot.id}>
-                    ×
+                    x
                   </button>
                 </div>
               ))}
@@ -210,6 +195,7 @@ const slotsByDay = DAYS.map((day) => {
     align-items: flex-end;
     justify-content: flex-end;
   }
+
   .mini-calendar {
     background: #fff;
     padding: 28px 28px 0px 28px;
@@ -403,6 +389,7 @@ const slotsByDay = DAYS.map((day) => {
     transform: scale(1.2);
     background: #dc2626;
   }
+  
   .day-header-row {
     display: flex;
     justify-content: space-between;

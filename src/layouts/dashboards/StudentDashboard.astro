@@ -9,27 +9,19 @@ import UserHeader from "../../features/general/components/UserHeader.astro";
 import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import DashboardLoader from "@/features/dashboards/components/DashboardLoader";
-import { UserRole } from "@/constants/roles";
 
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/");
+const userRole = "student";
 
-const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role as UserRole;
 ---
 
-<MainLayout title="Dashboard">
+<main class='content-wrapper'>
   <DashboardLoader role={userRole} client:only="react" />
-  <div class="dashboard-container">
-    <Sidebar userRole={userRole} />
+  <div class='dashboard-content'>
+    <UserHeader userRole={userRole} />
 
-    <main class="content-wrapper">
-      <div class="dashboard-content">
-        <UserHeader userRole={userRole} />
-
-        <div class="welcome-banner-slot">
-          <WelcomeBanner client:only="react" />
-        </div>
+    <div class='welcome-banner-slot'>
+      <WelcomeBanner client:only='react' />
+    </div>
 
         <div class="cards-container">
 
@@ -58,9 +50,8 @@ const userRole = payload.role as UserRole;
     width: 100%;
     height: 100vh;
     background-color: #f3edff;
-    padding: 18px 20px 20px 0;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow-y: hidden;
   }
 
   .content-wrapper {
@@ -68,12 +59,13 @@ const userRole = payload.role as UserRole;
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    border-radius: 16px;
+    border-radius: 32px 0px 0px 32px;
     position: relative;
     justify-content: flex-start;
     overflow: hidden;
     overflow-y: auto;
-    clip-path: inset(0 0 0 0 round 16px);
+    border: 1px solid var(--neutral-200);
+    height: 100%;
   }
 
   .content-wrapper::-webkit-scrollbar {

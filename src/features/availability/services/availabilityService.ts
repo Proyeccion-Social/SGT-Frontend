@@ -17,21 +17,46 @@ export type SlotStatus = 'AVAILABLE' | 'BOOKED';
 //===============================================================
 // Interfaces
 //===============================================================
+export interface RawSlot {
+  slotId: string;
+  dayOfWeek: string;
+  dayOfWeekNumber: number;
+  startTime: string;
+  endTime: string;
+  modality: string;
+  duration: number;
+  isAvailable: boolean;
+}
+
+export interface TutorAvailabilityResponse {
+  tutorId: string;
+  tutorName: string;
+  weekReference: string; // "yyyy-mm-dd" — lunes de la semana consultada
+  totalSlots: number;
+  availableSlots: RawSlot[];
+  groupedByDay: Record<string, RawSlot[]>;
+}
+
 export interface Slot {
-    id: string;
-    dayOfWeek: DayOfWeek;
-    startTime: string;
-    modality: Modality;
-    endTime?: string;
-    location?: string;
-    platform?: string;
-    isBooked?: boolean;
+  id: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  modality: Modality | null;
+  endTime?: string;
+  location?: string;
+  platform?: string;
+  isBooked?: boolean;
+  tutorIds?: string[];
+  subject?: string;
+  subjectId?: string;
+  weekReference?: string;
 }
 
 export interface GetAvailabilityQueryDto {
     onlyAvailable?: boolean;
     onlyFuture?: boolean;
     modality?: Modality;
+    weekStart?: string;
 }
 
 export interface CreateSlotDto {
@@ -346,4 +371,103 @@ export async function getOwnTutorProfile(token?: string): Promise<TutorProfile> 
     });
 
     return handleResponse<TutorProfile>(response);
+}
+
+export async function getAllTutorsSSR(token: string): Promise<{ tutorId: string; tutorName: string; modalities: Modality[] }[]> {
+  const response = await fetch(
+    `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots`,
+    { method: "GET", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } }
+  );
+  const result = await handleResponse<any>(response);
+  const tutors: any[] = Array.isArray(result) ? result : (result.data ?? []);
+  return tutors.map((t: any) => ({
+    tutorId: t.tutorId,
+    tutorName: t.tutorName,
+    modalities: t.modalities ?? [],
+  }));
+}
+
+export async function getAllTutorSlotsSSR(
+  query?: GetAvailabilityQueryDto,
+  token?: string
+): Promise<Slot[]> {
+  const tutors = await getAllTutorsSSR(token ?? '');
+
+  const params = new URLSearchParams();
+    if (query?.onlyAvailable !== undefined)
+    params.append("onlyAvailable", query.onlyAvailable.toString());
+    if (query?.onlyFuture !== undefined)
+    params.append("onlyFuture", query.onlyFuture.toString());
+    if (query?.modality !== undefined)
+    params.append("modality", query.modality);
+    if (query?.weekStart !== undefined)
+    params.append("weekStart", query.weekStart); // ← nombre correcto
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+
+  const dayMap: Record<string, DayOfWeek> = {
+    MONDAY: "LUNES", TUESDAY: "MARTES", WEDNESDAY: "MIERCOLES",
+    THURSDAY: "JUEVES", FRIDAY: "VIERNES", SATURDAY: "SABADO",
+  };
+
+  const allSlotsNested = await Promise.all(
+    tutors.map(async (tutor) => {
+      const authHeaders: HeadersInit = {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      };
+
+      const [slotsResponse, tutorResponse] = await Promise.all([
+        fetch(
+          `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/${tutor.tutorId}/slots${queryString}`,
+          { method: "GET", headers: authHeaders }
+        ),
+        fetch(
+          `${import.meta.env.API_URL}/tutors/${tutor.tutorId}`,
+          { method: "GET", headers: authHeaders }
+        ),
+      ]);
+
+      const slotsResult = await handleResponse<TutorAvailabilityResponse>(slotsResponse);
+      const tutorInfo = await handleResponse<any>(tutorResponse);
+
+      // weekReference viene del backend — sirve como ancla de semana para estos slots
+      const weekReference: string =
+        slotsResult.weekReference ?? "";
+
+      // Extraer slots del groupedByDay (incluye disponibles e no disponibles)
+      let rawSlots: RawSlot[] = [];
+      if (slotsResult.groupedByDay) {
+        Object.values(slotsResult.groupedByDay).forEach((s) =>
+          rawSlots.push(...s)
+        );
+      } else {
+        rawSlots =
+          slotsResult.availableSlots ??
+          (Array.isArray(slotsResult) ? (slotsResult as any) : []);
+      }
+
+
+      const subjects: { id: string; name: string }[] =
+        tutorInfo.subjects ?? [];
+      
+      const mapped = rawSlots.flatMap((s) =>
+        subjects.map((subject) => ({
+          id: s.slotId,
+          dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] ?? s.dayOfWeek,
+          startTime: s.startTime?.substring(0, 5),
+          endTime: s.endTime?.substring(0, 5),
+          modality: (s.modality as Modality) ?? null,
+          isBooked: s.isAvailable === false,
+          tutorIds: [tutor.tutorId],
+          subject: subject.name,
+          subjectId: subject.id,
+          weekReference: slotsResult.weekReference,
+        }))
+      );
+
+      return mapped;
+    })
+  );
+    const flat = allSlotsNested.flat();
+    return flat;
 }

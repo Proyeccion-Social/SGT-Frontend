@@ -10,8 +10,8 @@
 
   --color-verdeps-100: #e6ffc7;
   --color-verdeps-200: #daffaa;
-  --color-verdeps-300: #CDFF8E;
-  --color-verdeps-400: #C1FF72;
+  --color-verdeps-300: #cdff8e;
+  --color-verdeps-400: #c1ff72;
   --color-verdeps-500: #9acc5b;
   --color-verdeps-600: #749944;
   --color-verdeps-700: #4d662e;
@@ -253,15 +253,15 @@
   --paragraph-spacing-heading-h5: 28px;
   --paragraph-spacing-heading-h6: 28px;
 
-    /* ========== Breakpoints (responsive)
+  /* ========== Breakpoints (responsive)
    * Usar estos valores en @media (width <= XXpx) o en max-width.
    * sm: 640px  | md: 768px  | lg: 1024px  | xl: 1280px  | 2xl: 1536px
    */
-   --bp-sm: 640px;
-   --bp-md: 768px;
-   --bp-lg: 1024px;
-   --bp-xl: 1280px;
-   --bp-2xl: 1536px;
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+  --bp-2xl: 1536px;
 
   --spacing-3xs: var(--scale-50);
   --spacing-xxs: var(--scale-150);

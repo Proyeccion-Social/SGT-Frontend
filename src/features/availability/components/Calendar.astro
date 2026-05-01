@@ -4,9 +4,18 @@ import type { Slot } from "@/features/availability/services/availabilityService"
 interface Props {
   slots: Slot[];
   baseDate?: Date;
+  mode?: "tutor" | "student";
+  role?: "ADMIN" | "TUTOR" | "STUDENT";
 }
 
-const { slots: rawSlots, baseDate = new Date() } = Astro.props;
+const {
+  slots: rawSlots,
+  baseDate = new Date(),
+  mode: modeProp,
+  role,
+} = Astro.props;
+const mode = modeProp ?? (role === "STUDENT" ? "student" : "tutor");
+const weekDates = getWeekDates(baseDate);
 const slots = Array.isArray(rawSlots) ? rawSlots : [];
 
 import {
@@ -22,10 +31,14 @@ import {
   formatDuration,
   getSlotStyle,
   getSlotsByDay,
+  getSlotsByDayStudent,
   timeToMinutes,
 } from "../utils/calendarUtils";
 
-const weekDates = getWeekDates(baseDate);
+const getSlotsForDay = (dayKey: string) =>
+  mode === "student"
+    ? getSlotsByDayStudent(slots, dayKey)
+    : getSlotsByDay(slots, dayKey);
 
 const systemToday = new Date();
 ---
@@ -69,8 +82,7 @@ const systemToday = new Date();
             {hours.map((_) => (
               <div class='hour-cell' />
             ))}
-
-            {getSlotsByDay(slots, day.key).map((slot) => {
+            {getSlotsForDay(day.key).map((slot) => {
               const startMin = timeToMinutes(slot.startTime);
               const endMin = slot.endTime
                 ? timeToMinutes(slot.endTime)
@@ -80,15 +92,41 @@ const systemToday = new Date();
               return (
                 <div
                   class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
+                  id={`slot-block-${slot.groupedIds[0]}`}
                   style={getSlotStyle(slot)}
                   data-slot-ids={slot.groupedIds.join(",")}
                   data-day={slot.dayOfWeek}
+                  data-date={weekDates[day.key]?.toISOString().slice(0, 10)}
                   data-start={slot.startTime}
                   data-end={slot.endTime}
                   data-modality={slot.modality}
                   data-is-booked={slot.isBooked}
                 >
-                  {isHalfHour ? (
+                  {mode === "student" ? (
+                    isHalfHour ? (
+                      // Slot de media hora en modo estudiante — layout horizontal compacto
+                      <div class='slot-student-half'>
+                        <span class='slot-student-half__count'>
+                          {slot.tutorCount} disponible
+                          {slot.tutorCount !== 1 ? "s" : ""}
+                        </span>
+                        <span class='slot-student-half__time'>
+                          {slot.startTime} → {slot.endTime}
+                        </span>
+                      </div>
+                    ) : (
+                      // Slot normal en modo estudiante — layout actual
+                      <div class='slot-student-info'>
+                        <span class='slot-tutor-count'>
+                          Tutorías disponibles: {slot.tutorCount}
+                        </span>
+                        <span class='slot-time-range'>
+                          {slot.startTime} → {slot.endTime}
+                        </span>
+                      </div>
+                    )
+                  ) : isHalfHour ? (
+                    // Slot de media hora en modo tutor — layout actual, sin cambio
                     <div class='slot-half-hour-content'>
                       <span class='slot-modality-text'>
                         {slot.modality?.toString().toUpperCase() === "VIRT"
@@ -100,6 +138,7 @@ const systemToday = new Date();
                       </span>
                     </div>
                   ) : (
+                    // Slot normal en modo tutor — layout actual, sin cambio
                     <>
                       <div class='slot-duration-text'>
                         {formatDuration(slot.startTime, slot.endTime)}
@@ -197,7 +236,7 @@ const systemToday = new Date();
   }
 
   .day-header.today {
-    border: 3px solid #9f74ff;
+    border: 3px solid #b797ff;
     border-radius: 6px;
     box-sizing: border-box;
   }
@@ -212,9 +251,9 @@ const systemToday = new Date();
   }
 
   .day-number {
-    font-size: 1.20rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    color: #9f74ff;
+    color: #9acc5b;
     line-height: 1;
     font-family: "Cabinet Grotesk Variable", sans-serif;
   }
@@ -370,4 +409,268 @@ const systemToday = new Date();
     opacity: 0.8;
     white-space: nowrap;
   }
+
+  .slot-student-info {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .slot-tutor-count {
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 3px 8px;
+    border-radius: 999px;
+    color: #1f2937;
+  }
+
+  .slot-time-range {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  .slot-student-half {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 10px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .slot-student-half__count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #1f2937;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .slot-student-half__time {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.55);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .slot-selected {
+    z-index: 100;
+    overflow: visible;
+  }
+
+  .slot-selected::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 10px; /* border-radius del elemento + 2px */
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%237c3aed' stroke-width='4' stroke-dasharray='13%2c 13' stroke-linecap='square'/%3e%3c/svg%3e");
+    pointer-events: none;
+  }
 </style>
+
+<script>
+  const HOUR_HEIGHT = 64;
+  const SLOT_INTERVAL = 30;
+
+  function minutesToTime(minutes) {
+    const h = Math.floor(minutes / 60)
+      .toString()
+      .padStart(2, "0");
+    const m = (minutes % 60).toString().padStart(2, "0");
+    return `${h}:${m}`;
+  }
+
+  function timeToMinutes(time) {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  function pixelsToMinutes(px) {
+    return (px / HOUR_HEIGHT) * 60;
+  }
+
+  function formatModalityLabel(modality) {
+    if (!modality || modality === "null") return "Presencial o Virtual";
+    return modality.toUpperCase() === "VIRT" ? "Virtual" : "Presencial";
+  }
+
+  function createOverlay() {
+    const overlay = document.createElement("div");
+    overlay.id = "drag-overlay";
+    overlay.style.cssText = `
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      border-radius: 8px;
+      background: rgba(124, 58, 237, 0.18);
+      border: 2px solid #7c3aed;
+      pointer-events: none;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      overflow: hidden;
+    `;
+    return overlay;
+  }
+
+  // Module-level drag state shared across all slot interactions
+  let activeDrag = null;
+
+  function cleanupDrag() {
+    const overlay = document.getElementById("drag-overlay");
+    if (overlay) overlay.remove();
+    activeDrag = null;
+  }
+
+  function handlePointerMove(e) {
+    if (!activeDrag) return;
+    const {
+      overlay,
+      dragStartY,
+      dragStartMinutes,
+      slotStartMin,
+      slotEndMin,
+      slotTopPx,
+    } = activeDrag;
+    if (!overlay) return;
+
+    const deltaY = e.clientY - dragStartY;
+    const deltaMinutes = pixelsToMinutes(deltaY);
+    const roundedDelta =
+      Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+    const rawEndMinutes =
+      dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
+    const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
+
+    const startPxInSlot =
+      ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+    const durationPx =
+      ((clampedEndMinutes - dragStartMinutes) / 60) * HOUR_HEIGHT;
+    overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+    overlay.style.height = `${durationPx}px`;
+    overlay.dataset.endMinutes = clampedEndMinutes.toString();
+  }
+
+  function handlePointerUp(e) {
+    if (!activeDrag) return;
+    const { overlay, dragStartMinutes, slotBlock, modality } = activeDrag;
+    if (!overlay) return;
+
+    const endMinutes =
+      parseInt(overlay.dataset.endMinutes || "") ||
+      dragStartMinutes + SLOT_INTERVAL;
+    const overlayRect = overlay.getBoundingClientRect();
+
+    slotBlock.releasePointerCapture(e.pointerId);
+    cleanupDrag();
+
+    if (endMinutes <= dragStartMinutes) return;
+
+    const startTime = minutesToTime(dragStartMinutes);
+    const endTime = minutesToTime(endMinutes);
+
+    document.dispatchEvent(
+      new CustomEvent("slot:clicked", {
+        detail: {
+          slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
+          overlayRect: {
+            top: overlayRect.top,
+            bottom: overlayRect.bottom,
+            left: overlayRect.left,
+            right: overlayRect.right,
+            width: overlayRect.width,
+            height: overlayRect.height,
+          },
+          dayOfWeek: slotBlock.dataset.day,
+          date: slotBlock.dataset.date,
+          startTime,
+          endTime,
+          modality,
+        },
+        bubbles: true,
+      }),
+    );
+  }
+
+  function setupDrag() {
+    document
+      .querySelectorAll(".slot-block:not(.slot-booked):not(.slot-past)")
+      .forEach((slotBlock) => {
+        slotBlock.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          // Limpiar cualquier overlay residual antes de crear uno nuevo
+          document.getElementById("drag-overlay")?.remove();
+          slotBlock.setPointerCapture(e.pointerId);
+
+          const slotStartMin = timeToMinutes(
+            slotBlock.dataset.start || "00:00",
+          );
+          const slotEndMin = timeToMinutes(slotBlock.dataset.end || "00:00");
+          const slotTopPx = slotBlock.offsetTop;
+          const modality = slotBlock.dataset.modality;
+
+          const relativeY = e.clientY - slotBlock.getBoundingClientRect().top;
+          const clickedMinutes = pixelsToMinutes(relativeY);
+          const dragStartMinutes =
+            slotStartMin +
+            Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+
+          const overlay = createOverlay();
+          const startPxInSlot =
+            ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
+          overlay.style.top = `${slotTopPx + startPxInSlot}px`;
+          overlay.style.height = `${HOUR_HEIGHT / 2}px`;
+          slotBlock.parentElement?.appendChild(overlay);
+
+          activeDrag = {
+            dragStartY: e.clientY,
+            dragStartMinutes,
+            slotStartMin,
+            slotEndMin,
+            slotTopPx,
+            modality,
+            overlay,
+            slotBlock,
+          };
+
+          slotBlock.addEventListener("pointermove", handlePointerMove);
+          slotBlock.addEventListener("pointerup", handlePointerUp, {
+            once: true,
+          });
+          slotBlock.addEventListener("pointercancel", cleanupDrag, {
+            once: true,
+          });
+        });
+      });
+
+    // Global escape/blur fallbacks for edge cases (popover backdrop click, tab switch, etc.)
+    window.removeEventListener("blur", cleanupDrag);
+    window.addEventListener("blur", cleanupDrag);
+    document.removeEventListener("keydown", handleEscape);
+    document.addEventListener("keydown", handleEscape);
+  }
+
+  function handleEscape(e) {
+    if (e.key === "Escape") cleanupDrag();
+  }
+
+  // astro:page-load se dispara en carga inicial Y en cada navegación — no usar DOMContentLoaded
+  document.addEventListener("astro:page-load", setupDrag);
+</script>

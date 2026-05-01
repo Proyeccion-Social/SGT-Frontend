@@ -4,33 +4,18 @@ import { useAuthStore } from "./authStore";
 export default function AuthHydrator() {
     const setUser = useAuthStore((state) => state.setUser);
     const setHasHydrated = useAuthStore((state) => state.setHasHydrated);
+    const setRequiresPasswordChange = useAuthStore((state) => state.setRequiresPasswordChange);
+    const setRequiresProfileCompletion = useAuthStore((state) => state.setRequiresProfileCompletion);
 
     useEffect(() => {
-        async function hydrate() {
-            try {
-                // El navegador enviará automáticamente la cookie HTTP-only
-                const res = await fetch("/api/auth/me", {
-                    method: "GET",
-                    credentials: "include", // 👈 clave para enviar cookies
-                });
-
-                if (!res.ok) {
-                    setHasHydrated(true);
-                    return;
-                }
-
-                const { user, requiresPasswordChange, requiresProfileCompletion } = await res.json();
-
-                setUser(user);
-
-            } catch (err) {
-                console.error("Error al hidratar sesión:", err);
-            } finally {
-                setHasHydrated(true);
-            }
+        const stored = sessionStorage.getItem("auth_user");
+        if (stored) {
+            const { user, requiresPasswordChange, requiresProfileCompletion } = JSON.parse(stored);
+            setUser(user);
+            setRequiresPasswordChange(!!requiresPasswordChange);
+            setRequiresProfileCompletion(!!requiresProfileCompletion);
         }
-
-        hydrate();
+        setHasHydrated(true);
     }, []);
 
     return null;

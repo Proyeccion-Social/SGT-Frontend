@@ -230,7 +230,12 @@ export default function VaulDrawer() {
                                         />
                                     )}
                                     {step === 4 && (
-                                        <Finish onNext={() => setIsOpen(false)} />
+                                        <Finish onNext={() => {
+                                            setIsOpen(false);
+                                            setTimeout(() => {
+                                                window.dispatchEvent(new CustomEvent('open-initial-config-dialog'));
+                                            }, 20);
+                                        }} />
                                     )}
                                 </div>
                             </div>

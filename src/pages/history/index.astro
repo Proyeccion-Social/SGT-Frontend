@@ -1,8 +1,0 @@
----
-import HistoryView from "@/features/history/components/HistoryView.astro";
-
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/");
----
-
-<HistoryView token={token} />

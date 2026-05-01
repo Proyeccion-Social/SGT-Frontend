@@ -11,7 +11,7 @@ const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
 export default defineConfig({
   output: 'server',
-  adapter: isVercel ? vercel({ imageService: true }) : node({ mode: 'standalone' }),
+  adapter: isVercel ? vercel() : node({ mode: 'standalone' }),
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],

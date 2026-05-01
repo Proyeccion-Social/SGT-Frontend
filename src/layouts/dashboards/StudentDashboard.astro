@@ -63,26 +63,17 @@ const studentStats = { value: 3, text: "Tutorías esta semana" };
 </main>
 
 <style>
-  .dashboard-container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    background-color: #f3edff;
-    box-sizing: border-box;
-    overflow-y: hidden;
-  }
-
   .content-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    border-radius: 32px 0px 0px 32px;
+    border-radius: 16px;
     position: relative;
     justify-content: flex-start;
     overflow: hidden;
     overflow-y: auto;
-    border: 1px solid var(--neutral-200);
+    clip-path: inset(0 0 0 0 round 16px);
     height: 100%;
   }
 

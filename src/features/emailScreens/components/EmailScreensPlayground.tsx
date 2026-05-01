@@ -8,9 +8,12 @@ import '../styles/EmailScreensShared.css';
 export const EmailScreensPlayground = () => {
   const [activeDialog, setActiveDialog] = useState<string | null>(null);
 
-  // IDs generados en el script SQL
-  const REAL_SESSION_ID = 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13';
-  const REAL_MOD_REQUEST_ID = 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15';
+  // IDs generados en el script SQL del usuario
+  const S_CONF_ID  = '00000000-0000-0000-0000-000000000010';
+  const S_EVAL_ID  = '00000000-0000-0000-0000-000000000020';
+  const S_MODIF_ID = '00000000-0000-0000-0000-000000000030';
+  const R_MODIF_ID = '00000000-0000-0000-0000-000000000031';
+  const S_RESCH_ID = '00000000-0000-0000-0000-000000000040';
 
   return (
     <div style={{ padding: '40px', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
@@ -23,42 +26,42 @@ export const EmailScreensPlayground = () => {
           onClick={() => setActiveDialog('confirm')}
           style={{ width: 'auto' }}
         >
-          Probar Confirmar Sesión Real
+          Probar Confirmar Sesión
         </button>
         <button 
           className="es-btn es-btn--secondary" 
           onClick={() => setActiveDialog('modification')}
           style={{ width: 'auto' }}
         >
-          Probar Revisar Modificación Real
+          Probar Revisar Modificación
         </button>
         <button 
           className="es-btn es-btn--secondary" 
           onClick={() => setActiveDialog('evaluate')}
           style={{ width: 'auto' }}
         >
-          Probar Evaluar Sesión Real
+          Probar Evaluar Sesión
         </button>
         <button 
           className="es-btn es-btn--secondary" 
           onClick={() => setActiveDialog('reschedule')}
           style={{ width: 'auto' }}
         >
-          Probar Reagendar Real
+          Probar Reagendar (Nuevo Diseño)
         </button>
       </div>
 
       {activeDialog === 'confirm' && (
-        <ConfirmSessionDialog sessionId={REAL_SESSION_ID} onClose={() => setActiveDialog(null)} />
+        <ConfirmSessionDialog sessionId={S_CONF_ID} onClose={() => setActiveDialog(null)} />
       )}
       {activeDialog === 'modification' && (
-        <ReviewModificationDialog requestId={REAL_MOD_REQUEST_ID} onClose={() => setActiveDialog(null)} />
+        <ReviewModificationDialog requestId={R_MODIF_ID} onClose={() => setActiveDialog(null)} />
       )}
       {activeDialog === 'reschedule' && (
-        <RescheduleDialog sessionId={REAL_SESSION_ID} onClose={() => setActiveDialog(null)} />
+        <RescheduleDialog sessionId={S_RESCH_ID} onClose={() => setActiveDialog(null)} />
       )}
       {activeDialog === 'evaluate' && (
-        <EvaluationDialog sessionId={REAL_SESSION_ID} onClose={() => setActiveDialog(null)} />
+        <EvaluationDialog sessionId={S_EVAL_ID} onClose={() => setActiveDialog(null)} />
       )}
       
       <div style={{ marginTop: '40px', padding: '20px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', maxWidth: '600px' }}>

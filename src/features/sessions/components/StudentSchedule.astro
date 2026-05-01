@@ -2,6 +2,8 @@
 import WeeklyCalendar from "@/features/availability/components/Calendar.astro";
 import SchedulingWizard from "@/features/sessions/components/SchedulingWizard";
 import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
+import { SubjectSelector } from "@/features/sessions/components/SubjectSelector";
+import { getAllSubjects } from "@/features/search/services/getAllSubjects";
 import { getAllTutorSlotsSSR } from "@/features/availability/services/availabilityService";
 import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 import { Image } from "astro:assets";
@@ -12,6 +14,7 @@ import previousWeekIcon from "../assets/previous-week.svg";
 // Leer offset desde query params — igual que la vista del tutor
 const token = Astro.cookies.get("access_token")?.value!;
 const offsetParam = Astro.url.searchParams.get("offset");
+const subjectIdParam = Astro.url.searchParams.get("subjectId");
 const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
 const { monday, weekRangeStr, prevOffset, nextOffset } =
@@ -23,7 +26,12 @@ const weekReference = [
   String(monday.getDate()).padStart(2, "0"),
 ].join("-");
 
-const slots = await getAllTutorSlotsSSR(
+// 1. Traer materias para el selector (SSR)
+const subjectsData = await getAllSubjects(token).catch(() => ({ data: [] }));
+const initialSubjects = subjectsData.data ?? subjectsData ?? [];
+
+// 2. Traer slots
+let slots = await getAllTutorSlotsSSR(
   {
     onlyAvailable: true,
     weekStart: weekReference,
@@ -33,6 +41,13 @@ const slots = await getAllTutorSlotsSSR(
   console.error("[StudentSchedule] ERROR en getAllTutorSlotsSSR:", err);
   return [];
 });
+
+// Filtrar por materia si viene en la URL
+if (subjectIdParam) {
+  slots = slots.filter((s) => s.subjectId === subjectIdParam);
+}
+
+const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
 ---
 
 <div class='schedule-container'>
@@ -40,13 +55,15 @@ const slots = await getAllTutorSlotsSSR(
     <div class='header-left'>
       <div class='header-title'>
         <h1>Tu Semana</h1>
-        <!-- Navegación de semanas -->
+      </div>
+      <!-- Navegación de semanas y filtros -->
+      <div class='nav-actions'>
         <div class='week-nav'>
           <span class='date-range'>{weekRangeStr}</span>
           {
             weekOffset > 0 ? (
               <a
-                href={`?offset=${prevOffset}`}
+                href={`?offset=${prevOffset}${subjectQuery}`}
                 class='week-nav__arrow'
                 aria-label='Semana anterior'
               >
@@ -61,7 +78,7 @@ const slots = await getAllTutorSlotsSSR(
           {
             weekOffset < 1 ? (
               <a
-                href={`?offset=${nextOffset}`}
+                href={`?offset=${nextOffset}${subjectQuery}`}
                 class='week-nav__arrow week-nav__arrow-1'
                 aria-label='Semana siguiente'
               >
@@ -74,6 +91,11 @@ const slots = await getAllTutorSlotsSSR(
             )
           }
         </div>
+        <SubjectSelector 
+          client:load 
+          initialSubjects={initialSubjects} 
+          initialSelectedId={subjectIdParam}
+        />
       </div>
       <div class='legend'>
         <p>Franjas horarias disponibles de tu semana</p>
@@ -210,8 +232,13 @@ const slots = await getAllTutorSlotsSSR(
 
   .header-title {
     display: flex;
-    align-items: baseline;
-    gap: 16px;
+    align-items: center;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
   }
 
   .header-title h1 {

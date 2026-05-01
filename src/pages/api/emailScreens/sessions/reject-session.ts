@@ -14,7 +14,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const { sessionId } = await request.json();
+    const { sessionId, reason } = await request.json();
     if (!sessionId) {
       return new Response(
         JSON.stringify({ message: 'sessionId es requerido' }),
@@ -22,7 +22,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const data = await rejectSession(sessionId, token);
+    const data = await rejectSession(sessionId, reason, token);
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

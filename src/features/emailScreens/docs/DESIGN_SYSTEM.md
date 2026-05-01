@@ -1,10 +1,10 @@
 # Sistema de Diseño - emailScreens
 
-La feature utiliza un sistema de diseño estrictamente coherente con el componente **Session Detail View (SDV)** del dashboard principal, pero con prefijos específicos para evitar colisiones.
+La feature utiliza un sistema de diseño estrictamente coherente con el componente **Session Detail View (SDV)** del dashboard principal, pero con prefijos específicos para evitar colisiones y asegurar una identidad propia de "Acciones de Email".
 
 ## 1. Tokens de Diseño (CSS Variables)
 Localizados en `EmailScreensShared.css`, definen la paleta de colores y radios:
-- `--es-violet`: Color principal para acentos.
+- `--es-violet`: Color principal para acentos (#7c3aed).
 - `--es-lime`: Para acciones positivas (Aceptar/Confirmar).
 - `--es-coral`: Para acciones negativas o críticas (Rechazar/Cancelar).
 - `--es-radius-modal`: 24px para el contenedor principal.
@@ -13,29 +13,33 @@ Localizados en `EmailScreensShared.css`, definen la paleta de colores y radios:
 
 ### El Contenedor Base (`.es-card`)
 Estructura fija para todos los diálogos:
-1. **Overlay (`.es-overlay`)**: Fondo con desenfoque (backdrop-filter: blur).
+1. **Overlay (`.es-overlay`)**: Fondo con desenfoque (`backdrop-filter: blur(8px)`).
 2. **Header (`.es-header`)**: Avatar del tutor + Título de la sesión + Descripción.
-3. **Tags (`.es-tags`)**: Materia, Nombre del Tutor y Estado de la sesión.
-4. **Info Grid (`.es-grid`)**: Cuatro tarjetas (`.es-info-card`) con iconos Lucide-React para Modalidad, Duración, Fecha/Hora y Estado.
-5. **Footer (`.es-footer`)**: Botones de acción (`.es-btn`) "colgantes".
+3. **Tags (`.es-tags`)**: Chips para Materia, Nombre del Tutor y Estado.
+4. **Info Grid (`.es-grid`)**: Cuatro tarjetas (`.es-info-card`) con iconos Lucide-React.
+5. **Footer (`.es-footer`)**: Botones de acción (`.es-btn`) con efectos de elevación.
 
-### Variaciones de Tarjetas
-- **Info Card (`.es-info-card`)**: Con bordes punteados (dashed) y fondo pastel.
-- **Modification Card (`.es-info-card--mod`)**: Usadas en la comparación de propuestas.
+### Formularios de Página Completa (`.reset-password-container`)
+Utilizados en `/reset-password` y `/confirm-email`:
+- **Tipografía**: Uso de `Cabinet Grotesk Variable` para títulos (64px+) y `Inter` para cuerpo.
+- **Gradientes**: Fondos con gradientes radiales sutiles para sensación de profundidad.
+- **Feedback**: Estados de éxito con iconos animados y botones de acción clara para retornar al login.
 
-## 3. Animaciones
+## 3. Animaciones y Micro-interacciones
 - **es-fade-in**: Suaviza la aparición del overlay.
-- **sdv-slide-up**: Animación de entrada con rebote sutil para el diálogo (cubic-bezier).
+- **sdv-slide-up**: Animación de entrada con `cubic-bezier(0.16, 1, 0.3, 1)`.
+- **Botones**: Efecto `:active` que escala ligeramente hacia abajo (0.98) para feedback táctil.
 
 ## 4. Iconografía
-Se utilizan iconos SVG inline para evitar dependencias de archivos externos y asegurar carga instantánea:
-- `IconCompu`: Monitor para modalidad.
-- `IconTimer`: Reloj para duración.
-- `IconCalendar`: Calendario para fecha.
-- `IconPin`: Pin de ubicación para estado/lugar.
+Se prefieren iconos SVG inline o componentes de Lucide para carga instantánea:
+- `IconCompu`: Modalidad (Online/Presencial).
+- `IconTimer`: Duración de la sesión.
+- `IconCalendar`: Fecha y hora programada.
+- `IconPin`: Ubicación o estado del lugar.
 
-## 5. Diseño Premium (Reset Password)
-Para el restablecimiento de contraseña, se implementó un diseño "Premium Full-Page":
-- **Tipografía**: Uso extensivo de `Cabinet Grotesk Variable` para títulos de gran impacto.
-- **Layout**: Diseño de doble columna (Formulario | Ilustración/Icono Atlas).
-- **Feedback**: Estados de éxito y error con micro-animaciones (`scale-in`, `slide-up`) y confirmaciones visuales mediante Sileo.
+## 5. Diseño Premium
+El diseño busca una estética "Apple-like" con:
+- Espaciado generoso (whitespace).
+- Sombras suaves (`0 20px 40px rgba(0,0,0,0.1)`).
+- Bordes redondeados pronunciados.
+- Tipografías variables de alto contraste.

@@ -1,36 +1,50 @@
 # Arquitectura Técnica - emailScreens
 
 ## 1. Orquestación: EmailActionController
-El componente `EmailActionController` actúa como el "cerebro" de la feature. Está montado globalmente en `DashboardLayout.astro` y escucha los parámetros de la URL:
+El componente `EmailActionController` actúa como el "cerebro" de la feature para acciones autenticadas. Está montado globalmente en `DashboardLayout.astro` y escucha los parámetros de la URL:
 
 - **Trigger**: Parámetros de consulta (`?action=X&id=Y`).
-- **Acciones soportadas**: `confirm`, `review-modification`, `reschedule`, `evaluate`.
+- **Acciones soportadas**: `confirm-session`, `review-modification`, `reschedule`, `evaluate`.
 - **Limpieza**: Al cerrar cualquier diálogo, el controlador limpia los parámetros de la URL sin recargar la página utilizando `window.history.replaceState`.
 
 ## 2. BFF (Backend For Frontend)
-Todas las solicitudes pasan por rutas de API locales para manejar la seguridad y simplificar el mapeo de datos:
+Todas las solicitudes pasan por rutas de API locales (Astro API Routes) para manejar la seguridad, inyectar tokens de sesión y simplificar el mapeo de datos:
 
+### Rutas de Sesión (Protegidas)
 - `src/pages/api/emailScreens/sessions/[sessionId].ts`
 - `src/pages/api/emailScreens/modification-requests/[requestId].ts`
+
+### Rutas de Evaluación
+- `src/pages/api/emailScreens/evaluations/questions.ts`
 - `src/pages/api/emailScreens/evaluations/submit.ts`
+
+### Rutas Públicas
+- `src/pages/api/auth/validate-email.ts`
+- `src/pages/api/emailScreens/confirm-email.ts`
 - `src/pages/api/emailScreens/reset-password.ts`
 
-Estas rutas actúan como proxies hacia el API principal (`PUBLIC_API_URL`), transformando los errores en mensajes legibles para el frontend.
+## 3. Flujos de Datos
 
-## 3. Flujo de Datos
-1. El usuario hace clic en el correo → Lleva al Dashboard con parámetros.
-2. `EmailActionController` detecta los parámetros y monta el diálogo correspondiente.
-3. El diálogo hace un `fetch` inicial al BFF para obtener los detalles de la sesión/solicitud.
-4. Se renderiza la interfaz basada en el diseño SDV.
-5. El usuario ejecuta la acción (Aceptar/Rechazar) → POST al BFF.
-6. Éxito: Se muestra mensaje de confirmación y se cierra automáticamente tras 1.5s.
+### Flujo de Diálogos (Auth)
+1. El usuario hace clic en el correo → Dashboard con parámetros `?action=...`.
+2. `EmailActionController` detecta los parámetros y monta el diálogo.
+3. El diálogo hace un `fetch` al BFF para obtener detalles.
+4. El usuario ejecuta la acción → POST/PATCH al BFF.
+5. Éxito: Feedback visual (Sileo/Alert) y cierre automático.
+
+### Flujo de Páginas Públicas (No Auth)
+1. El usuario llega a `/confirm-email` o `/reset-password` con un `token` en la URL.
+2. El componente React extrae el token y valida el estado inicial.
+3. El usuario interactúa con el formulario (ej: ingresa nueva password).
+4. Se envía el token + datos al BFF público.
+5. El BFF reenvía la petición al API central codificando correctamente los parámetros.
 
 ## 4. Manejo de Errores
-- Los errores de red o lógica del backend se capturan en bloques `try/catch`.
-- Se muestran visualmente dentro del diálogo utilizando la clase `.es-card__error` para mantener la consistencia.
+- Los errores se capturan en bloques `try/catch`.
+- Se utilizan notificaciones de **Sileo** para errores globales y clases CSS como `.es-card__error` para errores específicos dentro de tarjetas.
+- El BFF normaliza las respuestas del backend para asegurar que `message` siempre esté disponible.
 
-## 5. Acciones Públicas (Reset Password)
-A diferencia de los diálogos de sesión, el restablecimiento de contraseña es una **página completa independiente** (`/reset-password`):
-- **Exclusión de Middleware**: No requiere autenticación.
-- **Validación de Token**: El token se extrae de la URL y se valida contra el backend.
-- **Seguridad**: El BFF utiliza `new URL()` y `searchParams` para asegurar que el token se reenvíe al backend de forma segura y codificada.
+## 5. Seguridad
+- **Tokens de Sesión**: Las rutas protegidas obtienen el `access_token` de las cookies del navegador.
+- **Tokens de Correo**: Los tokens recibidos por URL son de un solo uso y validados estrictamente en el backend.
+- **Limpieza de URL**: Previene que el usuario re-ejecute acciones al refrescar la página.

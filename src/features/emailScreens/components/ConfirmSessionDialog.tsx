@@ -218,14 +218,20 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
 
             {/* Reject reason textarea */}
             {showRejectReason && (
-              <textarea
-                className="es-reason-textarea"
-                placeholder="Motivo del rechazo (obligatorio)…"
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                aria-label="Motivo del rechazo"
-                aria-required="true"
-              />
+              <div style={{ width: '100%', marginBottom: '16px' }}>
+                <textarea
+                  className="es-reason-textarea"
+                  placeholder="Motivo del rechazo (mínimo 10 caracteres)…"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  aria-label="Motivo del rechazo"
+                  aria-required="true"
+                  style={{ marginBottom: '4px' }}
+                />
+                <span style={{ fontSize: '11px', color: rejectReason.length < 10 ? '#ef4444' : '#10b981' }}>
+                  {rejectReason.length} / 500 caracteres (mínimo 10)
+                </span>
+              </div>
             )}
 
             {!isExpired && session.status === 'PENDING_TUTOR_CONFIRMATION' && (
@@ -263,7 +269,7 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
                     <button
                       className="es-btn es-btn--reject"
                       onClick={() => handleAction('reject')}
-                      disabled={actionLoading || rejectReason.trim() === ''}
+                      disabled={actionLoading || rejectReason.trim().length < 10}
                     >
                       {actionLoading ? 'Procesando…' : 'Confirmar Rechazo'}
                     </button>

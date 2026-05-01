@@ -1,44 +1,101 @@
 @import './EmailScreensShared.css';
 
-.es-session-name {
-  font-size: 16px;
+.es-card--reschedule {
+  max-width: 600px;
+  min-width: 600px;
+  max-height: 380px;
+  min-height: 380px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.es-reschedule-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.es-reschedule-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.es-reschedule-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.es-reschedule-title {
+  font-family: Open Sauce Two;
   font-weight: 600;
-  color: var(--es-violet);
-  margin-bottom: 16px;
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: -2%;
+  text-align: center;
+  color: #3C3C3C;
+  margin: 0;
+}
+
+.es-reschedule-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.es-btn-general-reschedule {
+  height: 38px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .14s, box-shadow .14s, filter .14s;
+  border: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.es-btn-general-reschedule:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.074);
+}
+
+.es-btn--reschedule {
+  padding: 0px;
+  background-color: #D9C9FF;
+  color: #7C3AED;
+  box-shadow: none;
+  width: 105px;
+  font-family: Open Sauce Two;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -2%;
   text-align: center;
 }
 
-.es-session-details {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: var(--es-bg);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 16px;
+.es-btn--reschedule:hover {
+  background-color: #CBB6FF;
 }
 
-.es-detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  padding-bottom: 8px;
-}
-
-.es-detail-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.es-detail-item__label {
-  font-size: 12px;
-  color: var(--es-gray-text);
+.es-btn--exit {
+  background-color: #FEE2E2;
+  color: #EF4444;
+  box-shadow: none;
+  width: 105px;
+  font-family: Open Sauce Two;
   font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -2%;
 }
 
-.es-detail-item__value {
-  font-size: 13px;
-  color: var(--es-gray-dark);
-  font-weight: 600;
+.es-btn--exit:hover {
+  background-color: #FECACA;
 }
+

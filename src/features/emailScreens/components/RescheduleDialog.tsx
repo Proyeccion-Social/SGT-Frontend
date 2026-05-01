@@ -1,23 +1,12 @@
-// RescheduleDialog.tsx
-// Task 3 — Vista de reagendar sesión
 import { useState, useEffect, useCallback } from 'react';
 import '../styles/RescheduleDialog.css';
 import type { Session } from '@features/emailScreens/types/session.types';
+import calendarIcon from '../assets/calendar.svg';
 
 interface Props {
   sessionId: string;
   onClose: () => void;
 }
-
-const statusLabel = (s: string): string => {
-  const map: Record<string, string> = {
-    CANCELLED_BY_TUTOR: 'Cancelada por tutor',
-    CANCELLED_BY_STUDENT: 'Cancelada por estudiante',
-    REJECTED_BY_TUTOR: 'Rechazada por tutor',
-    CANCELLED: 'Cancelada',
-  };
-  return map[s] ?? s;
-};
 
 export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -46,15 +35,12 @@ export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
 
   const handleGoToSearch = () => {
     const subjectId = session?.subject?.id ?? '';
-    const params = new URLSearchParams();
-    if (subjectId) params.set('subjectId', String(subjectId));
-    // Redirigir a la página real de búsqueda
-    window.location.href = `/search/${params.toString() ? '?' + params.toString() : ''}`;
+    window.location.href = `/sessions?subjectId=${subjectId}`;
   };
 
   return (
     <div className="es-overlay" onClick={handleBackdrop} role="dialog" aria-modal="true">
-      <div className="es-card">
+      <div className="es-card es-card--reschedule">
         <button className="es-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
         {loading && <div className="es-card__loading"><p>Cargando información…</p></div>}
         {!loading && error && (
@@ -62,27 +48,21 @@ export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
             <button className="es-btn es-btn--confirm" onClick={onClose}>Cerrar</button></div>
         )}
         {!loading && !error && session && (
-          <>
-            <h2 className="es-title">Reagendar tutoría</h2>
-            <p className="es-session-name">{session.title}</p>
-            <div className="es-session-details">
-              <div className="es-detail-item">
-                <div className="es-detail-item__label">Estado</div>
-                <div className="es-detail-item__value">{statusLabel(String(session.status))}</div>
-              </div>
-              <div className="es-detail-item">
-                <div className="es-detail-item__label">Materia</div>
-                <div className="es-detail-item__value">{String(session.subject?.name ?? session.subject)}</div>
-              </div>
+          <div className="es-reschedule-content">
+            <div className="es-reschedule-header">
+              <img src={calendarIcon.src} alt="Calendario" className="es-reschedule-icon" />
+              <h2 className="es-reschedule-title">¿Deseas reagendar la tutoría?</h2>
             </div>
-            <p className="es-description">
-              Tu sesión fue cancelada o rechazada. Puedes buscar un nuevo horario disponible con el mismo tutor o explorar otras opciones.
-            </p>
-            <div className="es-footer">
-              <button className="es-btn es-btn--reject" onClick={onClose}>Cerrar</button>
-              <button className="es-btn es-btn--secondary" onClick={handleGoToSearch}>Buscar nuevo horario</button>
+            
+            <div className="es-reschedule-actions">
+              <button className="es-btn-general-reschedule es-btn--reschedule" onClick={handleGoToSearch}>
+                Reagendar
+              </button>
+              <button className="es-btn-general-reschedule es-btn--exit" onClick={onClose}>
+                Salir
+              </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

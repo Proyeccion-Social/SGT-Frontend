@@ -158,10 +158,12 @@ export function confirmSession(
 // ─── Rechazar sesión (server-side BFF) ──────────────────────
 export function rejectSession(
   sessionId: string,
+  reason: string,
   token: string
 ): Promise<{ message: string }> {
-  return request(`/scheduling/sessions/${sessionId}/reject`, token, {
+  return request<{ message: string }>(`/scheduling/sessions/${sessionId}/reject`, token, {
     method: 'POST',
+    body: JSON.stringify({ reason }),
   });
 }
 

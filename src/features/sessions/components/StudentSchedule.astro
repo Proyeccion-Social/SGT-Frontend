@@ -1,6 +1,4 @@
 ---
-import MainLayout from "@/layouts/Layout.astro";
-import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import WeeklyCalendar from "@/features/availability/components/Calendar.astro";
 import SchedulingWizard from "@/features/sessions/components/SchedulingWizard";
 import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
@@ -11,11 +9,8 @@ import { Image } from "astro:assets";
 import nextWeekIcon from "../assets/next-week.svg";
 import previousWeekIcon from "../assets/previous-week.svg";
 
-const token = Astro.cookies.get("access_token")?.value!;
-const payload = JSON.parse(atob(token.split(".")[1]));
-const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
-
 // Leer offset desde query params — igual que la vista del tutor
+const token = Astro.cookies.get("access_token")?.value!;
 const offsetParam = Astro.url.searchParams.get("offset");
 const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
@@ -40,82 +35,76 @@ const slots = await getAllTutorSlotsSSR(
 });
 ---
 
-<MainLayout title='Agendamiento'>
-  <div class='dashboard-container'>
-    <Sidebar userRole={userRole} />
-
-    <main class='content-wrapper'>
-      <div class='dashboard-content'>
-        <div class='schedule-header'>
-          <div class='header-left'>
-            <div class='header-title'>
-              <h1>Tu Semana</h1>
-              <!-- Navegación de semanas -->
-              <div class='week-nav'>
-                <span class='date-range'>{weekRangeStr}</span>
-                {
-                  weekOffset > 0 ? (
-                    <a
-                      href={`?offset=${prevOffset}`}
-                      class='week-nav__arrow'
-                      aria-label='Semana anterior'
-                    >
-                     <Image src={previousWeekIcon} alt='Previous Week' /> 
-                    </a>
-                  ) : (
-                    <span class='week-nav__arrow week-nav__arrow--disabled'>
-                      <Image src={previousWeekIcon} alt='Previous Week' />
-                    </span>
-                  )
-                }
-                {
-                  weekOffset < 1 ? (
-                    <a
-                    href={`?offset=${nextOffset}`}
-                    class='week-nav__arrow week-nav__arrow-1'
-                    aria-label='Semana siguiente'
-                    >
-                      <Image src={nextWeekIcon} alt='Next Week' />
-                    </a>
-                  ) : (
-                    <span class='week-nav__arrow week-nav__arrow-1 week-nav__arrow--disabled'>
-                      <Image src={nextWeekIcon} alt='Next Week' />
-                    </span>
-                  )
-                }
-              </div>
-            </div>
-            <div class='legend'>
-                <p>Franjas horarias disponibles de tu semana</p>
-              </div>
-          </div>
-          <button class='avatar'>
-            <Image src={UserIcon} alt='User' />
-          </button>
+<div class='schedule-container'>
+  <div class='schedule-header'>
+    <div class='header-left'>
+      <div class='header-title'>
+        <h1>Tu Semana</h1>
+        <!-- Navegación de semanas -->
+        <div class='week-nav'>
+          <span class='date-range'>{weekRangeStr}</span>
+          {
+            weekOffset > 0 ? (
+              <a
+                href={`?offset=${prevOffset}`}
+                class='week-nav__arrow'
+                aria-label='Semana anterior'
+              >
+                <Image src={previousWeekIcon} alt='Previous Week' />
+              </a>
+            ) : (
+              <span class='week-nav__arrow week-nav__arrow--disabled'>
+                <Image src={previousWeekIcon} alt='Previous Week' />
+              </span>
+            )
+          }
+          {
+            weekOffset < 1 ? (
+              <a
+                href={`?offset=${nextOffset}`}
+                class='week-nav__arrow week-nav__arrow-1'
+                aria-label='Semana siguiente'
+              >
+                <Image src={nextWeekIcon} alt='Next Week' />
+              </a>
+            ) : (
+              <span class='week-nav__arrow week-nav__arrow-1 week-nav__arrow--disabled'>
+                <Image src={nextWeekIcon} alt='Next Week' />
+              </span>
+            )
+          }
         </div>
-
-        <div class='calendar-scroll-area'>
-          <!-- Pasar monday como baseDate para que el calendario muestre la semana correcta -->
-          <WeeklyCalendar slots={slots} mode='student' baseDate={monday} />
-        </div>
-
-        <SchedulingWizard client:only='react' slots={slots} />
       </div>
-    </main>
+      <div class='legend'>
+        <p>Franjas horarias disponibles de tu semana</p>
+      </div>
+    </div>
+    <button class='avatar'>
+      <Image src={UserIcon} alt='User' />
+    </button>
   </div>
-</MainLayout>
+
+  <div class='calendar-scroll-area'>
+    <!-- Pasar monday como baseDate para que el calendario muestre la semana correcta -->
+    <WeeklyCalendar slots={slots} mode='student' baseDate={monday} />
+  </div>
+
+  <SchedulingWizard client:only='react' slots={slots} />
+</div>
 
 <style>
   @import "@/styles/variables.css";
 
   /* ── Contenedor raíz ── */
-  .dashboard-container {
+  .schedule-container {
+    flex: 1;
     display: flex;
-    width: 100vw;
-    height: 100vh; /* altura fija — igual que availability-container */
-    background-color: #f3edff;
-    box-sizing: border-box;
-    overflow: hidden; /* contención total, sin scroll en el root */
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 32px 0px 0px 32px;
+    border: 1px solid var(--neutral-200);
+    overflow: hidden;
+    min-width: 0;
   }
 
   .week-nav__arrow--disabled {
@@ -155,7 +144,7 @@ const slots = await getAllTutorSlotsSSR(
     background: var(--secondary-200);
   }
 
-    .legend {
+  .legend {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -207,16 +196,16 @@ const slots = await getAllTutorSlotsSSR(
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
-    padding: 40px 50px 40px 50px;
+    padding: 50px 50px 40px 50px;
     box-sizing: border-box;
     flex-shrink: 0; /* nunca se comprime */
-    border-bottom: 1px solid #e7dcff;
+    border-bottom: 1px solid var(--neutral-200);
   }
 
   .header-left {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
   .header-title {
@@ -231,17 +220,17 @@ const slots = await getAllTutorSlotsSSR(
     color: var(--color-moradops-400);
     margin: 0;
     letter-spacing: -0.02em;
-    font-family: 'Open Sauce Two';
+    font-family: "Open Sauce Two";
     font-style: normal;
     /* font-weight: 600; */
     line-height: 32px;
     letter-spacing: -0.02em;
-    color: #9F74FF;
+    color: #9f74ff;
   }
 
   .date-range {
     font-size: 14px;
-    font-family: 'Open Sauce Two';
+    font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 400;
     font-size: 16px;

@@ -1,0 +1,483 @@
+---
+import infoIcon from "@/features/tutorAvailability/assets/infoIcon.png";
+import line from "@/features/tutorAvailability/assets/line.svg";
+import closeIcon from "@/features/tutorAvailability/assets/close.png";
+---
+
+<dialog id="space-info-dialog">
+    <div class="container">
+        <button class="closeBtn"><img src={closeIcon.src} /></button>
+        <div class="title">Información de tu espacio</div>
+        <p class="description"></p>
+        <div class="modality-container">
+            <button class="modality-btn">Presencial</button>
+            <button class="modality-btn">Virtual</button>
+        </div>
+        <div class="hours-container">
+            <p class="hours-label">Inicia</p>
+            <p class="hours-label">Termina</p>
+            <input
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="10:00"
+                class="hoursInput"
+                readonly
+            />
+            <input
+                type="text"
+                inputmode="numeric"
+                maxlength="5"
+                placeholder="18:00"
+                class="hoursInput"
+                readonly
+            />
+        </div>
+        <div class="buttons-container">
+            <button class="saveBtn">Guardar</button>
+            <button class="deleteBtn">Eliminar</button>
+        </div>
+    </div>
+</dialog>
+
+<style>
+    dialog {
+        position: fixed;
+        inset: 0;
+        display: none;
+        border: none;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        max-height: none;
+        background-color: transparent;
+        margin: 0;
+        z-index: 9999;
+    }
+
+    dialog[open] {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .title {
+        text-align: left;
+        font-weight: 500;
+        font-style: Medium;
+        font-size: 20px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #1a1a1a;
+    }
+
+    .closeBtn {
+        width: 15px;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+    }
+
+    .description {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #1e293b;
+        margin-top: 10px;
+    }
+
+    .hours-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .hoursInput {
+        align-self: center;
+        text-align: center;
+        font-weight: 400;
+        font-size: 20px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #5f5f5f;
+        padding: 10px;
+        width: 100%;
+        height: 60px;
+        opacity: 1;
+        top: 197px;
+        left: 202.7px;
+        border-radius: 8.8px;
+        border-width: 1.1px;
+        border: 1px solid #c6c6c6;
+    }
+
+    .hours-label {
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: -2%;
+        color: #5f5f5f;
+    }
+
+    .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        gap: 0px;
+        background-color: white;
+        padding: 30px;
+        border-radius: 16px;
+        border: 1px solid #c6c6c6;
+        width: 514px;
+        height: 307px;
+    }
+
+    .modality-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+        margin-top: 25px;
+        width: 100%;
+        background-color: #8751ff;
+        border-radius: 8px;
+    }
+
+    .modality-btn {
+        padding: 10px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        color: #e8e8e8;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 20px;
+        letter-spacing: -2%;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    .modality-btn:hover {
+        background-color: #9f74ff;
+    }
+
+    .modality-btn:active {
+        background-color: #9f74ff;
+    }
+
+    .modality-btn.active {
+        background-color: #9f74ff;
+        color: white;
+    }
+
+    .buttons-container {
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        gap: 10px;
+    }
+
+    .saveBtn {
+        width: 94px;
+        height: 37px;
+        background-color: #daffaa;
+        color: #9acc5b;
+        border: 1px solid #9acc5b;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -2%;
+        transition: background-color 0.3s ease;
+    }
+
+    .saveBtn:hover {
+        background-color: #9acc5b;
+        color: #daffaa;
+    }
+
+    .saveBtn:active {
+        background-color: #9acc5b;
+        color: #daffaa;
+    }
+
+    .deleteBtn {
+        width: 94px;
+        height: 37px;
+        background-color: #f35761;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -2%;
+        transition: background-color 0.3s ease;
+    }
+
+    .deleteBtn:hover {
+        background-color: #e2202d;
+    }
+
+    .deleteBtn:active {
+        background-color: #ee1f2d;
+    }
+</style>
+
+<script>
+import { sileo } from "sileo";
+
+document.addEventListener("astro:page-load", () => {
+    const dialog = document.getElementById(
+        "space-info-dialog",
+    ) as HTMLDialogElement;
+    const closeBtn = dialog?.querySelector(".closeBtn");
+    const saveBtn = dialog?.querySelector(".saveBtn");
+    const deleteBtn = dialog?.querySelector(".deleteBtn");
+    const hoursInputs = dialog?.querySelectorAll(
+        ".hoursInput",
+    ) as NodeListOf<HTMLInputElement>;
+    const descriptionInput = dialog?.querySelector(
+        ".description",
+    ) as HTMLInputElement;
+
+    let currentSlot: any = null;
+
+    function redirectOnUnauthorized(status: number) {
+        if (status === 401) {
+            window.location.replace("/");
+            return true;
+        }
+        return false;
+    }
+
+    // =======================
+    // HELPERS
+    // =======================
+
+    // Obtener modalidad desde estado (NO desde clases)
+    function getSelectedModality() {
+        return currentSlot?.modality || "NONE";
+    }
+
+    // Setear botones visualmente
+    function setModalityButtons(modality: string) {
+        const buttons = dialog?.querySelectorAll(".modality-btn");
+
+        buttons?.forEach((btn) => {
+            btn.classList.remove("active");
+
+            if (
+                (btn.textContent === "Presencial" &&
+                    (modality === "PRES" || modality === "BOTH")) ||
+                (btn.textContent === "Virtual" &&
+                    (modality === "VIRT" || modality === "BOTH"))
+            ) {
+                btn.classList.add("active");
+            }
+        });
+    }
+
+    // =======================
+    // EVENTOS
+    // =======================
+
+    // Cerrar
+    closeBtn?.addEventListener("click", () => {
+        dialog?.close();
+    });
+
+    dialog?.addEventListener("close", () => {
+        window.dispatchEvent(new CustomEvent("space-info-dialog-close"));
+    });
+
+    // Cerrar al hacer click fuera
+    dialog?.addEventListener("click", (e) => {
+        if (e.target === dialog) {
+            dialog.close();
+        }
+    });
+
+    // 🔥 DELEGACIÓN DE EVENTOS PARA MODALIDAD
+    dialog?.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+
+        if (target.classList.contains("modality-btn")) {
+            const buttons = dialog.querySelectorAll(".modality-btn");
+
+            // UI
+            buttons.forEach((b) => b.classList.remove("active"));
+            target.classList.add("active");
+
+            // 🔥 ESTADO REAL
+            if (target.textContent === "Presencial") {
+                currentSlot.modality = "PRES";
+            } else {
+                currentSlot.modality = "VIRT";
+            }
+        }
+    });
+
+    // =======================
+    // ABRIR MODAL
+    // =======================
+
+    window.addEventListener("open-space-info-dialog", (e: any) => {
+        currentSlot = { ...e.detail }; // 🔥 copiar para no mutar directo
+
+        if (!currentSlot) return;
+
+        console.log("SLOT ABIERTO:", currentSlot);
+
+        // Horas (usa startTime / endTime reales)
+        if (hoursInputs.length === 2) {
+            hoursInputs[0].value = currentSlot.startTime?.slice(0, 5) || "";
+            hoursInputs[1].value = currentSlot.endTime?.slice(0, 5) || "";
+        }
+
+        descriptionInput.value = currentSlot.to || "";
+        // Modalidad
+        setModalityButtons(currentSlot.modality);
+
+        window.dispatchEvent(new CustomEvent("space-info-dialog-open"));
+
+        if (dialog && dialog.isConnected) {
+            dialog.showModal();
+        }
+    });
+
+    // =======================
+    // GUARDAR
+    // =======================
+
+    saveBtn?.addEventListener("click", async () => {
+        if (!currentSlot) return;
+
+        const newStartTime = hoursInputs[0].value;
+        const newEndTime = hoursInputs[1].value;
+        const newModality = getSelectedModality();
+
+        const body = {
+            dayOfWeek: currentSlot.dayOfWeek,
+            startTime: newStartTime,
+            endTime: newEndTime,
+            modality: newModality,
+        };
+
+        await sileo.promise(async () => {
+            const response = await fetch(
+                "/api/tutor-availability/patch-slots-by-range",
+                {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (redirectOnUnauthorized(response.status)) {
+                return;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Error al guardar");
+            }
+
+            window.dispatchEvent(new CustomEvent("refresh-slots"));
+            dialog.close();
+        }, {
+            loading: { title: "Guardando cambios...", fill: "#8751ff" },
+            success: { title: "Cambios guardados", fill: "#58d68d" },
+            error: { title: "Error", description: "No se pudieron guardar los cambios", fill: "#f35761" }
+        });
+    });
+
+    // =======================
+    // ELIMINAR
+    // =======================
+
+    deleteBtn?.addEventListener("click", async () => {
+        if (!currentSlot) return;
+
+        const body = {
+            dayOfWeek: currentSlot.dayOfWeek,
+            startTime: currentSlot.startTime?.slice(0, 5) || "",
+            endTime: currentSlot.endTime?.slice(0, 5) || "",
+            modality: currentSlot.modality || "NONE",
+        };
+
+        await sileo.promise(async () => {
+            const response = await fetch(
+                "/api/tutor-availability/delete-slots-by-range",
+                {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                },
+            );
+
+            if (redirectOnUnauthorized(response.status)) {
+                return;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Error al eliminar");
+            }
+
+            window.dispatchEvent(new CustomEvent("refresh-slots"));
+            dialog.close();
+        }, {
+            loading: { title: "Eliminando franja...", fill: "#8751ff" },
+            success: { title: "Franja eliminada", fill: "#58d68d" },
+            error: { title: "Error", description: "No se pudo eliminar la franja", fill: "#f35761" }
+        });
+    });
+
+    // =======================
+    // FORMATEO DE HORAS
+    // =======================
+
+    function formatTimeInput(input: HTMLInputElement) {
+        input.addEventListener("input", () => {
+            let value = input.value.replace(/\D/g, "");
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length >= 3)
+                value = value.slice(0, 2) + ":" + value.slice(2);
+            input.value = value;
+        });
+
+        input.addEventListener("blur", () => {
+            let value = input.value;
+            if (!value.includes(":")) return;
+            let [hoursStr, minutesStr] = value.split(":");
+            let hours = parseInt(hoursStr);
+            let minutes = parseInt(minutesStr);
+            if (isNaN(hours) || hours > 23) hours = 23;
+            if (isNaN(minutes) || minutes > 59) minutes = 59;
+            input.value =
+                String(hours).padStart(2, "0") +
+                ":" +
+                String(minutes).padStart(2, "0");
+        });
+    }
+
+    hoursInputs?.forEach((input) => formatTimeInput(input));
+});
+</script>

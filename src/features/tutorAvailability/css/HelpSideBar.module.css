@@ -1,0 +1,42 @@
+.Title {
+font-family: Open Sauce Two;
+font-weight: 600;
+font-size: 24px;
+line-height: 100%;
+letter-spacing: -2%;
+color: #ffffff;
+padding: 10px 25px;
+background-color: #9F74FF;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-radius: 24px;
+height: 64px;
+}
+
+.CloseButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.Description {
+font-weight: 400;
+font-size: 16px;
+line-height: 100%;
+letter-spacing: -2%;
+vertical-align: middle;
+color: #9F74FF;
+padding: 10px 25px;
+
+}
+
+.Separator {
+    border: 1px solid #C6C6C6;
+    width: 100%;
+}
+
+
+
+
+

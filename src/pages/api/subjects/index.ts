@@ -3,9 +3,10 @@ import { getAllSubjects } from "@/features/search/services/getAllSubjects";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
+    const token = cookies.get("access_token")?.value;
     try {
-        const result = await getAllSubjects();
+        const result = await getAllSubjects(token);
 
         return new Response(JSON.stringify(result), {
             status: 200,

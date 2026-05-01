@@ -58,11 +58,17 @@ function getSubIntervalRect(
 
 export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     const el = document.getElementById(`slot-block-${slotBlockId}`);
     setAnchorEl(el);
   }, [slotBlockId]);
+
+  useEffect(() => {
+    const container = document.querySelector(".schedule-container");
+    if (container) setContainerRect(container.getBoundingClientRect());
+  }, []);
 
   const { refs, floatingStyles, update } = useFloating({
     elements: { reference: anchorEl },
@@ -122,6 +128,23 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
+          <clipPath id="backdrop-shape">
+            {containerRect ? (
+              /* Rectángulo con esquinas izquierdas redondeadas a 32px, coincidiendo con .schedule-container */
+              <path d={`
+                M ${containerRect.left + 38},${containerRect.top}
+                L ${containerRect.right},${containerRect.top}
+                L ${containerRect.right},${containerRect.bottom}
+                L ${containerRect.left + 38},${containerRect.bottom}
+                Q ${containerRect.left},${containerRect.bottom} ${containerRect.left},${containerRect.bottom - 38}
+                L ${containerRect.left},${containerRect.top + 38}
+                Q ${containerRect.left},${containerRect.top} ${containerRect.left + 38},${containerRect.top}
+                Z
+              `} />
+            ) : (
+              <rect width="100%" height="100%" />
+            )}
+          </clipPath>
           <mask id="slot-hole-mask">
             <rect width="100%" height="100%" fill="white" />
             <rect
@@ -135,7 +158,7 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
             />
           </mask>
         </defs>
-        <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)" mask="url(#slot-hole-mask)" />
+        <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)" mask="url(#slot-hole-mask)" clipPath="url(#backdrop-shape)" />
       </svg>
 
       <div

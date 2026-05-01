@@ -169,6 +169,7 @@ export default function UserMenuDropdown() {
         onOpenChange={setTutorDialogOpen}
         initialView={tutorView}
         initialGeneralMode={tutorGeneralMode}
+        calendarHref="/history"
       />
     </>
   );

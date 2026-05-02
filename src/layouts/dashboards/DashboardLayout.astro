@@ -1,12 +1,14 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import Dock from "@/features/general/components/Dock.astro";
 import VaulDrawer from "@/components/ui/drawer";
 import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
+import { UserRole } from "@/constants/roles";
 
 interface Props {
   title?: string;
-  rol: "admin" | "tutor" | "student";
+  rol: UserRole;
 }
 
 const { rol, title = "Atlas" } = Astro.props;
@@ -17,9 +19,12 @@ const token = Astro.cookies.get("access_token")?.value;
 <Layout title={title}>
   <div class='dashboardContainer'>
     <Sidebar userRole={rol} transition:persist />
-    <slot />
+    <main class="main-content">
+      <Dock userRole={rol} transition:persist />
+      <slot />
+    </main>
   </div>
-  {rol === "tutor" && (
+  {rol === UserRole.TUTOR && (
     <>
       <VaulDrawer client:load transition:persist />
       <TutorAvailabilityOverlay />
@@ -35,5 +40,35 @@ const token = Astro.cookies.get("access_token")?.value;
     background-color: #f3edff;
     box-sizing: border-box;
     overflow-y: hidden;
+  }
+
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    height: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .dashboardContainer {
+      height: 100vh;
+      flex-direction: column;
+      padding-top: 0;
+    }
+
+    .main-content {
+      height: 100vh;
+      background-color: #fff;
+      padding-bottom: 100px; /* Space for floating bottom dock */
+    }
+
+    /* Global overrides to ensure white area has no rounded corners on mobile */
+    :global(.content-wrapper),
+    :global(.dashboard-content),
+    :global(.block-container),
+    :global(.search-page),
+    :global(.history-layout) {
+      border-radius: 0 !important;
+      border: none !important;
+    }
   }
 </style>

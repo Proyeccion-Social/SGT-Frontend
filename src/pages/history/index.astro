@@ -1,8 +1,9 @@
 ---
 import HistoryView from "@/features/history/components/HistoryView.astro";
 import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import { UserRole } from "@/constants/roles";
 ---
-<DashboardLayout title='Historial de tutorías' rol='student'>
+<DashboardLayout title='Historial de tutorías' rol={UserRole.STUDENT}>
     <HistoryView />
 </DashboardLayout>
 

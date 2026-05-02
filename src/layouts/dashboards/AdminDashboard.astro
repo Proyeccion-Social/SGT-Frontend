@@ -5,6 +5,9 @@ import OptionButton from "@/features/dashboards/components/OptionButton.astro";
 
 import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
 import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
+import { UserRole } from "@/constants/roles";
+
+const userRole = UserRole.ADMIN;
 ---
 
 <main class='content-wrapper'>
@@ -70,6 +73,12 @@ import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
     overflow-y: auto;
     align-items: center;
     justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-content {
+      border-radius: 0;
+    }
   }
 
   .welcome-banner-slot {

@@ -2,17 +2,18 @@ import HandWrittenArrow from './icons/HandWrittenArrow.svg';
 import HandWrittenLine from './icons/HandWrittenLine.svg';
 import "../styles/badge.css";
 
+import { UserRole } from '@/constants/roles';
 
 type Props = {
   name: string;
-  role: string;
+  role: UserRole;
 };
 
 export const RoleBadge = ({ name, role }: Props) => {
-  const roleNames: Record<string, string> = {
-    admin: 'Admin',
-    tutor: 'Tutor',
-    student: 'Estudiante',
+  const roleNames: Record<UserRole, string> = {
+    [UserRole.ADMIN]: 'Admin',
+    [UserRole.TUTOR]: 'Tutor',
+    [UserRole.STUDENT]: 'Estudiante',
   };
 
   const roleName = roleNames[role.toLowerCase()] ?? '';

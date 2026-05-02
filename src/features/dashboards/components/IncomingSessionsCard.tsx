@@ -1,46 +1,35 @@
 // IncomingSessionsCard.tsx
-// Renderiza las tarjetas en cliente (React) para poder consumir useSessions
-// Option B se mantiene: el botón Detalles despacha CustomEvent hacia DashboardSessionManager
+// Renders sessions fetched by DashboardSessionManager via useSessions
+// Option B: Detalles button dispatches CustomEvent 'open-detail' to document
 
-import '../styles/IncomingSessionsCard.css'
-import type { Session } from '../..//sessions/types/session.types';
+import { useMemo, useState } from 'react';
+import '../styles/IncomingSessionsCard.css';
+import type { Session } from '../../sessions/types/session.types';
+import AttendancePostSession from '@features/sessions/components/AttendancePostSession';
+import FinishSession from '@/features/sessions/components/FinishSession';
+import { UserRole } from '@/constants/roles';
+import { sessionPhase, getTimeLeft, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { useSubjectStore } from '@/store/subjectStore';
 
 interface Props {
   sessions: Session[];
   isLoading: boolean;
   error: string | null;
+  /** Quién ve la tarjeta: condiciona botones tutor (Terminar / Asistencia). */
+  viewerRole: UserRole;
+  onRefetch?: () => void;
 }
- 
+
+// Helpers are now imported from incomingSessionsUtils.ts
+
 const openDetail = (sessionId: string) => {
   document.dispatchEvent(
     new CustomEvent('open-detail', { detail: { sessionId } })
   );
 };
- 
-const formatTime = (time: string) =>
-  time.substring(0, 5); // "HH:mm:ss" → "HH:mm"
- 
-const formatDate = (date: string) => {
-  const [year, month, day] = date.split('-');
-  return `${day}/${month}/${year}`;
-};
-
-const getTimeLeft = (scheduledDate: string, startTime: string): string => {
-  const sessionDate = new Date(`${scheduledDate}T${startTime}`);
-  const now = new Date();
-  const diffMs = sessionDate.getTime() - now.getTime();
-  if (diffMs <= 0) return 'En curso';
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  if (diffDays > 0) return `En ${diffDays}d ${diffHours}h`;
-  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  if (diffHours > 0) return `En ${diffHours}h ${diffMins}min`;
-  return `En ${diffMins}min`;
-};
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
- 
+
 const SkeletonCard = () => (
   <div className="session-card" aria-hidden="true">
     <div className="card-content">
@@ -53,16 +42,34 @@ const SkeletonCard = () => (
     </div>
   </div>
 );
- 
+
 // ─── Component ────────────────────────────────────────────────────────────────
- 
-export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
+
+export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, onRefetch }: Props) => {
+  const displaySessions = useMemo(() => {
+    // Show all sessions without status filtering as requested
+    return sortSessionsForDisplay(sessions || []);
+  }, [sessions]);
+
+  const [attendanceSession, setAttendanceSession] = useState<Session | null>(null);
+  const [finishingSession, setFinishingSession] = useState<Session | null>(null);
+
+  const handleAttendanceOpen = (session: Session) => {
+    setAttendanceSession(session);
+  };
+
+  const handleAttendanceClose = () => {
+    setAttendanceSession(null);
+  };
+
   const { colorMap } = useSubjectStore();
 
   return (
     <div className="session-container">
-      <h2 className="main-title">Upcoming Sessions</h2>
- 
+      <div className="session-container-header">
+        <h2 className="main-title">Tus proximas sesiones</h2>
+      </div>
+
       <div className="cards-stack">
         {isLoading && (
           <>
@@ -71,12 +78,12 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
             <SkeletonCard />
           </>
         )}
- 
+
         {!isLoading && error && (
           <p style={{ color: 'white', fontSize: 14 }}>{error}</p>
         )}
- 
-        {!isLoading && !error && sessions.length === 0 && (
+
+        {!isLoading && !error && displaySessions.length === 0 && (
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14 }}>
             No tienes sesiones próximas agendadas.
           </p>
@@ -92,7 +99,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
                 <div className="card-header">
                   <span>{session.title}</span>
                   <span className="badge-time">
-                    {getTimeLeft(session.scheduledDate, session.startTime)}
+                    {getTimeLeft(session.scheduledDate, session.startTime, session.endTime)}
                   </span>
                 </div>
    
@@ -131,13 +138,31 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
           );
         })}
       </div>
- 
-      <div className="bottom-overlay">
-        <span className="view-more">Ver más</span>
-      </div>
+
+      {/* <div className="bottom-overlay">
+      </div> */}
+
+      {attendanceSession && (
+        <AttendancePostSession
+          key={attendanceSession.id}
+          session={attendanceSession}
+          onClose={handleAttendanceClose}
+          onRefetch={onRefetch}
+        />
+      )}
+
+      {finishingSession && (
+        <FinishSession
+          session={finishingSession}
+          onClose={() => setFinishingSession(null)}
+          onConfirm={() => {
+            setFinishingSession(null);
+            setAttendanceSession(finishingSession);
+          }}
+        />
+      )}
     </div>
   );
 };
- 
-export default IncomingSessionsCard;
 
+export default IncomingSessionsCard;

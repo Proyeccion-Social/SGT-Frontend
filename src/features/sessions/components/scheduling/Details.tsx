@@ -1,6 +1,11 @@
 import { useState } from "react";
 import "../../assets/styles/Detail.css";
 
+const TITLE_MIN = 5;
+const TITLE_MAX = 100;
+const DESC_MIN = 10;
+const DESC_MAX = 500;
+
 interface Props {
   onNext: (title: string, description: string) => void;
   onBack: () => void;
@@ -9,8 +14,24 @@ interface Props {
 export default function DetailsStep({ onNext, onBack }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [titleTouched, setTitleTouched] = useState(false);
+  const [descTouched, setDescTouched] = useState(false);
 
-  const isReady = Boolean(title && description);
+  const titleError =
+    titleTouched && title.length > 0 && title.length < TITLE_MIN
+      ? `Mínimo ${TITLE_MIN} caracteres`
+      : null;
+
+  const descError =
+    descTouched && description.length > 0 && description.length < DESC_MIN
+      ? `Mínimo ${DESC_MIN} caracteres`
+      : null;
+
+  const isReady =
+    title.length >= TITLE_MIN &&
+    title.length <= TITLE_MAX &&
+    description.length >= DESC_MIN &&
+    description.length <= DESC_MAX;
 
   return (
     <div>
@@ -34,9 +55,18 @@ export default function DetailsStep({ onNext, onBack }: Props) {
             type="text"
             placeholder="Introducción a derivadas parciales"
             value={title}
+            maxLength={TITLE_MAX}
             onChange={(e) => setTitle(e.target.value)}
-            className="details-field__input"
+            onBlur={() => setTitleTouched(true)}
+            className={`details-field__input${titleError ? " details-field__input--error" : ""}`}
           />
+          <div className="details-field__footer">
+            {titleError
+              ? <span className="details-field__error">{titleError}</span>
+              : <span />
+            }
+            <span className="details-field__counter">{title.length}/{TITLE_MAX}</span>
+          </div>
         </div>
 
         {/* ── Campo: Descripción ── */}
@@ -48,10 +78,19 @@ export default function DetailsStep({ onNext, onBack }: Props) {
           <textarea
             placeholder="Introducción a derivadas parciales"
             value={description}
+            maxLength={DESC_MAX}
             onChange={(e) => setDescription(e.target.value)}
+            onBlur={() => setDescTouched(true)}
             rows={5}
-            className="details-field__textarea"
+            className={`details-field__textarea${descError ? " details-field__textarea--error" : ""}`}
           />
+          <div className="details-field__footer">
+            {descError
+              ? <span className="details-field__error">{descError}</span>
+              : <span />
+            }
+            <span className="details-field__counter">{description.length}/{DESC_MAX}</span>
+          </div>
         </div>
 
         {/* ── Pie con botón de continuar ── */}

@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToasterReact from "@/components/ui/ToasterReact";
 import StoreHydrator from "@/store/StoreHydrator";
+import { AstroFont } from "astro-font";
 
 interface Props {
   title: string;
@@ -20,6 +21,79 @@ const { title, noToaster = false } = Astro.props;
     <meta name='viewport' content='width=device-width' />
     <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
     <meta name='generator' content={Astro.generator} />
+    <AstroFont
+      config={[
+        {
+          name: "Cabinet Grotesk Variable",
+          src: [
+            {
+              style: "normal",
+              weight: "100 900",
+              path: "./src/assets/fonts/CabinetGrotesk-Variable.ttf",
+            },
+          ],
+          preload: true,
+          display: "swap",
+          fallback: "sans-serif",
+        },
+        {
+          name: "Caveat",
+          src: [
+            {
+              style: "normal",
+              weight: "400",
+              path: "./src/assets/fonts/Caveat-Regular.ttf",
+            },
+          ],
+          preload: true,
+          display: "swap",
+          fallback: "serif",
+        },
+        {
+          name: "Open Sauce Two",
+          src: [
+            {
+              style: "normal",
+              weight: "300",
+              path: "./src/assets/fonts/sans/OpenSauceSans-Light.ttf",
+            },
+            {
+              style: "normal",
+              weight: "400",
+              path: "./src/assets/fonts/sans/OpenSauceSans-Regular.ttf",
+            },
+            {
+              style: "normal",
+              weight: "500",
+              path: "./src/assets/fonts/sans/OpenSauceSans-Medium.ttf",
+            },
+            {
+              style: "normal",
+              weight: "600",
+              path: "./src/assets/fonts/sans/OpenSauceSans-SemiBold.ttf",
+            },
+            {
+              style: "normal",
+              weight: "700",
+              path: "./src/assets/fonts/sans/OpenSauceSans-Bold.ttf",
+            },
+            {
+              style: "normal",
+              weight: "800",
+              path: "./src/assets/fonts/sans/OpenSauceSans-ExtraBold.ttf",
+            },
+            {
+              style: "normal",
+              weight: "900",
+              path: "./src/assets/fonts/sans/OpenSauceSans-Black.ttf",
+            },
+          ],
+          preload: true,
+          display: "swap",
+          fallback: "sans-serif",
+        },
+      ]}
+    />
     <ClientRouter />
     <title>{title}</title>
   </head>

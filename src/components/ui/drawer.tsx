@@ -20,11 +20,27 @@ import numberTwo from "./images/number-two.png";
 import numberThree from "./images/number-three.png";
 import markedTitle from "./images/marked-title.svg"
 
-const STEPS = [
+import StudentAdditionalData from '@/features/studentProfile/components/StudentAdditionalData';
+
+const TUTOR_STEPS = [
     { id: 1, label: 'Materias', shortLabel: '01' },
     { id: 2, label: 'Foto de Perfil', shortLabel: '02' },
     { id: 3, label: 'Datos personales', shortLabel: '03' },
 ];
+
+const STUDENT_STEPS = [
+    { id: 1, label: 'Materias', shortLabel: '01' },
+    { id: 2, label: 'Preferencias', shortLabel: '02' },
+];
+
+interface DrawerFormData {
+    phone: string;
+    url_image: string;
+    max_weekly_hours: number;
+    subjectIds: string[];
+    preferredModality: string;
+    career: string;
+}
 
 export default function VaulDrawer() {
     const { user, requiresProfileCompletion } = useAuthStore();
@@ -32,19 +48,27 @@ export default function VaulDrawer() {
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    const [formData, setFormData] = React.useState<Partial<CompleteTutorProfileDto>>({
-        phone: '',
-        url_image: 'https://avatars.githubusercontent.com/u/150485576?v=4',
-        max_weekly_hours: 8,
-        subject_ids: [],
+    const isStudent = user?.role === 'STUDENT';
+    const activeSteps = isStudent ? STUDENT_STEPS : TUTOR_STEPS;
+    const finishStepId = isStudent ? 3 : 4;
+
+    const [formData, setFormData] = React.useState<DrawerFormData>({
+        phone: user?.phone || '',
+        url_image: user?.url_image || 'https://avatars.githubusercontent.com/u/150485576?v=4',
+        max_weekly_hours: user?.max_weekly_hours || 8,
+        subjectIds: user?.subjects?.map(s => s.id) || [],
+        preferredModality: user?.preferredModality || '',
+        career: user?.career || '',
     });
 
     // Open drawer when profile completion is required
     useEffect(() => {
         if (requiresProfileCompletion) {
             setIsOpen(true);
+        } else if (isStudent && !user?.preferredModality) {
+            setIsOpen(true);
         }
-    }, [requiresProfileCompletion]);
+    }, [requiresProfileCompletion, user, isStudent]);
 
     useEffect(() => {
         const handlePageTransition = () => {
@@ -57,10 +81,14 @@ export default function VaulDrawer() {
         return () => document.removeEventListener('astro:after-swap', handlePageTransition);
     }, [isOpen]);
 
-    const nextStep = (newData?: Partial<CompleteTutorProfileDto>) => {
+    const nextStep = (newData?: Partial<DrawerFormData>) => {
         const merged = newData ? { ...formData, ...newData } : formData;
         if (newData) {
             setFormData(merged);
+        }
+
+        if (newData?.subjectIds) {
+            console.log("Materias seleccionadas (IDs):", newData.subjectIds);
         }
 
         console.log("Datos recibidos del paso actual:", newData);
@@ -68,31 +96,71 @@ export default function VaulDrawer() {
 
         setCanContinue(false);
         setContinueLabel('Continuar');
-        setStep((prev) => Math.min(prev + 1, 4));
+        setStep((prev) => Math.min(prev + 1, finishStepId));
     };
 
-    const handleSubmit = async (dataOverride?: Partial<CompleteTutorProfileDto>) => {
+    const handleSubmit = async (dataOverride?: Partial<DrawerFormData>) => {
         if (!user || isSubmitting) return;
         setIsSubmitting(true);
         const submitData = dataOverride || formData;
 
         try {
-            // Complete Profile via BFF route
-            console.log("Datos enviados para completar perfil:", submitData);
-            const res = await fetch('/api/tutor/complete-profile', {
+            let payload: any;
+            let endpoint: string;
+
+            // Limpieza de IDs común
+            const cleanIds = (submitData.subjectIds || [])
+                .filter(id => typeof id === 'string' && id.trim() !== '')
+                .map(id => id.trim());
+
+            if (isStudent) {
+                endpoint = '/api/student/complete-profile';
+                payload = {
+                    subjectIds: cleanIds,
+                    preferredModality: submitData.preferredModality,
+                    career: submitData.career
+                };
+            } else {
+                endpoint = '/api/tutor/complete-profile';
+                payload = {
+                    subject_ids: cleanIds, // Tutor espera snake_case
+                    phone: submitData.phone,
+                    url_image: submitData.url_image,
+                    max_weekly_hours: submitData.max_weekly_hours
+                };
+            }
+
+            console.log(`Enviando datos para completar perfil (${user.role}):`, payload);
+            
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(submitData),
+                body: JSON.stringify(payload),
             });
+
             if (!res.ok) {
                 const err = await res.json().catch(() => null);
                 throw new Error(err?.message ?? 'Profile completion failed');
             }
+            
             sileo.success({ title: '¡Perfil completado con éxito!', fill: '#58d68d' });
-            useAuthStore.setState({ requiresProfileCompletion: false });
+            
+            // Update local store state
+            if (isStudent && user) {
+                useAuthStore.setState({ 
+                    user: { 
+                        ...user, 
+                        preferredModality: payload.preferredModality || user.preferredModality || '', 
+                        career: payload.career || user.career || '',
+                        subjects: payload.subjectIds?.map((id: string) => ({ id })) || user.subjects || []
+                    } 
+                });
+            } else {
+                useAuthStore.setState({ requiresProfileCompletion: false });
+            }
 
             // Go to finish step
-            setStep(4);
+            setStep(finishStepId);
         } catch (error: any) {
             sileo.error({ title: 'Error', description: error.message, fill: '#f35761' });
         } finally {
@@ -100,7 +168,7 @@ export default function VaulDrawer() {
         }
     };
 
-    const isFinishStep = step === 4;
+    const isFinishStep = step === finishStepId;
 
     const containerRef = React.useRef<HTMLDivElement>(null);
     const stepRef = React.useRef<StepHandle>(null);
@@ -117,7 +185,7 @@ export default function VaulDrawer() {
         // Save current step data before navigating away
         const data = stepRef.current?.getData?.();
         if (data) {
-            setFormData(prev => ({ ...prev, ...data }));
+            setFormData((prev: DrawerFormData) => ({ ...prev, ...data }));
         }
         setCanContinue(false);
         setContinueLabel('Continuar');
@@ -163,7 +231,7 @@ export default function VaulDrawer() {
                         <div className="drawer-layout">
                             <div className='drawer-content-container'>
                                 {/* Internal step sidebar */}
-                                {!isFinishStep && (
+                                {!isFinishStep && !isStudent && (
                                     <nav className="drawer-step-nav">
                                         <div className="drawer-step-nav-header">
                                             <Drawer.Description className="drawer-description">
@@ -171,7 +239,7 @@ export default function VaulDrawer() {
                                             </Drawer.Description>
                                         </div>
                                         <ul className="drawer-step-list">
-                                            {STEPS.map((s) => (
+                                            {activeSteps.map((s) => (
                                                 <li key={s.id}>
                                                     <button
                                                         className={`drawer-step-item${step === s.id ? ' drawer-step-item--active' : ''}${step > s.id ? ' drawer-step-item--done' : ''}`}
@@ -194,47 +262,79 @@ export default function VaulDrawer() {
                                 )}
 
                                 {/* Main content area */}
-                                <div className={`drawer-main${isFinishStep ? ' drawer-main--full' : ''}`}>
-                                    {step === 1 && (
-                                        <ChooseSubjects
-                                            ref={stepRef}
-                                            initialSelected={formData.subject_ids}
-                                            onNext={(data) => nextStep(data)}
-                                            onCanContinueChange={handleCanContinueChange}
-                                        />
+                                <div className={`drawer-main${isFinishStep || isStudent ? ' drawer-main--full' : ''}`}>
+                                    {/* TUTOR FLOW */}
+                                    {!isStudent && (
+                                        <>
+                                            {step === 1 && (
+                                                <ChooseSubjects
+                                                    ref={stepRef}
+                                                    initialSelected={formData.subjectIds}
+                                                    onNext={(data) => nextStep(data)}
+                                                    onCanContinueChange={handleCanContinueChange}
+                                                />
+                                            )}
+                                            {step === 2 && (
+                                                <UploadProfileImage
+                                                    ref={stepRef}
+                                                    onNext={() => nextStep()}
+                                                    onCanContinueChange={handleCanContinueChange}
+                                                />
+                                            )}
+                                            {step === 3 && (
+                                                <PersonalData
+                                                    ref={stepRef}
+                                                    initialPhone={formData.phone}
+                                                    onNext={(data) => {
+                                                        const merged = { ...formData, ...data };
+                                                        setFormData(merged);
+                                                        handleSubmit(merged);
+                                                    }}
+                                                    onCanContinueChange={handleCanContinueChange}
+                                                />
+                                            )}
+                                        </>
                                     )}
-                                    {step === 2 && (
-                                        <UploadProfileImage
-                                            ref={stepRef}
-                                            onNext={(blob) => {
-                                                if (blob) {
-                                                    // TODO: Implement actual image upload
-                                                    nextStep();
-                                                } else {
-                                                    nextStep();
-                                                }
-                                            }}
-                                            onCanContinueChange={handleCanContinueChange}
-                                        />
+
+                                    {/* STUDENT FLOW */}
+                                    {isStudent && (
+                                        <>
+                                            {step === 1 && (
+                                                <ChooseSubjects
+                                                    ref={stepRef}
+                                                    title="Escoge las materias de tu interés"
+                                                    minSelections={0}
+                                                    maxSelections={10}
+                                                    initialSelected={formData.subjectIds}
+                                                    onNext={(data) => nextStep(data)}
+                                                    onCanContinueChange={handleCanContinueChange}
+                                                />
+                                            )}
+                                            {step === 2 && (
+                                                <StudentAdditionalData
+                                                    ref={stepRef}
+                                                    initialModality={formData.preferredModality}
+                                                    initialCareer={formData.career}
+                                                    onNext={(data) => {
+                                                        const merged = { ...formData, ...data };
+                                                        setFormData(merged);
+                                                        handleSubmit(merged);
+                                                    }}
+                                                    onCanContinueChange={handleCanContinueChange}
+                                                />
+                                            )}
+                                        </>
                                     )}
-                                    {step === 3 && (
-                                        <PersonalData
-                                            ref={stepRef}
-                                            initialPhone={formData.phone}
-                                            onNext={(data) => {
-                                                const merged = { ...formData, ...data };
-                                                setFormData(merged);
-                                                handleSubmit(merged);
-                                            }}
-                                            onCanContinueChange={handleCanContinueChange}
-                                        />
-                                    )}
-                                    {step === 4 && (
+
+                                    {/* FINISH STEP */}
+                                    {isFinishStep && (
                                         <Finish onNext={() => {
                                             setIsOpen(false);
-                                            setTimeout(() => {
-                                                window.dispatchEvent(new CustomEvent('open-initial-config-dialog'));
-                                            }, 20);
+                                            if (!isStudent) {
+                                                setTimeout(() => {
+                                                    window.dispatchEvent(new CustomEvent('open-initial-config-dialog'));
+                                                }, 20);
+                                            }
                                         }} />
                                     )}
                                 </div>
@@ -252,7 +352,7 @@ export default function VaulDrawer() {
                                     </div>
                                 </div>
                                 <Button className="next-button" style={{position: "absolute", right: "2rem"}} onClick={handleFooterContinue} disabled={!canContinue || isSubmitting}>
-                                    {isSubmitting ? "Guardando..." : step === 3 ? 'Guardar' : continueLabel}
+                                    {isSubmitting ? "Guardando..." : step === (isStudent ? 2 : 3) ? 'Guardar' : continueLabel}
                                 </Button>
                             </div>
                         }

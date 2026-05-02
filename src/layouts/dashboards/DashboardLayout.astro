@@ -19,10 +19,10 @@ const token = Astro.cookies.get("access_token")?.value;
     <Sidebar userRole={rol} transition:persist />
     <slot />
   </div>
-  {rol === "tutor" && (
+  {(rol === "tutor" || rol === "student") && (
     <>
       <VaulDrawer client:load transition:persist />
-      <TutorAvailabilityOverlay />
+      {rol === "tutor" && <TutorAvailabilityOverlay />}
     </>
   )}
 </Layout>

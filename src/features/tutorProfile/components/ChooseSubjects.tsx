@@ -38,7 +38,21 @@ const POSITION_OFFSETS = [
     { top: "25%", left: "22%" }, { top: "55%", left: "38%" }, { top: "28%", left: "68%" }, { top: "60%", left: "80%" }
 ];
 
-const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: string[] }) => void; onCanContinueChange?: (canContinue: boolean) => void; initialSelected?: string[] }>(({ onNext, onCanContinueChange, initialSelected }, ref) => {
+const ChooseSubjects = forwardRef<StepHandle, { 
+    onNext: (data: { subjectIds: string[] }) => void; 
+    onCanContinueChange?: (canContinue: boolean) => void; 
+    initialSelected?: string[];
+    minSelections?: number;
+    maxSelections?: number;
+    title?: string;
+}>(({ 
+    onNext, 
+    onCanContinueChange, 
+    initialSelected, 
+    minSelections = 1, 
+    maxSelections = 3, 
+    title = "Escoge las materias que vas a dar como tutor" 
+}, ref) => {
     const [selected, setSelected] = useState<string[]>(initialSelected ?? []);
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [loading, setLoading] = useState(true);
@@ -54,20 +68,20 @@ const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: st
     }, []);
 
     useImperativeHandle(ref, () => ({
-        triggerContinue: () => onNext({ subject_ids: selected }),
-        getData: () => ({ subject_ids: selected }),
+        triggerContinue: () => onNext({ subjectIds: selected }),
+        getData: () => ({ subjectIds: selected }),
     }), [selected, onNext]);
 
     useEffect(() => {
-        onCanContinueChange?.(selected.length > 0);
-    }, [selected, onCanContinueChange]);
+        onCanContinueChange?.(selected.length >= minSelections);
+    }, [selected, onCanContinueChange, minSelections]);
 
     const toggleSubject = (id: string) => {
         setSelected((prev) => {
             if (prev.includes(id)) {
                 return prev.filter((s) => s !== id);
             }
-            if (prev.length >= MAX_SELECTIONS) return prev;
+            if (prev.length >= maxSelections) return prev;
             return [...prev, id];
         });
     };
@@ -82,8 +96,8 @@ const ChooseSubjects = forwardRef<StepHandle, { onNext: (data: { subject_ids: st
         <>
             <div className="drawer-body">
                 <div className="body-header-subjects">
-                    <p className="body-header-title">Escoge las materias que vas a dar como tutor</p>
-                    <p className="body-header-subtitle">Máximo: {MAX_SELECTIONS} materias</p>
+                    <p className="body-header-title">{title}</p>
+                    <p className="body-header-subtitle">Máximo: {maxSelections} materias</p>
                 </div>
                 
                 <div className="body-content">

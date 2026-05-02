@@ -5,23 +5,25 @@ import { Image } from "astro:assets";
 ---
 
 <nav class='navBar'>
-  <FullLogo />
+  <a href='/'>
+    <FullLogo />
+  </a>
 
   <button class='hamburger' id='menuToggle'>
     <Image src={MenuIcon} alt='Menu' />
   </button>
   <ul class='navLinks'>
-    <li><a href='#features'>Cómo funciona</a></li>
-    <li><a href='#pricing'>Comunidad</a></li>
-    <li><a href='#contact'>Impacto</a></li>
+    <li><a href='/under-construction'>Cómo funciona</a></li>
+    <li><a href='/under-construction'>Comunidad</a></li>
+    <li><a href='/under-construction'>Impacto</a></li>
   </ul>
   <button data-open-login class='data-open-login'>¡Comienza!</button>
 </nav>
 <div class='navMenu'>
   <ul class='navLinks navLinks--mobile'>
-    <li><a href='#features'>Cómo funciona</a></li>
-    <li><a href='#pricing'>Comunidad</a></li>
-    <li><a href='#contact'>Impacto</a></li>
+    <li><a href='/under-construction'>Cómo funciona</a></li>
+    <li><a href='/under-construction'>Comunidad</a></li>
+    <li><a href='/under-construction'>Impacto</a></li>
   </ul>
   <button data-open-login class='data-open-login'>¡Comienza!</button>
 </div>

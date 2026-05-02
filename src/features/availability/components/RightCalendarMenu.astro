@@ -2,6 +2,7 @@
 import type { Slot } from "@/features/availability/services/availabilityService";
 import { DAYS } from "../utils/calendarConstants";
 import UserHeader from "@/features/general/components/UserHeader.astro";
+import { UserRole } from "@/constants/roles";
 
 interface Props {
   slots: Slot[];
@@ -113,7 +114,7 @@ const slotsByDay = DAYS.map((day) => {
 
 <div class='right-menu-inner'>
   <div class='user-profile'>
-    <UserHeader userRole='tutor' />
+    <UserHeader userRole={UserRole.TUTOR} />
   </div>
 
   <div class='mini-calendar'>

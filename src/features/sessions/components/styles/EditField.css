@@ -1,0 +1,50 @@
+/* EditField.css — input/textarea with pmf__card style directly on the element */
+
+.ef {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+  align-self: start;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px dashed var(--neutral-200);
+  background: rgba(243, 237, 255, 0.5);
+  backdrop-filter: blur(34.3px);
+  -webkit-backdrop-filter: blur(34.3px);
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-default);
+  outline: none;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s,
+    background-color 0.18s;
+}
+
+.ef::placeholder {
+  color: var(--neutral-300);
+  font-weight: 400;
+}
+
+.ef:hover {
+  border-color: var(--loading-default);
+  background: rgba(243, 237, 255, 0.85);
+}
+
+.ef:focus {
+  border-color: var(--primary-300);
+  border-style: solid;
+  box-shadow: 0 0 0 3px rgba(135, 81, 255, 0.12);
+  background: var(--primary-50);
+}
+
+/* textarea variant */
+.ef--textarea {
+  resize: vertical;
+  min-height: 88px;
+  line-height: 1.5;
+}

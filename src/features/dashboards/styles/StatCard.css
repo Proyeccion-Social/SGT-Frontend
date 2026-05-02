@@ -1,0 +1,56 @@
+.stat-card {
+  background-color: #F3F0FF;
+  border: 2px dashed #9f74ff;
+  border-radius: 24px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  text-align: center;
+  width: 100%;
+  aspect-ratio: 1/1;
+  margin: 0 auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.value {
+  font-size: clamp(60px, 8vw, 100px);
+  font-weight: 700;
+  color: #9f74ff;
+  display: block;
+  font-family: 'Cabinet Grotesk variable', sans-serif;
+  font-style: bold;
+  line-height: 1;
+}
+
+.stat-description {
+  font-family: 'Caveat', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: #818181;
+  justify-content: center;
+  margin: 0 48px;
+  letter-spacing: -2%;
+  line-height: 40px;
+}
+
+.decorative-avatar {
+  position: absolute;
+  bottom: 0px;
+  right: 10px;
+  width: clamp(40px, 5vw, 60px);
+  height: auto;
+}
+
+.decorative-avatar img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}

@@ -1,0 +1,71 @@
+/* ============================================================
+   Sidebar compartido — profileSettings
+   Clases reutilizadas por GeneralSettingsView y PreferencesView.
+   prefix: ps-sidebar
+   ============================================================ */
+
+/* ── Contenedor (221px) ──────────────────────────────────── */
+.ps-sidebar {
+  width: 221px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border-right: 1px solid var(--primary-50);
+  background-color: #faf8ff;
+}
+
+/*
+ * Botones cuadrados: 100px × 100px
+ * Borde dashed 1px, dashes 8 gap 4 → via SVG background-image
+ * (border-style:dashed no soporta control de gaps)
+ */
+.ps-sidebar-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: background-color 0.15s ease;
+  background-color: var(--primary-50);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4B5FD' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.ps-sidebar-btn--selected {
+  background-color: var(--primary-100);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%239F74FF' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.ps-sidebar-btn:hover:not(.ps-sidebar-btn--selected) {
+  background-color: var(--color-violeta-100);
+}
+
+.ps-sidebar-btn:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+.ps-sidebar-btn__icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.ps-sidebar-btn__label {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.02em;
+  color: var(--primary-400);
+}

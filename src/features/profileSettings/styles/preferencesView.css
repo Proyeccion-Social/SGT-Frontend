@@ -25,30 +25,33 @@
 }
 
 .pv-modality-selector {
-  background-color: var(--primary-300);
-  border-radius: 12px;
   padding: 4px;
   display: inline-flex;
   flex-direction: row;
   gap: 4px;
+  background: #B797FF;
+  border: 1px solid #9F74FF;
+  border-radius: 8px;
 }
 
 .pv-modality-option {
   padding: 7px 20px;
-  border-radius: 9px;
+  border-radius: 6px;
   border: none;
   background: transparent;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--neutral-blanco);
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s ease;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
 }
 
 .pv-modality-option--selected {
   background-color: var(--primary-200);
-  color: var(--neutral-700);
 }
 
 .pv-modality-option:hover:not(.pv-modality-option--selected) {

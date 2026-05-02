@@ -9,6 +9,7 @@ import AttendancePostSession from '@features/sessions/components/AttendancePostS
 import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
 import { sessionPhase, getTimeLeft, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
+import { useSubjectStore } from '@/store/subjectStore';
 
 interface Props {
   sessions: Session[];
@@ -61,6 +62,8 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
     setAttendanceSession(null);
   };
 
+  const { colorMap } = useSubjectStore();
+
   return (
     <div className="session-container">
       <div className="session-container-header">
@@ -85,96 +88,53 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
             No tienes sesiones próximas agendadas.
           </p>
         )}
-
-        {!isLoading && !error && displaySessions.map((session) => {
-          const phase = getSessionTimePhase(
-            session.scheduledDate,
-            session.startTime,
-            session.endTime
-          );
-          const isTutor = viewerRole === UserRole.TUTOR;
+ 
+        {!isLoading && !error && sessions.map((session) => {
+          const subjectName = typeof session.subject === 'string' ? session.subject : session.subject?.name;
+          const colors = colorMap[subjectName] || { color: 'transparent', borderColor: 'transparent' };
 
           return (
-          <div key={session.id} className="session-card">
-            <div className="card-content">
-              <div className="card-header">
-                <span>{session.title}</span>
-                <span className="badge-time">
-                  {getTimeLeft(session.scheduledDate, session.startTime, session.endTime)}
-                </span>
-              </div>
-
-              <p className="description">{session.description}</p>
-
-              <div className="card-footer">
-                <div className="tags">
-                  <span className="tag-subject">{session.subject.name}</span>
-                  <span className={`tag-status ${phase}`}>
-                    {sessionPhase[phase]}
+            <div key={session.id} className="session-card">
+              <div className="card-content">
+                <div className="card-header">
+                  <span>{session.title}</span>
+                  <span className="badge-time">
+                    {getTimeLeft(session.scheduledDate, session.startTime, session.endTime)}
                   </span>
                 </div>
-                <span className="time-label">
-                  {formatDate(session.scheduledDate)} · {formatTime(session.startTime)}
-                </span>
+   
+                <p className="description">{session.description}</p>
+   
+                <div className="card-footer">
+                  <div className="tags">
+                    <span 
+                      className="tag-subject"
+                      style={{ 
+                        backgroundColor: colors.color, 
+                        borderColor: colors.borderColor,
+                        color: '#1a1a1a' // Ensure text is readable on light subject colors
+                      }}
+                    >
+                      {subjectName}
+                    </span>
+                    <span className="tag-status">{session.status}</span>
+                  </div>
+                  <span className="time-label">
+                    {formatDate(session.scheduledDate)} · {formatTime(session.startTime)}
+                  </span>
+                </div>
               </div>
-            </div>
-
-            <div className="actions">
-              {phase === 'upcoming' && (
+  
+              <div className="actions">
                 <button
-                  type="button"
                   className="btn-details"
                   onClick={() => openDetail(session.id)}
                   aria-label={`Ver detalles de ${session.title}`}
                 >
                   Detalles
                 </button>
-              )}
-
-              {phase === 'in_progress' && isTutor && (
-                <button
-                  type="button"
-                  className="btn-terminar"
-                  aria-label={`Terminar sesión ${session.title}`}
-                  onClick={() => setFinishingSession(session)}
-                >
-                  Terminar
-                </button>
-              )}
-
-              {phase === 'in_progress' && !isTutor && (
-                <button
-                  type="button"
-                  className="btn-details-disabled"
-                  onClick={() => openDetail(session.id)}
-                  aria-label={`Ver detalles de ${session.title}`}
-                >
-                  Detalles
-                </button>
-              )}
-
-              {phase === 'ended' && isTutor && (
-                <button
-                  type="button"
-                  className="btn-asistencia"
-                  aria-label={`Asistencia de ${session.title}`}
-                  onClick={() => handleAttendanceOpen(session)}
-                >
-                  Asistencia
-                </button>
-              )}
-
-              {phase === 'ended' && !isTutor && (
-                <button
-                  type="button"
-                  className="btn-calificar"
-                  aria-label={`Calificar sesión ${session.title}`}
-                >
-                  Calificar
-                </button>
-              )}
+              </div>
             </div>
-          </div>
           );
         })}
       </div>

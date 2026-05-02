@@ -11,6 +11,12 @@ type User = {
     role: UserRole;
     emailVerified: boolean;
     status: Status;
+    preferredModality?: string;
+    career?: string;
+    phone?: string;
+    url_image?: string;
+    max_weekly_hours?: number;
+    subjects?: Array<{ id: string }>;
 };
 
 interface AuthStore {

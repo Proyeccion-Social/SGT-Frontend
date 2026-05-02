@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
 import VaulDrawer from "@/components/ui/drawer";
 import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
+import NotificationsPanel from "@features/dashboards/components/notifications/NotificationsPanel";
 
 interface Props {
   title?: string;
@@ -19,6 +20,7 @@ const token = Astro.cookies.get("access_token")?.value;
     <Sidebar userRole={rol} transition:persist />
     <slot />
   </div>
+  <NotificationsPanel client:load transition:persist />
   {rol === "tutor" && (
     <>
       <VaulDrawer client:load transition:persist />

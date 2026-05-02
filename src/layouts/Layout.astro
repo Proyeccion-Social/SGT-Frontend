@@ -3,6 +3,7 @@ import "@/styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToasterReact from "@/components/ui/ToasterReact";
+import StoreHydrator from "@/store/StoreHydrator";
 
 interface Props {
   title: string;
@@ -26,6 +27,7 @@ const { title, noToaster = false } = Astro.props;
     <TooltipProvider>
       <slot />
     </TooltipProvider>
+    <StoreHydrator client:load />
     {!noToaster && <ToasterReact client:load />}
   </body>
 </html>

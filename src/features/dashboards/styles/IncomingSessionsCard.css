@@ -111,11 +111,9 @@
 
 .tag-subject {
   display: flex;
-  background: rgba(250, 233, 183, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(250, 233, 183, 0.5);
-  color: #8a7228;
+  border: 1px solid transparent;
   padding: 3px 10px;
   border-radius: 20px;
   font-size: 12px;

@@ -1,27 +1,11 @@
 import "../styles/ChooseSubjects.css";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import { useSubjectStore } from "@/store/subjectStore";
 
 export interface StepHandle {
     triggerContinue: () => void;
     getData?: () => Record<string, unknown>;
 }
-
-type Subject = {
-    id: string;
-    name: string;
-};
-
-const SUBJECT_COLORS = [
-    { color: "#E8D5FF", borderColor: "#D1C4F5" },
-    { color: "#FFE5D5", borderColor: "#FFCCBB" },
-    { color: "#D5FFE8", borderColor: "#BBE9D1" },
-    { color: "#FFD5D5", borderColor: "#FFBBBB" },
-    { color: "#D5F5D5", borderColor: "#BBEBB1" },
-    { color: "#E0D5FF", borderColor: "#C9BBFF" },
-    { color: "#D5EEFF", borderColor: "#BBDEFF" },
-    { color: "#D5FFF5", borderColor: "#BBFFEE" },
-    { color: "#FFECD5", borderColor: "#FFD9BB" },
-];
 
 const MAX_SELECTIONS = 3;
 
@@ -54,18 +38,7 @@ const ChooseSubjects = forwardRef<StepHandle, {
     title = "Escoge las materias que vas a dar como tutor" 
 }, ref) => {
     const [selected, setSelected] = useState<string[]>(initialSelected ?? []);
-    const [subjects, setSubjects] = useState<Subject[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetch('/api/subjects')
-            .then(res => res.json())
-            .then(result => {
-                setSubjects(result.data ?? []);
-            })
-            .catch(() => setSubjects([]))
-            .finally(() => setLoading(false));
-    }, []);
+    const { subjects, isLoading, colorMap } = useSubjectStore();
 
     useImperativeHandle(ref, () => ({
         triggerContinue: () => onNext({ subjectIds: selected }),
@@ -88,7 +61,7 @@ const ChooseSubjects = forwardRef<StepHandle, {
 
     const lastSelectedId = selected.length > 0 ? selected[selected.length - 1] : null;
 
-    if (loading) {
+    if (isLoading && subjects.length === 0) {
         return <div className="drawer-body"><p>Cargando materias...</p></div>;
     }
 
@@ -105,7 +78,7 @@ const ChooseSubjects = forwardRef<StepHandle, {
                         const isSelected = selected.includes(subject.id);
                         const isLastSelected = subject.id === lastSelectedId;
                         const pos = POSITION_OFFSETS[index % POSITION_OFFSETS.length];
-                        const colors = SUBJECT_COLORS[index % SUBJECT_COLORS.length];
+                        const colors = colorMap[subject.name] || { color: "transparent", borderColor: "transparent" };
 
                         return (
                             <button

@@ -40,27 +40,19 @@ const RATINGS = [
   { value: "1", label: "1+ estrellas" },
 ]
 
+import { useSubjectStore } from "@/store/subjectStore"
+
 export function TutorFilters() {
-  const [subjects, setSubjects] = useState<{ value: string; label: string }[]>([])
+  const { subjects: storeSubjects, isLoading } = useSubjectStore()
   const [selectedModalities, setSelectedModalities] = useState<string[]>([])
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
   const [selectedRating, setSelectedRating] = useState<string | null>(null)
   const [selectedDays, setSelectedDays] = useState<string[]>([])
 
-  useEffect(() => {
-    fetch("/api/search/subjects")
-      .then((r) => r.json())
-      .then((data) => {
-        const list = data.data ?? data ?? []
-        setSubjects(
-          list.map((s: { id: string; name: string }) => ({
-            value: s.id,
-            label: s.name,
-          }))
-        )
-      })
-      .catch(() => {})
-  }, [])
+  const subjects = storeSubjects.map((s) => ({
+    value: s.id,
+    label: s.name,
+  }))
 
   const dispatchFilters = useCallback(
     (mods: string[], subs: string[], rating: string | null, days: string[]) => {

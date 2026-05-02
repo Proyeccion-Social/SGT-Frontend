@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { sileo } from "sileo";
 import ojoSrc      from "../../assets/ojo.svg?url";
 import ojoOcultoSrc from "../../assets/ojo-oculto.svg?url";
@@ -32,9 +31,10 @@ function PwField({ id, label, value, onChange, error, placeholder, autoComplete 
     <div className="fg-field">
       <label htmlFor={id} className="fg-label">{label}</label>
       <div className="fg-input-wrapper">
-        <Input
+        <input
           id={id}
           type={show ? "text" : "password"}
+          className={`fg-pw-input${error ? " fg-pw-input--error" : ""}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
@@ -97,9 +97,9 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
           return res;
         }),
         {
-          loading: { title: "Guardando perfil…",   fill: "#8751ff" },
-          success: { title: "Perfil actualizado",  fill: "#58d68d" },
-          error:   { title: "No se pudo guardar el perfil", fill: "#f35761" },
+          loading: { title: "Guardando perfil…" },
+          success: { title: "Perfil actualizado" },
+          error:   { title: "No se pudo guardar el perfil" },
         },
       )
       .finally(() => setSavingInfo(false));
@@ -133,9 +133,9 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
           return res;
         }),
         {
-          loading: { title: "Actualizando contraseña…", fill: "#8751ff" },
-          success: { title: "Contraseña actualizada",   fill: "#58d68d" },
-          error:   { title: "No se pudo cambiar la contraseña", fill: "#f35761" },
+          loading: { title: "Actualizando contraseña…" },
+          success: { title: "Contraseña actualizada" },
+          error:   { title: "No se pudo cambiar la contraseña" },
         },
       )
       .then(() => {
@@ -152,16 +152,17 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
           <>
             <div className="fg-field">
               <label className="fg-label">Nombre completo</label>
-              <Input value={user?.name ?? ""} readOnly disabled />
+              <input className="fg-input" value={user?.name ?? ""} readOnly disabled />
             </div>
             <div className="fg-field">
               <label className="fg-label">Correo electrónico</label>
-              <Input type="email" value={user?.email ?? ""} readOnly disabled />
+              <input className="fg-input" type="email" value={user?.email ?? ""} readOnly disabled />
             </div>
             <div className="fg-field">
               <label htmlFor="fg-phone" className="fg-label">Número de teléfono</label>
-              <Input
+              <input
                 id="fg-phone"
+                className={`fg-input${phoneError ? " fg-input--error" : ""}`}
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
@@ -212,7 +213,7 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
             </button>
             <button
               type="button"
-              className="tp-btn"
+              className="tp-btn tp-btn-guardar"
               onClick={handleSaveInfo}
               disabled={savingInfo}
             >
@@ -226,7 +227,7 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
             </button>
             <button
               type="button"
-              className="tp-btn"
+              className="tp-btn tp-btn-guardar"
               onClick={handleSavePassword}
               disabled={savingPw}
             >

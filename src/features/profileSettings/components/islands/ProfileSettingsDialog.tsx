@@ -84,7 +84,7 @@ export function ProfileSettingsDialog({
           <DialogDescription className="ps-description">
             {activeView === "preferences"
               ? "Revisa tus preferencias y actualiza para una mejor experiencia"
-              : "Revisa tu información persona y actualiza si es necesario"}
+              : "Revisa tu información personal y actualiza si es necesario"}
           </DialogDescription>
         </DialogHeader>
 

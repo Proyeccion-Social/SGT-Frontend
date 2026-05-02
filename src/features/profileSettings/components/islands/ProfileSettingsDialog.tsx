@@ -56,7 +56,6 @@ export function ProfileSettingsDialog({
           display: "flex",
           flexDirection: "column",
           gap: 0,
-          overflow: "hidden",
         }}
         showCloseButton={false}
       >

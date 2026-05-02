@@ -56,7 +56,7 @@
 }
 
 .bi-status-dot--active {
-  background: var(--success-300);
+  background: var(--success-400);
 }
 .bi-status-dot--inactive {
   background: var(--error-400);

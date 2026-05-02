@@ -1,14 +1,18 @@
 ---
 import { Image } from "astro:assets";
 import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
+import { UserRole } from "@/constants/roles";
 import UserMenuDropdown from "./islands/UserMenuDropdown";
+interface Props {
+    userRole: UserRole;
+}
 
 const { userRole } = Astro.props;
 ---
 
 <div class="user-header">
     {
-        (userRole === "tutor" || userRole === "admin") && (
+        (userRole === UserRole.TUTOR || userRole === UserRole.ADMIN) && (
             <button class="role-change-button">
                 <Image src={RoleChangeIcon} alt="Change Role" />
             </button>

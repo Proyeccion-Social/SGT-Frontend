@@ -15,7 +15,7 @@
   font-weight: bold;
   flex-shrink: 0;
   padding: 0 10rem;
-  color: #3c3c3c;
+  color: var(--text-body);
 }
 
 .welcome-container p {
@@ -25,7 +25,7 @@
   font-size: 60px;
   line-height: 72px;
   letter-spacing: -0.02em;
-  color: #3c3c3c;
+  color: var(--text-body);
 }
 
 /* Solo admin */

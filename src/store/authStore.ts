@@ -1,13 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-type Role = 'ADMIN' | 'TUTOR' | 'STUDENT';
+import { UserRole } from '@/constants/roles';
+
 type Status = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
 
 type User = {
     id: string;
     name: string;
     email: string;
-    role: Role;
+    role: UserRole;
     emailVerified: boolean;
     status: Status;
 };
@@ -23,7 +24,6 @@ interface AuthStore {
     setRequiresProfileCompletion: (val: boolean) => void;
     clearUser: () => void;
 }
-
 
 export const useAuthStore = create<AuthStore>()(
     persist(

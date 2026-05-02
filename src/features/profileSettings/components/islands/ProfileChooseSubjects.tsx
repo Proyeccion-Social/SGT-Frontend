@@ -13,6 +13,14 @@ import "../../styles/profileChooseSubjects.css";
 
 type Subject = { id: string; name: string };
 
+/** Distinguishes user-facing fetch errors from unexpected runtime errors. */
+class FetchError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "FetchError";
+    }
+}
+
 export interface PCSHandle {
     getData: () => { subjectIds: string[] };
 }
@@ -132,6 +140,7 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
         const [subjects, setSubjects]     = useState<Subject[]>([]);
         const [selected, setSelected]     = useState<string[]>(initialSelected);
         const [loading, setLoading]       = useState(true);
+        const [fetchError, setFetchError] = useState<string | null>(null);
         const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
 
         const contentRef  = useRef<HTMLDivElement>(null);
@@ -168,9 +177,25 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
         // Fetch de todas las materias disponibles
         useEffect(() => {
             fetch("/api/subjects")
-                .then((r) => r.json())
+                .then((r) => {
+                    if (!r.ok) {
+                        const msg =
+                            r.status === 401
+                                ? "Tu sesión ha expirado. Vuelve a iniciar sesión para ver las materias."
+                                : `Error al cargar materias (${r.status})`;
+                        throw new FetchError(msg);
+                    }
+                    return r.json();
+                })
                 .then((result) => setSubjects(result.data ?? []))
-                .catch(() => setSubjects([]))
+                .catch((err: unknown) => {
+                    const msg =
+                        err instanceof FetchError
+                            ? err.message
+                            : "No se pudieron cargar las materias. Intenta nuevamente.";
+                    setFetchError(msg);
+                    setSubjects([]);
+                })
                 .finally(() => setLoading(false));
         }, []);
 
@@ -203,6 +228,16 @@ const ProfileChooseSubjects = forwardRef<PCSHandle, ProfileChooseSubjectsProps>(
                 <div className="pcs-root">
                     <div className="pcs-content" ref={contentRef}>
                         <div className="pcs-empty">Cargando materias…</div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (fetchError) {
+            return (
+                <div className="pcs-root">
+                    <div className="pcs-content" ref={contentRef}>
+                        <div className="pcs-empty" role="alert" aria-live="polite">{fetchError}</div>
                     </div>
                 </div>
             );

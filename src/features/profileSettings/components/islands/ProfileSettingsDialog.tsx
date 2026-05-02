@@ -75,7 +75,7 @@ export function ProfileSettingsDialog({
               </>
             ) : (
               <>
-                <span className="ps-title-black">Informacion de</span>{" "}
+                <span className="ps-title-black">Información de</span>{" "}
                 <span className="ps-title-purple">mi perfil</span>
               </>
             )}

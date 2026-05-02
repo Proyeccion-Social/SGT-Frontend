@@ -1,0 +1,210 @@
+/* ============================================================
+   General Settings View
+   prefix: gs-
+   ============================================================ */
+
+/* ── View layout ─────────────────────────────────────────── */
+.gs-view {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ── Main content area ───────────────────────────────────── */
+.gs-main {
+  flex: 1;
+  padding: 44px 56px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.gs-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gs-main::-webkit-scrollbar-thumb {
+  background: #e7dcff;
+  border-radius: 10px;
+}
+
+.gs-main::-webkit-scrollbar-thumb:hover {
+  background: #d1c4f5;
+}
+
+/* Firefox */
+.gs-main {
+  scrollbar-width: thin;
+  scrollbar-color: #e7dcff transparent;
+}
+
+/* ── Form ────────────────────────────────────────────────── */
+.gs-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 95%;
+  margin: 0 auto;
+  flex: 1;
+  justify-content: center;
+}
+
+.gs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Native input for read-only info fields */
+.gs-field input:not(.gs-pw-input) {
+  height: 42px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-700);
+  background: var(--neutral-blanco);
+  outline: none;
+}
+
+.gs-field input:not(.gs-pw-input)::placeholder {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-300);
+}
+
+.gs-field input:not(.gs-pw-input):disabled {
+  background: var(--neutral-100);
+  color: var(--neutral-400);
+  cursor: default;
+  border: 0;
+}
+
+/* Password input */
+.gs-pw-input {
+  width: 100%;
+  padding: 12px;
+  padding-right: 36px;
+  outline: none;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-family: "Open Sauce Two", sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-400);
+  background: var(--neutral-blanco);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.gs-pw-input::placeholder {
+  color: var(--neutral-300);
+}
+
+.gs-pw-input:focus {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px rgba(159, 116, 255, 0.12);
+}
+
+.gs-pw-input--error {
+  border-color: var(--error-400);
+  box-shadow: 0 0 0 3px rgba(217, 79, 79, 0.1);
+}
+
+.gs-label {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  color: var(--primary-default);
+}
+
+/* Input con botón de toggle (contraseña) */
+.gs-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.gs-input-wrapper input {
+  padding-right: 36px;
+  width: 100%;
+}
+
+.gs-pw-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--neutral-300);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.gs-pw-toggle:hover {
+  color: var(--primary-700);
+}
+
+.gs-pw-icon {
+  transition: filter 0.15s ease;
+}
+.gs-pw-toggle:hover .gs-pw-icon {
+  filter: invert(18%) sepia(60%) saturate(2500%) hue-rotate(255deg)
+    brightness(85%);
+}
+
+.gs-error {
+  font-size: 0.75rem;
+  color: var(--text-error);
+}
+
+.gs-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.gs-submit-btn {
+  height: 38px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+  padding: 0px 12px;
+  gap: 10px;
+
+  background: #9F74FF;
+  border-radius: 8px;
+  font-family: 'Cabinet Grotesk Variable';
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+.gs-submit-btn:hover:not(:disabled) {
+  background-color: var(--primary-default);
+}
+
+.gs-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

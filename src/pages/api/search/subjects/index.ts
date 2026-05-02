@@ -1,11 +1,22 @@
 import type { APIRoute } from "astro";
 import { getAllSubjects } from "@/features/search/services/getAllSubjects";
 
-export const GET: APIRoute = async () => {
-    try {
-        const subjects = await getAllSubjects();
+export const prerender = false;
 
-        return new Response(JSON.stringify(subjects), {
+export const GET: APIRoute = async ({ cookies }) => {
+    const accessToken = cookies.get("access_token")?.value;
+
+    if (!accessToken) {
+        return new Response(JSON.stringify({ message: "Acceso no autorizado" }), {
+            status: 401,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    try {
+        const result = await getAllSubjects(accessToken);
+
+        return new Response(JSON.stringify(result), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });

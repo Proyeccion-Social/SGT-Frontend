@@ -2,25 +2,17 @@
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 
 import UserHeader from "@/features/general/components/UserHeader.astro";
-import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
-import StatCard from "@/features/dashboards/components/StatCard.astro";
+import DashboardSessionManager from "@/features/dashboards/components/DashboardSessionManager";
+import StatCard from "@/features/dashboards/components/StatCard";
+import { TutorAvailabilityManager } from "@/features/dashboards/components/TutorAvailabilityManager";
+import DashboardLoader from "@/features/dashboards/components/DashboardLoader";
+import { UserRole } from "@/constants/roles";
 
-const userRole = "tutor";
-
-const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
-const mockWorkload = {
-  scheduledHours: 2,
-  weeklyLimit: 8,
-};
-
-const remainingHours = mockWorkload.weeklyLimit - mockWorkload.scheduledHours;
-const usedPercent = Math.min(
-  (mockWorkload.scheduledHours / mockWorkload.weeklyLimit) * 100,
-  100,
-);
+const userRole = UserRole.TUTOR;
 ---
 
 <main class='content-wrapper'>
+  <DashboardLoader role={userRole} client:only='react' />
   <div class='dashboard-content'>
     <UserHeader userRole={userRole} />
 
@@ -29,33 +21,16 @@ const usedPercent = Math.min(
     </div>
 
     <div class='hours-bar'>
-      <div
-        class='hours-segment hours-scheduled'
-        style={`width: ${usedPercent}%; background-color: #DAFFAA;`}
-      >
-        <span class='scheduled-hours-text'
-          >{mockWorkload.scheduledHours} hora{
-            mockWorkload.scheduledHours !== 1 ? "s" : ""
-          } agendada{mockWorkload.scheduledHours !== 1 ? "s" : ""} esta semana</span
-        >
-      </div>
-      <div
-        class='hours-segment hours-remaining'
-        style={`width: ${100 - usedPercent}%; background-color: #CFB9FF;`}
-      >
-        <span class='remaining-hours-text'
-          >{remainingHours} hora{remainingHours !== 1 ? "s" : ""} restantes esta semana</span
-        >
-      </div>
+      <TutorAvailabilityManager client:only='react' />
     </div>
 
     <div class='cards-container'>
       <div class='incoming-sessions-container'>
-        <IncomingSessionsCard sessions={[]} role={userRole as "tutor"} />
+        <DashboardSessionManager role={userRole} client:only='react' />
       </div>
 
       <div class='stats-container'>
-        <StatCard value={tutorStats.value} description={tutorStats.text} />
+        <StatCard type='tutor' client:only='react' />
       </div>
     </div>
   </div>
@@ -68,7 +43,7 @@ const usedPercent = Math.min(
     flex-direction: column;
     background-color: #fff;
     border-radius: 32px 0px 0px 32px;
-    border: 1px solid var(--neutral-200);   
+    border: 1px solid var(--neutral-200);
     position: relative;
     justify-content: flex-start;
     overflow-x: hidden;

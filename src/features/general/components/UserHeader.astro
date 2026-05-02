@@ -3,6 +3,11 @@ import { jwtDecode } from "jwt-decode";
 import { Image } from "astro:assets";
 import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
+import { UserRole } from "@/constants/roles";
+
+interface Props {
+    userRole: UserRole;
+}
 
 const { userRole } = Astro.props;
 
@@ -27,7 +32,7 @@ const initials = userDisplayName
 
 <div class="user-header">
     {
-        (userRole === "tutor" || userRole === "admin") && (
+        (userRole === UserRole.TUTOR || userRole === UserRole.ADMIN) && (
             <button class="role-change-button">
                 <Image src={RoleChangeIcon} alt="Change Role" />
             </button>

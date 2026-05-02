@@ -11,9 +11,10 @@ import CalendarIcon from "./icons/CalendarIcon.svg";
 import BinocularIcon from "./icons/BinocularIcon.svg";
 import SearchIcon from "./icons/SearchIcon.svg";
 import CommunityIcon from "./icons/CommunityIcon.svg";
+import { UserRole } from "@/constants/roles";
 
 interface Props {
-  userRole: "admin" | "tutor" | "student";
+  userRole: UserRole;
 }
 
 const { userRole } = Astro.props;

@@ -4,6 +4,7 @@ export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
   | 'CONFIRMED'
   | 'COMPLETED'
+  | 'SCHEDULED'
   | 'CANCELLED';
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
@@ -12,7 +13,7 @@ export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
 export interface SessionTutor {
   id: string;        
   name: string;
-  photo: string;     // URL
+  photo?: string;     // URL
 }
 
 export interface SessionSubject {
@@ -24,6 +25,7 @@ export interface SessionParticipant {
   id: string;        
   name: string;
   status: ParticipantStatus;
+  role: string;
 }
 
 // ─── Entidad principal Session ───────────────────────────────
@@ -41,7 +43,9 @@ export interface Session {
   title: string;
   description: string;
   participants: SessionParticipant[];
-  createdAt: string;                 // ISO date-time
+  createdAt: string;     
+  location: string;
+  virtualLink: string;            // ISO date-time
   cancelledAt: string | null;
   cancellationReason: string | null;
 }
@@ -52,7 +56,8 @@ export type EvaluationAspect =
   | 'PUNCTUALITY'
   | 'KNOWLEDGE'
   | 'USEFULNESS';
-export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'NO_SHOW';
+
+export type AttendanceStatus = 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
 // ─── Asistencia (RF34) ───────────────────────────────────────
 
@@ -64,6 +69,16 @@ export interface AttendanceRecord {
 
 export interface RegisterAttendanceDTO {
   attendances: AttendanceRecord[];
+  tutorId?: string;
+}
+
+export interface CompleteSessionBody {
+  tutorId: string;
+}
+
+export interface CompleteSessionResult {
+  success: boolean;
+  message: string;
 }
 
 export interface AttendanceResponse {
@@ -223,9 +238,12 @@ export interface AvailabilityQuery {
 }
 
 export interface AvailabilitySlot {
-  start: string;
-  end: string;
-  availability: boolean;
+  id: string;
+  date: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  available: boolean;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────
@@ -283,6 +301,8 @@ export interface ModifySessionBody {
 export interface EditSessionBody {
   title: string;
   description: string;
+  virtualLink?: string;           // T002 — Q4 confirmed
+  location?: string;   
 }
 
 // Controls which sub-view is rendered inside SessionDetailModal

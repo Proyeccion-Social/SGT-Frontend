@@ -9,6 +9,13 @@ export default function ConfirmEmailForm() {
     const [success, setSuccess] = useState(false);
     const [isReady, setIsReady] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [isRedirecting, setIsRedirecting] = useState(false);
+
+    const handleRedirect = () => {
+        if (isRedirecting) return;
+        setIsRedirecting(true);
+        navigate("/dashboard");
+    };
 
     useEffect(() => {
         const t = new URLSearchParams(window.location.search).get("token");
@@ -54,11 +61,11 @@ export default function ConfirmEmailForm() {
             setSuccess(true);
             
             sileo.action({
-                title: "¡Correo verificado!",
-                description: "Tu correo ha sido confirmado exitosamente. Ya puedes iniciar sesión.",
+                title: "¡Sesión iniciada!",
+                description: "Tu correo ha sido confirmado exitosamente y hemos iniciado tu sesión.",
                 button: {
-                    title: "Ir al Inicio",
-                    onClick: () => navigate("/"),
+                    title: "Ir al Dashboard",
+                    onClick: handleRedirect,
                 },
                 fill: "#58d68d",
                 styles: {
@@ -88,10 +95,14 @@ export default function ConfirmEmailForm() {
                 </div>
                 <h1 className="reset-success-title">¡Todo listo!</h1>
                 <p className="reset-success-text">
-                    Tu correo ha sido confirmado con éxito. Ya puedes cerrar esta pestaña o volver al login.
+                    Tu correo ha sido confirmado con éxito. Tu sesión ha sido iniciada automáticamente.
                 </p>
-                <button className="reset-password-submit" onClick={() => navigate("/")}>
-                    Ir al Inicio de Sesión
+                <button 
+                    className="reset-password-submit" 
+                    onClick={handleRedirect}
+                    disabled={isRedirecting}
+                >
+                    {isRedirecting ? "Redirigiendo..." : "Ir al Dashboard"}
                 </button>
             </div>
         );

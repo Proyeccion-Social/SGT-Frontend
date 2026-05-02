@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const { token } = await request.json();
 
@@ -22,6 +22,21 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     const data = await res.json().catch(() => ({}));
+
+    if (res.ok && data.accessToken && data.refreshToken) {
+      cookies.set("access_token", data.accessToken, {
+        httpOnly: true,
+        path: "/",
+        maxAge: 60 * 15
+      });
+      cookies.set("refresh_token", data.refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7
+      });
+    }
 
     return new Response(JSON.stringify(data), {
       status: res.status,

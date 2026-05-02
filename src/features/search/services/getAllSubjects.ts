@@ -1,5 +1,4 @@
 const API_URL = import.meta.env.API_URL;
-const IS_SERVER = typeof window === 'undefined';
 
 // trae todas las materias disponibles
 // GET /api/v1/subjects (público)

@@ -1,11 +1,4 @@
 import { useCallback, useEffect } from 'react';
-import {
-  createSession,
-  cancelSession,
-  getSessions,
-  modifySession,
-  editSession,
-} from '../services/sessionService';
 import type { Session, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { useAuthStore } from '@/store/authStore';
 import { useSessionStore } from '@/store/sessionStore';
@@ -22,26 +15,28 @@ interface UseSessionsReturn {
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
 
-export function useSession(rawRole: UserRole | string): UseSessionReturn {
+export function useSession(rawRole: UserRole | string): UseSessionsReturn {
   const role = String(rawRole).toUpperCase() as UserRole;
   const { sessions, loading, error, setSessions, setLoading, setError, lastFetched, setLastFetched } = useSessionStore();
   const _hasHydrated = useAuthStore(state => state._hasHydrated);
 
   const fetchMySessions = useCallback(async (force = false) => {
-    // Evitar fetch si ya se cargó recientemente (ej. 30 segs) a menos que se force
     if (!force && lastFetched && Date.now() - lastFetched < 30000) return;
 
     setLoading(true);
     setError(null);
     try {
-      const list = await getSessions(role);
+      const res = await fetch(`/api/sessions/my-sessions?role=${role.toLowerCase()}`);
+      if (!res.ok) throw new Error('Error al obtener sesiones');
+      const json = await res.json();
+      const list: Session[] = Array.isArray(json) ? json : (json?.data ?? []);
       setSessions(list);
       setLastFetched(Date.now());
     } catch (err) {
-      console.error('[useSessions] error:', err);
+      console.error('[useSession] error:', err);
       setError(err instanceof Error ? err.message : 'Error fetching sessions');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, [role, lastFetched, setSessions, setLoading, setError, setLastFetched]);
 
@@ -60,7 +55,16 @@ export function useSession(rawRole: UserRole | string): UseSessionReturn {
       setLoading(true);
       setError(null);
       try {
-        const nueva = await createSession(data);
+        const res = await fetch('/api/sessions/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message ?? 'Error al crear la sesión');
+        }
+        const nueva: Session = await res.json();
         setSessions([...sessions, nueva]);
         return true;
       } catch (e: any) {
@@ -77,13 +81,18 @@ export function useSession(rawRole: UserRole | string): UseSessionReturn {
     setLoading(true);
     setError(null);
     try {
-      await cancelSession(sessionId, reason);
+      const res = await fetch('/api/sessions/cancel-session', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reason }),
+      });
+      if (!res.ok) throw new Error('Error al cancelar sesión');
       setSessions(
         sessions.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
       );
       return true;
     } catch (err) {
-      console.error('[useSessions] error:', err);
+      console.error('[useSession] cancelar error:', err);
       setError(err instanceof Error ? err.message : 'Error cancelling session');
       return false;
     } finally {
@@ -96,16 +105,15 @@ export function useSession(rawRole: UserRole | string): UseSessionReturn {
       setLoading(true);
       setError(null);
       try {
-        const result = await modifySession(sessionId, data);
-        if (result.success) {
-          // If the modification was immediate (not a proposal), we'd update sessions here
-          // But usually this returns a message saying confirmation is pending.
-          // For now, let's refresh to be safe or rely on the toast/message.
-          return true;
-        }
-        return false;
+        const res = await fetch('/api/sessions/modify-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, ...data }),
+        });
+        if (!res.ok) throw new Error('Error al proponer modificación');
+        return true;
       } catch (err) {
-        console.error('[useSessions] error:', err);
+        console.error('[useSession] modificar error:', err);
         setError(err instanceof Error ? err.message : 'Error modifying session');
         return false;
       } finally {
@@ -120,14 +128,20 @@ export function useSession(rawRole: UserRole | string): UseSessionReturn {
       setLoading(true);
       setError(null);
       try {
-        const result = await editSession(sessionId, data);
+        const res = await fetch('/api/sessions/edit-session', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, ...data }),
+        });
+        if (!res.ok) throw new Error('Error al editar la sesión');
+        const result = await res.json();
         if (result.success) {
           setSessions(sessions.map(s => (s.id === sessionId ? { ...s, ...data } : s)));
           return true;
         }
         return false;
       } catch (err) {
-        console.error('[useSessions] editar error:', err);
+        console.error('[useSession] editar error:', err);
         setError(err instanceof Error ? err.message : 'Error editing session');
         return false;
       } finally {
@@ -137,5 +151,5 @@ export function useSession(rawRole: UserRole | string): UseSessionReturn {
     [sessions, setSessions, setLoading, setError]
   );
 
-  return { sessions, loading, error, fetchMySessions, agendar, cancelar, modificar, editar };
+  return { sessions, isLoading: loading, error, fetchMySessions, agendar, cancelar, modificar, editar };
 }

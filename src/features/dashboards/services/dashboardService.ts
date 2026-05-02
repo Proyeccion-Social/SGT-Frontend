@@ -7,11 +7,8 @@ import { useCallback, useState } from "react";
 
 const API_BASE = (
   import.meta.env.API_URL ??
-  import.meta.env.PUBLIC_API_URL ??
   ''
 ).replace(/\/$/, '');
-
-const IS_SERVER = typeof window === 'undefined';
 
 async function request<T>(
   path: string,

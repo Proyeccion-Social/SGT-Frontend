@@ -6,12 +6,13 @@ import DashboardSessionManager from "@/features/dashboards/components/DashboardS
 import StatCard from "@/features/dashboards/components/StatCard";
 import { TutorAvailabilityManager } from "@/features/dashboards/components/TutorAvailabilityManager";
 import DashboardLoader from "@/features/dashboards/components/DashboardLoader";
+import { UserRole } from "@/constants/roles";
 
-const userRole = "tutor";
+const userRole = UserRole.TUTOR;
 ---
 
 <main class='content-wrapper'>
-  <DashboardLoader role={userRole} client:only="react" />
+  <DashboardLoader role={userRole} client:only='react' />
   <div class='dashboard-content'>
     <UserHeader userRole={userRole} />
 
@@ -19,23 +20,21 @@ const userRole = "tutor";
       <WelcomeBanner client:only='react' />
     </div>
 
-        <div class="hours-bar">
-          <TutorAvailabilityManager client:only="react" />
-        </div>
+    <div class='hours-bar'>
+      <TutorAvailabilityManager client:only='react' />
+    </div>
 
-        <div class="cards-container">
-          <div class="incoming-sessions-container">
-            <DashboardSessionManager role={userRole} client:only="react" />
-          </div>
-
-          <div class="stats-container">
-            <StatCard type="tutor" client:only="react" />
-          </div>
-        </div>
+    <div class='cards-container'>
+      <div class='incoming-sessions-container'>
+        <DashboardSessionManager role={userRole} client:only='react' />
       </div>
-    </main>
+
+      <div class='stats-container'>
+        <StatCard type='tutor' client:only='react' />
+      </div>
+    </div>
   </div>
-</MainLayout>
+</main>
 
 <style>
   .content-wrapper {
@@ -44,7 +43,7 @@ const userRole = "tutor";
     flex-direction: column;
     background-color: #fff;
     border-radius: 32px 0px 0px 32px;
-    border: 1px solid var(--neutral-200);   
+    border: 1px solid var(--neutral-200);
     position: relative;
     justify-content: flex-start;
     overflow-x: hidden;

@@ -1,7 +1,6 @@
 // Importación de la API y la ruta de disponibilidad
-const API_URL = (import.meta.env.API_URL ?? import.meta.env.PUBLIC_API_URL ?? '').replace(/\/$/, '');
+const API_URL = (import.meta.env.API_URL ?? '').replace(/\/$/, '');
 const AVAILABILITY_PATH = '/availability';
-const IS_SERVER = typeof window === 'undefined';
 
 //===============================================================
 // Tipos de datos
@@ -144,15 +143,19 @@ async function handleResponse<T>(response: Response): Promise<T> {
         return response.json() as Promise<T>;
     }
 
-    const errorBody: ApiError = await response.json().catch(() => ({
-        code: 'INTERNAL_01',
-        httpStatus: response.status.toString(),
-        message: 'Error interno del servidor',
-        description: 'Error al procesar la respuesta del servidor'
-    }));
+    const rawBody = await response.json().catch(() => null);
+
+    // Normalise to ApiError regardless of backend error format
+    // (NestJS default: { statusCode, message } vs custom: { code, httpStatus, message, description })
+    const errorBody: ApiError = {
+        code: rawBody?.code ?? 'INTERNAL_01',
+        httpStatus: rawBody?.httpStatus ?? String(rawBody?.statusCode ?? response.status),
+        message: rawBody?.message ?? 'Error interno del servidor',
+        description: rawBody?.description ?? 'Error al procesar la respuesta del servidor',
+    };
 
     if (typeof window === 'undefined') {
-        console.error(`[API Error] ${response.status} ${response.url}:`, errorBody);
+        console.error(`[API Error] ${response.status} ${response.url}:`, rawBody ?? '(no body)');
     }
 
     throw errorBody;
@@ -190,9 +193,7 @@ export async function getTutorSlots(
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
 
-    const url = IS_SERVER
-        ? `${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`
-        : `/api/availability/tutors/${tutorId}/slots${queryString}`;
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`;
 
     const response = await fetch(url, {
         method: 'GET',
@@ -257,9 +258,7 @@ export async function manageSlot(
 ): Promise<SlotResponse> {
     const headers = buildAuthHeaders(token);
 
-    const url = IS_SERVER
-        ? `${API_URL}${AVAILABILITY_PATH}/tutor/slots`
-        : `/api/availability/tutor/slots`;
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutor/slots`;
 
     const response = await fetch(url, {
         method: 'POST',
@@ -287,9 +286,7 @@ export async function setWeeklyLimit(
 ): Promise<void> {
     const headers = buildAuthHeaders(token);
 
-    const url = IS_SERVER
-        ? `${API_URL}${AVAILABILITY_PATH}/tutor/limits`
-        : `/api/availability/tutor/limits`;
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutor/limits`;
 
     const response = await fetch(url, {
         method: 'PUT',
@@ -319,9 +316,7 @@ export async function getTutorWorkload(token?: string): Promise<{
 }> {
     const headers = buildAuthHeaders(token);
 
-    const url = IS_SERVER
-        ? `${API_URL}${AVAILABILITY_PATH}/tutor/workload`
-        : `/api/availability/tutor/workload`;
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutor/workload`;
 
     const response = await fetch(
         url,
@@ -342,9 +337,7 @@ export async function getTutorWorkload(token?: string): Promise<{
 export async function getMyAvailability(token?: string): Promise<TutorAvailabilityPublic> {
     const headers = buildAuthHeaders(token);
 
-    const url = IS_SERVER
-        ? `${API_URL}${AVAILABILITY_PATH}/tutors/me`
-        : `/api/availability/me`;
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutors/me`;
 
     const response = await fetch(url, {
         method: 'GET',
@@ -361,9 +354,7 @@ export async function getMyAvailability(token?: string): Promise<TutorAvailabili
 export async function getOwnTutorProfile(token?: string): Promise<TutorProfile> {
     const headers = buildAuthHeaders(token);
 
-    const url = IS_SERVER
-        ? `${API_URL}/tutors/profile`
-        : `/api/tutors/profile`;
+    const url = `${API_URL}/tutors/profile`;
 
     const response = await fetch(url, {
         method: 'GET',

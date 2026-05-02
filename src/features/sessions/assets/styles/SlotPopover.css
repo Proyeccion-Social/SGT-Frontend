@@ -56,3 +56,12 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+.slot-selection-border {
+  position: fixed;
+  border: 3px dashed #7c3aed;
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 101;
+  box-sizing: border-box;
+}

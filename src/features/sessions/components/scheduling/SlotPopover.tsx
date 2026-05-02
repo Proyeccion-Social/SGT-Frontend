@@ -162,6 +162,16 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
       </svg>
 
       <div
+        className="slot-selection-border"
+        style={{
+          top: subRect.top - 2,
+          left: subRect.left - 2,
+          width: subRect.width + 4,
+          height: subRect.height + 4,
+        }}
+      />
+
+      <div
         className="slot-popover"
         ref={refs.setFloating}
         style={floatingStyles}

@@ -3,6 +3,7 @@ import './styles/CancelSessionModal.css';
 
 import { useState } from 'react';
 import { sileo, Toaster } from 'sileo';
+import ToasterReact from '@/components/ui/ToasterReact';
 import type { Session } from '../types/session.types';
 
 interface Props {

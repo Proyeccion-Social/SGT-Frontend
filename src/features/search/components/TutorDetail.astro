@@ -7,9 +7,10 @@ import fullStar from "@/features/search/assets/star-full.svg";
 import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
 import starSimpleUnfilled from "@/features/search/assets/star-simple-unfilled.svg";
 import active from "@/features/search/assets/active.svg"
-
 import arrow from "@/features/search/assets/arrow-detail.svg"
 import closeSvg from "@/features/search/assets/close.svg"
+import schedule from "@/features/search/assets/schedule.svg"
+
 ---
 
 <dialog id="tutor-detail-section"
@@ -31,9 +32,15 @@ import closeSvg from "@/features/search/assets/close.svg"
       </div>
     </div>
     <div class="rightSideDetail">
-      <p class="informativeText">
+      <!-- <p class="informativeText">
         Racha de 15 semanas dando al menos una tutoría
-      </p>
+      </p> -->
+      <a href="/sessions">
+        <button class="scheduleBtn">
+          <Image src={schedule} alt="Agendar tutoría" />
+          Agendar una tutoría
+        </button>
+      </a>
       <h2 class="tutorName" id="tutor-name"></h2>
       <div class="containerTutorSubjects" id="tutor-subjects"></div>
       <div class="tutorRating">
@@ -55,95 +62,97 @@ import closeSvg from "@/features/search/assets/close.svg"
   </section>  
 </dialog>
 
-<script is:inline>
-  const el = (id) => document.getElementById(id);
-  const dialog = el("tutor-detail-section");
+<script>
+  import { useSubjectStore } from "@/store/subjectStore";
 
-  document.addEventListener("DOMContentLoaded", () => {
+  const el = (id: string) => document.getElementById(id);
+
+  document.addEventListener("astro:page-load", () => {
+    const dialog = el("tutor-detail-section") as HTMLDialogElement | null;
+    if (!dialog) return;
+    const dialogEl: HTMLDialogElement = dialog;
+
     // Cerrar haciendo click en el fondo (overlay) nativo del dialog
-    dialog?.addEventListener("click", (e) => {
-      // e.target is the dialog itself when clicking exactly on the backdrop
-      if (e.target === dialog) {
-        dialog.close();
-      }
+    dialogEl.addEventListener("click", (e) => {
+      if (e.target === dialogEl) dialogEl.close();
     });
 
     el("close-dialog-btn")?.addEventListener("click", () => {
-      dialog.close();
+      dialogEl.close();
     });
-  });
 
-  async function loadTutor(id) {
-    try {
-      const [profileRes, slotsRes] = await Promise.all([
-        fetch(`/api/search/${encodeURIComponent(id)}`),
-        fetch(`/api/search/${encodeURIComponent(id)}/availability`)
-      ]);
+    async function loadTutor(id: string) {
+      try {
+        const [profileRes, slotsRes] = await Promise.all([
+          fetch(`/api/search/${encodeURIComponent(id)}`),
+          fetch(`/api/search/${encodeURIComponent(id)}/availability`)
+        ]);
 
-      const tutor = await profileRes.json();
-      const { availableSlots = [] } = await slotsRes.json();
+        const tutor = await profileRes.json();
+        const { availableSlots = [] } = await slotsRes.json();
+        const { colorMap } = useSubjectStore.getState();
 
-      const subjectsHTML = tutor.subjects?.map(s => `
-        <div class="tutorSubjects">
-          <div class="subjectName" style="padding: 2.8px 8.4px; background: #E6FFC7; border-radius: 22.4px;">
-            <p>${s.name}</p>
-          </div>
-        </div>
-      `).join("") ?? "";
+        const subjectsHTML = tutor.subjects?.map((s: { name: string }) => {
+          const colors = colorMap[s.name];
+          const bg = colors?.color && colors.color !== "transparent" ? colors.color : "#E6FFC7";
+          const border = colors?.borderColor && colors.borderColor !== "transparent" ? colors.borderColor : "transparent";
+          return `<div class="tutorSubjects" style="background:${bg};border-color:${border}"><p>${s.name}</p></div>`;
+        }).join("") ?? "";
 
-      const slotsHTML = availableSlots
-        .map(slot =>
-          `<li>
-            <span class="slot-day">${slot.dayOfWeek}</span>
-            <span class="slot-time">${slot.startTime} – ${slot.endTime}</span>
-            <span class="slot-modality">${slot.modality}</span>
-          </li>`
-        )
-        .join("");
+        const slotsHTML = availableSlots
+          .map((slot: { dayOfWeek: string; startTime: string; endTime: string; modality: string }) =>
+            `<li>
+              <span class="slot-day">${slot.dayOfWeek}</span>
+              <span class="slot-time">${slot.startTime} – ${slot.endTime}</span>
+              <span class="slot-modality">${slot.modality}</span>
+            </li>`
+          )
+          .join("");
 
-      el("tutor-name").textContent = tutor.name;
-      el("tutor-subjects").innerHTML = subjectsHTML;
-      el("tutor-total-ratings").textContent = `${tutor.totalRatings} valoraciones`;
+        el("tutor-name")!.textContent = tutor.name;
+        el("tutor-subjects")!.innerHTML = subjectsHTML;
+        el("tutor-total-ratings")!.textContent = `${tutor.totalRatings} valoraciones`;
 
-      const rating = Math.round(tutor.averageRating ?? 0);
-      let starsHTML = '';
-      
-      const starSrc = dialog.getAttribute("data-star");
-      const starFullSrc = dialog.getAttribute("data-star-full");
-      const starUnfilledSrc = dialog.getAttribute("data-star-unfilled");
-      const starSimpleUnfilledSrc = dialog.getAttribute("data-star-simple-unfilled");
+        const rating = Math.round(tutor.averageRating ?? 0);
+        let starsHTML = '';
 
-      for (let i = 1; i <= 5; i++) {
-        if (i <= rating) {
-          if (i === 5) {
-            starsHTML += `<img src="${starFullSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+        const starSrc = dialogEl.getAttribute("data-star");
+        const starFullSrc = dialogEl.getAttribute("data-star-full");
+        const starUnfilledSrc = dialogEl.getAttribute("data-star-unfilled");
+        const starSimpleUnfilledSrc = dialogEl.getAttribute("data-star-simple-unfilled");
+
+        for (let i = 1; i <= 5; i++) {
+          if (i <= rating) {
+            if (i === 5) {
+              starsHTML += `<img src="${starFullSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+            } else {
+              starsHTML += `<img src="${starSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
+            }
           } else {
-            starsHTML += `<img src="${starSrc}" alt="star" style="width: 31px; height: 29px; align-self: center; />`;
-          }
-        } else {
-          if (i === 5) {
-            starsHTML += `<img src="${starUnfilledSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
-          } else {
-            starsHTML += `<img src="${starSimpleUnfilledSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
+            if (i === 5) {
+              starsHTML += `<img src="${starUnfilledSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
+            } else {
+              starsHTML += `<img src="${starSimpleUnfilledSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
+            }
           }
         }
+
+        el("tutor-stars")!.innerHTML = starsHTML;
+        el("tutor-slots")!.innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
+
+        dialogEl.showModal();
+      } catch (error) {
+        console.error("Error cargando tutor:", error);
       }
-
-      el("tutor-stars").innerHTML = starsHTML;
-      el("tutor-slots").innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
-
-      dialog.showModal();
-
-    } catch (error) {
-      console.error("Error cargando tutor:", error);
     }
-  }
+
+    (window as any).loadTutor = loadTutor;
+  });
 </script>
 
 <style>
   #tutor-detail-section {
     width: 980px;
-    padding: 40px;
     border-radius: 22.4px;
     border: none;
     outline: none;
@@ -210,8 +219,8 @@ import closeSvg from "@/features/search/assets/close.svg"
     border-radius: 22.4px;
     display: flex;
     gap: 22px;
-    padding: 20px;
-    background: rgba(255, 252, 237, 0.5);
+    padding: 48px;
+    background: rgba(256, 256, 256, 0.5);
     backdrop-filter: blur(34.3px);
     position: relative;
   }
@@ -289,8 +298,12 @@ import closeSvg from "@/features/search/assets/close.svg"
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     justify-content: flex-end;
+    padding: 20px 32px;
+    border: 1px solid var(--neutral-200);
+    border-radius: 24px;
+    position: relative;
   }
 
   .informativeText {
@@ -312,6 +325,8 @@ import closeSvg from "@/features/search/assets/close.svg"
     line-height: 34px;
     letter-spacing: -0.02em;
     color: #1A1A1A;
+
+    
   }
 
   .containerTutorSubjects {
@@ -322,23 +337,55 @@ import closeSvg from "@/features/search/assets/close.svg"
     flex-wrap: wrap;
   }
 
+  .scheduleBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary-400);
+    width: fit-content;
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    padding: 8px 8px;
+    background: #DAFFAA;
+    border-radius: 8px;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    letter-spacing: -0.02em;
+    color: #4D662E;
+    transition: all 0.2s ease;
+  }
+
+  .scheduleBtn img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .scheduleBtn:hover {
+    background: #C6E88B;
+  }
+</style>
+
+<style is:global>
   .tutorSubjects {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     padding: 2.8px 8.4px;
-    background: #FAE9B7;
+    background: #E6FFC7;
     border-radius: 22.4px;
   }
 
   .tutorSubjects p {
-    font-family: 'Open Sauce Two';
+    font-family: 'Cabinet Grotesk Variable';
     font-style: normal;
     font-weight: 400;
-    font-size: 16.8px;
+    font-size: 14px;
     line-height: 21px;
-    color: #3C3C3C;
+    color: var(--text-body);
   }
 
   .tutorRating {
@@ -354,7 +401,7 @@ import closeSvg from "@/features/search/assets/close.svg"
     align-items: center;
     padding: 12px 20px;
     gap: 4px;
-    background: #F3EDFF;
+    background: var(--primary-100);
     border-radius: 16px;
   }
 

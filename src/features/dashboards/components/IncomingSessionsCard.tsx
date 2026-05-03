@@ -89,9 +89,15 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
           </p>
         )}
  
-        {!isLoading && !error && sessions.map((session) => {
+        {!isLoading && !error && displaySessions.map((session) => {
           const subjectName = typeof session.subject === 'string' ? session.subject : session.subject?.name;
           const colors = colorMap[subjectName] || { color: 'transparent', borderColor: 'transparent' };
+          const phase = getSessionTimePhase(
+            session.scheduledDate,
+            session.startTime,
+            session.endTime
+          );
+          const isTutor = viewerRole === UserRole.TUTOR;
 
           return (
             <div key={session.id} className="session-card">
@@ -102,37 +108,85 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
                     {getTimeLeft(session.scheduledDate, session.startTime, session.endTime)}
                   </span>
                 </div>
-   
+
                 <p className="description">{session.description}</p>
-   
+
                 <div className="card-footer">
                   <div className="tags">
-                    <span 
+                    <span
                       className="tag-subject"
-                      style={{ 
-                        backgroundColor: colors.color, 
+                      style={{
+                        backgroundColor: colors.color,
                         borderColor: colors.borderColor,
-                        color: '#1a1a1a' // Ensure text is readable on light subject colors
+                        color: '#1a1a1a',
                       }}
                     >
                       {subjectName}
                     </span>
-                    <span className="tag-status">{session.status}</span>
+                    <span className={`tag-status ${phase}`}>
+                      {sessionPhase[phase]}
+                    </span>
                   </div>
                   <span className="time-label">
                     {formatDate(session.scheduledDate)} · {formatTime(session.startTime)}
                   </span>
                 </div>
               </div>
-  
+
               <div className="actions">
-                <button
-                  className="btn-details"
-                  onClick={() => openDetail(session.id)}
-                  aria-label={`Ver detalles de ${session.title}`}
-                >
-                  Detalles
-                </button>
+                {phase === 'upcoming' && (
+                  <button
+                    type="button"
+                    className="btn-details"
+                    onClick={() => openDetail(session.id)}
+                    aria-label={`Ver detalles de ${session.title}`}
+                  >
+                    Detalles
+                  </button>
+                )}
+
+                {phase === 'in_progress' && isTutor && (
+                  <button
+                    type="button"
+                    className="btn-terminar"
+                    aria-label={`Terminar sesión ${session.title}`}
+                    onClick={() => setFinishingSession(session)}
+                  >
+                    Terminar
+                  </button>
+                )}
+
+                {phase === 'in_progress' && !isTutor && (
+                  <button
+                    type="button"
+                    className="btn-details-disabled"
+                    onClick={() => openDetail(session.id)}
+                    aria-label={`Ver detalles de ${session.title}`}
+                  >
+                    Detalles
+                  </button>
+                )}
+
+                {phase === 'ended' && isTutor && (
+                  <button
+                    type="button"
+                    className="btn-asistencia"
+                    aria-label={`Asistencia de ${session.title}`}
+                    onClick={() => handleAttendanceOpen(session)}
+                  >
+                    Asistencia
+                  </button>
+                )}
+
+                {phase === 'ended' && !isTutor && (
+                  <button
+                    type="button"
+                    className="btn-calificar"
+                    aria-label={`Calificar sesión ${session.title}`}
+                  >
+                    Calificar
+                  </button>
+                )}
               </div>
             </div>
           );

@@ -1,6 +1,7 @@
-import { useFloating, autoPlacement, offset, shift } from "@floating-ui/react";
+import { useFloating, flip, offset, shift } from "@floating-ui/react";
 import { useEffect, useState } from "react";
 import "../../assets/styles/SlotPopover.css";
+import { useSubjectStore } from "@/store/subjectStore";
 
 interface Props {
   subjects: string[];
@@ -9,7 +10,7 @@ interface Props {
   onSelect: (subject: string) => void;
 }
 
-const BADGE_COLORS = [
+const FALLBACK_COLORS = [
   { bg: "#c7d2fe", text: "#3730a3" },
   { bg: "#fde68a", text: "#92400e" },
   { bg: "#bbf7d0", text: "#166534" },
@@ -59,6 +60,7 @@ function getSubIntervalRect(
 export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
+  const { colorMap } = useSubjectStore();
 
   useEffect(() => {
     const el = document.getElementById(`slot-block-${slotBlockId}`);
@@ -71,11 +73,12 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
   }, []);
 
   const { refs, floatingStyles, update } = useFloating({
+    placement: "right-start",
     elements: { reference: anchorEl },
     middleware: [
       offset(10),
-      autoPlacement({
-        allowedPlacements: ["top", "bottom", "top-start", "bottom-start"],
+      flip({
+        fallbackPlacements: ["right", "left-start", "bottom-start", "top-start"],
       }),
       shift({ padding: 12 }),
     ],
@@ -187,13 +190,15 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
 
         <div className="slot-popover__subjects">
           {subjects.map((subject, i) => {
-            const color = BADGE_COLORS[i % BADGE_COLORS.length];
+            const mapped = colorMap[subject];
+            const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
+            const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
             return (
               <button
                 key={subject}
                 onClick={() => onSelect(subject)}
                 className="slot-popover__subject-btn"
-                style={{ background: color.bg, color: color.text }}
+                style={{ background: bg, color: text }}
               >
                 {subject}
               </button>

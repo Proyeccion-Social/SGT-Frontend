@@ -127,6 +127,6 @@
 }
 
 .session-type-footer__continue-btn--active {
-  background: #7c3aed;
+  background: var(--primary-400);
   cursor: pointer;
 }

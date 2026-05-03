@@ -21,8 +21,9 @@
 </form>
 
 <script>
+  import { navigate } from "astro:transitions/client";
   import { sileo } from "sileo";
-  import { navigate } from "astro:transitions/client"
+  import { useAuthStore } from "@/store/authStore";
 
   const form = document.getElementById("login-form") as HTMLFormElement | null;
   const passwordField = document.getElementById("password-field");
@@ -111,17 +112,13 @@
             throw new Error(data.message || "Login failed");
           }
 
-          // Guardar estado en zustand persist (localStorage)
-          const authStorage = JSON.parse(
-            localStorage.getItem("auth-storage") || '{"state":{},"version":0}',
+          // Actualizar el store en memoria (persist escribirá a localStorage solo)
+          const store = useAuthStore.getState();
+          store.setUser(data.user);
+          store.setRequiresPasswordChange(data.requiresPasswordChange ?? false);
+          store.setRequiresProfileCompletion(
+            data.requiresProfileCompletion ?? false,
           );
-          authStorage.state = {
-            ...authStorage.state,
-            user: data.user,
-            requiresPasswordChange: data.requiresPasswordChange ?? false,
-            requiresProfileCompletion: data.requiresProfileCompletion ?? false,
-          };
-          localStorage.setItem("auth-storage", JSON.stringify(authStorage));
 
           // Redirigir según estado del usuario
           if (data.requiresPasswordChange) {

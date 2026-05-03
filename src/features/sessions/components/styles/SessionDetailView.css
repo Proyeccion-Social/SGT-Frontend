@@ -203,8 +203,7 @@
 
 /* Subject tag – yellow pastel */
 .sdv-tag--subject {
-  background: var(--sdv-yellow);
-  color: var(--sdv-yellow-text);
+  color: var(--text-body);
 }
 
 /* Tutor tag – lavender */

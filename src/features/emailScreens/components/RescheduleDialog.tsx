@@ -12,6 +12,7 @@ export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     fetch(`/api/emailScreens/sessions/${sessionId}`)
@@ -34,8 +35,11 @@ export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
   const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => { if (e.target === e.currentTarget) onClose(); };
 
   const handleGoToSearch = () => {
+    setIsRedirecting(true);
     const subjectId = session?.subject?.id ?? '';
-    window.location.href = `/sessions?subjectId=${subjectId}`;
+    setTimeout(() => {
+      window.location.href = `/sessions?subjectId=${subjectId}`;
+    }, 800);
   };
 
   return (
@@ -49,19 +53,29 @@ export const RescheduleDialog = ({ sessionId, onClose }: Props) => {
         )}
         {!loading && !error && session && (
           <div className="es-reschedule-content">
-            <div className="es-reschedule-header">
-              <img src={calendarIcon.src} alt="Calendario" className="es-reschedule-icon" />
-              <h2 className="es-reschedule-title">¿Deseas reagendar la tutoría?</h2>
-            </div>
-            
-            <div className="es-reschedule-actions">
-              <button className="es-btn-general-reschedule es-btn--reschedule" onClick={handleGoToSearch}>
-                Reagendar
-              </button>
-              <button className="es-btn-general-reschedule es-btn--exit" onClick={onClose}>
-                Salir
-              </button>
-            </div>
+            {isRedirecting ? (
+              <div className="es-card__loading">
+                <div className="es-spinner"></div>
+                <p>Espera un momento...</p>
+                <p className="es-subtext">Te estamos redirigiendo al buscador.</p>
+              </div>
+            ) : (
+              <>
+                <div className="es-reschedule-header">
+                  <img src={calendarIcon.src} alt="Calendario" className="es-reschedule-icon" />
+                  <h2 className="es-reschedule-title">¿Deseas reagendar la tutoría?</h2>
+                </div>
+                
+                <div className="es-reschedule-actions">
+                  <button className="es-btn-general-reschedule es-btn--reschedule" onClick={handleGoToSearch}>
+                    Reagendar
+                  </button>
+                  <button className="es-btn-general-reschedule es-btn--exit" onClick={onClose}>
+                    Salir
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

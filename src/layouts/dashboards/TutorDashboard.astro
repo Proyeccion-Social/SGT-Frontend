@@ -1,7 +1,6 @@
 ---
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 
-import UserHeader from "@/features/general/components/UserHeader.astro";
 import DashboardSessionManager from "@/features/dashboards/components/DashboardSessionManager";
 import StatCard from "@/features/dashboards/components/StatCard";
 import { TutorAvailabilityManager } from "@/features/dashboards/components/TutorAvailabilityManager";
@@ -14,7 +13,6 @@ const userRole = UserRole.TUTOR;
 <main class='content-wrapper'>
   <DashboardLoader role={userRole} client:only='react' />
   <div class='dashboard-content'>
-    <UserHeader userRole={userRole} />
 
     <div class='welcome-banner-slot'>
       <WelcomeBanner client:only='react' />
@@ -51,6 +49,13 @@ const userRole = UserRole.TUTOR;
     height: 100%;
   }
 
+  @media (max-width: 768px) {
+    .content-wrapper {
+      border-radius: 0;
+      border: none;
+    }
+  }
+
   .content-wrapper::-webkit-scrollbar {
     width: 6px;
     height: 100px;
@@ -66,8 +71,8 @@ const userRole = UserRole.TUTOR;
     flex-direction: column;
     width: 100%;
     gap: 1.5rem;
-    padding-top: 2rem;
     box-sizing: border-box;
+    margin-top: 72px;
   }
 
   .welcome-banner-slot {

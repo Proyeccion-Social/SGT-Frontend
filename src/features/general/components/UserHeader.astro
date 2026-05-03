@@ -23,14 +23,26 @@ const { userRole } = Astro.props;
 
 <style>
     .user-header {
-        position: sticky;
+        position: absolute;
         align-self: flex-end;
         display: flex;
         align-items: center;
         gap: 12px;
         padding-right: 30px;
-        top: 2rem;
+        top: 48px;
         margin-left: auto;
+        z-index: 10000;
+        right: 20px
+    }
+
+    @media (max-width: 768px) {
+        .user-header {
+            position: fixed;
+            top: 2rem;
+            right: 20px;
+            padding-right: 0;
+            z-index: 10001;
+        }
     }
 
     .role-change-button {

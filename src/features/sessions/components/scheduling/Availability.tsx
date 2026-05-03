@@ -15,10 +15,11 @@ interface TutorInfo {
 interface Props {
   tutorIds: string[];
   subject: string;
+  subjectColor?: { color: string; borderColor: string };
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, subject, onSelect }: Props) {
+export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [tutors, setTutors] = useState<Record<string, TutorInfo>>({});
   const [loading, setLoading] = useState(false);
@@ -88,7 +89,7 @@ export default function AvailabilityStep({ tutorIds, subject, onSelect }: Props)
             return (
               <button
                 key={tutorId}
-                onClick={() => setSelected(tutorId)}
+                onClick={() => setSelected(isSelected ? null : tutorId)}
                 className={`tutor-card${isSelected ? " tutor-card--selected" : ""}`}
               >
                 {/* ── Indicador de selección ── */}
@@ -99,7 +100,10 @@ export default function AvailabilityStep({ tutorIds, subject, onSelect }: Props)
                 )}
 
                 {/* ── Badge de materia ── */}
-                <div className="tutor-card__subject-badge">{subject}</div>
+                <div
+                  className="tutor-card__subject-badge"
+                  style={subjectColor?.color && subjectColor.color !== 'transparent' ? { backgroundColor: subjectColor.color, borderColor: subjectColor.borderColor } : undefined}
+                >{subject}</div>
 
                 {/* ── Foto del tutor ── */}
                 <div className="tutor-card__photo-wrapper">

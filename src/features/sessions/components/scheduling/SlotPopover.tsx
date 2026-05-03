@@ -1,4 +1,4 @@
-import { useFloating, autoPlacement, offset, shift } from "@floating-ui/react";
+import { useFloating, flip, offset, shift } from "@floating-ui/react";
 import { useEffect, useState } from "react";
 import "../../assets/styles/SlotPopover.css";
 import { useSubjectStore } from "@/store/subjectStore";
@@ -73,11 +73,12 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
   }, []);
 
   const { refs, floatingStyles, update } = useFloating({
+    placement: "right-start",
     elements: { reference: anchorEl },
     middleware: [
       offset(10),
-      autoPlacement({
-        allowedPlacements: ["top", "bottom", "top-start", "bottom-start"],
+      flip({
+        fallbackPlacements: ["right", "left-start", "bottom-start", "top-start"],
       }),
       shift({ padding: 12 }),
     ],

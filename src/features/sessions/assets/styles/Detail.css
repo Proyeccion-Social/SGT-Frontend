@@ -79,6 +79,32 @@
   resize: none;
 }
 
+/* ── Estados de error en inputs ── */
+.details-field__input--error,
+.details-field__textarea--error {
+  border-color: #f87171;
+}
+
+/* ── Footer de campo: error + contador ── */
+.details-field__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+.details-field__error {
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.details-field__counter {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
 /* ── Pie con botón de continuar ── */
 .details-footer {
   display: flex;

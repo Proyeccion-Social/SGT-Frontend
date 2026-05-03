@@ -30,6 +30,7 @@ const currentPath = Astro.url.pathname;
 
       <div
         class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
+        data-tooltip='Dashboard'
       >
         <a href='/dashboard'>
           <Image src={DashboardIcon} alt='Dashboard' class='icon' />
@@ -43,7 +44,7 @@ const currentPath = Astro.url.pathname;
     <div class='nav-group-main'>
       {
         userRole === UserRole.STUDENT && (
-          <div class='calendar-container'>
+          <div class='calendar-container' data-tooltip='Calendario'>
             <a href='/sessions'>
               <Image src={CalendarIcon} alt='Calendar' class='icon' />
               <span class='nav-label'>Calendario</span>
@@ -55,11 +56,11 @@ const currentPath = Astro.url.pathname;
       {
         userRole === UserRole.ADMIN && (
           <>
-            <a href='#'>
+            <a href='#' data-tooltip='Gestión'>
               <Image src={WindowIcon} alt='Window' class='icon' />
               <span class='nav-label'>Gestión</span>
             </a>
-            <a href='#'>
+            <a href='#' data-tooltip='Configuración'>
               <Image src={ConfigIcon} alt='Config' class='icon' />
               <span class='nav-label'>Configuración</span>
             </a>
@@ -72,6 +73,7 @@ const currentPath = Astro.url.pathname;
           <>
             <a
               href='/availability/tutor/slots'
+              data-tooltip='Tu Disponibilidad'
               class={
                 currentPath.startsWith("/availability/tutor")
                   ? "active-link"
@@ -81,12 +83,13 @@ const currentPath = Astro.url.pathname;
               <Image src={WindowIcon} alt='Slots' class='icon' />
               <span class='nav-label'>Tu Disponibilidad</span>
             </a>
-            <a href='#'>
+            <a href='#' data-tooltip='Configuración'>
               <Image src={ConfigIcon} alt='Config' class='icon' />
               <span class='nav-label'>Configuración</span>
             </a>
             <div
               class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
+              data-tooltip='Historial'
             >
               <a href='/history'>
                 <Image src={HistoryIcon} alt='History' class='icon' />
@@ -102,6 +105,7 @@ const currentPath = Astro.url.pathname;
           <>
             <div
               class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
+              data-tooltip='Historial'
             >
               <a href='/history'>
                 <Image src={HistoryIcon} alt='History' class='icon' />
@@ -110,16 +114,17 @@ const currentPath = Astro.url.pathname;
             </div>
             <a
               href='/search'
+              data-tooltip='Buscar'
               class={currentPath.startsWith("/search") ? "active-link" : ""}
             >
               <Image src={SearchIcon} alt='Search' class='icon' />
               <span class='nav-label'>Buscar</span>
             </a>
-            <a href='#'>
+            <a href='#' data-tooltip='Explorar'>
               <Image src={BinocularIcon} alt='Binocular' class='icon' />
               <span class='nav-label'>Explorar</span>
             </a>
-            <a href='#'>
+            <a href='#' data-tooltip='Comunidad'>
               <Image src={CommunityIcon} alt='Community' class='icon' />
               <span class='nav-label'>Comunidad</span>
             </a>
@@ -127,10 +132,14 @@ const currentPath = Astro.url.pathname;
         )
       }
       <div class='notification-container'>
-        <a href='#'>
+        <button
+          id='notification-trigger'
+          aria-label='Abrir notificaciones'
+          onclick="window.dispatchEvent(new CustomEvent('toggle-notifications'))"
+        >
           <Image src={NotificationIcon} alt='Notification' class='icon' />
           <span class='notification-label'>Notificaciones</span>
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -256,7 +265,6 @@ const currentPath = Astro.url.pathname;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
-    overflow: hidden;
     position: relative;
   }
 
@@ -289,7 +297,7 @@ const currentPath = Astro.url.pathname;
     text-decoration: none;
     color: inherit;
     flex-shrink: 0;
-    overflow: hidden;
+    position: relative;
   }
 
   .calendar-container a,
@@ -340,6 +348,21 @@ const currentPath = Astro.url.pathname;
     height: 40px;
   }
 
+  #notification-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    width: 100%;
+    height: 100%;
+  }
+
   /* Iconos */
   .icon {
     width: 24px;
@@ -386,4 +409,34 @@ const currentPath = Astro.url.pathname;
     background: #e7dcff;
     border-radius: 8px;
   }
+
+  /* Tooltips */
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-default);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+
+  [data-tooltip]:hover::after {
+    opacity: 1;
+  }
+
+  .sidebar.expanded [data-tooltip]::after {
+    display: none;
+  }
 </style>
+

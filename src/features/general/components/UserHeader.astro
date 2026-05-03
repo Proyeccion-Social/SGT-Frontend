@@ -31,16 +31,21 @@ const { userRole } = Astro.props;
         padding-right: 30px;
         top: 48px;
         margin-left: auto;
-        z-index: 10000;
+        z-index: 10;
         right: 20px
     }
 
     @media (max-width: 768px) {
         .user-header {
             position: fixed;
-            top: 2rem;
-            right: 20px;
-            padding-right: 0;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            padding-right: 0.5rem;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
             z-index: 10001;
         }
     }

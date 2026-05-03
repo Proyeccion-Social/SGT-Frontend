@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSubjectStore } from "@/store/subjectStore";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
 import DetailsStep from "./scheduling/Details";
@@ -42,6 +43,7 @@ export default function SchedulingWizard({ slots }: Props) {
   const [step, setStep] = useState(1);
   const [popover, setPopover] = useState<PopoverData | null>(null);
   const [slotContext, setSlotContext] = useState<any>(null);
+  const { colorMap } = useSubjectStore();
   const [data, setData] = useState<WizardData>({
     slot: null,
     tutorId: "",
@@ -256,7 +258,7 @@ export default function SchedulingWizard({ slots }: Props) {
       subjectId: currentData.subjectId,
       availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
-      modality: currentData.modality ?? slotContext?.modality ?? "PRES",
+      modality: currentData.modality ?? currentData.slot?.modality ?? "PRES",
       title: currentData.title,
       durationHours,
       description: currentData.description,
@@ -338,8 +340,6 @@ export default function SchedulingWizard({ slots }: Props) {
           {/* ── Drawer principal ── */}
           <Drawer.Content className="wizard-drawer">
 
-            {/* ── Barra de progreso degradado ── */}
-            <div className="wizard-drawer__progress-bar" />
 
             {/* ── Handle de arrastre ── */}
             <div className="wizard-drawer__handle" />
@@ -353,8 +353,11 @@ export default function SchedulingWizard({ slots }: Props) {
                   <AvailabilityStep
                     tutorIds={tutorIds}
                     subject={data.subject}
+                    subjectColor={colorMap[data.subject]}
                     onSelect={(tutorId) => {
-                      setData((prev) => ({ ...prev, tutorId }));
+                      const selectedSlot =
+                        availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
+                      setData((prev) => ({ ...prev, tutorId, slot: selectedSlot }));
                       setStep(2);
                     }}
                   />

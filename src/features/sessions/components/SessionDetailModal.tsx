@@ -9,8 +9,9 @@ import { useSessionDetail } from '../hooks/useSessionDetail';
 import { SessionDetailView } from './SessionDetaiView';
 import { useTutorSlots } from '../hooks/useAvailability';
 
-export type ModalView = 'detail' | 'propose' | 'edit';
- 
+export type ModalView = 'detail' | 'propose' | 'edit' | 'reject';
+
+
 interface Props {
   sessionId: string;
   role: UserRole;
@@ -18,12 +19,16 @@ interface Props {
   onRequestCancel: (session: Session) => void;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
+  confirmar: (sessionId: string) => Promise<boolean>;
+  rechazar: (sessionId: string, reason: string) => Promise<boolean>;
+  aceptarModificacion: (sessionId: string) => Promise<boolean>;
+  rechazarModificacion: (sessionId: string) => Promise<boolean>;
 }
  
-export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar }: Props) => {
+export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar, confirmar, rechazar, aceptarModificacion, rechazarModificacion }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
-  const { slots: availabilitySlots } = useTutorSlots(session?.tutor?.id ?? null); 
+  const { slots: availabilitySlots } = useTutorSlots(view === 'propose' ? (session?.tutor?.id ?? null) : null);
  
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
@@ -74,6 +79,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
             role={role}
             isProposing={view === 'propose'}
             isEditing={view === 'edit'}
+            isRejecting={view === 'reject'}
             availabilitySlots={availabilitySlots}
             onClose={onClose}
             onProposeModification={() => setView('propose')}
@@ -82,7 +88,26 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
             onCancel={() => onRequestCancel(session)}
             onProposeSuccess={onClose}
             onEditSuccess={onClose}
-            modificar={modificar} 
+            onConfirm={async () => {
+              const ok = await confirmar(session.id);
+              if (ok) onClose();
+            }}
+            onRequestReject={() => setView('reject')}
+            onRejectSubmit={async (reason) => {
+              const ok = await rechazar(session.id, reason);
+              if (ok) onClose();
+            }}
+            onAcceptModification={async () => {
+              const ok = await aceptarModificacion(session.id);
+              if (!ok) throw new Error('No se pudo aceptar la modificación.');
+              onClose();
+            }}
+            onRejectModification={async () => {
+              const ok = await rechazarModificacion(session.id);
+              if (!ok) throw new Error('No se pudo rechazar la modificación.');
+              onClose();
+            }}
+            modificar={modificar}
             editar={editar}
           />
         )}

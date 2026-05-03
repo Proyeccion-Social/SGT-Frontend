@@ -3,6 +3,7 @@ import './styles/CancelSessionModal.css';
 
 import { useState } from 'react';
 import { sileo, Toaster } from 'sileo';
+import ToasterReact from '@/components/ui/ToasterReact';
 import type { Session } from '../types/session.types';
 
 interface Props {
@@ -55,7 +56,7 @@ export const CancelSessionModal = ({
 
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Cancel session">
-      <Toaster />
+      <Toaster position="top-center" />
       <div className="modal-card modal-card--cancel">
         <button className="modal-card__close" onClick={onClose} aria-label="Close">✕</button>
 

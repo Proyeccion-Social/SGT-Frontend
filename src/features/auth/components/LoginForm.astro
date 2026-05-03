@@ -48,7 +48,6 @@
       await sileo
         .promise(
           async () => {
-            console.log("Validating email:", emailInput.value);
             const res = await fetch("api/auth/validate-email", {
               method: "POST",
               headers: {
@@ -65,7 +64,6 @@
             }
 
             const data = await res.json();
-            console.log(data);
 
             if (data.isValid) {
               passwordField?.classList.add("visible");
@@ -96,7 +94,6 @@
     await sileo
       .promise(
         async () => {
-          console.log("Password: ", passwordInput.value);
           const res = await fetch("api/auth/login", {
             method: "POST",
             headers: {

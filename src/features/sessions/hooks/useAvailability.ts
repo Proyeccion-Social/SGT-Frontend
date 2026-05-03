@@ -20,7 +20,6 @@ export function useTutorSlots(tutorId: string | null) {
         }
         const data = await res.json();
 
-        console.log('[useTutorSlots] respuesta cruda:', data);
 
         const mapped: AvailabilitySlot[] = data.slots.map((s: Record<string, unknown>) => ({
           id: String(s.id ?? ''),
@@ -30,7 +29,6 @@ export function useTutorSlots(tutorId: string | null) {
           endTime: String(s.endTime ?? ''),
           available: s.isBooked === false,
         }));
-        console.log('[useTutorSlots] slots mapeados:', mapped);
         setSlots(mapped);
       } catch (err) {
         console.error('[useTutorSlots] error:', err);

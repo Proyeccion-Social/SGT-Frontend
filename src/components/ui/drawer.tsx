@@ -49,7 +49,6 @@ export default function VaulDrawer() {
     useEffect(() => {
         const handlePageTransition = () => {
             if (isOpen) {
-                console.log("Manteniendo drawer abierto tras transición");
             }
         };
 
@@ -63,9 +62,6 @@ export default function VaulDrawer() {
             setFormData(merged);
         }
 
-        console.log("Datos recibidos del paso actual:", newData);
-        console.log("Datos acumulados hasta ahora:", merged);
-
         setCanContinue(false);
         setContinueLabel('Continuar');
         setStep((prev) => Math.min(prev + 1, 4));
@@ -78,7 +74,6 @@ export default function VaulDrawer() {
 
         try {
             // Complete Profile via BFF route
-            console.log("Datos enviados para completar perfil:", submitData);
             const res = await fetch('/api/tutor/complete-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

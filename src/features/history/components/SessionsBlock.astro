@@ -1,6 +1,6 @@
 ---
 import { SessionsPagination } from "./SessionsPagination.tsx";
-import SessionDialogManager from "./SessionDialogManager.tsx";
+import HistorySessionManager from "./HistorySessionManager.tsx";
 import { HistoryFilters } from "./HistoryFilters.tsx";
 import CalendarAdd from "../assets/calendar-add.svg";
 import { Image } from "astro:assets";
@@ -88,7 +88,7 @@ const pagination = data.meta;
                     </span>
                   </td>
                   <td>
-                    <span class='subject-name'>{session.subject.name}</span>
+                    <span class='subject-name' data-subject-name={session.subject.name}>{session.subject.name}</span>
                   </td>
                   <td>
                     {(() => {
@@ -145,14 +145,27 @@ const pagination = data.meta;
       )
     }
 
-    <SessionDialogManager client:load sessions={sessions} userId={userId} />
+    <HistorySessionManager client:load />
   </div>
 </div>
 
 <script>
   import { navigate } from "astro:transitions/client";
+  import { useSubjectStore } from "@/store/subjectStore";
 
   document.addEventListener("astro:page-load", () => {
+    // Apply subject colors from store
+    const { colorMap } = useSubjectStore.getState();
+    document.querySelectorAll<HTMLElement>(".subject-name[data-subject-name]").forEach((el) => {
+      const name = el.dataset.subjectName || "";
+      const colors = colorMap[name];
+      if (colors?.color && colors.color !== "transparent") {
+        el.style.backgroundColor = colors.color;
+        el.style.borderColor = colors.borderColor;
+        el.style.border = `1px solid ${colors.borderColor}`;
+      }
+    });
+
     const tableBody = document.querySelector("tbody");
 
     // --- Row click → open session dialog ---
@@ -265,7 +278,7 @@ const pagination = data.meta;
     font-size: 48px;
     line-height: 52px;
     letter-spacing: -0.02em;
-    color: #1A1A1A;
+    color: #1a1a1a;
     span {
       color: #9f74ff;
       font-family: "Caveat";
@@ -280,11 +293,13 @@ const pagination = data.meta;
   }
 
   .subject-name {
+    font-family: "Cabinet Grotesk Variable";
     font-size: 12px;
     border-radius: 16px;
     background-color: rgba(183, 151, 255, 1);
     color: rgb(25, 25, 25);
     padding: 4px 10px;
+    font-weight: 400;
   }
 
   .title-column {
@@ -338,6 +353,7 @@ const pagination = data.meta;
   .table-wrapper {
     height: 60vh;
     overflow-y: scroll;
+    border-radius: 0px 0px 32px 32px;
   }
 
   .table-wrapper::-webkit-scrollbar {
@@ -415,7 +431,7 @@ const pagination = data.meta;
   }
 
   tr:hover td {
-    background-color: #8851ff33;
+    background-color: var(--primary-50);
     cursor: pointer;
   }
 
@@ -572,7 +588,6 @@ const pagination = data.meta;
 
 {/* ====== Estilos globales para los componentes React ====== */}
 <style is:global>
-  /* --- Backdrop y modal del SessionDialogManager --- */
   .sdm-backdrop {
     position: fixed;
     inset: 0;

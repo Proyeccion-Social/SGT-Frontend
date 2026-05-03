@@ -101,7 +101,7 @@
   font-weight: 400;
   color: #3c3c3c;
   margin: -2px 0;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
 }
 
 .card-footer {
@@ -129,6 +129,7 @@
   font-weight: 500;
   height: auto;
   align-items: center;
+  letter-spacing: -0.02em;
 }
 
 .tag-status {
@@ -139,13 +140,14 @@
   display: flex;
   align-items: center;
   text-transform: capitalize;
-  letter-spacing: 0.5px;
+  letter-spacing: -0.02em;
   background: rgba(210, 210, 210, 0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 1px solid rgba(200, 200, 200, 0.35);
   color: #555;
   height: auto;
+
 }
 
 .tag-status.upcoming {

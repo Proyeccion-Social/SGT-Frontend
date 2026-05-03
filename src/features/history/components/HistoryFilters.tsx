@@ -95,21 +95,19 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--neutral-200,#e7dcff)] bg-[var(--surface-page,#fff)] px-2 py-2 text-sm font-medium text-[var(--neutral-400,#1e293b)] hover:bg-[var(--surface-focus,#f5f3ff)] hover:text-[var(--primary-default,#9f74ff)] transition-all"
-          >
-            <ListFilterIcon className="size-3" />
-            {totalActive > 0 && (
-              <span className="flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-white bg-[var(--primary-default,#9f74ff)]">
-                {totalActive}
-              </span>
-            )}
-          </button>
-        }
-      />
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--neutral-200,#e7dcff)] bg-[var(--surface-page,#fff)] px-2 py-2 text-sm font-medium text-[var(--neutral-400,#1e293b)] hover:bg-[var(--surface-focus,#f5f3ff)] hover:text-[var(--primary-default,#9f74ff)] transition-all"
+        >
+          <ListFilterIcon className="size-3" />
+          {totalActive > 0 && (
+            <span className="flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-white bg-[var(--primary-default,#9f74ff)]">
+              {totalActive}
+            </span>
+          )}
+        </button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56 shadow-xl border-[var(--border-primary)]">
         {/* Header con limpiar */}
         {totalActive > 0 && (

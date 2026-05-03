@@ -23,14 +23,7 @@
   flex-direction: column;
   overflow: hidden;
   height: 95vh;
-}
 
-/* ── Barra de progreso degradado (top) ── */
-.wizard-drawer__progress-bar {
-  height: 6px;
-  background: linear-gradient(90deg, #a78bfa, #7c3aed);
-  border-radius: 16px 16px 0 0;
-  flex-shrink: 0;
 }
 
 /* ── Handle de arrastre ── */

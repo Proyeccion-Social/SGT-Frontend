@@ -5,19 +5,31 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
 
 <footer>
   <div class="contact">
+    <article>
+      <p>
+        Diseñado por <span><a href="mailto:dev.cristianb@gmail.com">Cristian</a></span>
+      </p>
+      <Image src={Envelope} alt="Contact Us" />
+    </article>
     <p>
-      Diseñado por <span><a href="mailto:dev.cristianb@gmail.com">Cristian</a></span>
+      Desarrollado por 
+      <span><a href="#">Daniel</a></span>, 
+      <span><a href="#">Luna</a></span>, 
+      <span><a href="#">Johan</a></span>, 
+      <span><a href="#">Carlos</a></span>, 
+      <span><a href="#">Juan</a></span>, 
+      <span><a href="#">Luis</a></span>, 
+      <span><a href="#">Devin</a></span>
     </p>
-    <Image src={Envelope} alt="Contact Us" />
   </div>
 </footer>
 
 <style>
   footer {
     width: 97%;
-    height: 60px;
+    height: 48px;
     margin: auto;
-    background: #CFB9FF;
+    background: var(--primary-200);
     border-radius: 16px 16px 0px 0px;
     display: flex;
     align-items: center;
@@ -27,14 +39,22 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
     font-family: 'Open Sauce Two';
     font-style: normal;
     font-weight: 700;
-    font-size: 20px;
-    line-height: 16px;
+    font-size: 16px;
+    line-height: 20px;
     display: flex;
     align-items: center;
     letter-spacing: -0.02em;
-    margin-left: 22px;
-    color: #1A1A1A;
+    padding: 0px 24px;
+    color: var(--text-body);
     gap: 7px;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .contact article {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .contact p {
@@ -43,14 +63,14 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
 
   .contact a {
     color: #1A1A1A;
-    font-family: "Cabinet Grotesk Variable";
     letter-spacing: normal;
-    font-size: 21px;
-    font-weight: bolder;
+    font-size: 18px;
+    font-weight: 800;
+    font-family: "Cabinet Grotesk Variable";
   }
 
   img {
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
   }
 </style>

@@ -63,7 +63,7 @@
 }
 
 .tutor-card--selected {
-  box-shadow: 0 0 0 2px #7c3aed;
+  box-shadow: 0 0 0 2px var(--primary-400);
 }
 
 /* ── Indicador de selección (check) ── */
@@ -87,10 +87,10 @@
   position: absolute;
   top: 10px;
   right: 10px;
-  background: #ede9fe;
-  color: #6d28d9;
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--text-headings);
+  font-family: "Cabinet Grotesk Variable";
+  font-size: 12px;
+  font-weight: 500;
   padding: 3px 10px;
   border-radius: 999px;
   z-index: 2;
@@ -168,6 +168,6 @@
 }
 
 .availability-footer__continue-btn--active {
-  background: #7c3aed;
+  background: var(--primary-400);
   cursor: pointer;
 }

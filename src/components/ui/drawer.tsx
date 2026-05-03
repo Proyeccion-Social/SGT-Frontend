@@ -73,7 +73,6 @@ export default function VaulDrawer() {
     useEffect(() => {
         const handlePageTransition = () => {
             if (isOpen) {
-                console.log("Manteniendo drawer abierto tras transición");
             }
         };
 
@@ -90,9 +89,6 @@ export default function VaulDrawer() {
         if (newData?.subjectIds) {
             console.log("Materias seleccionadas (IDs):", newData.subjectIds);
         }
-
-        console.log("Datos recibidos del paso actual:", newData);
-        console.log("Datos acumulados hasta ahora:", merged);
 
         setCanContinue(false);
         setContinueLabel('Continuar');
@@ -129,8 +125,6 @@ export default function VaulDrawer() {
                     max_weekly_hours: submitData.max_weekly_hours
                 };
             }
-
-            console.log(`Enviando datos para completar perfil (${user.role}):`, payload);
             
             const res = await fetch(endpoint, {
                 method: 'POST',

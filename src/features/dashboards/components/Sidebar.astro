@@ -127,10 +127,14 @@ const currentPath = Astro.url.pathname;
         )
       }
       <div class='notification-container'>
-        <a href='#'>
+        <button
+          id='notification-trigger'
+          aria-label='Abrir notificaciones'
+          onclick="window.dispatchEvent(new CustomEvent('toggle-notifications'))"
+        >
           <Image src={NotificationIcon} alt='Notification' class='icon' />
           <span class='notification-label'>Notificaciones</span>
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -340,6 +344,21 @@ const currentPath = Astro.url.pathname;
     height: 40px;
   }
 
+  #notification-trigger {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    width: 100%;
+    height: 100%;
+  }
+
   /* Iconos */
   .icon {
     width: 24px;
@@ -387,3 +406,4 @@ const currentPath = Astro.url.pathname;
     border-radius: 8px;
   }
 </style>
+

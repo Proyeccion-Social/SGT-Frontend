@@ -55,7 +55,7 @@ export const CancelSessionModal = ({
 
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Cancel session">
-      <Toaster />
+      <Toaster position="top-center" />
       <div className="modal-card modal-card--cancel">
         <button className="modal-card__close" onClick={onClose} aria-label="Close">✕</button>
 

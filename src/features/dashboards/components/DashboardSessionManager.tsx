@@ -87,6 +87,66 @@ export const DashboardSessionManager = ({ role }: Props) => {
     }
   };
 
+  const confirmar = async (sessionId: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/confirm-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+      if (!res.ok) throw new Error();
+      await refetch();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const rechazar = async (sessionId: string, reason: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/reject-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reason }),
+      });
+      if (!res.ok) throw new Error();
+      await refetch();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const aceptarModificacion = async (sessionId: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/accept-modification', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+      if (!res.ok) throw new Error();
+      await refetch();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const rechazarModificacion = async (sessionId: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/reject-modification', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+      if (!res.ok) throw new Error();
+      await refetch();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const canCancel = (session: Session) => true;
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal]     = useState(false);
@@ -137,7 +197,11 @@ export const DashboardSessionManager = ({ role }: Props) => {
           onRequestCancel={handleRequestCancel}
           modificar={modificar}
           editar={editar}
-        />  
+          confirmar={confirmar}
+          rechazar={rechazar}
+          aceptarModificacion={aceptarModificacion}
+          rechazarModificacion={rechazarModificacion}
+        />
       )}
 
       {showCancelModal && sessionToCancel && (

@@ -30,10 +30,22 @@ export interface SessionParticipant {
 
 // ─── Entidad principal Session ───────────────────────────────
 
+export interface ModificationRequest {
+  id: string;
+  newModality?: Modality;
+  newDurationHours?: number;
+  newScheduledDate?: string;
+  newStartTime?: string;
+  newEndTime?: string;
+  proposedBy?: string;
+  status: string;
+  createdAt?: string;
+}
+
 export interface Session {
-  id: string;                      
-  tutor: SessionTutor;               
-  subject: SessionSubject;           
+  id: string;
+  tutor: SessionTutor;
+  subject: SessionSubject;
   scheduledDate: string;             // "YYYY-MM-DD"
   startTime: string;                 // "HH:mm:ss"
   endTime: string;                   // "HH:mm:ss"
@@ -43,11 +55,12 @@ export interface Session {
   title: string;
   description: string;
   participants: SessionParticipant[];
-  createdAt: string;     
+  createdAt: string;
   location: string;
   virtualLink: string;            // ISO date-time
   cancelledAt: string | null;
   cancellationReason: string | null;
+  pendingModification?: ModificationRequest;
 }
 
 export type EvaluationAspect =
@@ -306,4 +319,43 @@ export interface EditSessionBody {
 }
 
 // Controls which sub-view is rendered inside SessionDetailModal
-export type ModalView = 'detail' | 'propose' | 'edit';
+export type ModalView = 'detail' | 'propose' | 'edit' | 'reject';
+
+export interface ConfirmSessionBody {
+  message?: string;
+}
+
+export interface ConfirmSessionResult {
+  success: boolean;
+  message: string;
+  autoRejectedCount: number;
+  session: {
+    id: string;
+    status: string;
+    tutorConfirmed: boolean;
+    tutorConfirmedAt: string;
+    scheduledDate: string;
+    startTime: string;
+    endTime: string;
+    participants: Array<{ id: string; name: string; status: string }>;
+  };
+}
+
+export interface RejectSessionBody {
+  reason: string;
+}
+
+export interface RejectSessionResult {
+  success: boolean;
+  message: string;
+}
+
+export interface AcceptModificationResult {
+  success: boolean;
+  message: string;
+}
+
+export interface RejectModificationResult {
+  success: boolean;
+  message: string;
+}

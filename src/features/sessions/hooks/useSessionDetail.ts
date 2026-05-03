@@ -37,6 +37,9 @@ export function useSessionDetail(sessionId: string | null): UseSessionDetailRetu
       })
       .then(async (sessionData) => {
         if (cancelled) return;
+        if (String((sessionData as any).status) === 'PENDING_MODIFICATION') {
+          console.log('[useSessionDetail] PENDING_MODIFICATION — campos del backend:', JSON.stringify(sessionData, null, 2));
+        }
         setSession(sessionData);
 
         const tutorId = sessionData.tutor?.id;

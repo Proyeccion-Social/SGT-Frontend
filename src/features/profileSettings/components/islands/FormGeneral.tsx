@@ -97,9 +97,9 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
           return res;
         }),
         {
-          loading: { title: "Guardando perfil…" },
-          success: { title: "Perfil actualizado" },
-          error:   { title: "No se pudo guardar el perfil" },
+          loading: { title: "Guardando perfil…",        fill: "#8751ff" },
+          success: { title: "Perfil actualizado",        fill: "#2ecc71" },
+          error:   { title: "No se pudo guardar el perfil", fill: "#f35761" },
         },
       )
       .finally(() => setSavingInfo(false));
@@ -133,9 +133,9 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
           return res;
         }),
         {
-          loading: { title: "Actualizando contraseña…" },
-          success: { title: "Contraseña actualizada" },
-          error:   { title: "No se pudo cambiar la contraseña" },
+          loading: { title: "Actualizando contraseña…",        fill: "#8751ff" },
+          success: { title: "Contraseña actualizada",           fill: "#2ecc71" },
+          error:   { title: "No se pudo cambiar la contraseña", fill: "#f35761" },
         },
       )
       .then(() => {

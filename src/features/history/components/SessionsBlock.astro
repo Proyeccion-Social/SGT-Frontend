@@ -14,7 +14,7 @@ const pagination = data.meta;
 
 <div class='block-container'>
   <div class='headerTitle'>
-    <h2 class='title'>Tu <span> historial</span> de sesiones</h2>
+    <h2 class='title'>Tu<span>historial</span> de sesiones</h2>
   </div>
 
   <div class='sections-container'>
@@ -240,7 +240,10 @@ const pagination = data.meta;
   .headerTitle {
     width: 100%;
     text-align: center;
-    display: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
   }
 
   .sections-container {
@@ -255,14 +258,20 @@ const pagination = data.meta;
   }
 
   .title {
-    font-family: "Open Sauce Two", system-ui, sans-serif;
-    font-size: 2.8rem;
-    font-weight: bold;
-    color: var(--text-headings);
+    font-style: normal;
+    font-weight: 500;
+    position: relative;
+    top: 20%;
+    font-size: 48px;
+    line-height: 52px;
+    letter-spacing: -0.02em;
+    color: #1A1A1A;
     span {
-      font-size: 3.5rem;
-      font-family: "Caveat", cursive;
-      color: #9966ff;
+      color: #9f74ff;
+      font-family: "Caveat";
+      font-size: 52px;
+      font-weight: 600;
+      padding: 0 8px;
     }
   }
   .pagination-container {

@@ -31,15 +31,23 @@
 }
 
 .slot-popover__title {
+  font-style: normal;
   font-weight: 600;
   font-size: 14px;
-  color: #1f2937;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #3C3C3C;
 }
 
 .slot-popover__date {
-  font-size: 12px;
-  color: #9ca3af;
   margin: 0 0 12px 18px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #3C3C3C;
+
 }
 
 .slot-popover__subjects {
@@ -52,7 +60,13 @@
   border: none;
   border-radius: 999px;
   padding: 5px 14px;
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
+  font-family: 'Open Sauce Two';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #3C3C3C;
+
 }

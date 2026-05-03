@@ -5,6 +5,7 @@ import Dock from "@/features/general/components/Dock.astro";
 import VaulDrawer from "@/components/ui/drawer";
 import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
 import { UserRole } from "@/constants/roles";
+import UserHeader from "@/features/general/components/UserHeader.astro";
 
 interface Props {
   title?: string;
@@ -18,18 +19,22 @@ const token = Astro.cookies.get("access_token")?.value;
 
 <Layout title={title}>
   <div class='dashboardContainer'>
+    <UserHeader userRole={rol} transition:persist />
     <Sidebar userRole={rol} transition:persist />
-    <main class="main-content">
+
+    <main class='main-content'>
       <Dock userRole={rol} transition:persist />
       <slot />
     </main>
   </div>
-  {rol === UserRole.TUTOR && (
-    <>
-      <VaulDrawer client:load transition:persist />
-      <TutorAvailabilityOverlay />
-    </>
-  )}
+  {
+    rol === UserRole.TUTOR && (
+      <>
+        <VaulDrawer client:load transition:persist />
+        <TutorAvailabilityOverlay />
+      </>
+    )
+  }
 </Layout>
 
 <style>
@@ -45,7 +50,7 @@ const token = Astro.cookies.get("access_token")?.value;
   .main-content {
     flex: 1;
     overflow-y: auto;
-    height: 100%;
+    height: 100dvh;
   }
 
   @media (max-width: 768px) {

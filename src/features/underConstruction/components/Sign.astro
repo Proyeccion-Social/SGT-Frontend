@@ -1,0 +1,56 @@
+---
+import LockTimeIcon from "@/features/underConstruction/assets/LockTimeIcon.svg";
+import { Image } from "astro:assets";
+---
+
+<div class="sign-container">
+    <div class="img-container">
+        <Image src={LockTimeIcon} alt="Lock Time Icon" />
+    </div>
+    <div class="info-container">
+        <h1 class="title">Aún no puedes acceder a está pagina</h1>
+        <p class="message">¡Pronto estará disponible!</p>
+    </div>
+</div>
+
+<style>
+    .sign-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 24px;
+        border: 1px dashed #C6C6C6;
+        height: 40%;
+        width: 50%;
+        background: #FFFFFF70;
+        backdrop-filter: blur(40px);
+        gap: 24px;
+    }
+
+    .info-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .title {
+        font-family: "Open Sauce Two";
+        font-size: 32px;
+        font-weight: 600;
+        line-height: 40px;
+        letter-spacing: -2%;
+        color: #3C3C3C;
+    }
+
+    .message {
+        font-family: "Open Sauce Two";
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 32px;
+        letter-spacing: -2%;
+        color: #000000;
+    }
+</style>

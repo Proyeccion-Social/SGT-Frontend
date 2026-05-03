@@ -27,14 +27,12 @@ const token = Astro.cookies.get("access_token")?.value;
       <slot />
     </main>
   </div>
-  {
-    rol === UserRole.TUTOR && (
-      <>
-        <VaulDrawer client:load transition:persist />
-        <TutorAvailabilityOverlay />
-      </>
-    )
-  }
+  {(rol === "tutor" || rol === "student") && (
+    <>
+      <VaulDrawer client:load transition:persist />
+      {rol === "tutor" && <TutorAvailabilityOverlay />}
+    </>
+  )}
 </Layout>
 
 <style>

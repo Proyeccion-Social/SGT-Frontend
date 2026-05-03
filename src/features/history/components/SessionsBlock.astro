@@ -1,6 +1,6 @@
 ---
 import { SessionsPagination } from "./SessionsPagination.tsx";
-import SessionDialogManager from "./SessionDialogManager.tsx";
+import HistorySessionManager from "./HistorySessionManager.tsx";
 import { HistoryFilters } from "./HistoryFilters.tsx";
 import CalendarAdd from "../assets/calendar-add.svg";
 import { Image } from "astro:assets";
@@ -145,7 +145,7 @@ const pagination = data.meta;
       )
     }
 
-    <SessionDialogManager client:load sessions={sessions} userId={userId} />
+    <HistorySessionManager client:load />
   </div>
 </div>
 
@@ -265,7 +265,7 @@ const pagination = data.meta;
     font-size: 48px;
     line-height: 52px;
     letter-spacing: -0.02em;
-    color: #1A1A1A;
+    color: #1a1a1a;
     span {
       color: #9f74ff;
       font-family: "Caveat";
@@ -338,6 +338,7 @@ const pagination = data.meta;
   .table-wrapper {
     height: 60vh;
     overflow-y: scroll;
+    border-radius: 0px 0px 32px 32px;
   }
 
   .table-wrapper::-webkit-scrollbar {
@@ -415,7 +416,7 @@ const pagination = data.meta;
   }
 
   tr:hover td {
-    background-color: #8851ff33;
+    background-color: var(--primary-50);
     cursor: pointer;
   }
 
@@ -572,7 +573,6 @@ const pagination = data.meta;
 
 {/* ====== Estilos globales para los componentes React ====== */}
 <style is:global>
-  /* --- Backdrop y modal del SessionDialogManager --- */
   .sdm-backdrop {
     position: fixed;
     inset: 0;

@@ -5,7 +5,6 @@ import MainLayout from "../Layout.astro";
 import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import DashboardSessionManager from "@/features/dashboards/components/DashboardSessionManager";
 import StatCard from "@/features/dashboards/components/StatCard";
-import UserHeader from "../../features/general/components/UserHeader.astro";
 import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import DashboardLoader from "@/features/dashboards/components/DashboardLoader";
@@ -17,7 +16,6 @@ const userRole = UserRole.STUDENT;
 <main class='content-wrapper'>
   <DashboardLoader role={userRole} client:only='react' />
   <div class='dashboard-content'>
-    <UserHeader userRole={userRole} />
 
     <div class='welcome-banner-slot'>
       <WelcomeBanner client:only='react' />
@@ -65,6 +63,13 @@ const userRole = UserRole.STUDENT;
     height: 100%;
   }
 
+  @media (max-width: 768px) {
+    .content-wrapper {
+      border-radius: 0;
+      border: none;
+    }
+  }
+
   .content-wrapper::-webkit-scrollbar {
     width: 6px;
   }
@@ -81,7 +86,7 @@ const userRole = UserRole.STUDENT;
     gap: 1.5rem;
     box-sizing: border-box;
     padding-top: 0.5rem;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 72px;
   }
 
   .welcome-banner-slot {

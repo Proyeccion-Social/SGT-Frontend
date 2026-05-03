@@ -42,7 +42,7 @@ const currentPath = Astro.url.pathname;
 
     <div class='nav-group-main'>
       {
-        userRole === "student" && (
+        userRole === UserRole.STUDENT && (
           <div class='calendar-container'>
             <a href='/sessions'>
               <Image src={CalendarIcon} alt='Calendar' class='icon' />
@@ -53,7 +53,7 @@ const currentPath = Astro.url.pathname;
       }
 
       {
-        userRole === "admin" && (
+        userRole === UserRole.ADMIN && (
           <>
             <a href='#'>
               <Image src={WindowIcon} alt='Window' class='icon' />
@@ -68,7 +68,7 @@ const currentPath = Astro.url.pathname;
       }
 
       {
-        userRole === "tutor" && (
+        userRole === UserRole.TUTOR && (
           <>
             <a
               href='/availability/tutor/slots'
@@ -98,7 +98,7 @@ const currentPath = Astro.url.pathname;
       }
 
       {
-        userRole === "student" && (
+        userRole === UserRole.STUDENT && (
           <>
             <div
               class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
@@ -157,6 +157,12 @@ const currentPath = Astro.url.pathname;
     z-index: 50;
     background: #f6f1ff;
     overflow: visible;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      display: none;
+    }
   }
 
   .navbar-header {

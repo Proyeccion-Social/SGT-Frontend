@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import '../../styles/notifications.css';
 import type { AppNotification, NotificationsMeta, AppNotificationType } from '../../services/notificationsService';
+import toSee from '../../assets/to-see.svg';
+
 
 const NOTIFICATION_TITLES: Record<AppNotificationType, string> = {
   SESSION_REQUEST_RECEIVED: 'Solicitud de sesión recibida',
@@ -99,6 +101,7 @@ export function NotificationsPanel() {
   const handleView = async (n: AppNotification) => {
     await callMarkAsRead(n.id);
     setNotifications(prev => prev.filter(x => x.id !== n.id));
+    setIsOpen(false);
     const sessionId = n.payload?.sessionId;
     if (sessionId) openSessionDetail(sessionId);
   };
@@ -176,7 +179,7 @@ export function NotificationsPanel() {
                   className="notif-action-btn"
                   onClick={() => handleView(n)}
                 >
-                  Ver
+                  <img src={toSee.src} alt="Ver" />
                 </button>
               )}
             </div>

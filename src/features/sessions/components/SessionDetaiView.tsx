@@ -1,6 +1,6 @@
 // SessionDetailView.tsx — styled to match design
 import { useRef, useState, useEffect } from 'react';
-import { Toaster, sileo } from 'sileo';
+import { sileo } from 'sileo';
 
 import './styles/SessionDetailView.css'
 import { UserRole } from '@/constants/roles';
@@ -242,7 +242,6 @@ export const SessionDetailView = ({
  
   return (
     <>
-      <Toaster position="top-center" />
       <div className="sdv">
         <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
  

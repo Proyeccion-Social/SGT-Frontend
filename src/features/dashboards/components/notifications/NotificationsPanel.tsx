@@ -27,6 +27,18 @@ function buildPageRange(totalPages: number): number[] {
   return Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1);
 }
 
+async function callMarkAsRead(id: string): Promise<void> {
+  const res = await fetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    console.error('[Notifications] mark-as-read failed:', res.status, body);
+  }
+}
+
+function openSessionDetail(sessionId: string): void {
+  document.dispatchEvent(new CustomEvent('open-detail', { detail: { sessionId } }));
+}
+
 export function NotificationsPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -40,7 +52,7 @@ export function NotificationsPanel() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/notifications/inbox?page=${p}&limit=${LIMIT}`);
+      const res = await fetch(`/api/notifications/inbox?page=${p}&limit=${LIMIT}&onlyUnread=true`);
       if (!res.ok) throw new Error('Error al cargar notificaciones');
       const json = await res.json();
       setNotifications(json.data);
@@ -77,6 +89,18 @@ export function NotificationsPanel() {
   const goToPage = (p: number) => {
     setPage(p);
     fetchNotifications(p);
+  };
+
+  const handleDismiss = async (n: AppNotification) => {
+    await callMarkAsRead(n.id);
+    setNotifications(prev => prev.filter(x => x.id !== n.id));
+  };
+
+  const handleView = async (n: AppNotification) => {
+    await callMarkAsRead(n.id);
+    setNotifications(prev => prev.filter(x => x.id !== n.id));
+    const sessionId = n.payload?.sessionId;
+    if (sessionId) openSessionDetail(sessionId);
   };
 
   if (!isOpen) return null;
@@ -132,15 +156,32 @@ export function NotificationsPanel() {
           <p className="notif-status">No tienes notificaciones.</p>
         )}
 
-        {!loading && !error && notifications.map(n => (
-          <div key={n.id} className="notif-item">
-            <div className="notif-item-content">
-              <span className="notif-item-title">{NOTIFICATION_TITLES[n.type]}</span>
-              <span className="notif-item-desc">{n.message}</span>
+        {!loading && !error && notifications.map(n => {
+          const isCancelled = n.type === 'SESSION_CANCELLED';
+          return (
+            <div key={n.id} className="notif-item">
+              <div className="notif-item-content">
+                <span className="notif-item-title">{NOTIFICATION_TITLES[n.type]}</span>
+                <span className="notif-item-desc">{n.message}</span>
+              </div>
+              {isCancelled ? (
+                <button
+                  className="notif-action-btn dismiss"
+                  onClick={() => handleDismiss(n)}
+                >
+                  Entendido
+                </button>
+              ) : (
+                <button
+                  className="notif-action-btn"
+                  onClick={() => handleView(n)}
+                >
+                  Ver
+                </button>
+              )}
             </div>
-            <button className="notif-action-btn">Ver</button>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

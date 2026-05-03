@@ -73,3 +73,23 @@ export async function getNotificationsInbox(
 
   return res.json();
 }
+
+export async function markNotificationAsRead(
+  token: string,
+  id: string
+): Promise<{ success: boolean; message: string }> {
+  const res = await fetch(`${API_URL}/api/v1/notifications/inbox/${id}/read`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.message ?? `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}

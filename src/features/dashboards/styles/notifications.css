@@ -169,3 +169,12 @@
 .notif-action-btn:hover {
   background: #b6f060;
 }
+
+.notif-action-btn.dismiss {
+  background: #9f74ff;
+  color: #fff;
+}
+
+.notif-action-btn.dismiss:hover {
+  background: #8a5cf0;
+}

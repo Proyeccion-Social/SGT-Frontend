@@ -242,7 +242,7 @@ export const SessionDetailView = ({
  
   return (
     <>
-      <Toaster />
+      <Toaster position="top-center" />
       <div className="sdv">
         <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
  

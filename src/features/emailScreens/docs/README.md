@@ -29,7 +29,10 @@ Orquestados por el `EmailActionController` en el Dashboard:
 ### Páginas Públicas (Sin Auth)
 Páginas independientes para flujos de seguridad:
 1. **Restablecimiento de Contraseña**: `/reset-password?token=...`
-2. **Confirmación de Correo**: `/confirm-email?token=...`
+2. **Confirmación de Correo**: `/confirm-email?token=...` (Incluye flujo de *Auto-Login* integrado tras confirmación exitosa).
+
+### Experiencia de Usuario (UX)
+- Los componentes implementan estados de carga explícitos (`isRedirecting`, `actionLoading`) para transiciones asíncronas largas (ej. redirigir a reagendamiento o iniciar sesión post-confirmación) previniendo múltiples envíos y brindando feedback continuo.
 
 ## Herramientas de Desarrollo
 - **Email Screens Playground**: Una página dedicada (`/email-playground`) para probar todos los diálogos y flujos con datos reales o mocks sin necesidad de disparar correos electrónicos reales.

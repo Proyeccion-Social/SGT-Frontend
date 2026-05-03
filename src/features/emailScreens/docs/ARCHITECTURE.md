@@ -35,9 +35,10 @@ Todas las solicitudes pasan por rutas de API locales (Astro API Routes) para man
 ### Flujo de Páginas Públicas (No Auth)
 1. El usuario llega a `/confirm-email` o `/reset-password` con un `token` en la URL.
 2. El componente React extrae el token y valida el estado inicial.
-3. El usuario interactúa con el formulario (ej: ingresa nueva password).
+3. El usuario interactúa con el formulario o botón (ej: ingresar nueva password o confirmar correo).
 4. Se envía el token + datos al BFF público.
-5. El BFF reenvía la petición al API central codificando correctamente los parámetros.
+5. El BFF reenvía la petición al API central.
+6. **Auto-Login (Confirmación de Correo)**: Al confirmar exitosamente un correo, el BFF puede recibir tokens de autenticación (`access_token`, `refresh_token`) desde el backend. El BFF configura estas cookies y el usuario es redirigido automáticamente al dashboard autenticado.
 
 ## 4. Manejo de Errores
 - Los errores se capturan en bloques `try/catch`.

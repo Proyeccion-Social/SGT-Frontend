@@ -78,9 +78,9 @@ export function TutorProfileDialog({
           return res;
         }),
         {
-          loading: { title: next ? "Activando cuenta…"   : "Desactivando cuenta…" },
-          success: { title: next ? "Cuenta activada"     : "Cuenta desactivada" },
-          error:   { title: "No se pudo cambiar el estado" },
+          loading: { title: next ? "Activando cuenta…"   : "Desactivando cuenta…", fill: "#8751ff" },
+          success: { title: next ? "Cuenta activada"     : "Cuenta desactivada",   fill: next ? "#2ecc71" : "#f35761" },
+          error:   { title: "No se pudo cambiar el estado",                         fill: "#f35761" },
         },
       )
       .then(() => {

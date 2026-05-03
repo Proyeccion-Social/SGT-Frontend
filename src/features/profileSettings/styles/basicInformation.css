@@ -17,9 +17,6 @@
   transition: background 0.3s ease;
 }
 
-.bi-card--inactive {
-  background: linear-gradient(to bottom, #f35761 55%, #ffd6d8 100%);
-}
 
 /* ── Status badge (top-right) ────────────────────────────── */
 .bi-status {

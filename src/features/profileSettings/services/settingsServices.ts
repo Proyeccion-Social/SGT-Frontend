@@ -126,7 +126,7 @@ export interface TutorHoursStatus {
 
 export async function toggleTutorActive(isActive: boolean, token?: string): Promise<void> {
     const headers = buildAuthHeaders(token);
-    const response = await fetch(`${API_URL}/tutors/me/active`, {
+    const response = await fetch(`${API_URL}/tutors/active`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify({ isActive }),

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
+import { navigate } from "astro:transitions/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,9 +60,19 @@ export default function UserMenuDropdown() {
     setTutorDialogOpen(true);
   }
 
-  function handleLogout() {
-    clearUser();
-    window.location.href = "/login";
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: user?.id }),
+      });
+    } catch {
+      // Si falla el endpoint igual limpiamos localmente
+    } finally {
+      await navigate("/");
+      clearUser();
+    }
   }
 
   const isStudent = user?.role === "STUDENT";

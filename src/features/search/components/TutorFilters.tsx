@@ -102,23 +102,19 @@ export function TutorFilters() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <button
-            type="button"
-            className="inline-flex  items-center gap-2 rounded-full border border-[var(--primary-200)] bg-[var(--surface-page)] px-4 py-2 text-sm font-medium text-[var(--text-body)] hover:bg-[var(--surface-focus)] hover:text-[var(--primary-600)] transition-all shadow-sm"
-          >
-            <ListFilterIcon className="size-4" />
-            {totalActive > 0 && (
-              <span
-                className="flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-white bg-[var(--primary-default)]"
-              >
-                {totalActive}
-              </span>
-            )}
-          </button>
-        }
-      />
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--primary-200)] bg-[var(--surface-page)] px-4 py-2 text-sm font-medium text-[var(--text-body)] hover:bg-[var(--surface-focus)] hover:text-[var(--primary-600)] transition-all shadow-sm"
+        >
+          <ListFilterIcon className="size-4" />
+          {totalActive > 0 && (
+            <span className="flex size-5 items-center justify-center rounded-full text-[11px] font-bold text-white bg-[var(--primary-default)]">
+              {totalActive}
+            </span>
+          )}
+        </button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56 shadow-xl border-[var(--border-primary)]">
         {/* Header con limpiar */}
         {totalActive > 0 && (

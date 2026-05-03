@@ -17,7 +17,8 @@ const CAREERS = [
     "Ingeniería Electrónica",
     "Ingeniería Industrial",
     "Ingeniería Catastral y Geodesia",
-    "Ingeniería Eléctrica"
+    "Ingeniería Eléctrica",
+    "Otra Carrera"
 ];
 
 const StudentAdditionalData = forwardRef<StepHandle, StudentAdditionalDataProps>(

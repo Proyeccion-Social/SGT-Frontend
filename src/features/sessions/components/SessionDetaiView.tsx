@@ -9,6 +9,7 @@ import ubicacion from './icons/compu.svg'
 import pin from './icons/Pin.svg'
 import calendar from './icons/calendar-day.svg'
 import time from './icons/timer.svg'
+import { useSubjectStore } from '@/store/subjectStore';
 
 
 import type { Session, ModifySessionBody, EditSessionBody, AvailabilitySlot } from '../types/session.types';
@@ -163,6 +164,8 @@ export const SessionDetailView = ({
 }: Props) => {
   const tutorName = tutorInfo?.name ?? session.tutor?.name ?? UserRole.TUTOR;
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
+  const { colorMap } = useSubjectStore();
+  const subjectColors = colorMap[String(session.subject.name)];
  
   const submitRef      = useRef<(() => Promise<void>) | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -190,7 +193,10 @@ export const SessionDetailView = ({
  
         {/* ── Tags ── */}
         <div className="sdv__tags">
-          <span className="sdv-tag sdv-tag--subject">{String(session.subject.name)}</span>
+          <span
+            className="sdv-tag sdv-tag--subject"
+            style={subjectColors?.color && subjectColors.color !== 'transparent' ? { backgroundColor: subjectColors.color, borderColor: subjectColors.borderColor } : undefined}
+          >{String(session.subject.name)}</span>
           <span className="sdv-tag sdv-tag--tutor">
             <span className="sdv-tag__dot sdv-tag__dot--purple" />
             {tutorName}

@@ -14,8 +14,6 @@ interface Props {
 }
 
 const { rol, title = "Atlas" } = Astro.props;
-
-const token = Astro.cookies.get("access_token")?.value;
 ---
 
 <Layout title={title}>

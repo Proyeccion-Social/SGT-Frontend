@@ -72,7 +72,14 @@ const userRole = UserRole.TUTOR;
     width: 100%;
     gap: 1.5rem;
     box-sizing: border-box;
-    margin-top: 72px;
+    padding-top: 72px;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-content {
+      padding-top: 8rem; /* Extra space for fixed header on mobile */
+      margin-top: 0;
+    }
   }
 
   .welcome-banner-slot {
@@ -87,6 +94,18 @@ const userRole = UserRole.TUTOR;
     border-radius: 12px;
     margin: 0 10rem;
     width: auto;
+  }
+
+  @media (max-width: 1024px) {
+    .hours-bar {
+      margin: 0 2rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hours-bar {
+      margin: 0 1rem;
+    }
   }
 
   .hours-segment {
@@ -118,5 +137,19 @@ const userRole = UserRole.TUTOR;
     min-height: 0;
     height: auto;
     margin-bottom: 2rem;
+  }
+
+  @media (max-width: 1024px) {
+    .cards-container {
+      margin: 0 2rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cards-container {
+      grid-template-columns: 1fr;
+      margin: 0 1rem;
+      gap: 1.5rem;
+    }
   }
 </style>

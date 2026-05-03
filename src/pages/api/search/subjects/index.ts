@@ -18,13 +18,12 @@ export const GET: APIRoute = async ({ cookies }) => {
 
         return new Response(JSON.stringify(result), {
             status: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: { 'Content-Type': 'application/json' },
         });
     } catch (error: any) {
-        const status = error?.status ?? 500;
-        return new Response(
-            JSON.stringify({ message: error?.message ?? "Error interno del servidor" }),
-            { status, headers: { "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: error.message || 'Failed to fetch subjects' }), {
+            status: error.status || 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
-};
+}

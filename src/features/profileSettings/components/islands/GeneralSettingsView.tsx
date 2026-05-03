@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { sileo } from "sileo";
 
 const PW_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
@@ -56,9 +54,10 @@ function PasswordField({ id, label, value, onChange, error, placeholder, autoCom
     <div className="gs-field">
       <label htmlFor={id} className="gs-label">{label}</label>
       <div className="gs-input-wrapper">
-        <Input
+        <input
           id={id}
           type={show ? "text" : "password"}
+          className={`gs-pw-input${error ? " gs-pw-input--error" : ""}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
@@ -128,9 +127,9 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
           return res;
         }),
         {
-          loading: { title: "Actualizando contraseña…", fill: "#8751ff" },
-          success: { title: "Contraseña actualizada",   fill: "#58d68d" },
-          error:   { title: "No se pudo cambiar la contraseña", fill: "#f35761" },
+          loading: { title: "Actualizando contraseña…" },
+          success: { title: "Contraseña actualizada" },
+          error:   { title: "No se pudo cambiar la contraseña" },
         },
       )
       .then(() => setPwForm({ current: "", newPw: "", confirm: "" }))
@@ -159,15 +158,15 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
           <div className="gs-form">
             <div className="gs-field">
               <label className="gs-label">Nombre completo</label>
-              <Input value={user?.name ?? ""} readOnly disabled />
+              <input value={user?.name ?? ""} readOnly disabled />
             </div>
             <div className="gs-field">
               <label className="gs-label">Correo electrónico</label>
-              <Input type="email" value={user?.email ?? ""} readOnly disabled />
+              <input type="email" value={user?.email ?? ""} readOnly disabled />
             </div>
             <div className="gs-field">
               <label className="gs-label">Rol</label>
-              <Input value={user?.role ?? ""} readOnly disabled />
+              <input value={user?.role ?? ""} readOnly disabled />
             </div>
           </div>
         )}
@@ -202,9 +201,9 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
               autoComplete="new-password"
             />
             <div className="gs-form-actions">
-              <Button type="submit" disabled={savingPw}>
+              <button type="submit" className="gs-submit-btn" disabled={savingPw}>
                 {savingPw ? "Actualizando..." : "Guardar"}
-              </Button>
+              </button>
             </div>
           </form>
         )}

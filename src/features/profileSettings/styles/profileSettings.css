@@ -6,16 +6,16 @@
 
 /* ── Dialog override ─────────────────────────────────────── */
 .ps-dialog {
-  width: 800px !important;
-  max-width: 800px !important;
-  height: 550px !important;
-  max-height: none !important;
-  padding: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
-  overflow: visible !important;
-  border-radius: 20px !important;
+  width: 800px;
+  max-width: 800px;
+  height: 580px;
+  max-height: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: visible;
+  border-radius: 20px;
 }
 
 /* Clip solo el contenido interior para preservar border-radius visual */
@@ -36,7 +36,9 @@
   background: none;
   cursor: pointer;
   z-index: 10;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .ps-close-btn:hover {
@@ -51,33 +53,36 @@
 
 /* ── Header ──────────────────────────────────────────────── */
 .ps-header {
-  padding: 22px 28px 18px;
-  border-bottom: 1px solid #f0eaff;
+  padding: 36px 60px;
+  border-bottom: 1px solid var(--primary-50);
   flex-shrink: 0;
-  gap: 4px;
+  gap: 8px;
 }
 
 .ps-title {
-  font-size: 32px;
+  font-style: normal;
   font-weight: 600;
+  font-size: 32px;
   line-height: 40px;
-  letter-spacing: -0.002px;
-  margin: 0;
+  letter-spacing: -0.02em;
+  color: var(--neutral-700);
 }
 
 .ps-title-black {
-  color: #1a1a1a;
+  color: var(--neutral-700);
 }
 
 .ps-title-purple {
-  color: #7c3aed;
+  color: var(--primary-default);
 }
 
 .ps-description {
-  font-size: 0.8125rem !important;
+  font-style: normal;
   font-weight: 400;
-  color: #1A1A1A !important;
-  margin: 0;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-700);
 }
 
 /* ── Content area (fills between header and bottom nav) ──── */
@@ -94,7 +99,9 @@
   flex-shrink: 0;
   /* Ligeramente más opaco que el blanco del resto de las vistas */
   background-color: rgba(245, 240, 255, 0.92);
-  border-top: 1px solid #ede9fe;
+  border-top: 1px solid var(--color-violeta-100);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +119,7 @@
   height: 36px;
   border-radius: 50%;
   border: none;
-  background-color: #ede9fe;
+  background-color: var(--color-violeta-100);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -124,15 +131,15 @@
 }
 
 .ps-nav-btn--active {
-  background-color: #7c3aed;
+  background-color: var(--primary-600);
 }
 
 .ps-nav-btn:hover:not(.ps-nav-btn--active) {
-  background-color: #ddd6fe;
+  background-color: var(--color-violeta-200);
 }
 
 .ps-nav-btn:focus-visible {
-  outline: 2px solid #7c3aed;
+  outline: 2px solid var(--primary-600);
   outline-offset: 2px;
 }
 
@@ -164,8 +171,8 @@
 }
 
 .ps-nav-btn--raw img {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .ps-nav-btn--raw.ps-nav-btn--active img {
@@ -184,12 +191,11 @@
   height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid #c4b5fd;
-  background-color: #ede9fe;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: #9acc5b;
 }
 
 .ps-avatar-circle img {
@@ -199,8 +205,15 @@
 }
 
 .ps-avatar-fallback {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #7c3aed;
-  user-select: none;
+  font-family: "Caveat";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  position: relative;
+  right: 2px;
 }

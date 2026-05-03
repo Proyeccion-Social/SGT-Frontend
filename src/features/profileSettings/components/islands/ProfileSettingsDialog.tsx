@@ -56,7 +56,6 @@ export function ProfileSettingsDialog({
           display: "flex",
           flexDirection: "column",
           gap: 0,
-          overflow: "hidden",
         }}
         showCloseButton={false}
       >
@@ -76,7 +75,7 @@ export function ProfileSettingsDialog({
               </>
             ) : (
               <>
-                <span className="ps-title-black">Informacion de</span>{" "}
+                <span className="ps-title-black">Información de</span>{" "}
                 <span className="ps-title-purple">mi perfil</span>
               </>
             )}
@@ -84,7 +83,7 @@ export function ProfileSettingsDialog({
           <DialogDescription className="ps-description">
             {activeView === "preferences"
               ? "Revisa tus preferencias y actualiza para una mejor experiencia"
-              : "Revisa tu información persona y actualiza si es necesario"}
+              : "Revisa tu información personal y actualiza si es necesario"}
           </DialogDescription>
         </DialogHeader>
 

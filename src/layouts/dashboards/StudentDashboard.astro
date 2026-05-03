@@ -85,8 +85,14 @@ const userRole = UserRole.STUDENT;
     width: 100%;
     gap: 1.5rem;
     box-sizing: border-box;
-    padding-top: 0.5rem;
-    margin-top: 72px;
+    padding-top: 72px;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-content {
+      padding-top: 8rem; /* Extra space for fixed header on mobile */
+      margin-top: 0;
+    }
   }
 
   .welcome-banner-slot {
@@ -115,11 +121,31 @@ const userRole = UserRole.STUDENT;
     margin-bottom: 2rem;
   }
 
+  @media (max-width: 1024px) {
+    .cards-container {
+      margin: 0 2rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cards-container {
+      margin: 0 1rem;
+      gap: 1.5rem;
+    }
+  }
+
   .left-side {
     display: flex;
     flex-direction: row;
     gap: 40px;
     width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .left-side {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
   }
 
   .incoming-sessions-container {
@@ -134,5 +160,11 @@ const userRole = UserRole.STUDENT;
     align-items: center;
     height: 280px;
     width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .green-photo-space {
+      height: 200px;
+    }
   }
 </style>

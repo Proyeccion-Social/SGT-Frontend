@@ -35,7 +35,6 @@ export const validateEmail = async (email: string) => {
     });
 
     const data = await response.json();
-    console.log(data)
     return !!data.exists;
   } catch (error) {
     console.error('Error validating email:', error);

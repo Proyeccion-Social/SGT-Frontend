@@ -258,7 +258,7 @@ export default function SchedulingWizard({ slots }: Props) {
       subjectId: currentData.subjectId,
       availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
-      modality: currentData.modality ?? slotContext?.modality ?? "PRES",
+      modality: currentData.modality ?? currentData.slot?.modality ?? "PRES",
       title: currentData.title,
       durationHours,
       description: currentData.description,
@@ -355,7 +355,9 @@ export default function SchedulingWizard({ slots }: Props) {
                     subject={data.subject}
                     subjectColor={colorMap[data.subject]}
                     onSelect={(tutorId) => {
-                      setData((prev) => ({ ...prev, tutorId }));
+                      const selectedSlot =
+                        availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
+                      setData((prev) => ({ ...prev, tutorId, slot: selectedSlot }));
                       setStep(2);
                     }}
                   />

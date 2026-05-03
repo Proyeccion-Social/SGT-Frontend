@@ -101,7 +101,6 @@ const { currentStatus = "all"} = Astro.props;
       radio.addEventListener('change', (e) => {
         const target = e.target as HTMLInputElement;
         const filterValue = target.value;
-        console.log(filterValue);
         
         labels.forEach(label => {
           if (label.contains(target)) {

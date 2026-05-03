@@ -8,7 +8,13 @@ import type {
     RegisterAttendanceDTO,
     RegisterAttendanceResult,
     CompleteSessionBody,
-    CompleteSessionResult
+    CompleteSessionResult,
+    ConfirmSessionBody,
+    ConfirmSessionResult,
+    RejectSessionBody,
+    RejectSessionResult,
+    AcceptModificationResult,
+    RejectModificationResult
 } from '../types/session.types';
 
 const API_URL = (import.meta.env.API_URL ?? '').replace(/\/$/, '');
@@ -120,6 +126,28 @@ export function getTutorSlots(tutorId: string, token: string): Promise<unknown> 
     return request(`/tutor/${tutorId}/slots`, token);
 }
 
+/** PATCH /scheduling/sessions/{sessionId}/modifications/{requestId}/accept */
+export function acceptModification(
+    sessionId: string,
+    requestId: string,
+    token: string
+): Promise<AcceptModificationResult> {
+    return request(`/scheduling/sessions/${sessionId}/modifications/${requestId}/accept`, token, {
+        method: 'PATCH',
+    });
+}
+
+/** PATCH /scheduling/sessions/{sessionId}/modifications/{requestId}/reject */
+export function rejectModification(
+    sessionId: string,
+    requestId: string,
+    token: string
+): Promise<RejectModificationResult> {
+    return request(`/scheduling/sessions/${sessionId}/modifications/${requestId}/reject`, token, {
+        method: 'PATCH',
+    });
+}
+
 /** PATCH /session-execution/sessions/{sessionId}/attendance */
 export function registerAttendance(
     sessionId: string,
@@ -128,6 +156,35 @@ export function registerAttendance(
 ): Promise<RegisterAttendanceResult> {
     return request(`/session-execution/sessions/${sessionId}/attendance`, token, {
         method: 'PATCH',
+        body: JSON.stringify(body),
+    });
+}
+
+/** GET /scheduling/sessions/{sessionId}/modifications */
+export function getSessionModifications(sessionId: string, token: string): Promise<unknown> {
+    return request(`/scheduling/sessions/${sessionId}/modifications`, token);
+}
+
+/** POST /scheduling/sessions/{sessionId}/confirm */
+export function confirmSession(
+    sessionId: string,
+    body: ConfirmSessionBody,
+    token: string
+): Promise<ConfirmSessionResult> {
+    return request(`/scheduling/sessions/${sessionId}/confirm`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
+
+/** POST /scheduling/sessions/{sessionId}/reject */
+export function rejectSession(
+    sessionId: string,
+    body: RejectSessionBody,
+    token: string
+): Promise<RejectSessionResult> {
+    return request(`/scheduling/sessions/${sessionId}/reject`, token, {
+        method: 'POST',
         body: JSON.stringify(body),
     });
 }

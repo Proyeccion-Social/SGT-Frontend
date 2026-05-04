@@ -80,3 +80,47 @@
     border-color: #8751ff;
     background-color: #ffffff;
 }
+
+@media (max-width: 499px) {
+    .student-form-container {
+        gap: 16px;
+        padding: 0.25rem 24px;
+        height: 40dvh;
+        justify-content: center;
+    }
+
+    .form-group {
+        gap: 0.5rem;
+    }
+
+    .modality-options {
+        height: auto;
+        gap: 0.6rem;
+    }
+
+    .modality-card {
+        padding: 0.6rem 0.5rem;
+        gap: 0.25rem;
+        border-radius: 10px;
+    }
+
+    .modality-card img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .modality-card span {
+        font-size: 0.75rem;
+    }
+
+    .form-label {
+        font-size: 0.8rem;
+    }
+
+    .career-select {
+        height: 40px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+        padding: 0 0.75rem;
+    }
+}

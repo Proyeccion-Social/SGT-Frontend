@@ -11,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 20000; /* Higher than Dock and Notifications */
+  z-index: 99999;
   padding: 1rem;
 }
 

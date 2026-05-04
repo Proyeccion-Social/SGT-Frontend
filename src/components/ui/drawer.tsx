@@ -205,7 +205,7 @@ export default function VaulDrawer() {
             >
                 <Drawer.Portal container={containerRef.current}>
                     <Drawer.Overlay className="drawer-overlay" data-state={isOpen ? "open" : "closed"} />
-                    <Drawer.Content className="drawer-content">
+                    <Drawer.Content className={`drawer-content${isStudent && (step === 1 || step === 2) ? ' drawer-content--student-additional' : ''}`}>
                         {/* Drag handle */}
                         <div aria-hidden className="drawer-handle" />
 

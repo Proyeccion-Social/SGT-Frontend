@@ -339,7 +339,7 @@ function FilterInput<T = unknown>({
   return (
     <InputGroup
       className={cn(
-        "w-36",
+        "w-36 max-[499px]:w-28",
         context.size == "sm" &&
           "h-8!",
         context.size == "default" &&
@@ -994,7 +994,7 @@ function SelectOptionsPopover<T = unknown>({
       />
       <DropdownMenuContent
         align="start"
-        className={cn("w-[200px] px-0", field.className)}
+        className={cn("w-[200px] max-[499px]:w-[160px] px-0", field.className)}
       >
         {renderMenuContent()}
       </DropdownMenuContent>
@@ -1032,7 +1032,7 @@ function FilterValueSelector<T = unknown>({
         placeholder={field.placeholder}
         pattern={field.pattern}
         field={field}
-        className={cn("w-36", field.className)}
+        className={cn("w-36 max-[499px]:w-28", field.className)}
         autoFocus={autoFocus}
       />
     )
@@ -1611,7 +1611,7 @@ export function Filters<T = unknown>({
           >
             <DropdownMenuTrigger render={triggerButton} />
             <DropdownMenuContent
-              className={cn("w-[220px]", menuPopupClassName)}
+              className={cn("w-[220px] max-[499px]:w-[180px]", menuPopupClassName)}
               align="start"
             >
               {showSearchInput && (
@@ -1777,7 +1777,7 @@ export function Filters<T = unknown>({
                                 <span>{field.label}</span>
                               </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent
-                                className="w-[200px]"
+                                className="w-[200px] max-[499px]:w-[160px]"
                                 side="right"
                               >
                                 <FilterSubmenuContent

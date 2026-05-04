@@ -94,5 +94,11 @@ const userId = getUserIdFromCookie(Astro.cookies);
   /* Hide user header globally when a modal is open (Desktop and Mobile) */
   :global(body.modal-open .user-header) {
     display: none !important;
+
+  }
+  /* Search page manages its own internal scroll on mobile */
+  :global(.search-page) {
+    height: calc(100vh - 100px) !important;
+    overflow: hidden !important;
   }
 </style>

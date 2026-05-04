@@ -11,7 +11,7 @@ export const WelcomeBanner = () => {
 
   return (
     <div className={`welcome-container ${isAdmin ? 'welcome-container--admin' : ''}`}>
-      <span>{protocol}<RoleBadge name={user.name} role={user.role} />!</span>
+      <span className='span-lh'>{protocol}<RoleBadge name={user.name} role={user.role} />!</span>
     </div>
   );
 };

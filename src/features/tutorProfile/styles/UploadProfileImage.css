@@ -4,6 +4,7 @@
 .drawer-body {
   border-radius: var(--border-radius-lg);
   background: var(--color-color-white);
+  z-index: 100001;
 }
 
 .body-header {

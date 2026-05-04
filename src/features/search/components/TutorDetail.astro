@@ -156,7 +156,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     border-radius: 22.4px;
     border: none;
     outline: none;
-    position: relative; /* Para el boton de cerrar */
+    position: relative;
   }
 
   /* ── Boton Cerrar ── */
@@ -239,6 +239,7 @@ import schedule from "@/features/search/assets/schedule.svg"
   .leftSideDetail {
     width: 260px;
     height: 225px;
+    flex-shrink: 0;
     display: flex;
     position: relative;
   }
@@ -322,11 +323,9 @@ import schedule from "@/features/search/assets/schedule.svg"
     font-style: normal;
     font-weight: 700;
     font-size: 40px;
-    line-height: 34px;
+    line-height: 44px;
     letter-spacing: -0.02em;
     color: #1A1A1A;
-
-    
   }
 
   .containerTutorSubjects {
@@ -341,12 +340,11 @@ import schedule from "@/features/search/assets/schedule.svg"
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--primary-400);
     width: fit-content;
     position: absolute;
     top: 24px;
     right: 24px;
-    padding: 8px 8px;
+    padding: 8px 12px;
     background: #DAFFAA;
     border-radius: 8px;
     font-style: normal;
@@ -356,6 +354,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     letter-spacing: -0.02em;
     color: #4D662E;
     transition: all 0.2s ease;
+    height: fit-content;
   }
 
   .scheduleBtn img {
@@ -365,6 +364,177 @@ import schedule from "@/features/search/assets/schedule.svg"
 
   .scheduleBtn:hover {
     background: #C6E88B;
+  }
+
+  /* ── Responsive ── */
+
+  @media (max-width: 1060px) {
+    #tutor-detail-section {
+      width: calc(100vw - 80px);
+    }
+
+    .leftSideDetail {
+      width: 200px;
+      height: 180px;
+    }
+
+    .tutorName {
+      font-size: 32px;
+      line-height: 36px;
+    }
+
+    .upSectionDetail {
+      padding: 36px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #tutor-detail-section {
+      width: calc(100vw - 48px);
+      border-radius: 18px;
+    }
+
+    .upSectionDetail {
+      padding: 28px 24px;
+      gap: 18px;
+      border-radius: 18px;
+    }
+
+    .leftSideDetail {
+      width: 160px;
+      height: 145px;
+    }
+
+    .profileImg,
+    .profileImgShadow {
+      border-radius: 16px;
+    }
+
+    .tutorName {
+      font-size: 26px;
+      line-height: 30px;
+    }
+
+    .rightSideDetail {
+      padding: 16px 20px;
+      border-radius: 18px;
+      gap: 10px;
+    }
+
+    .badgeActive p {
+      font-size: 13px;
+    }
+
+    .scheduleBtn {
+      font-size: 12px;
+      padding: 6px 10px;
+      top: 16px;
+      right: 16px;
+    }
+
+    .scheduleBtn img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  @media (max-width: 499px) {
+    #tutor-detail-section {
+      width: calc(100vw - 24px);
+      border-radius: 16px;
+    }
+
+    .upSectionDetail {
+      flex-direction: column;
+      padding: 20px;
+      gap: 14px;
+      border-radius: 16px;
+    }
+
+    .leftSideDetail {
+      width: 100%;
+      height: 160px;
+    }
+
+    .profileImg,
+    .profileImgShadow {
+      border-radius: 14px;
+    }
+
+    .badgeActive p {
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .activeIcon {
+      width: 9px;
+      height: 9px;
+    }
+
+    .rightSideDetail {
+      padding: 16px;
+      border-radius: 14px;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+
+    .tutorName {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .containerTutorSubjects {
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .scheduleBtn {
+      font-size: 12px;
+      padding: 6px 10px;
+      bottom: 16px;
+      right: 16px;
+      top: auto;
+    }
+  }
+
+  @media (max-width: 380px) {
+    #tutor-detail-section {
+      width: calc(100vw - 16px);
+      border-radius: 12px;
+    }
+
+    .upSectionDetail {
+      padding: 14px;
+      gap: 10px;
+      border-radius: 12px;
+    }
+
+    .leftSideDetail {
+      height: 130px;
+    }
+
+    .tutorName {
+      font-size: 20px;
+      line-height: 24px;
+    }
+
+    .rightSideDetail {
+      padding: 12px;
+      gap: 6px;
+      border-radius: 10px;
+    }
+
+    .scheduleBtn {
+      font-size: 11px;
+      padding: 5px 8px;
+      bottom: 12px;
+      right: 12px;
+    }
+
+    .scheduleBtn img {
+      width: 14px;
+      height: 14px;
+    }
   }
 </style>
 
@@ -429,6 +599,34 @@ import schedule from "@/features/search/assets/schedule.svg"
     flex-direction: column;
     gap: 10px;
     display: none;
+  }
+
+  @media (max-width: 439px) {
+    .stars img {
+      width: 24px !important;
+      height: 24px !important;
+    }
+
+    .stars {
+      padding: 8px 14px;
+      gap: 3px;
+    }
+
+    .totalRatings {
+      display: none;
+    }
+  }
+
+  @media (max-width: 389px) {
+    .stars img {
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    .stars {
+      padding: 6px 10px;
+      gap: 2px;
+    }
   }
 
 

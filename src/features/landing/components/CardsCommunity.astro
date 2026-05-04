@@ -16,19 +16,20 @@ const bgStyle = bgSrc
   ? `background-image: url(${bgSrc.src}); background-size: cover; background-position: center; background-repeat: no-repeat;`
   : `background-color: white;`;
 ---
-
-<article class='cardCommunity' style={bgStyle}>
-  <div class='content'>
-    <div class='imageContainer'>
-      <Image src={iconSrc} alt={account} class='icon' />
+<a href={url} target="_blank" rel="noopener noreferrer">
+  <article class='cardCommunity' style={bgStyle}>
+    <div class='content'>
+      <div class='imageContainer'>
+        <Image src={iconSrc} alt={account} class='icon' />
+      </div>
+      <h4
+        style={`font-family: ${font}; ${font === "Open Sauce Two" ? "color: #1a1a1a;" : ""}`}
+      >
+        {account}
+      </h4>
     </div>
-    <h4
-      style={`font-family: ${font}; ${font === "Open Sauce Two" ? "color: #1a1a1a;" : ""}`}
-    >
-      {account}
-    </h4>
-  </div>
-</article>
+  </article>
+</a>
 
 <style>
   .cardCommunity {
@@ -42,6 +43,12 @@ const bgStyle = bgSrc
     align-items: center;
     overflow: hidden;
     box-sizing: border-box;
+    transition: all 0.3s ease;
+  }
+
+  .cardCommunity:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 8px 20px 5px rgba(0, 0, 0, 0.1);
   }
 
   .content {
@@ -63,7 +70,7 @@ const bgStyle = bgSrc
   }
 
   .content h4 {
-    font-size: 23px;
+    font-size: 20px;
     margin: 0;
     max-width: 100%;
     overflow-wrap: anywhere;

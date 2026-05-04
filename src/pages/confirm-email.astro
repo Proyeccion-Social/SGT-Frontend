@@ -54,4 +54,37 @@ import Layout from "@/layouts/Layout.astro";
     width: 900px;
     transform: rotate(-22.83deg);
   }
+
+  /* ── Mobile ────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .containerConfirmEmail {
+      padding: 16px;
+      gap: 0;
+      height: 100dvh; /* dynamic viewport height — avoids browser-chrome issues */
+    }
+
+    /* El panel derecho desaparece en mobile */
+    .rightSideContainer {
+      display: none;
+    }
+
+    /* El panel izquierdo ocupa toda la pantalla */
+    .leftSideContainer {
+      flex: 1;
+      width: 100%;
+      padding: 32px 24px;
+      border-radius: 16px;
+    }
+  }
+
+  @media (max-width: 400px) {
+    .containerConfirmEmail {
+      padding: 12px;
+    }
+
+    .leftSideContainer {
+      padding: 24px 16px;
+      border-radius: 12px;
+    }
+  }
 </style>

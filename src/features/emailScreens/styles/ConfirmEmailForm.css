@@ -1,0 +1,100 @@
+/* ──────────────────────────────────────────────────────────
+   ConfirmEmailForm.css
+   Overrides & extensions on top of ResetPasswordForm.css
+   for the simpler confirm-email layout (no fields, just
+   header + optional error banner + one CTA button).
+   ────────────────────────────────────────────────────────── */
+
+/* Container: tighter vertical gap since there are fewer elements */
+.confirm-email-container {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    align-items: center;
+    justify-content: center;
+    animation: slide-up 0.4s ease-out;
+    text-align: center;
+}
+
+/* Header inherits reset-password-header styles; force center alignment */
+.confirm-email-container .reset-password-header {
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+}
+
+/* Error banner */
+.confirm-email-error {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #fff1f2;
+    color: #f35761;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #ffe4e6;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* Button: full width, consistent with reset form */
+.confirm-email-container .reset-password-submit {
+    width: 100%;
+}
+
+/* ── Tablet / Small desktop ─────────────────────────────── */
+@media (max-width: 768px) {
+    .confirm-email-container {
+        max-width: 100%;
+        gap: 22px;
+        padding: 0 4px;
+    }
+
+    .confirm-email-container .reset-password-header {
+        text-align: center;
+    }
+
+    .confirm-email-container .reset-password-title {
+        font-size: clamp(28px, 8vw, 38px);
+        line-height: 1.15;
+    }
+
+    .confirm-email-container .reset-password-subtitle {
+        font-size: 14px;
+    }
+
+    .confirm-email-container .reset-password-submit {
+        height: 50px;
+        font-size: 16px;
+        border-radius: 12px;
+    }
+
+    .confirm-email-error {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+}
+
+/* ── Mobile S ────────────────────────────────────────────── */
+@media (max-width: 400px) {
+    .confirm-email-container {
+        gap: 18px;
+    }
+
+    .confirm-email-container .reset-password-title {
+        font-size: clamp(24px, 7vw, 30px);
+    }
+
+    .confirm-email-container .reset-password-submit {
+        height: 46px;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+
+    .confirm-email-error {
+        font-size: 12px;
+        padding: 9px 12px;
+    }
+}

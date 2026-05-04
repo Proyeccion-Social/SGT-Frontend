@@ -43,6 +43,7 @@ interface Props {
   onRejectSubmit: (reason: string) => Promise<void>;
   onAcceptModification: () => Promise<void>;
   onRejectModification: () => Promise<void>;
+  onEvaluate?: () => void;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
@@ -172,6 +173,7 @@ export const SessionDetailView = ({
   onRejectSubmit,
   onAcceptModification,
   onRejectModification,
+  onEvaluate,
   modificar,
   editar,
 }: Props) => {
@@ -240,8 +242,10 @@ export const SessionDetailView = ({
   const isAltView = isProposing || isEditing || isRejecting;
   const isPendingConfirmation = String(session.status) === 'PENDING_TUTOR_CONFIRMATION';
   const isPendingModification = String(session.status) === 'PENDING_MODIFICATION';
+  const isTerminalState = ['COMPLETED', 'REJECTED_BY_TUTOR', 'CANCELLED_BY_STUDENT', 'CANCELLED_BY_TUTOR', 'CANCELLED_BY_ADMIN'].includes(String(session.status));
   const showConfirmRejectButtons = isPendingConfirmation && role === UserRole.TUTOR && !isAltView;
   const showModificationView    = isPendingModification && !isAltView;
+  const showFooter = isRejecting || isAltView || showModificationView || showConfirmRejectButtons || !isTerminalState || !!onEvaluate;
  
   return (
     <>
@@ -402,91 +406,97 @@ export const SessionDetailView = ({
         )}
  
         {/* ── Footer ── */}
-        <div className="sdv__footer">
-          {isRejecting ? (
-            <>
-              <button
-                className="sdv-btn sdv-btn--propose"
-                onClick={onBack}
-                disabled={isSubmitting}
-              >
-                Volver
-              </button>
-              <button
-                className="sdv-btn sdv-btn--cancel"
-                onClick={handleRejectSubmit}
-                disabled={isSubmitting || rejectReason.trim().length < 10}
-              >
-                {isSubmitting ? 'Rechazando…' : 'Confirmar rechazo'}
-              </button>
-            </>
-          ) : isAltView ? (
-            <>
-              <button
-                className="sdv-btn sdv-btn--propose"
-                onClick={onBack}
-                disabled={isSubmitting}
-              >
-                Volver
-              </button>
-              <button
-                className="sdv-btn sdv-btn--edit"
-                onClick={() => submitRef.current?.()}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Guardando…' : 'Confirmar'}
-              </button>
-            </>
-          ) : showModificationView ? (
-            <>
-              <button
-                className="sdv-btn sdv-btn--edit"
-                onClick={handleAcceptModification}
-                disabled={isModificationAction}
-              >
-                {isModificationAction ? 'Procesando…' : 'Aceptar modificación'}
-              </button>
-              <button
-                className="sdv-btn sdv-btn--cancel"
-                onClick={handleRejectModification}
-                disabled={isModificationAction}
-              >
-                Rechazar modificación
-              </button>
-            </>
-          ) : showConfirmRejectButtons ? (
-            <>
-              <button
-                className="sdv-btn sdv-btn--edit"
-                onClick={handleConfirm}
-                disabled={isConfirming}
-              >
-                {isConfirming ? 'Aceptando…' : 'Aceptar tutoría'}
-              </button>
-              <button
-                className="sdv-btn sdv-btn--cancel"
-                onClick={onRequestReject}
-                disabled={isConfirming}
-              >
-                Rechazar tutoría
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
-                Proponer modificación
-              </button>
-              {role === UserRole.TUTOR && (
-                <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
-                  Editar
+        {showFooter && (
+          <div className="sdv__footer">
+            {isRejecting ? (
+              <>
+                <button
+                  className="sdv-btn sdv-btn--propose"
+                  onClick={onBack}
+                  disabled={isSubmitting}
+                >
+                  Volver
                 </button>
-              )}
-              <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
-                Cancelar tutoría
+                <button
+                  className="sdv-btn sdv-btn--cancel"
+                  onClick={handleRejectSubmit}
+                  disabled={isSubmitting || rejectReason.trim().length < 10}
+                >
+                  {isSubmitting ? 'Rechazando…' : 'Confirmar rechazo'}
+                </button>
+              </>
+            ) : isAltView ? (
+              <>
+                <button
+                  className="sdv-btn sdv-btn--propose"
+                  onClick={onBack}
+                  disabled={isSubmitting}
+                >
+                  Volver
+                </button>
+                <button
+                  className="sdv-btn sdv-btn--edit"
+                  onClick={() => submitRef.current?.()}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Guardando…' : 'Confirmar'}
+                </button>
+              </>
+            ) : showModificationView ? (
+              <>
+                <button
+                  className="sdv-btn sdv-btn--edit"
+                  onClick={handleAcceptModification}
+                  disabled={isModificationAction}
+                >
+                  {isModificationAction ? 'Procesando…' : 'Aceptar modificación'}
+                </button>
+                <button
+                  className="sdv-btn sdv-btn--cancel"
+                  onClick={handleRejectModification}
+                  disabled={isModificationAction}
+                >
+                  Rechazar modificación
+                </button>
+              </>
+            ) : showConfirmRejectButtons ? (
+              <>
+                <button
+                  className="sdv-btn sdv-btn--edit"
+                  onClick={handleConfirm}
+                  disabled={isConfirming}
+                >
+                  {isConfirming ? 'Aceptando…' : 'Aceptar tutoría'}
+                </button>
+                <button
+                  className="sdv-btn sdv-btn--cancel"
+                  onClick={onRequestReject}
+                  disabled={isConfirming}
+                >
+                  Rechazar tutoría
+                </button>
+              </>
+            ) : !isTerminalState ? (
+              <>
+                <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
+                  Proponer modificación
+                </button>
+                {role === UserRole.TUTOR && String(session.status) === 'SCHEDULED' && (
+                  <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
+                    Editar
+                  </button>
+                )}
+                <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
+                  Cancelar tutoría
+                </button>
+              </>
+            ) : onEvaluate ? (
+              <button className="sdv-btn sdv-btn--edit" onClick={onEvaluate}>
+                Calificar Sesión
               </button>
-            </>
-          )}
-        </div>
+            ) : null}
+          </div>
+        )}
  
       </div>
     </>

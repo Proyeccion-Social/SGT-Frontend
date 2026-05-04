@@ -180,8 +180,12 @@
   }
 
   .evaluation-card-body-question-item-buttons .btn-rating img {
-    width: 28px;
-    height: 28px;
+    height: 24px;
+    width: auto;
+  }
+
+  .evaluation-card-body-question-item-buttons .btn-rating img.star-five {
+    height: 36px;
   }
 }
 
@@ -302,6 +306,23 @@
   cursor: pointer;
   padding: 0;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-rating img {
+  height: 32px;
+  width: auto;
+  transition: transform 0.2s ease;
+}
+
+.btn-rating img.star-five {
+  height: 48px;
+}
+
+.btn-rating:hover img {
+  transform: scale(1.1);
 }
 
 .evaluation-card-header-buttons {

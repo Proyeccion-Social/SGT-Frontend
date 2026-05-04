@@ -66,7 +66,7 @@ export function SessionsPagination({
                {currentPage}
               <ChevronDownIcon className="size-3 text-[var(--neutral-300, #a3a3a3)]" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="min-w-12 max-h-60 overflow-y-auto">
+            <DropdownMenuContent align="center" className="min-w-10 max-h-60 overflow-y-auto">
               <DropdownMenuRadioGroup
                 value={currentPage.toString()}
                 onValueChange={handlePageSelect}

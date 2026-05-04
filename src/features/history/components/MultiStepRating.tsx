@@ -219,6 +219,7 @@ export default function MultiStepDialog({
                           onClick={() => updateAnswer(q.aspect, n)}
                         >
                           <img
+                            className={n === 5 ? "star-five" : ""}
                             src={
                               n === 5
                                 ? formData.answers[q.aspect] >= 5

@@ -6,7 +6,7 @@ import "../../assets/styles/Availability.css";
 interface TutorInfo {
   id: string;
   name: string;
-  photoUrl: string | null; // TODO: reemplazar con método de fetch real
+  photo: string | null; // TODO: reemplazar con método de fetch real
   modality: string;
   type: string;
   subjects: { id: string; name: string }[];
@@ -104,12 +104,11 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSe
                   className="tutor-card__subject-badge"
                   style={subjectColor?.color && subjectColor.color !== 'transparent' ? { backgroundColor: subjectColor.color, borderColor: subjectColor.borderColor } : undefined}
                 >{subject}</div>
-
                 {/* ── Foto del tutor ── */}
                 <div className="tutor-card__photo-wrapper">
-                  {info?.photoUrl ? (
+                  {info?.photo ? (
                     <img
-                      src={info.photoUrl}
+                      src={info.photo}
                       alt={info.name}
                       className="tutor-card__photo"
                     />

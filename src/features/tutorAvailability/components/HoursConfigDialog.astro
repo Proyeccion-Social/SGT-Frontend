@@ -1,321 +1,326 @@
-<dialog id="hours-config-dialog" >
-    <div class="container">
-        <div class="title">
-            <div class="line">Limite de horas</div> semanales
-        </div>
-
-        <p class="description">
-            Evita sobrecargarte limitando la cantidad de horas semanales que
-            impartes
-        </p>
-
-        <input
-            id="hoursInput"
-            type="number"
-            min="1"
-            step="1"
-            placeholder="Ej: 10"
-            class="hoursInput"
-        />
-
-        <!-- ✅ Label de máximo -->
-        <p
-            id="maxHoursLabel"
-            style="font-size: 14px; color: #5f5f5f; margin-top: 10px;"
-        >
-        </p>
-
-        <!-- ✅ Error mínimo -->
-        <p
-            id="minHoursError"
-            style="display: none; color: #f35761; font-size: 14px; margin-top: 5px;"
-        >
-            El valor mínimo es 1 hora
-        </p>
-
-        <!-- ✅ Error máximo -->
-        <p
-            id="hoursError"
-            style="display: none; color: #f35761; font-size: 14px; margin-top: 5px;"
-        >
-        </p>
-
-        <button id="enviarBtn" class="enviarBtn"> Terminar y guardar </button>
+<dialog id='hours-config-dialog'>
+  <div class='container'>
+    <div class='title'>
+      <div class='line'>Limite de horas</div> semanales
     </div>
+
+    <p class='description'>
+      Evita sobrecargarte limitando la cantidad de horas semanales que impartes
+    </p>
+
+    <input
+      id='hoursInput'
+      type='number'
+      min='1'
+      step='1'
+      placeholder='Ej: 10'
+      class='hoursInput'
+    />
+
+    <!-- ✅ Label de máximo -->
+    <p
+      id='maxHoursLabel'
+      style='font-size: 14px; color: #5f5f5f; margin-top: 10px;'
+    >
+    </p>
+
+    <!-- ✅ Error mínimo -->
+    <p
+      id='minHoursError'
+      style='display: none; color: #f35761; font-size: 14px; margin-top: 5px;'
+    >
+      El valor mínimo es 1 hora
+    </p>
+
+    <!-- ✅ Error máximo -->
+    <p
+      id='hoursError'
+      style='display: none; color: #f35761; font-size: 14px; margin-top: 5px;'
+    >
+    </p>
+
+    <button id='enviarBtn' class='enviarBtn'> Terminar y guardar </button>
+  </div>
 </dialog>
 
 <style>
-    /* TODO tu CSS igual */
+  /* TODO tu CSS igual */
 </style>
 
 <script>
-    import { sileo } from "sileo";
-    document.addEventListener("astro:page-load", () => {
-        const dialog = document.getElementById(
-            "hours-config-dialog",
-        ) as HTMLDialogElement;
-        const enviarBtn = document.getElementById(
-            "enviarBtn",
-        ) as HTMLButtonElement;
-        const hoursInput = document.getElementById(
-            "hoursInput",
-        ) as HTMLInputElement;
+  import { sileo } from "sileo";
+  document.addEventListener("astro:page-load", () => {
+    const dialog = document.getElementById(
+      "hours-config-dialog",
+    ) as HTMLDialogElement;
+    const enviarBtn = document.getElementById("enviarBtn") as HTMLButtonElement;
+    const hoursInput = document.getElementById(
+      "hoursInput",
+    ) as HTMLInputElement;
 
-        // Evitar que se cierre con la tecla Escape
-        dialog?.addEventListener('cancel', (event) => {
-            event.preventDefault();
-        });
+    // Guard: if elements are not in the DOM (e.g. navigated away from tutor page), bail out
+    if (!dialog || !enviarBtn || !hoursInput) return;
 
-        dialog?.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                event.preventDefault();
-            }
-        });
-
-        const errorText = document.getElementById(
-            "hoursError",
-        ) as HTMLParagraphElement;
-        const maxHoursLabel = document.getElementById(
-            "maxHoursLabel",
-        ) as HTMLParagraphElement;
-        const minHoursError = document.getElementById(
-            "minHoursError",
-        ) as HTMLParagraphElement;
-        let hours = "";
-
-        const unlockPointerEvents = () => {
-            document.documentElement.style.pointerEvents = "auto";
-            document.body.style.pointerEvents = "auto";
-        };
-
-        const redirectOnUnauthorized = (status: number) => {
-            if (status === 401) {
-                window.location.replace("/");
-                return true;
-            }
-            return false;
-        };
-
-        // 🔥 Abrir dialog
-        window.addEventListener("open-hours-config-dialog", (e: any) => {
-            const totalHoursRaw = parseFloat(e.detail);const floorHours = Math.floor(totalHoursRaw);
-            
-            // Si total < 8, el limite es total. Si total >= 8, el limite es 8.
-            const limit = floorHours < 8 ? floorHours : 8;
-            
-            hoursInput.value = limit.toString();
-            hoursInput.max = limit.toString(); 
-
-            maxHoursLabel.textContent = `Máximo permitido: ${limit} horas (Total de horas de franjas creadas ${totalHoursRaw})`;
-            errorText.textContent = `El valor debe ser menor o igual a ${limit} horas`;
-            
-            // Actualizamos la variable global 'hours' que se usa en validaciones
-            hours = limit.toString();
-            // reset errores
-            errorText.style.display = "none";
-            minHoursError.style.display = "none";
-
-            window.dispatchEvent(
-                new CustomEvent("close-tutor-calendar-dialog"),
-            );
-            unlockPointerEvents();
-
-            // Espera a que termine la animación del drawer antes de abrir el modal
-            
-                if (dialog && dialog.isConnected && !dialog.open) {
-                    dialog.showModal();
-                }
-            
-        });
-
-        // 🔥 Prevenir escritura de decimales y otros caracteres no válidos
-        hoursInput.addEventListener("keydown", (e) => {
-            if (["e", "E", "+", "-", ".", ","].includes(e.key)) {
-                e.preventDefault();
-            }
-        });
-
-        // 🔥 Guardar
-        enviarBtn.addEventListener("click", async () => {
-            const value = parseInt(hoursInput.value);
-            const max = parseInt(hoursInput.max);
-
-            // reset
-            errorText.style.display = "none";
-            maxHoursLabel.style.color = "#5f5f5f";
-            minHoursError.style.display = "none";
-
-            if (value > max) {
-                maxHoursLabel.style.color = "red";
-                return;
-            }
-
-            if (value < 1 || isNaN(value)) {
-                minHoursError.style.display = "block";
-                return;
-            }
-
-            await sileo.promise(async () => {
-                const response = await fetch(
-                    "/api/tutor-availability/patch-tutor-limits",
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ hours: value }),
-                    },
-                );
-
-                if (redirectOnUnauthorized(response.status)) {
-                    return;
-                }
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || "Error al actualizar horas");
-                }
-
-                window.dispatchEvent(new CustomEvent("refresh-slots"));
-                dialog.close();
-            }, {
-                loading: { title: "Guardando límites...", fill: "#8751ff" },
-                success: { title: "Límites guardados con éxito", fill: "#58d68d" },
-                error: { title: "Error", description: "No se pudo guardar el límite de horas", fill: "#f35761" }
-            });
-        });
-
-        // 🔥 Validación en tiempo real
-        hoursInput.addEventListener("input", () => {
-            const value = parseInt(hoursInput.value);
-            const max = parseInt(hoursInput.max);
-
-            errorText.style.display = "none";
-            maxHoursLabel.style.color = "#5f5f5f";
-
-            minHoursError.style.display = "none";
-
-            if (value > max) {
-                maxHoursLabel.style.color = "red";
-            }
-
-            if (value < 1 || isNaN(value)) {
-                minHoursError.style.display = "block";
-            }
-        });
+    // Evitar que se cierre con la tecla Escape
+    dialog?.addEventListener("cancel", (event) => {
+      event.preventDefault();
     });
+
+    dialog?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+      }
+    });
+
+    const errorText = document.getElementById(
+      "hoursError",
+    ) as HTMLParagraphElement;
+    const maxHoursLabel = document.getElementById(
+      "maxHoursLabel",
+    ) as HTMLParagraphElement;
+    const minHoursError = document.getElementById(
+      "minHoursError",
+    ) as HTMLParagraphElement;
+    let hours = "";
+
+    const unlockPointerEvents = () => {
+      document.documentElement.style.pointerEvents = "auto";
+      document.body.style.pointerEvents = "auto";
+    };
+
+    const redirectOnUnauthorized = (status: number) => {
+      if (status === 401) {
+        window.location.replace("/");
+        return true;
+      }
+      return false;
+    };
+
+    // 🔥 Abrir dialog
+    window.addEventListener("open-hours-config-dialog", (e: any) => {
+      const totalHoursRaw = parseFloat(e.detail);
+      const floorHours = Math.floor(totalHoursRaw);
+
+      // Si total < 8, el limite es total. Si total >= 8, el limite es 8.
+      const limit = floorHours < 8 ? floorHours : 8;
+
+      hoursInput.value = limit.toString();
+      hoursInput.max = limit.toString();
+
+      maxHoursLabel.textContent = `Máximo permitido: ${limit} horas (Total de horas de franjas creadas ${totalHoursRaw})`;
+      errorText.textContent = `El valor debe ser menor o igual a ${limit} horas`;
+
+      // Actualizamos la variable global 'hours' que se usa en validaciones
+      hours = limit.toString();
+      // reset errores
+      errorText.style.display = "none";
+      minHoursError.style.display = "none";
+
+      window.dispatchEvent(new CustomEvent("close-tutor-calendar-dialog"));
+      unlockPointerEvents();
+
+      // Espera a que termine la animación del drawer antes de abrir el modal
+
+      if (dialog && dialog.isConnected && !dialog.open) {
+        dialog.showModal();
+      }
+    });
+
+    // 🔥 Prevenir escritura de decimales y otros caracteres no válidos
+    hoursInput.addEventListener("keydown", (e) => {
+      if (["e", "E", "+", "-", ".", ","].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    // 🔥 Guardar
+    enviarBtn.addEventListener("click", async () => {
+      const value = parseInt(hoursInput.value);
+      const max = parseInt(hoursInput.max);
+
+      // reset
+      errorText.style.display = "none";
+      maxHoursLabel.style.color = "#5f5f5f";
+      minHoursError.style.display = "none";
+
+      if (value > max) {
+        maxHoursLabel.style.color = "red";
+        return;
+      }
+
+      if (value < 1 || isNaN(value)) {
+        minHoursError.style.display = "block";
+        return;
+      }
+
+      await sileo.promise(
+        async () => {
+          const response = await fetch(
+            "/api/tutor-availability/patch-tutor-limits",
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ hours: value }),
+            },
+          );
+
+          if (redirectOnUnauthorized(response.status)) {
+            return;
+          }
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || "Error al actualizar horas");
+          }
+
+          window.dispatchEvent(new CustomEvent("refresh-slots"));
+          dialog.close();
+        },
+        {
+          loading: { title: "Guardando límites...", fill: "#8751ff" },
+          success: { title: "Límites guardados con éxito", fill: "#58d68d" },
+          error: {
+            title: "Error",
+            description: "No se pudo guardar el límite de horas",
+            fill: "#f35761",
+          },
+        },
+      );
+    });
+
+    // 🔥 Validación en tiempo real
+    hoursInput.addEventListener("input", () => {
+      const value = parseInt(hoursInput.value);
+      const max = parseInt(hoursInput.max);
+
+      errorText.style.display = "none";
+      maxHoursLabel.style.color = "#5f5f5f";
+
+      minHoursError.style.display = "none";
+
+      if (value > max) {
+        maxHoursLabel.style.color = "red";
+      }
+
+      if (value < 1 || isNaN(value)) {
+        minHoursError.style.display = "block";
+      }
+    });
+  });
 </script>
 
 <style>
-    dialog {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: none;
-        border: none;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        max-width: none;
-        max-height: none;
-        background-color: transparent;
-        margin: 0;
-    }
+  dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    border: none;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    background-color: transparent;
+    margin: 0;
+  }
 
-    dialog[open] {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+  dialog[open] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-    dialog::backdrop {
-        background-color: rgba(0, 0, 0, 0.5);
-    }
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 
-    .title {
-        font-size: 32px;
-        font-weight: 600;
-        letter-spacing: -2%;
-        color: #1e293b;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 5px;
-    }
+  .title {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -2%;
+    color: #1e293b;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+  }
 
-    .line {
-        background-image: url("/src/features/tutorAvailability/assets/line.svg");
-        background-size: contain; /* 🔥 muestra TODA la imagen */
-        background-repeat: no-repeat;
-        background-position: center;
+  .line {
+    background-image: url("/src/features/tutorAvailability/assets/line.svg");
+    background-size: contain; /* 🔥 muestra TODA la imagen */
+    background-repeat: no-repeat;
+    background-position: center;
 
-        display: inline-block;
-        padding: 4px 10px;
-    }
+    display: inline-block;
+    padding: 4px 10px;
+  }
 
-    .description {
-        font-weight: 400;
-        font-size: 16px;
-        line-height: 20px;
-        letter-spacing: -2%;
-        text-align: center;
-        color: #1e293b;
-    }
+  .description {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -2%;
+    text-align: center;
+    color: #1e293b;
+  }
 
-    .hoursInput {
-        align-self: center;
-        margin-top: 35px;
-        padding: 10px;
-        width: 160px;
-        height: 40px;
-        opacity: 1;
-        top: 197px;
-        left: 202.7px;
-        border-radius: 8.8px;
-        border-width: 1.1px;
-        border: 1px solid #c6c6c6;
-    }
+  .hoursInput {
+    align-self: center;
+    margin-top: 35px;
+    padding: 10px;
+    width: 160px;
+    height: 40px;
+    opacity: 1;
+    top: 197px;
+    left: 202.7px;
+    border-radius: 8.8px;
+    border-width: 1.1px;
+    border: 1px solid #c6c6c6;
+  }
 
-    .container {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        text-align: center;
-        gap: 0px;
-        background-color: white;
-        padding: 60px;
-        border-radius: 16px;
-        border: 1px solid #c6c6c6;
-        width: 570px;
-        height: 320px;
-    }
+  .container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 0px;
+    background-color: white;
+    padding: 60px;
+    border-radius: 16px;
+    border: 1px solid #c6c6c6;
+    width: 570px;
+    height: 320px;
+  }
 
-    .enviarBtn {
-        position: absolute;
-        bottom: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 167px;
-        height: 36px;
-        background-color: #9f74ff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 20px;
-        letter-spacing: -2%;
-        transition: background-color 0.3s ease;
-    }
+  .enviarBtn {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 167px;
+    height: 36px;
+    background-color: #9f74ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: -2%;
+    transition: background-color 0.3s ease;
+  }
 
-    .enviarBtn:hover {
-        background-color: #8751ff;
-    }
+  .enviarBtn:hover {
+    background-color: #8751ff;
+  }
 
-    .enviarBtn:active {
-        background-color: #8751ff;
-    }
+  .enviarBtn:active {
+    background-color: #8751ff;
+  }
 </style>

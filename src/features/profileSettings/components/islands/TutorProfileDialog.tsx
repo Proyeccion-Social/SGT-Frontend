@@ -28,8 +28,6 @@ export interface TutorProfileDialogProps {
   onOpenChange: (open: boolean) => void;
   initialView?: TutorView;
   initialGeneralMode?: "info" | "password";
-  /** URL de la página de calendario — cuando esté disponible */
-  calendarHref?: string;
 }
 
 export function TutorProfileDialog({
@@ -37,7 +35,6 @@ export function TutorProfileDialog({
   onOpenChange,
   initialView,
   initialGeneralMode,
-  calendarHref,
 }: TutorProfileDialogProps) {
   const [activeView, setActiveView] = useState<TutorView>(initialView ?? "general");
   const [phone, setPhone]           = useState<string | null>(null);
@@ -131,24 +128,17 @@ export function TutorProfileDialog({
 
         <nav className="tp-bottom" aria-label="Navegación del perfil de tutor">
           <div className="tp-bottom-inner">
-            {calendarHref ? (
-              <a
-                href={calendarHref}
-                className="tp-nav-icon-btn tp-nav-icon-btn--calendar"
-                aria-label="Calendario"
-              >
-                <img src={calendarioIconSrc} alt="" aria-hidden="true" />
-              </a>
-            ) : (
-              <button
-                type="button"
-                className="tp-nav-icon-btn tp-nav-icon-btn--calendar"
-                disabled
-                aria-label="Calendario (próximamente)"
-              >
-                <img src={calendarioIconSrc} alt="" aria-hidden="true" />
-              </button>
-            )}
+            <button
+              type="button"
+              className="tp-nav-icon-btn tp-nav-icon-btn--calendar"
+              aria-label="Gestionar disponibilidad"
+              onClick={() => {
+                onOpenChange(false);
+                window.dispatchEvent(new Event("open-tutor-calendar-dialog"));
+              }}
+            >
+              <img src={calendarioIconSrc} alt="" aria-hidden="true" />
+            </button>
 
             <button
               type="button"

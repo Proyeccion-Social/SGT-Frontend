@@ -40,9 +40,11 @@ export const completeTutorProfile = async (data: CompleteTutorProfileDto, access
   });
 
   const body = await response.json().catch(() => null);
+  console.log('[completeTutorProfile] status:', response.status, 'body:', JSON.stringify(body, null, 2));
   if (!response.ok) {
     const err = new Error(body?.message ?? "Profile completion failed");
     (err as any).status = response.status;
+    (err as any).body = body;
     throw err;
   }
   return body;

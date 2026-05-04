@@ -14,6 +14,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     const data = await request.json();
+    console.log('[complete-profile BFF] payload recibido:', JSON.stringify(data, null, 2));
 
     try {
         const result = await completeTutorProfile(data, accessToken);
@@ -24,6 +25,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         });
     } catch (error: any) {
         const status = error.status || 500;
+        console.error('[complete-profile BFF] error:', status, error.message, (error as any).body);
         return new Response(JSON.stringify({ message: error.message ?? "Error al completar el perfil" }), {
             status,
             headers: { "Content-Type": "application/json" },

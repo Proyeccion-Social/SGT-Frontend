@@ -44,8 +44,6 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
   const [success, setSuccess]             = useState<string | null>(null);
   const [showCurrent, setShowCurrent]     = useState(false);
 
-  console.log("🆔 [Review Dialog] El Request ID que estás viendo es:", requestId);
-
   useEffect(() => {
     fetch(`/api/emailScreens/modification-requests/${requestId}`)
       .then(async (res) => {
@@ -56,7 +54,6 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
         return res.json();
       })
       .then((data) => {
-        console.log('[Frontend] Detalle de modificación recibido:', data);
         setRequest(data);
       })
       .catch((err) => setError(err.message))
@@ -86,7 +83,6 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
         : '/api/emailScreens/modification-requests/reject';
 
       const payload = { requestId, sessionId: request.sessionId };
-      console.log(`🚀 [Frontend] Enviando acción "${action}":`, payload);
 
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -143,10 +139,10 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
           <>
             {/* Header section */}
             <div className="es-header">
-              <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              <div className="es-avatar es-avatar--placeholder">
                 {request.proposedBy?.charAt(0) ?? 'T'}
               </div>
-              <div className="es-header-text" style={{ opacity: showCurrent ? 0.7 : 1 }}>
+              <div className={`es-header-text ${showCurrent ? 'es-header-text--faded' : ''}`}>
                 <h2 className="es-title">{request.sessionTitle || 'Propuesta de sesión'}</h2>
                 <p className="es-description">{request.sessionDescription || 'Sin descripción disponible.'}</p>
               </div>
@@ -160,23 +156,25 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
                 {request.proposedBy}
               </span>
               <span className="es-tag es-tag--status">Pendiente</span>
-              <a 
-                href={request.currentModality === 'VIRT' ? (request.currentVirtualLink || '#') : '#'} 
-                target={request.currentModality === 'VIRT' && request.currentVirtualLink ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                className={`es-tag es-tag--link ${request.currentModality === 'PRES' ? 'es-tag--pres' : ''}`} 
-                onClick={(e) => {
-                  if (request.currentModality === 'PRES' || !request.currentVirtualLink) {
-                    e.preventDefault();
-                    if (request.currentModality === 'PRES' && request.currentLocation) {
-                      alert(`Ubicación: ${request.currentLocation}`);
+              {request.currentModality && (
+                <a 
+                  href={request.currentModality === 'VIRT' ? (request.currentVirtualLink || '#') : '#'} 
+                  target={request.currentModality === 'VIRT' && request.currentVirtualLink ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className={`es-tag es-tag--link ${request.currentModality === 'PRES' ? 'es-tag--pres' : ''}`} 
+                  onClick={(e) => {
+                    if (request.currentModality === 'PRES' || !request.currentVirtualLink) {
+                      e.preventDefault();
+                      if (request.currentModality === 'PRES' && request.currentLocation) {
+                        alert(`Ubicación: ${request.currentLocation}`);
+                      }
                     }
-                  }
-                }}
-                title={request.currentModality === 'VIRT' ? 'Abrir link de sesión' : 'Ver ubicación física'}
-              >
-                🔗 {request.currentModality === 'VIRT' ? 'Ver link de sesión' : (request.currentLocation || 'Ver ubicación')}
-              </a>
+                  }}
+                  title={request.currentModality === 'VIRT' ? 'Abrir link de sesión' : 'Ver ubicación física'}
+                >
+                  🔗 {request.currentModality === 'VIRT' ? 'Ver link de sesión' : (request.currentLocation || 'Ver ubicación')}
+                </a>
+              )}
             </div>
 
             {/* Modification section */}
@@ -186,7 +184,6 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
               <span 
                 className="es-section-link" 
                 onClick={() => setShowCurrent(!showCurrent)}
-                style={{ cursor: 'pointer' }}
               >
                 {showCurrent ? 'Ver propuesta' : 'Ver estado actual'}
               </span>
@@ -212,7 +209,7 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
               </div>
             </div>
 
-            <div className={`es-info-card--mod es-info-card--full ${showCurrent ? 'es-info-card--current' : ''}`} style={{ marginBottom: 20 }}>
+            <div className={`es-info-card--mod es-info-card--full ${showCurrent ? 'es-info-card--current' : ''} es-mb-20`}>
                <div className="es-info-card__icon">
                  <Calendar size={18} />
                </div>
@@ -226,11 +223,11 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
 
             {/* Status or Expiration Message */}
             {request.status !== 'PENDING' ? (
-              <div className="es-expiration" style={{ marginBottom: 20, background: '#f1f5f9', color: '#475569', textAlign: 'center' }}>
+              <div className="es-expiration es-expiration--processed">
                 ✓ Esta propuesta ya ha sido {request.status === 'ACCEPTED' ? 'aceptada' : 'procesada'}.
               </div>
             ) : request.expiresAt && (
-              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''}`} style={{ marginBottom: 20 }}>
+              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''} es-mb-20`}>
                 {isExpired
                   ? '⚠ Esta propuesta ha expirado'
                   : `Expira: ${new Date(request.expiresAt).toLocaleString('es-CO')}`
@@ -239,7 +236,7 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
             )}
 
             {!isExpired && request.status === 'PENDING' && (
-              <div className="es-footer">
+              <div className="es-footer es-footer--modification">
                 <button
                   className="es-btn es-btn--confirm"
                   onClick={() => handleAction('accept')}

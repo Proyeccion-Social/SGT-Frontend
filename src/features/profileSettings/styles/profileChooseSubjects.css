@@ -21,6 +21,13 @@
   min-height: 0;
 }
 
+/* ── Responsive < 500px — altura fija para que el scatter tenga espacio ── */
+@media (max-width: 499px) {
+  .pcs-content {
+    min-height: 280px;
+  }
+}
+
 /* Estado de carga / vacío */
 .pcs-empty {
   display: flex;

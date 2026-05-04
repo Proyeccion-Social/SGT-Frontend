@@ -48,10 +48,6 @@ export function ProfileSettingsDialog({
       <DialogContent
         className="ps-dialog"
         style={{
-          width: 800,
-          maxWidth: 800,
-          height: 600,
-          maxHeight: "none",
           padding: 0,
           display: "flex",
           flexDirection: "column",

@@ -93,7 +93,7 @@
     box-sizing: border-box !important;
     /* padding-bottom: dock (56px) + dock bottom offset (25px) + breathing room (16px) */
     padding: 20px 20px calc(56px + 25px + 16px) !important;
-    z-index: 5001 !important;
+    z-index: 50001 !important;
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18) !important;
   }
 

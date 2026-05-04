@@ -1,192 +1,192 @@
 .attendance-overlay {
-    position: fixed;    
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #C2C2C225;
-    backdrop-filter: blur(6px);
-    z-index: 10000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #c2c2c225;
+  backdrop-filter: blur(6px);
+  z-index: 10000;
 }
 
-.attendance-container { 
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    width: 827px;
-    max-height: 593px;
-    border-radius: 16px;
-    background: #FFFFFF;
-    border: 1px solid #C6C6C6;
-    z-index: 10001;
+.attendance-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  width: 827px;
+  max-height: 593px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #c6c6c6;
+  z-index: 10001;
 }
 
 .attendance-session-meta {
-    padding: 24px 32px 8px;
+  padding: 24px 32px 8px;
 }
 
 .attendance-session-title {
-    font-family: 'Open Sauce Two', sans-serif;
-    font-size: 18px;
-    font-weight: 600;
-    color: #3C3C3C;
-    margin: 0 0 4px;
+  font-family: "Open Sauce Two", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #3c3c3c;
+  margin: 0 0 4px;
 }
 
 .attendance-session-subject {
-    font-size: 14px;
-    color: #777;
-    margin: 0;
+  font-size: 14px;
+  color: #777;
+  margin: 0;
 }
 
 .attendance-empty {
-    padding: 16px 0 8px;
-    color: #666;
-    font-size: 14px;
-    margin: 0;
+  padding: 16px 0 8px;
+  color: #666;
+  font-size: 14px;
+  margin: 0;
 }
 
 .attendance-header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 32px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #C6C6C6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #c6c6c6;
 }
 
 .attendance-content {
-    padding: 0px 32px;
-    overflow-y: auto;
-    max-height: 300px;
+  padding: 0px 32px;
+  overflow-y: auto;
+  max-height: 300px;
 }
 
 .attendance-content::-webkit-scrollbar {
-    width: 6px;
-    height: 300px;
+  width: 6px;
+  height: 300px;
 }
 
 .attendance-content::-webkit-scrollbar-thumb {
-    background: #e7dcff;
-    border-radius: 10px;
+  background: #e7dcff;
+  border-radius: 10px;
 }
 
 .attendance-content h6 {
-    font-family: 'Open Sauce Two';
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -2%;
-    color: #3C3C3C;
+  font-family: "Open Sauce Two";
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -2%;
+  color: #3c3c3c;
 }
 
 .attendance-content-item {
-    display: flex;
-    flex-direction: column;
-    justify-items: left;
+  display: flex;
+  flex-direction: column;
+  justify-items: left;
 }
 
 .attendance-content-item-name {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    justify-items: left;
-    padding: 30px 0px;
-    border-bottom: 1px solid #C6C6C6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  justify-items: left;
+  padding: 30px 0px;
+  border-bottom: 1px solid #c6c6c6;
 }
 
 .attendance-content-item-name:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .attendance-content p {
-    font-family: 'Open Sauce Two';
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
-    letter-spacing: -2%;
-    color: #3C3C3C;
+  font-family: "Open Sauce Two";
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -2%;
+  color: #3c3c3c;
 }
 
 .attendance-divider {
-    width: 108.5%;
-    margin-left: -32px;
-    margin-bottom: 30px;
-    margin-top: 30px;
+  width: 108.5%;
+  margin-left: -32px;
+  margin-bottom: 30px;
+  margin-top: 30px;
 }
 
 .attendance-checkbox {
-    width: 24px;
-    height: 24px;
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-    border: 1px solid #9F74FF;
-    border-radius: 4px;
-    background-image: url("src/features/sessions/images/PurpleCheckIcon.svg");
-    background-size: 12.5px;
-    background-position: center;
-    background-repeat: no-repeat;
+  width: 24px;
+  height: 24px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  border: 1px solid #9f74ff;
+  border-radius: 4px;
+  background-image: url("../images/PurpleCheckIcon.svg");
+  background-size: 12.5px;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .attendance-checkbox:checked {
-    background-color: #9F74FF;
-    border: 1px solid #9F74FF;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image: url("src/features/sessions/images/WhiteCheckIcon.svg");
-    background-size: 12.5px;
-    background-position: center;
-    background-repeat: no-repeat;
+  background-color: #9f74ff;
+  border: 1px solid #9f74ff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("../images/WhiteCheckIcon.svg");
+  background-size: 12.5px;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .attendance-checkbox:checked::after {
-    content: "";
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 24px;
-    letter-spacing: -2%;
+  content: "";
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: -2%;
 }
 
 .attendance-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding: 16px;
-    border-top: 1px solid #C6C6C6;
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  border-top: 1px solid #c6c6c6;
 }
 
 .attendance-button {
-    background-color: #9F74FF;
-    color: #FFFFFF;
-    font-family: 'Cabinet Grotesk Variable';
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 36px;
-    letter-spacing: -2%;
-    border-radius: 8px;
+  background-color: #9f74ff;
+  color: #ffffff;
+  font-family: "Cabinet Grotesk Variable";
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: -2%;
+  border-radius: 8px;
 }
 
 .attendance-close {
-    position: absolute;
-    top: -16px;
-    right: -16px;
-    background-color: #FFFFFF;
-    border: 1px solid #C6C6C6;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 36px;
-    letter-spacing: -2%;
-    border-radius: 100%;
-    width: 40px;
-    height: 40px;
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  background-color: #ffffff;
+  border: 1px solid #c6c6c6;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: -2%;
+  border-radius: 100%;
+  width: 40px;
+  height: 40px;
 }

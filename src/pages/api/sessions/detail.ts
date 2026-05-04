@@ -1,6 +1,6 @@
 // src/pages/api/sessions/detail.ts
 import type { APIRoute } from 'astro';
-import { getSessionDetail } from '@features/sessions/services/sessionService';
+import { getSessionDetail, getSessionModifications } from '@features/sessions/services/sessionService';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   try {
@@ -22,6 +22,27 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     }
 
     const data = await getSessionDetail(sessionId, token);
+
+    // Si hay modificación pendiente, inyectar los datos de la solicitud
+    if ((data as any).status === 'PENDING_MODIFICATION') {
+      try {
+        const mods = await getSessionModifications(sessionId, token);
+        const modsArray: any[] = Array.isArray(mods)
+          ? mods
+          : (mods as any)?.modifications ?? (mods as any)?.data ?? [];
+        const pending = modsArray.find((m: any) => m.status === 'PENDING') ?? modsArray[0];
+        if (pending) {
+          (data as any).pendingModification = {
+            ...pending,
+            id: pending.id ?? pending.idRequest,
+            proposedBy: pending.proposedBy ?? pending.requestedBy,
+          };
+        }
+      } catch (modErr: any) {
+        console.error('[BFF] detail: fallo al obtener modificaciones:', modErr?.message ?? modErr);
+      }
+    }
+
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

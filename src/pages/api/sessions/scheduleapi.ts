@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createSession } from '@features/sessions/services/sessionService';
-import { getTutorInfo } from "@features/availability/services/tutorServices" // ajusta la ruta si es necesario
+import { createSession, getTutorInfo } from '@features/sessions/services/sessionService';
 
 export const GET: APIRoute = async ({ request, cookies }) => {
   try {
@@ -15,9 +14,15 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     }
 
     const token = cookies.get("access_token")?.value;
-    const authHeader = token? `Bearer ${token}` : undefined;
 
-    const tutor = await getTutorInfo(tutorId, authHeader);
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: "No autenticado" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    const tutor = await getTutorInfo(tutorId, token);
 
     return new Response(JSON.stringify(tutor), {
       status: 200,
@@ -46,9 +51,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
     const token = cookies.get('access_token')?.value;
-    const authHeader = token ? `Bearer ${token}` : undefined;
 
-    const session = await createSession(data, authHeader);
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const session = await createSession(data, token);
 
     return new Response(JSON.stringify(session), {
       status: 201,

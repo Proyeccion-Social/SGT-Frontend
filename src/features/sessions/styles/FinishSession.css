@@ -1,0 +1,103 @@
+.finish-session-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+.finish-session-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 16px;
+    width: 827px;
+    height: 380px;
+    z-index: 1001;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.close-button {
+    position: absolute;
+    top: -16px;
+    right: -16px;
+    background-color: #FFFFFF;
+    border: 1px solid #C6C6C6;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 36px;
+    letter-spacing: -2%;
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+}
+
+.finish-session-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.finish-session-header h6 {
+    font-family: 'Open Sauce Two';
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 32px;
+    letter-spacing: -2%;
+    color: #3C3C3C;
+}
+
+.finish-buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.finish-button {
+    background-color: #DAFFAA;
+    color: #4D662E;
+    font-family: 'Open Sauce Two';
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: -2%;
+    border-radius: 8px;
+    width: 139px;
+    height: 36px;
+}
+
+.finish-session-session-title {
+    font-family: 'Open Sauce Two';
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #666;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.cancel-button {
+    background-color: #CFB9FF;
+    color: #8751FF;
+    font-family: 'Open Sauce Two';
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: -2%;
+    border-radius: 8px;
+    width: 139px;
+    height: 36px;
+}

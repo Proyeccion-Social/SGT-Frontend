@@ -324,7 +324,7 @@ const systemToday = new Date();
   }
 
   .slot-half-hour-block {
-    padding: 0 10px;
+    padding: 0px;
     justify-content: center;
   }
 
@@ -421,18 +421,29 @@ const systemToday = new Date();
   }
 
   .slot-tutor-count {
-    font-size: 0.78rem;
-    font-weight: 600;
+    /* font-size: 0.78rem; */
+    /* font-weight: 600; */
     background: rgba(255, 255, 255, 0.7);
-    padding: 3px 8px;
+    padding: 2px 8px;
     border-radius: 999px;
-    color: #1f2937;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: #3C3C3C;
   }
 
   .slot-time-range {
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.6);
+    font-family: 'Cabinet Grotesk Variable';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: #3C3C3C;
   }
 
   .slot-student-half {
@@ -447,39 +458,38 @@ const systemToday = new Date();
   }
 
   .slot-student-half__count {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: #1f2937;
     background: rgba(255, 255, 255, 0.7);
-    padding: 2px 7px;
+    padding: 2px 8px;
     border-radius: 999px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
     min-width: 0;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: #3C3C3C;
   }
 
   .slot-student-half__time {
-    font-size: 0.68rem;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.55);
-    white-space: nowrap;
-    flex-shrink: 0;
+    font-family: 'Cabinet Grotesk Variable';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: #3C3C3C;
   }
   .slot-selected {
     z-index: 100;
     overflow: visible;
   }
 
-  .slot-selected::after {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: 10px; /* border-radius del elemento + 2px */
-    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='10' ry='10' stroke='%237c3aed' stroke-width='4' stroke-dasharray='13%2c 13' stroke-linecap='square'/%3e%3c/svg%3e");
-    pointer-events: none;
-  }
+
 </style>
 
 <script>

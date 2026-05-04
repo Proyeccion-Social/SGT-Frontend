@@ -97,13 +97,10 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
           initialSelectedId={subjectIdParam}
         />
       </div>
-      <div class='legend'>
-        <p>Franjas horarias disponibles de tu semana</p>
-      </div>
     </div>
-    <button class='avatar'>
-      <Image src={UserIcon} alt='User' />
-    </button>
+    <div class='legend'>
+      <p>Franjas horarias disponibles de tu semana</p>
+    </div>
   </div>
 
   <div class='calendar-scroll-area'>
@@ -138,6 +135,8 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
   .week-nav {
     display: flex;
     align-items: center;
+    position: relative;
+    top: 4px;
     /* gap: 14px; */
   }
 
@@ -215,19 +214,21 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
   /* ── Encabezado (sticky, no scrollea) ── */
   .schedule-header {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
     width: 100%;
     padding: 50px 50px 40px 50px;
     box-sizing: border-box;
     flex-shrink: 0; /* nunca se comprime */
     border-bottom: 1px solid var(--neutral-200);
+    flex-direction: column;
+    gap: 8px;
   }
 
   .header-left {
     display: flex;
-    flex-direction: column;
     gap: 8px;
+    justify-content: center;
+    align-items: center;
   }
 
   .header-title {

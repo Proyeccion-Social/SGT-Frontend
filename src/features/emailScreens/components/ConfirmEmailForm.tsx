@@ -1,20 +1,18 @@
 import { useState, useEffect } from "react";
-import { navigate } from "astro:transitions/client";
 import { sileo } from "sileo";
+import { useAuthStore } from "@/store/authStore";
 import "../styles/ResetPasswordForm.css";
 
 export default function ConfirmEmailForm() {
     const [token, setToken] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
-    const [success, setSuccess] = useState(false);
     const [isReady, setIsReady] = useState(false);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
-    const [isRedirecting, setIsRedirecting] = useState(false);
+
+    const { setUser, setRequiresProfileCompletion } = useAuthStore();
 
     const handleRedirect = () => {
-        if (isRedirecting) return;
-        setIsRedirecting(true);
-        navigate("/dashboard");
+        window.location.href = "/dashboard?setup=preferences";
     };
 
     useEffect(() => {
@@ -42,7 +40,6 @@ export default function ConfirmEmailForm() {
             if (!response.ok) {
                 const msg = body?.message ?? "Error al confirmar el correo";
                 setErrorMsg(msg);
-                
                 sileo.error({ 
                     title: "Error", 
                     description: msg, 
@@ -52,26 +49,13 @@ export default function ConfirmEmailForm() {
                 return;
             }
 
-            sileo.success({ 
-                title: "¡Éxito!", 
-                description: "Correo confirmado correctamente", 
-                fill: "#58d68d" 
-            });
+            // Hydrate the store directly from the confirm-email response
+            if (body.user) {
+                setUser(body.user);
+                setRequiresProfileCompletion(body.requiresProfileCompletion ?? false);
+            }
 
-            setSuccess(true);
-            
-            sileo.action({
-                title: "¡Sesión iniciada!",
-                description: "Tu correo ha sido confirmado exitosamente y hemos iniciado tu sesión.",
-                button: {
-                    title: "Ir al Dashboard",
-                    onClick: handleRedirect,
-                },
-                fill: "#58d68d",
-                styles: {
-                    badge: { fill: "#ffffff" },
-                },
-            });
+            handleRedirect();
 
         } catch (error: any) {
             sileo.error({ 
@@ -85,29 +69,6 @@ export default function ConfirmEmailForm() {
 
     if (!isReady) return null;
 
-    if (success) {
-        return (
-            <div className="reset-success-card">
-                <div className="reset-success-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                </div>
-                <h1 className="reset-success-title">¡Todo listo!</h1>
-                <p className="reset-success-text">
-                    Tu correo ha sido confirmado con éxito. Tu sesión ha sido iniciada automáticamente.
-                </p>
-                <button 
-                    className="reset-password-submit" 
-                    onClick={handleRedirect}
-                    disabled={isRedirecting}
-                >
-                    {isRedirecting ? "Redirigiendo..." : "Ir al Dashboard"}
-                </button>
-            </div>
-        );
-    }
-
     if (token === null) {
         return (
             <div className="reset-password-container">
@@ -115,7 +76,7 @@ export default function ConfirmEmailForm() {
                     <h1 className="reset-password-title">Enlace <span>inválido</span></h1>
                     <p className="reset-password-subtitle">No se encontró un token válido en la URL.</p>
                 </div>
-                <button className="reset-password-submit" onClick={() => navigate("/")}>
+                <button className="reset-password-submit" onClick={() => window.location.href = "/"}>
                     Ir al Login
                 </button>
             </div>

@@ -9,7 +9,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     url.pathname.startsWith('/favicon') ||
     url.pathname.startsWith('/images')
   ) {
-  return next();
+    return next();
   }
 
   const token = context.cookies.get('access_token')?.value;
@@ -33,22 +33,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const originalPath = url.pathname + url.search;
     const redirectParam = encodeURIComponent(originalPath);
 
+    let needsRefresh = false;
+
     if (!token) {
-      return context.redirect(`/?session=expired&redirect=${redirectParam}`);
+      needsRefresh = true;
+    } else {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          needsRefresh = true;
+        }
+      } catch {
+        needsRefresh = true;
+      }
     }
 
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const isExpired = payload.exp * 1000 < Date.now();
+    if (needsRefresh) {
+      const refreshToken = context.cookies.get('refresh_token')?.value;
 
-      if (isExpired) {
-        const refreshToken = context.cookies.get('refresh_token')?.value;
+      if (!refreshToken) {
+        context.cookies.delete('access_token', { path: '/' });
+        return context.redirect(`/?session=expired&redirect=${redirectParam}`);
+      }
 
-        if (!refreshToken) {
-          context.cookies.delete('access_token', { path: '/' });
-          return context.redirect(`/?session=expired&redirect=${redirectParam}`);
-        }
-
+      try {
         const API_URL = import.meta.env.API_URL;
         const res = await fetch(`${API_URL}/auth/refresh`, {
           method: 'POST',
@@ -67,14 +75,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set('access_token', data.accessToken, {
           httpOnly: true,
           path: '/',
-          maxAge: 60 * 60, // 1 hora
+          maxAge: 60 * 15, // 15 minutos
           sameSite: 'strict',
         });
-      }
-    } catch {
+      } catch {
         context.cookies.delete('access_token', { path: '/' });
         context.cookies.delete('refresh_token', { path: '/' });
         return context.redirect(`/?session=expired&redirect=${redirectParam}`);
+      }
     }
   }
 

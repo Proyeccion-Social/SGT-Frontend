@@ -1,0 +1,739 @@
+/* ── Design tokens ── */
+:root {
+  --sdv-white: var(--neutral-blanco);
+  --sdv-bg: var(--primary-50); /* lavender tint backdrop         */
+  --sdv-surface: var(--primary-50); /* header card background         */
+  --sdv-border: var(--primary-100); /* dashed card border             */
+
+  --sdv-violet: var(--primary-default); /* primary icon / accent          */
+  --sdv-violet-light: var(--primary-50); /* tag background                 */
+  --sdv-violet-text: var(--primary-600);
+
+  --sdv-yellow: var(--warning-100);
+  --sdv-yellow-text: var(--warning-600);
+
+  --sdv-gray-tag: var(--neutral-100);
+  --sdv-gray-text: var(--neutral-default);
+  --sdv-gray-dark: var(--neutral-700);
+
+  --sdv-lime: var(--secondary-100);
+  --sdv-lime-border: var(--secondary-500);
+  --sdv-lime-text: var(--secondary-700);
+
+  --sdv-coral: var(--error-300);
+  --sdv-coral-dark: var(--error-default);
+  --sdv-coral-text: var(--error-100);
+
+  --sdv-radius-modal: var(--border-radius-xl); /* 24px */
+  --sdv-radius-card: var(--border-radius-lg); /* 16px */
+  --sdv-radius-pill: 999px;
+  --sdv-shadow:
+    0 8px 40px 0 rgba(135, 81, 255, 0.13), 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+  --sdv-font: var(--type-font-family-primary);
+}
+
+/* ── Modal wrapper (full-screen overlay) ── */
+.sdv-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 10, 35, 0);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: sdv-fade-in 0.22s ease;
+}
+
+/* ── Main container ── */
+.sdv {
+  font-family: var(--sdv-font);
+  background: var(--sdv-white);
+  border-radius: var(--sdv-radius-modal);
+  box-shadow: var(--sdv-shadow);
+
+  /* CAMBIOS CLAVE */
+  width: fit-content; /* El contenedor ahora abraza el ancho del contenido */
+  min-width: 793px; /* Opcional: para que no se vea demasiado flaco con poco contenido */
+  max-width: 900px; /* Se limita al máximo de tu modal-card para no romperse */
+
+  padding: 24px 24px 24px 24px; /* bottom padding leaves room for buttons */
+  position: relative;
+  animation: sdv-slide-up 0.28s cubic-bezier(0.22, 0.68, 0, 1.2);
+  overflow: visible;
+
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Close button ── */
+.sdv__close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sdv-white);
+  border: 1.5px solid var(--sdv-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--sdv-gray-text);
+  font-size: 18px;
+  line-height: 1;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+  z-index: 10;
+}
+.sdv__close:hover {
+  color: var(--sdv-coral-dark);
+  transform: scale(1.12);
+}
+
+/* ══════════════════════════════
+   1. TOP – avatar + title + desc
+   ══════════════════════════════ */
+.sdv__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--sdv-surface);
+  border-radius: var(--sdv-radius-card);
+  padding: 20px;
+  background: rgba(232, 232, 232, 0.5);
+  backdrop-filter: blur(34.3px);
+  border-radius: 16px;
+  border: 1px solid var(--neutral-200);
+}
+
+/* Avatar */
+.sdv-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--sdv-violet-light);
+  width: 76px;
+  height: 76px;
+  border-radius: 8px;
+}
+
+/* Fallback avatar (initials) */
+.sdv-avatar-fallback {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--sdv-violet);
+  color: var(--neutral-blanco);
+  font-family: var(--sdv-font);
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.5px;
+  border: 2px solid var(--sdv-violet-light);
+}
+
+.sdv__header-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 76px;
+  justify-content: center;
+  gap: 8px;
+}
+
+.sdv__title {
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.02em;
+  color: var(--neutral-600);
+}
+
+.sdv__description {
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.02em;
+  color: var(--neutral-600);
+}
+
+/* ══════════════════════════════
+   2. TAGS ROW
+   ══════════════════════════════ */
+.sdv__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+.sdv-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--sdv-radius-pill);
+  white-space: nowrap;
+  font-family: "Cabinet Grotesk Variable";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 19px;
+  letter-spacing: -0.02em;
+}
+
+/* Subject tag – yellow pastel */
+.sdv-tag--subject {
+  color: var(--text-body);
+}
+
+/* Tutor tag – lavender */
+.sdv-tag--tutor {
+  background: var(--sdv-violet-light);
+  color: var(--sdv-violet-text);
+}
+
+/* Status tag – neutral gray */
+.sdv-tag--status {
+  background: var(--sdv-gray-tag);
+  color: var(--sdv-gray-text);
+}
+
+/* Link tag – violet outline */
+.sdv-tag--link {
+  background: var(--sdv-white);
+  color: var(--sdv-violet);
+  border: 1.5px solid var(--sdv-border);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.sdv-tag--link:hover {
+  background: var(--sdv-violet-light);
+}
+
+/* Dot decoration inside tutor tag */
+.sdv-tag__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.sdv-tag__dot--purple {
+  background: var(--sdv-violet);
+}
+
+/* ══════════════════════════════
+   3. INFO CARDS GRID
+   ══════════════════════════════ */
+.sdv__cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sdv-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 8px;
+  text-align: center;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+  width: 100%; /* Ocupa el total de su celda (que es 1/4 del grid) */
+  aspect-ratio: 1 / 1; /* Fuerza a que el alto sea igual al ancho automáticamente */
+  box-sizing: border-box;
+  background: rgba(243, 237, 255, 0.5);
+  border: 1px dashed var(--neutral-200);
+  backdrop-filter: blur(34.3px);
+  border-radius: 16px;
+}
+
+/* Icon circle */
+.sdv-card__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sdv-card__icon--purple {
+  background: var(--sdv-violet-light);
+  color: var(--sdv-violet);
+}
+
+/* Icon SVG inherits color */
+.sdv-card__icon svg {
+  color: inherit;
+  stroke: currentColor;
+  width: 20px;
+  height: 20px;
+}
+
+.sdv-card__label {
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-600);
+}
+
+.sdv-card__sublabel {
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: var(--neutral-600);
+}
+
+/* ══════════════════════════════
+   4. FOOTER BUTTONS
+   ══════════════════════════════ */
+.sdv__footer {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  width: calc(100% - 48px);
+}
+
+.sdv-btn {
+  flex: 1;
+  max-width: 200px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8px 12px;
+  gap: 10px;
+  background: var(--secondary-200);
+  border-radius: 8px;
+
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+}
+
+.sdv-btn--propose {
+  background: var(--secondary-200);
+  border: 1px solid var(--secondary-500);
+  color: var(--secondary-600);
+}
+
+.sdv-btn:hover {
+  transform: translateY(-2px);
+}
+.sdv-btn:active {
+  transform: translateY(0);
+}
+
+.sdv-btn--propose:hover {
+  filter: brightness(1.04);
+}
+
+/* Edit – violet (tutor only) */
+.sdv-btn--edit {
+  background: var(--primary-400);
+  color: #fff;
+}
+
+.sdv-btn--edit:hover {
+  filter: brightness(1.04);
+}
+
+/* Cancel – coral */
+.sdv-btn--cancel {
+  background: var(--error-400);
+  border-radius: 8px;
+  color: var(--neutral-blanco);
+}
+
+.sdv-btn--cancel:hover {
+  filter: brightness(1.04);
+}
+
+/* ══════════════════════════════════════════════════════
+   ProposeModificationForm + EditSessionForm — bloques .pmf
+   Añadir al final de SessionDetailView.css
+   ══════════════════════════════════════════════════════ */
+
+/* ── Contenedor principal ── */
+.pmf {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+/* ── Fila genérica: 2 columnas iguales ── */
+.pmf__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Fila de ancho completo (Disponibilidad) ── */
+.pmf__row--full {
+  grid-template-columns: 1fr;
+}
+
+/* ══════════════════════════════════════════════════════
+   ProposeModificationForm + EditSessionForm — bloques .pmf
+   Añadir al final de SessionDetailView.css
+   ══════════════════════════════════════════════════════ */
+
+/* ── Contenedor principal ── */
+.pmf {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+/* ── Fila genérica: 2 columnas iguales ── */
+.pmf__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Fila de ancho completo (Disponibilidad) ── */
+.pmf__row--full {
+  grid-template-columns: 1fr;
+}
+
+/* ── Caja visual de cada campo ── */
+.pmf__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 8px;
+  border-radius: var(--sdv-radius-card);
+  border: 3px dashed var(--sdv-border);
+  background: var(--sdv-white);
+  text-align: center;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Cards con inputs/textarea no usan aspect-ratio cuadrado */
+.pmf__card--unratio {
+  aspect-ratio: unset;
+  padding: 16px 12px;
+}
+
+/* Foco: resalta la card cuando el campo interno está activo */
+.pmf__card:focus-within {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.pmf__card .form-field__input:focus {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* ── Textarea dentro de card ── */
+.pmf__card .form-field__textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--sdv-border, #dcd6f7);
+  background: var(--sdv-white, #ffffff);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--sdv-gray-dark, #1e293b);
+  outline: none;
+  resize: vertical;
+  text-align: center;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.pmf__card .form-field__textarea:focus {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* La fila full (Disponibilidad) tampoco usa aspect-ratio */
+.pmf__row--full .pmf__card {
+  aspect-ratio: unset;
+  padding: 16px 12px;
+}
+
+/* ── Hint y error ── */
+.pmf__card .form-field__hint {
+  text-align: center;
+}
+
+.pmf__error {
+  margin: 4px 0 0;
+  padding: 10px;
+  background: var(--error-100);
+  color: var(--error-default);
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid var(--error-300);
+}
+
+/* ── Responsive: apilar en móvil ── */
+@media (max-width: 480px) {
+  .pmf__row {
+    grid-template-columns: 1fr;
+  }
+
+  .pmf__card {
+    aspect-ratio: unset;
+    padding: 16px 12px;
+  }
+}
+
+/* ── Título de sección (Proponer / Editando) ── */
+.sdv__section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-600);
+}
+
+.sdv__section-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  background: var(--secondary-default);
+}
+
+/* ── Caja visual de cada campo ── */
+.pmf__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(243, 237, 255, 0.5);
+  border: 1px dashed var(--neutral-200);
+  backdrop-filter: blur(34.3px);
+  border-radius: 8px;
+}
+
+/* Cards con inputs/textarea no usan aspect-ratio cuadrado */
+.pmf__card--unratio {
+  aspect-ratio: unset;
+  padding: 16px 12px;
+}
+
+/* Foco: resalta la card cuando el campo interno está activo */
+.pmf__card:focus-within {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* ── form-field dentro de card ── */
+.pmf__card .form-field {
+  width: 100%;
+  gap: 0;
+}
+
+.pmf__card .form-field__label {
+  display: none;
+}
+
+/* ── Select dentro de card: hereda estilos base ── */
+.pmf__card .form-field__select {
+  text-align: center;
+  text-align-last: center;
+  padding: 9px 32px 9px 14px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--neutral-600);
+}
+
+.pmf__card .form-field__select:focus {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+  outline: none;
+}
+
+/* ── Input dentro de card ── */
+.pmf__card .form-field__input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--sdv-border, #dcd6f7);
+  background: var(--sdv-white, #ffffff);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--sdv-gray-dark, #1e293b);
+  outline: none;
+  text-align: center;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.pmf__card .form-field__input:focus {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* ── Textarea dentro de card ── */
+.pmf__card .form-field__textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--sdv-border, #dcd6f7);
+  background: var(--sdv-white, #ffffff);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--sdv-gray-dark, #1e293b);
+  outline: none;
+  resize: vertical;
+  text-align: center;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.pmf__card .form-field__textarea:focus {
+  border-color: var(--sdv-violet, #7c3aed);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* La fila full (Disponibilidad) tampoco usa aspect-ratio */
+.pmf__row--full .pmf__card {
+  aspect-ratio: unset;
+  padding: 16px 12px;
+}
+
+/* ── Hint y error ── */
+.pmf__card .form-field__hint {
+  text-align: center;
+}
+
+.pmf__error {
+  margin: 4px 0 0;
+  padding: 10px;
+  background: var(--error-100);
+  color: var(--error-default);
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid var(--error-300);
+}
+
+/* ── Responsive: apilar en móvil ── */
+@media (max-width: 480px) {
+  .pmf__row {
+    grid-template-columns: 1fr;
+  }
+
+  .pmf__card {
+    aspect-ratio: unset;
+    padding: 16px 12px;
+  }
+}
+
+/* ══════════════════════════════
+   Keyframes
+   ══════════════════════════════ */
+@keyframes sdv-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sdv-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ══════════════════════════════
+   Responsive
+   ══════════════════════════════ */
+@media (max-width: 540px) {
+  .sdv {
+    padding: 20px 16px 72px 16px;
+    border-radius: 18px;
+  }
+  .sdv__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sdv__footer {
+    flex-direction: column;
+    width: calc(100% - 32px);
+  }
+  .sdv-btn {
+    flex: unset;
+    width: 100%;
+  }
+}

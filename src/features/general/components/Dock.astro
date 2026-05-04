@@ -1,0 +1,242 @@
+---
+import { Image } from "astro:assets";
+import { UserRole } from "@/constants/roles";
+
+import DashboardIcon from "@/features/dashboards/components/icons/DashboardIcon.svg";
+import ConfigIcon from "@/features/dashboards/components/icons/ConfigIcon.svg";
+import NotificationIcon from "@/features/dashboards/components/icons/NotificationIcon.svg";
+import WindowIcon from "@/features/dashboards/components/icons/WindowIcon.svg";
+import HistoryIcon from "@/features/dashboards/components/icons/HistoryIcon.svg";
+import CalendarIcon from "@/features/dashboards/components/icons/CalendarIcon.svg";
+import BinocularIcon from "@/features/dashboards/components/icons/BinocularIcon.svg";
+import SearchIcon from "@/features/dashboards/components/icons/SearchIcon.svg";
+import CommunityIcon from "@/features/dashboards/components/icons/CommunityIcon.svg";
+
+interface Props {
+  userRole: UserRole;
+}
+
+const { userRole } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<nav class="dock" id="mobile-dock">
+  <div class="dock-items">
+
+    {/* Dashboard - All Roles */}
+    <a 
+      href="/dashboard" 
+      class={`dock-item ${currentPath === "/dashboard" ? "active" : ""}`}
+    >
+      <div class="icon-highlight">
+        <Image src={DashboardIcon} alt="Dashboard" class="icon" />
+      </div>
+    </a>
+
+    {/* Student Specific */}
+    {userRole === UserRole.STUDENT && (
+      <>
+        <a 
+          href="/sessions" 
+          class={`dock-item ${currentPath === "/sessions" ? "active" : ""}`}
+        >
+          <div class="icon-highlight">
+            <Image src={CalendarIcon} alt="Calendario" class="icon" />
+          </div>
+        </a>
+        <a 
+          href="/history" 
+          class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+        >
+          <div class="icon-highlight">
+            <Image src={HistoryIcon} alt="Historial" class="icon" />
+          </div>
+        </a>
+        <a 
+          href="/search" 
+          class={`dock-item ${currentPath.startsWith("/search") ? "active" : ""}`}
+        >
+          <div class="icon-highlight">
+            <Image src={SearchIcon} alt="Buscar" class="icon" />
+          </div>
+        </a>
+        <a href="#" class="dock-item">
+          <div class="icon-highlight">
+            <Image src={BinocularIcon} alt="Monitoreo" class="icon" />
+          </div>
+        </a>
+        <a href="#" class="dock-item">
+          <div class="icon-highlight">
+            <Image src={CommunityIcon} alt="Comunidad" class="icon" />
+          </div>
+        </a>
+      </>
+    )}
+
+    {/* Admin Specific */}
+    {userRole === UserRole.ADMIN && (
+      <>
+        <a href="#" class="dock-item">
+          <div class="icon-highlight">
+            <Image src={WindowIcon} alt="Gestión" class="icon" />
+          </div>
+        </a>
+        <a href="#" class="dock-item">
+          <div class="icon-highlight">
+            <Image src={ConfigIcon} alt="Configuración" class="icon" />
+          </div>
+        </a>
+      </>
+    )}
+
+    {/* Tutor Specific */}
+    {userRole === UserRole.TUTOR && (
+      <>
+        <a 
+          href="/availability/tutor/slots" 
+          class={`dock-item ${currentPath.startsWith("/availability/tutor") ? "active" : ""}`}
+        >
+          <div class="icon-highlight">
+            <Image src={WindowIcon} alt="Disponibilidad" class="icon" />
+          </div>
+        </a>
+        <a 
+          href="/history" 
+          class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+        >
+          <div class="icon-highlight">
+            <Image src={HistoryIcon} alt="Historial" class="icon" />
+          </div>
+        </a>
+      </>
+    )}
+
+  </div>
+
+</nav>
+
+{/* Floating Notifications for Mobile */}
+<a href="#" class="notification-floating">
+  <div class="icon-highlight">
+    <Image src={NotificationIcon} alt="Notificaciones" class="icon" />
+  </div>
+</a>
+
+<style>
+  .dock {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    max-width: 95%;
+    height: 56px;
+    background: #f6f1ff;
+    z-index: 1000;
+    border-radius: 50px;
+    padding: 0 12px;
+    overflow: visible;
+    filter: drop-shadow(0 -4px 12px rgba(0, 0, 0, 0.08));
+  }
+
+  @media (max-width: 768px) {
+    .dock {
+      display: flex;
+      position: fixed;
+      bottom: 25px;
+      top: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+      width: 85%;
+      justify-content: center;
+    }
+
+    .notification-floating {
+      display: flex !important;
+      position: fixed !important;
+      top: 2rem !important;
+      left: 20px !important;
+      bottom: auto !important;
+      width: 54px;
+      height: 54px;
+      background-color: #e6ffc7 !important;
+      border-radius: 50%;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      z-index: 10001;
+      border: 2px solid #fff;
+    }
+  }
+
+  .notification-floating {
+    display: none;
+  }
+
+  .dock-items {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 8px;
+  }
+
+  .dock-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .icon-highlight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .dock-item.active {
+    background: #e7dcff;
+    z-index: 1001;
+  }
+
+  .dock-item.active::before,
+  .dock-item.active::after {
+    content: "";
+    position: absolute;
+    bottom: -18px; /* Match the protrusion depth */
+    width: 18px;
+    height: 18px;
+    background: transparent;
+  }
+
+  .dock-item.active::before {
+    left: -18px;
+    border-radius: 0 0 18px 0;
+    box-shadow: 6px 0 0 0 #f6f1ff;
+  }
+
+  .dock-item.active::after {
+    right: -18px;
+    border-radius: 0 0 0 18px;
+    box-shadow: -6px 0 0 0 #f6f1ff;
+  }
+
+</style>

@@ -145,7 +145,6 @@ export default function MultiStepDialog({
         throw new Error(result.error || "Error al enviar");
       }
 
-      console.log("✅ Enviado:", result);
       next();
     } catch (error) {
       console.error("❌ Error:", error);

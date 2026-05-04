@@ -1,0 +1,178 @@
+/* ══════════════════════════════════════════════════════
+   ProposeModificationView.css
+   Estilo coherente con el sistema de modales SDV
+   ══════════════════════════════════════════════════════ */
+
+.modal-view--propose {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 8px 48px 8px; /* Padding inferior para dejar espacio a los botones colgantes */
+  position: relative;
+}
+
+/* ── Título ── */
+.modal-view__title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sdv-gray-dark, #1e293b);
+  letter-spacing: -0.4px;
+}
+
+/* ── Campos de Formulario ── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.form-field__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sdv-gray-dark, #475569);
+  margin-left: 4px;
+}
+
+.form-field__select {
+  width: 100%;
+  padding: 9px 32px 9px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--sdv-border, #dcd6f7);
+  background: var(--sdv-white, #ffffff)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237c3aed' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 12px center;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--sdv-gray-dark, #1e293b);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
+  cursor: pointer;
+}
+
+.form-field__select:hover {
+  border-color: var(--loading-default);
+  background-color: var(--primary-50);
+}
+
+.form-field__select:focus {
+  border-color: var(--sdv-violet, var(--primary-default));
+  box-shadow: 0 0 0 3px rgba(135, 81, 255, 0.12);
+  background-color: var(--primary-50);
+}
+
+.form-field__select:disabled {
+  background-color: var(--neutral-100);
+  border-color: var(--neutral-200);
+  color: var(--neutral-300);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.form-field__hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--neutral-default);
+  line-height: 1.4;
+  padding: 0 4px;
+}
+
+/* ── Errores ── */
+.modal-view__error {
+  margin: 8px 0;
+  padding: 10px;
+  background: var(--error-100);
+  color: var(--error-default);
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid var(--error-300);
+}
+
+/* ── Estado de Éxito ── */
+.modal-view--success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #059669;
+  font-weight: 600;
+  text-align: center;
+  animation: cancel-fade-in 0.3s ease;
+}
+
+/* ── Footer con Botones Colgantes ── */
+.modal-view__footer {
+  position: absolute;
+  bottom: -46px; /* Ajustado para que queden mitad fuera del .modal-card */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: max-content;
+  z-index: 100;
+}
+/* ══════════════════════════════════════════════════════
+   ProposeModificationForm — bloques .pmf
+   Añadir al final de SessionDetailView.css
+   ══════════════════════════════════════════════════════ */
+
+/* ── Contenedor principal ── */
+.pmf {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+/* ── Fila genérica: 2 columnas iguales ── */
+.pmf__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Fila de ancho completo (Disponibilidad) ── */
+.pmf__row--full {
+  grid-template-columns: 1fr;
+}
+
+.pmf__error {
+  margin: 4px 0 0;
+  padding: 10px;
+  background: var(--error-100);
+  color: var(--error-default);
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-left: 3px solid var(--error-300);
+}
+
+/* ── Responsive: apilar en móvil ── */
+@media (max-width: 480px) {
+  .pmf__row {
+    grid-template-columns: 1fr;
+  }
+
+  .pmf__card {
+    aspect-ratio: unset;
+    padding: 16px 12px;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .modal-view__footer {
+    bottom: -70px; /* Más espacio si los botones se apilan */
+    flex-direction: column;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,163 @@
+/* ============================================================
+   FormGeneral — tutor info / password card
+   prefix: fg-
+   ============================================================ */
+
+.fg-card {
+  flex: 1;
+  border-radius: 16px;
+  background: var(--neutral-blanco);
+  border: 1px solid var(--primary-50);
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.fg-body {
+  flex: 1;
+  padding: 20px 24px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+}
+
+/* ── Fields ──────────────────────────────────────────────── */
+.fg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fg-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--primary-default);
+}
+
+.fg-field [data-slot="input"] {
+  height: 40px;
+  font-size: 13px;
+}
+
+/* Native info/phone input */
+.fg-input {
+  height: 40px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-700);
+  background: var(--neutral-blanco);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.fg-input::placeholder {
+  color: var(--neutral-300);
+}
+
+.fg-input:focus {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px rgba(159, 116, 255, 0.12);
+}
+
+.fg-input:disabled {
+  background: var(--neutral-100);
+  color: var(--neutral-400);
+  cursor: default;
+  border: 0;
+}
+
+.fg-input--error {
+  border-color: var(--error-400);
+  box-shadow: 0 0 0 3px rgba(217, 79, 79, 0.1);
+}
+
+/* Native password input */
+.fg-pw-input {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  outline: none;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-family: "Open Sauce Two", sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-400);
+  background: var(--neutral-blanco);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.fg-pw-input::placeholder {
+  color: var(--color-violeta-300);
+}
+
+.fg-pw-input:focus {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 3px rgba(159, 116, 255, 0.12);
+}
+
+.fg-pw-input--error {
+  border-color: var(--error-400);
+  box-shadow: 0 0 0 3px rgba(217, 79, 79, 0.1);
+}
+
+.fg-error {
+  font-size: 0.75rem;
+  color: var(--text-error);
+}
+
+/* ── Password toggle wrapper ─────────────────────────────── */
+.fg-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fg-pw-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--neutral-300);
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.fg-pw-toggle:hover {
+  color: var(--primary-700);
+}
+
+.fg-pw-icon {
+  transition: filter 0.15s ease;
+}
+.fg-pw-toggle:hover .fg-pw-icon {
+  filter: invert(18%) sepia(60%) saturate(2500%) hue-rotate(255deg)
+    brightness(85%);
+}
+
+/* ── Half in / half out actions ──────────────────────────── */
+.fg-actions {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}

@@ -80,7 +80,6 @@
           }));
 
           setSlots(fetchedSlots);
-          console.log("SLOTS COMBINADOS:", fetchedSlots);
 
       } catch (error) {
           console.error("Error al obtener los slots:", error);
@@ -153,7 +152,6 @@
             duration: 3000
           });
 
-          console.log("HORAS:", totalHours);
           // Cierra el drawer localmente antes de abrir el dialog.
           setOpen(false);
           

@@ -64,36 +64,34 @@ export function SubjectSelector({ initialSubjects = [], initialSelectedId = null
   return (
     <div className="flex items-center gap-2">
       <DropdownMenu onOpenChange={setIsOpen}>
-        <DropdownMenuTrigger
-          render={
-            <button
-              type="button"
-              style={{ 
-                minWidth: "180px", 
-                height: "42px",
-                ...(selectedId ? { borderColor: "#9bcd5d", color: "#9bcd5d" } : {})
-              }}
-              className={`
-                flex items-center justify-between gap-2 px-4 py-2 rounded-full border transition-all duration-200
-                ${
-                  selectedId
-                    ? "bg-[var(--secondary-100)]"
-                    : "bg-white border-gray-200 text-gray-600 hover:border-[var(--primary-default)]"
-                }
-              `}
-            >
-              <div className="flex items-center gap-2 overflow-hidden">
-                <BookOpenIcon className="w-4 h-4 flex-shrink-0" />
-                <span className="text-sm font-medium truncate">
-                  {currentSubject ? currentSubject.name : "Todas las materias"}
-                </span>
-              </div>
-              <ChevronDownIcon
-                className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-              />
-            </button>
-          }
-        />
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            style={{ 
+              minWidth: "180px", 
+              height: "42px",
+              ...(selectedId ? { borderColor: "#9bcd5d", color: "#9bcd5d" } : {})
+            }}
+            className={`
+              flex items-center justify-between gap-2 px-4 py-2 rounded-full border transition-all duration-200
+              ${
+                selectedId
+                  ? "bg-[var(--secondary-100)]"
+                  : "bg-white border-gray-200 text-gray-600 hover:border-[var(--primary-default)]"
+              }
+            `}
+          >
+            <div className="flex items-center gap-2 overflow-hidden">
+              <BookOpenIcon className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm font-medium truncate">
+                {currentSubject ? currentSubject.name : "Todas las materias"}
+              </span>
+            </div>
+            <ChevronDownIcon
+              className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+        </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto shadow-xl border-gray-100 rounded-2xl p-2">
           <div className="px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
             Filtrar por materia

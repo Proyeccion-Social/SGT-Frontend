@@ -1,8 +1,19 @@
 ---
 import HistoryView from "@/features/history/components/HistoryView.astro";
 import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import { UserRole } from "@/constants/roles";
+
+const token = Astro.cookies.get("access_token")?.value;
+
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as UserRole;
 ---
-<DashboardLayout title='Historial de tutorías' rol='student'>
+
+<DashboardLayout title='Historial de tutorías' rol={userRole}>
     <HistoryView />
 </DashboardLayout>
 

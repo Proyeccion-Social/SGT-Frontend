@@ -1,65 +1,53 @@
 ---
-import { jwtDecode } from "jwt-decode";
 import { Image } from "astro:assets";
-import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
-
-const { userRole } = Astro.props;
-
-let userDisplayName = "";
-const token = Astro.cookies.get("access_token")?.value;
-if (token) {
-    try {
-        const decoded = jwtDecode(token) as any;
-        userDisplayName = decoded.name || decoded.email || "";
-    } catch (e) {}
+import { UserRole } from "@/constants/roles";
+import UserMenuDropdown from "./islands/UserMenuDropdown";
+interface Props {
+    userRole: UserRole;
 }
 
-const initials = userDisplayName
-    ? userDisplayName
-          .split(" ")
-          .map((n: string) => n[0])
-          .join("")
-          .toUpperCase()
-          .substring(0, 2)
-    : "";
+const { userRole } = Astro.props;
 ---
 
 <div class="user-header">
     {
-        (userRole === "tutor" || userRole === "admin") && (
+        (userRole === UserRole.TUTOR || userRole === UserRole.ADMIN) && (
             <button class="role-change-button">
                 <Image src={RoleChangeIcon} alt="Change Role" />
             </button>
         )
     }
-    <button class="avatar" title={userDisplayName}>
-        {
-            initials ? (
-                <span class="initials">{initials}</span>
-            ) : (
-                <Image src={UserIcon} alt="User" />
-            )
-        }
-    </button>
+    <UserMenuDropdown client:load />
 </div>
 
 <style>
-    .initials {
-        color: #9f74ff;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-    
     .user-header {
-        position: sticky;
+        position: absolute;
         align-self: flex-end;
         display: flex;
         align-items: center;
         gap: 12px;
         padding-right: 30px;
-        top: 2rem;
+        top: 48px;
         margin-left: auto;
+        z-index: 10;
+        right: 20px
+    }
+
+    @media (max-width: 768px) {
+        .user-header {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            padding-right: 0.5rem;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px;
+            z-index: 10001;
+        }
     }
 
     .role-change-button {
@@ -72,17 +60,5 @@ const initials = userDisplayName
         align-items: center;
         width: 29px;
         height: 29px;
-    }
-
-    .avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        background: none;
-        padding: 0;
     }
 </style>

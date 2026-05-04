@@ -3,103 +3,113 @@ import AuthDialogLayout from "@/layouts/auth/AuthDialogLayout.astro";
 import LoginCard from "../components/LoginCard.astro";
 import LoginHeader from "../components/LoginHeader.astro";
 import LoginForm from "../components/LoginForm.astro";
+import ToasterReact from "@/components/ui/ToasterReact";
 ---
 
-<AuthDialogLayout dialogId="loginDialog" dialogClass="loginDialog">
+<AuthDialogLayout dialogId='loginDialog' dialogClass='loginDialog'>
   <LoginCard>
     <LoginHeader />
     <LoginForm />
   </LoginCard>
+  <ToasterReact client:load isLocal />
 </AuthDialogLayout>
 
 <script>
-  const dialog = document.getElementById("loginDialog") as HTMLDialogElement;
-  const closeButtons = dialog?.querySelectorAll("[data-close-dialog]");
-  const openButtons = document.querySelectorAll("[data-open-login]");
-  const textRecuperar = document.querySelector('.forgot-password') as HTMLElement;
-  const forgotPasswordDialog = document.getElementById("forgotPasswordDialog") as HTMLDialogElement;
+  function initLoginDialog() {
+    const dialog = document.getElementById("loginDialog") as HTMLDialogElement;
+    const closeButtons = dialog?.querySelectorAll("[data-close-dialog]");
+    const openButtons = document.querySelectorAll("[data-open-login]");
+    const textRecuperar = document.querySelector(
+      ".forgot-password",
+    ) as HTMLElement;
+    const forgotPasswordDialog = document.getElementById(
+      "forgotPasswordDialog",
+    ) as HTMLDialogElement;
 
-  function resetForm() {
-    const form = dialog?.querySelector("#login-form") as HTMLFormElement;
-    const passwordField = dialog?.querySelector("#password-field");
-    const loginCard = dialog?.querySelector(".login-card") as HTMLElement;
+    function resetForm() {
+      const form = dialog?.querySelector("#login-form") as HTMLFormElement;
+      const passwordField = dialog?.querySelector("#password-field");
+      const loginCard = dialog?.querySelector(".login-card") as HTMLElement;
 
-    form?.reset();
-    passwordField?.classList.remove("visible");
-    if (loginCard) loginCard.style.height = "";
+      form?.reset();
+      passwordField?.classList.remove("visible");
+      if (loginCard) loginCard.style.height = "";
 
-    document.dispatchEvent(new CustomEvent("reset-login-form"));
-  }
+      document.dispatchEvent(new CustomEvent("reset-login-form"));
+    }
 
-  function openDialog() {
-    resetForm();
-    dialog?.showModal();
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeDialog(keepBodyOverflow = false) {
-    dialog?.classList.add("closing");
-    setTimeout(() => {
-      dialog?.close();
-      dialog?.classList.remove("closing");
-      if (!keepBodyOverflow) {
-        document.body.style.overflow = "";
-      }
+    function openDialog() {
       resetForm();
-    }, 200);
-  }
+      dialog?.showModal();
+      document.body.style.overflow = "hidden";
+    }
 
-  function switchToDialog(targetDialog: HTMLDialogElement) {
-    dialog?.classList.add("switching");
-    targetDialog?.classList.add("entering-from-switch");
-    setTimeout(() => {
-      dialog?.close();
-      dialog?.classList.remove("switching");
-      resetForm();
-      targetDialog?.showModal();
+    function closeDialog(keepBodyOverflow = false) {
+      dialog?.classList.add("closing");
       setTimeout(() => {
-        targetDialog?.classList.remove("entering-from-switch");
-      }, 50);
-    }, 180);
-  }
+        dialog?.close();
+        dialog?.classList.remove("closing");
+        if (!keepBodyOverflow) {
+          document.body.style.overflow = "";
+        }
+        resetForm();
+      }, 200);
+    }
 
-  openButtons.forEach((btn) => {
-    btn.addEventListener("click", openDialog);
-  });
+    function switchToDialog(targetDialog: HTMLDialogElement) {
+      dialog?.classList.add("switching");
+      targetDialog?.classList.add("entering-from-switch");
+      setTimeout(() => {
+        dialog?.close();
+        dialog?.classList.remove("switching");
+        resetForm();
+        targetDialog?.showModal();
+        setTimeout(() => {
+          targetDialog?.classList.remove("entering-from-switch");
+        }, 50);
+      }, 180);
+    }
 
-  textRecuperar?.addEventListener("click", () => {
-    switchToDialog(forgotPasswordDialog);
-  });
+    openButtons.forEach((btn) => {
+      btn.addEventListener("click", openDialog);
+    });
 
-  closeButtons?.forEach((btn) => {
-    btn.addEventListener("click", () => closeDialog());
-  });
-
-  dialog?.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
+    textRecuperar?.addEventListener("click", (e) => {
       e.preventDefault();
+      switchToDialog(forgotPasswordDialog);
+    });
+
+    closeButtons?.forEach((btn) => {
+      btn.addEventListener("click", () => closeDialog());
+    });
+
+    dialog?.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeDialog();
+      }
+    });
+
+    dialog?.addEventListener("close-request", () => {
       closeDialog();
+    });
+
+    dialog?.addEventListener("click", (e) => {
+      const content = dialog.querySelector(".dialogContent");
+      if (content && !content.contains(e.target as Node)) {
+        closeDialog();
+      }
+    });
+
+    // ── Auto-open login when redirect param exists (email action flow) ──
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.has('redirect')) {
+      // Small delay to ensure DOM is fully ready
+      setTimeout(() => {
+        openDialog();
+      }, 300);
     }
-  });
-
-  dialog?.addEventListener("close-request", () => {
-    closeDialog();
-  });
-
-  dialog?.addEventListener("click", (e) => {
-    const content = dialog.querySelector(".dialogContent");
-    if (content && !content.contains(e.target as Node)) {
-      closeDialog();
-    }
-  });
-
-  // ── Auto-open login when redirect param exists (email action flow) ──
-  const currentUrl = new URL(window.location.href);
-  if (currentUrl.searchParams.has('redirect')) {
-    // Small delay to ensure DOM is fully ready
-    setTimeout(() => {
-      openDialog();
-    }, 300);
   }
-</script>
 
+  document.addEventListener("astro:page-load", initLoginDialog);
+</script>

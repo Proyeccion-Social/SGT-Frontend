@@ -1,43 +1,48 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import Dock from "@/features/general/components/Dock.astro";
 import VaulDrawer from "@/components/ui/drawer";
 
 import EmailActionController from "@/features/emailScreens/components/EmailActionController";
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 
 import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
-
+import { UserRole } from "@/constants/roles";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+import NotificationsPanel from "@features/dashboards/components/notifications/NotificationsPanel";
+import FirstLoginSetup from "@features/dashboards/components/FirstLoginSetup";
 
 interface Props {
   title?: string;
-  rol: "admin" | "tutor" | "student";
+  rol: UserRole;
 }
 
 const { rol, title = "Atlas" } = Astro.props;
-
-const token = Astro.cookies.get("access_token")?.value;
-if (!token) return Astro.redirect("/?session=expired");
-
 const userId = getUserIdFromCookie(Astro.cookies);
-console.log("🆔 [Astro Layout] Tu User ID actual es:", userId);
-
 ---
 
 <Layout title={title}>
   <div class='dashboardContainer'>
+    <UserHeader userRole={rol} transition:persist />
     <Sidebar userRole={rol} transition:persist />
-    <slot />
+
+    <main class='main-content'>
+      <Dock userRole={rol} transition:persist />
+      <slot />
+    </main>
   </div>
-
-  {rol === "tutor" && (
-    <>
-      <VaulDrawer client:load transition:persist />
-      <TutorAvailabilityOverlay />
-    </>
-  )}
-    <EmailActionController client:only="react" userId={userId} />
-
+  <NotificationsPanel client:load transition:persist />
+  <FirstLoginSetup client:load />
+  {
+    (rol === "tutor" || rol === "student") && (
+      <>
+        <VaulDrawer client:load transition:persist />
+        {rol === "tutor" && <TutorAvailabilityOverlay />}
+      </>
+    )
+  }
+  <EmailActionController client:only='react' userId={userId} />
 </Layout>
 
 <style>
@@ -48,5 +53,35 @@ console.log("🆔 [Astro Layout] Tu User ID actual es:", userId);
     background-color: #f3edff;
     box-sizing: border-box;
     overflow-y: hidden;
+  }
+
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    height: 100dvh;
+  }
+
+  @media (max-width: 768px) {
+    .dashboardContainer {
+      height: 100vh;
+      flex-direction: column;
+      padding-top: 0;
+    }
+
+    .main-content {
+      height: 100vh;
+      background-color: #fff;
+      padding-bottom: 100px; /* Space for floating bottom dock */
+    }
+
+    /* Global overrides to ensure white area has no rounded corners on mobile */
+    :global(.content-wrapper),
+    :global(.dashboard-content),
+    :global(.block-container),
+    :global(.search-page),
+    :global(.history-layout) {
+      border-radius: 0 !important;
+      border: none !important;
+    }
   }
 </style>

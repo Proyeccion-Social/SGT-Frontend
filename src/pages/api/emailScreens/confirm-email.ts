@@ -27,14 +27,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       cookies.set("access_token", data.accessToken, {
         httpOnly: true,
         path: "/",
-        maxAge: 60 * 15
+        sameSite: "strict",
+        maxAge: 60 * 60, // 1h matches JWT expiry
       });
       cookies.set("refresh_token", data.refreshToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: "strict",
         path: "/",
-        maxAge: 60 * 60 * 24 * 7
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 30,
       });
     }
 

@@ -1,0 +1,96 @@
+@import './EmailScreensShared.css';
+
+.es-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--es-gray-dark);
+}
+
+.es-section-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d9f99d;
+}
+
+.es-section-link {
+  font-size: 11px;
+  color: var(--es-violet);
+  background: var(--es-violet-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.es-section-link:hover { filter: brightness(0.95); }
+
+/* Modification Detail Cards - Redimensionados */
+.es-mod-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.es-info-card--mod {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alineado a la izquierda para el icono y texto */
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: var(--es-radius-card);
+  border: 2px dashed var(--es-border);
+  background: var(--es-surface); /* Fondo aplicado aquí */
+  transition: all 0.2s ease;
+  min-height: 54px;
+  box-sizing: border-box;
+}
+
+.es-info-card--mod.es-info-card--full {
+  width: 100%;
+}
+
+/* Purple state (Current State) */
+.es-info-card--current {
+  border-color: var(--es-violet) !important;
+  background: var(--es-violet-light) !important; /* Fondo violeta suave */
+  color: var(--es-violet-text) !important;
+}
+
+.es-info-card--current .es-info-card__label {
+  color: var(--es-violet-text) !important;
+}
+
+.es-info-card--current .es-info-card__icon {
+  background: var(--es-violet) !important;
+  color: var(--es-white) !important;
+}
+
+.es-info-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* Fondo transparente, se usa el de la tarjeta */
+  color: var(--es-gray-text);
+  flex-shrink: 0;
+}
+
+.es-info-card__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #a3a3a3; /* Gris claro por defecto */
+}
+
+.es-info-card--current .es-info-card__label {
+  color: var(--es-violet);
+}

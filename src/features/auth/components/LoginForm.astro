@@ -123,10 +123,21 @@
           // Redirigir según estado del usuario
           if (data.requiresPasswordChange) {
             await navigate("/change-password");
-          } else if (data.requiresProfileCompletion) {
-            await navigate("/dashboard");
           } else {
-            await navigate("/dashboard");
+            // Leer redirect de query params con whitelist segura
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectPath = urlParams.get('redirect');
+            let destination = '/dashboard';
+
+            if (redirectPath) {
+              const decoded = decodeURIComponent(redirectPath);
+              // Whitelist: solo destinos que empiecen con /dashboard
+              if (decoded.startsWith('/dashboard')) {
+                destination = decoded;
+              }
+            }
+
+            await navigate(destination);
           }
         },
         {

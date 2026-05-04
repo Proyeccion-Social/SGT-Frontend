@@ -9,12 +9,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     url.pathname.startsWith('/favicon') ||
     url.pathname.startsWith('/images')
   ) {
-  return next();
+    return next();
   }
 
   const token = context.cookies.get('access_token')?.value;
   const protectedRoutes = ['/dashboard', '/change-password', '/search', '/availability'];
 
+  // ── Home con token válido → redirigir a dashboard ──
   if (url.pathname === '/' && !url.searchParams.has('session') && token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -26,7 +27,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
+  // ── Rutas protegidas ──
   if (protectedRoutes.some(route => url.pathname.startsWith(route))) {
+    // Construir redirect param con path + search originales
+    const originalPath = url.pathname + url.search;
+    const redirectParam = encodeURIComponent(originalPath);
+
     let needsRefresh = false;
 
     if (!token) {
@@ -47,7 +53,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
       if (!refreshToken) {
         context.cookies.delete('access_token', { path: '/' });
-        return context.redirect('/?session=expired');
+        return context.redirect(`/?session=expired&redirect=${redirectParam}`);
       }
 
       try {
@@ -61,7 +67,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         if (!res.ok) {
           context.cookies.delete('access_token', { path: '/' });
           context.cookies.delete('refresh_token', { path: '/' });
-          return context.redirect('/?session=expired');
+          return context.redirect(`/?session=expired&redirect=${redirectParam}`);
         }
 
         const data = await res.json();
@@ -69,13 +75,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set('access_token', data.accessToken, {
           httpOnly: true,
           path: '/',
-          maxAge: 60 * 15, // 15 minutos, consistente con el inicio de sesión
+          maxAge: 60 * 15, // 15 minutos
           sameSite: 'strict',
         });
       } catch {
         context.cookies.delete('access_token', { path: '/' });
         context.cookies.delete('refresh_token', { path: '/' });
-        return context.redirect('/?session=expired');
+        return context.redirect(`/?session=expired&redirect=${redirectParam}`);
       }
     }
   }

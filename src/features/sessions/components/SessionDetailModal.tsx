@@ -21,8 +21,8 @@ interface Props {
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
   confirmar: (sessionId: string) => Promise<boolean>;
   rechazar: (sessionId: string, reason: string) => Promise<boolean>;
-  aceptarModificacion: (sessionId: string) => Promise<boolean>;
-  rechazarModificacion: (sessionId: string) => Promise<boolean>;
+  aceptarModificacion: (sessionId: string, requestId?: string) => Promise<boolean>;
+  rechazarModificacion: (sessionId: string, requestId?: string) => Promise<boolean>;
 }
  
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar, confirmar, rechazar, aceptarModificacion, rechazarModificacion }: Props) => {
@@ -98,12 +98,12 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
               if (ok) onClose();
             }}
             onAcceptModification={async () => {
-              const ok = await aceptarModificacion(session.id);
+              const ok = await aceptarModificacion(session.id, session.pendingModification?.id);
               if (!ok) throw new Error('No se pudo aceptar la modificación.');
               onClose();
             }}
             onRejectModification={async () => {
-              const ok = await rechazarModificacion(session.id);
+              const ok = await rechazarModificacion(session.id, session.pendingModification?.id);
               if (!ok) throw new Error('No se pudo rechazar la modificación.');
               onClose();
             }}

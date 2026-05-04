@@ -12,7 +12,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronFirstIcon, ChevronLastIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from 'lucide-react'
+import { ChevronRightIcon, ChevronDownIcon } from 'lucide-react'
 
 interface SessionsPaginationProps {
   currentPage: number;

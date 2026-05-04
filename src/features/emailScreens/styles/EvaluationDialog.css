@@ -1,6 +1,31 @@
 @import './EmailScreensShared.css';
 
-/* Grid and info-card styles reused from Confirm */
+/* ── Avatar placeholder (letter fallback) ──────────── */
+.es-avatar--placeholder {
+  background: #7c3aed;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 24px;
+}
+
+/* ── Success state ─────────────────────────────────── */
+.es-card__success {
+  color: #64748b;
+  text-align: center;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Button modifiers ──────────────────────────────── */
+.es-btn--mt  { margin-top: 16px; }
+.es-btn--cta { padding: 12px 64px; }
+
+/* ── Info grid ─────────────────────────────────────── */
 .es-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -17,7 +42,7 @@
   padding: 15px 8px;
   border-radius: var(--es-radius-card);
   border: 2px dashed var(--es-border);
-  background: var(--es-surface); /* Fondo aplicado aquí */
+  background: var(--es-surface);
   text-align: center;
   transition: border-color .18s, box-shadow .18s;
   aspect-ratio: 1 / 1;
@@ -46,6 +71,14 @@
   color: var(--es-gray-text);
 }
 
+.es-info-card__date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── Reminder banner ───────────────────────────────── */
 .es-reminder-banner {
   background: var(--es-violet-light);
   color: var(--es-violet-text);
@@ -55,4 +88,51 @@
   font-weight: 600;
   margin-bottom: 16px;
   text-align: center;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════ */
+
+@media (max-width: 860px) {
+  .es-grid { gap: 6px; }
+  .es-info-card__label    { font-size: 12px; }
+  .es-info-card__sublabel { font-size: 9px; }
+}
+
+@media (max-width: 600px) {
+  .es-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .es-info-card {
+    aspect-ratio: unset;
+    padding: 14px 10px;
+    min-height: 80px;
+  }
+
+  .es-info-card__icon     { width: 30px; height: 30px; }
+  .es-info-card__label    { font-size: 12px; }
+  .es-info-card__sublabel { font-size: 9px; }
+
+  .es-btn--cta {
+    padding: 12px 24px;
+    width: 100%;
+  }
+
+  .es-reminder-banner { font-size: 11px; padding: 7px 10px; }
+  .es-avatar--placeholder { font-size: 18px; }
+}
+
+@media (max-width: 400px) {
+  .es-info-card {
+    padding: 12px 8px;
+    min-height: 72px;
+    gap: 6px;
+  }
+  .es-info-card__label { font-size: 11px; }
+  .es-btn--cta { padding: 11px 16px; }
 }

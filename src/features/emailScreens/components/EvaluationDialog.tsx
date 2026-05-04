@@ -1,7 +1,7 @@
 // EvaluationDialog.tsx
 // Email action: Vista inicial y trigger de evaluación (MultiStepDialog)
 import { useState, useEffect, useCallback } from 'react';
-import '../styles/EmailScreensShared.css'; 
+import '../styles/EvaluationDialog.css'; 
 import MultiStepDialog from './MultiStepDialog';
 import { Monitor, Clock, Calendar, CheckCircle } from 'lucide-react';
 
@@ -83,9 +83,9 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
     if (status === 'ok' && data) {
       if (data.alreadyEvaluated || data.evaluation) {
         return (
-          <div className="es-card__success" style={{ color: '#64748b', textAlign: 'center', padding: '40px 20px' }}>
+          <div className="es-card__success">
             <p>Ya calificaste esta sesión</p>
-            <button className="es-btn es-btn--confirm" onClick={onClose} style={{ marginTop: 16 }}>Cerrar</button>
+            <button className="es-btn es-btn--confirm es-btn--mt" onClick={onClose}>Cerrar</button>
           </div>
         );
       }
@@ -93,16 +93,7 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
       return (
         <>
           {isReminder && (
-            <div className="es-reminder-banner" style={{
-              background: 'var(--es-violet-light)',
-              color: 'var(--es-violet-text)',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              fontWeight: 600,
-              marginBottom: '16px',
-              textAlign: 'center'
-            }}>
+            <div className="es-reminder-banner">
               📩 Este es un recordatorio para calificar tu sesión
             </div>
           )}
@@ -112,7 +103,7 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
             {data.tutor?.photo ? (
               <img src={data.tutor.photo} alt={data.tutor.name} className="es-avatar" />
             ) : (
-              <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '24px' }}>
+              <div className="es-avatar es-avatar--placeholder">
                 {data.tutor?.name?.charAt(0) ?? 'T'}
               </div>
             )}
@@ -142,38 +133,33 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
           </div>
 
           {/* 4-Grid info cards */}
-          <div className="es-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '8px',
-            marginBottom: '24px'
-          }}>
-            <div className="es-info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '15px 8px', borderRadius: 'var(--es-radius-card)', border: '2px dashed var(--es-border)', background: 'var(--es-surface)', aspectRatio: '1/1' }}>
-              <div className="es-info-card__icon" style={{ color: 'var(--es-violet)' }}><Monitor size={20} /></div>
-              <span className="es-info-card__label" style={{ fontSize: '13px', fontWeight: 500 }}>{data.modality === 'VIRT' ? 'Virtual' : 'Presencial'}</span>
+          <div className="es-grid">
+            <div className="es-info-card">
+              <div className="es-info-card__icon"><Monitor size={20} /></div>
+              <span className="es-info-card__label">{data.modality === 'VIRT' ? 'Virtual' : 'Presencial'}</span>
             </div>
             
-            <div className="es-info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '15px 8px', borderRadius: 'var(--es-radius-card)', border: '2px dashed var(--es-border)', background: 'var(--es-surface)', aspectRatio: '1/1' }}>
-              <div className="es-info-card__icon" style={{ color: 'var(--es-violet)' }}><Clock size={20} /></div>
-              <span className="es-info-card__label" style={{ fontSize: '13px', fontWeight: 500 }}>{data.duration || 1} horas</span>
+            <div className="es-info-card">
+              <div className="es-info-card__icon"><Clock size={20} /></div>
+              <span className="es-info-card__label">{data.duration || 1} horas</span>
             </div>
 
-            <div className="es-info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '15px 8px', borderRadius: 'var(--es-radius-card)', border: '2px dashed var(--es-border)', background: 'var(--es-surface)', aspectRatio: '1/1' }}>
-              <div className="es-info-card__icon" style={{ color: 'var(--es-violet)' }}><Calendar size={20} /></div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <span className="es-info-card__label" style={{ fontSize: '13px', fontWeight: 500 }}>{data.scheduledDate ? data.scheduledDate.split('-').reverse().join('/') : 'Fecha'}</span>
-                <span className="es-info-card__sublabel" style={{ fontSize: '10px', color: 'var(--es-gray-text)' }}>{data.startTime ? data.startTime.substring(0, 5) : 'Hora'}</span>
+            <div className="es-info-card">
+              <div className="es-info-card__icon"><Calendar size={20} /></div>
+              <div className="es-info-card__date">
+                <span className="es-info-card__label">{data.scheduledDate ? data.scheduledDate.split('-').reverse().join('/') : 'Fecha'}</span>
+                <span className="es-info-card__sublabel">{data.startTime ? data.startTime.substring(0, 5) : 'Hora'}</span>
               </div>
             </div>
 
-            <div className="es-info-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '15px 8px', borderRadius: 'var(--es-radius-card)', border: '2px dashed var(--es-border)', background: 'var(--es-surface)', aspectRatio: '1/1' }}>
-              <div className="es-info-card__icon" style={{ color: 'var(--es-violet)' }}><CheckCircle size={20} /></div>
-              <span className="es-info-card__label" style={{ fontSize: '13px', fontWeight: 500 }}>Terminada</span>
+            <div className="es-info-card">
+              <div className="es-info-card__icon"><CheckCircle size={20} /></div>
+              <span className="es-info-card__label">Terminada</span>
             </div>
           </div>
 
           <div className="es-footer">
-            <button className="es-btn es-btn--confirm" onClick={() => setShowRating(true)} style={{ padding: '12px 64px' }}>
+            <button className="es-btn es-btn--confirm es-btn--cta" onClick={() => setShowRating(true)}>
               Calificar
             </button>
           </div>
@@ -192,7 +178,6 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
           onClose={onClose} 
         />
       ) : (
-        /* Solo el contenido inicial usa el es-card estándar */
         <div className="es-card">
           <button className="es-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
           {renderContent()}

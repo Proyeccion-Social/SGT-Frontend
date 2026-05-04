@@ -1,15 +1,24 @@
 @import './EmailScreensShared.css';
 
 .es-card--reschedule {
+  width: 100%;
   max-width: 600px;
-  min-width: 600px;
-  max-height: 380px;
   min-height: 380px;
   padding: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .es-card--reschedule {
+    max-width: 100%;
+    min-height: unset;
+    padding: 40px 24px;
+    border-radius: 20px;
+  }
 }
 
 .es-reschedule-content {
@@ -25,6 +34,12 @@
   flex-direction: column;
   align-items: center;
   gap: 32px;
+}
+
+@media (max-width: 640px) {
+  .es-reschedule-header {
+    gap: 20px;
+  }
 }
 
 .es-reschedule-icon {
@@ -43,11 +58,27 @@
   margin: 0;
 }
 
+@media (max-width: 640px) {
+  .es-reschedule-title {
+    font-size: 24px;
+    line-height: 28px;
+  }
+}
+
 .es-reschedule-actions {
   display: flex;
   gap: 16px;
   justify-content: center;
   width: 100%;
+}
+
+@media (max-width: 480px) {
+  .es-reschedule-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
 }
 
 .es-btn-general-reschedule {
@@ -79,6 +110,13 @@
   text-align: center;
 }
 
+@media (max-width: 480px) {
+  .es-btn--reschedule {
+    width: 100%;
+    height: 48px;
+  }
+}
+
 .es-btn--reschedule:hover {
   background-color: #CBB6FF;
 }
@@ -93,6 +131,13 @@
   font-size: 16px;
   line-height: 20px;
   letter-spacing: -2%;
+}
+
+@media (max-width: 480px) {
+  .es-btn--exit {
+    width: 100%;
+    height: 48px;
+  }
 }
 
 .es-btn--exit:hover {

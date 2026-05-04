@@ -4,7 +4,7 @@ import starFilled from "@/features/emailScreens/assets/star-simple.svg";
 import starFull from "@/features/emailScreens/assets/star-full.svg";
 import starFullUnfilled from "@/features/emailScreens/assets/star-full-unfilled.svg";
 import checkedIcon from "@/features/emailScreens/assets/checked.png";
-import vectorFinal from "@/features/emailScreens/assets/vectorfinal.png";
+import vectorFinal from "@/features/emailScreens/assets/vectorFinal.png";
 import vectorInicial from "@/features/emailScreens/assets/vectorInicial.png";
 import "@/features/emailScreens/styles/multiStepRating.css";
 

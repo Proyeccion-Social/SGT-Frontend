@@ -1,0 +1,47 @@
+src/pages/api/auth/login.ts
+  e2f3693f22ae39ae 3,44
+src/pages/api/sessions/cancel-session.ts
+  e2f3693f22ae39ae 3,31
+src/pages/api/sessions/create.ts
+  e2f3693f22ae39ae 3,27
+src/features/sessions/components/ProposeModificationView.tsx
+  e2f3693f22ae39ae 9,55-73
+src/features/sessions/components/EditSessionView.tsx
+  e2f3693f22ae39ae 8,42-60
+src/features/sessions/components/CancelSessionModal.tsx
+  e2f3693f22ae39ae 8,42-61
+src/pages/api/auth/change-password.ts
+  e2f3693f22ae39ae 3,25
+src/features/sessions/hooks/useSession.ts
+  e2f3693f22ae39ae 6,31-34,41,75,93-96,103,120-123,127,146-149,158
+src/pages/api/sessions/modify-session.ts
+  e2f3693f22ae39ae 3,31
+src/pages/api/sessions/edit-session.ts
+  e2f3693f22ae39ae 3,31
+src/pages/api/sessions/scheduleapi.ts
+  e2f3693f22ae39ae 3,36,73
+src/utils/errorMessages.ts
+  e2f3693f22ae39ae 1-245
+src/pages/api/auth/register.ts
+  e2f3693f22ae39ae 3,19,21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "98ad86a305ab5440795574d32540f16832c6d368",
+  "prompts": {
+    "e2f3693f22ae39ae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d2252e48-c374-4806-9d7c-4239f80cfdd9",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "DanCmoo",
+      "messages": [],
+      "total_additions": 399,
+      "total_deletions": 114,
+      "accepted_lines": 346,
+      "overriden_lines": 0
+    }
+  }
+}

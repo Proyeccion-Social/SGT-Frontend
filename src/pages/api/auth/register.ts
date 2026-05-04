@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { register } from "@/features/auth/services/authService";
+import { getErrorMessage } from "@/utils/errorMessages";
 
 export const prerender = false;
 
@@ -15,9 +16,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				headers: { "Content-Type": "application/json" }
 			}
 		);
-	} catch (error: any) {  
+	} catch (error: any) {
 		return new Response(
-			JSON.stringify({ message: error.message }),
+			JSON.stringify({ message: getErrorMessage(error.message) }),
 			{ status: 400 }
 		);
 	}

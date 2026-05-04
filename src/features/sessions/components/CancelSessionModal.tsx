@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { sileo, Toaster } from 'sileo';
 import ToasterReact from '@/components/ui/ToasterReact';
 import type { Session } from '../types/session.types';
+import { useSessionStore } from '@/store/sessionStore';
 
 interface Props {
   session: Session;
@@ -38,20 +39,26 @@ export const CancelSessionModal = ({
     }
     setWindowWarning(false);
     setIsCancelling(true);
-    await sileo.promise(
-      async () => {
-        const ok = await cancelar(session.id, reason);
-        if (!ok) throw new Error('No se pudo cancelar la sesión.');
-        onSuccess();
-      },
-      {
-        loading: { title: 'Cancelando sesión...' },
-        success: { title: 'Sesión cancelada',  description: 'La tutoría ha sido cancelada exitosamente.', fill: '#2ecc71' },
-        error:   { title: 'Error al cancelar', fill: '#f35761' },
-      }
-    ).finally(() => {
-      setIsCancelling(false);
-    });
+
+    const ok = await cancelar(session.id, reason);
+
+    if (ok) {
+      sileo.action({
+        title: 'Sesión cancelada',
+        description: 'La tutoría ha sido cancelada exitosamente.',
+        fill: '#2ecc71',
+      });
+      onSuccess();
+    } else {
+      const errorMsg = useSessionStore.getState().error ?? 'Error al cancelar la sesión';
+      sileo.action({
+        title: 'Error al cancelar',
+        description: errorMsg,
+        fill: '#f35761',
+      });
+    }
+
+    setIsCancelling(false);
   };
 
   return (

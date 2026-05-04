@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { sileo } from "sileo";
 import { useAuthStore } from "@/store/authStore";
 import "../styles/ResetPasswordForm.css";
+import "../styles/ConfirmEmailForm.css";
 
 export default function ConfirmEmailForm() {
     const [token, setToken] = useState<string | null>(null);
@@ -27,7 +28,7 @@ export default function ConfirmEmailForm() {
 
         setSubmitting(true);
         setErrorMsg(null);
-        
+
         try {
             const response = await fetch("/api/emailScreens/confirm-email", {
                 method: "POST",
@@ -40,28 +41,26 @@ export default function ConfirmEmailForm() {
             if (!response.ok) {
                 const msg = body?.message ?? "Error al confirmar el correo";
                 setErrorMsg(msg);
-                sileo.error({ 
-                    title: "Error", 
-                    description: msg, 
-                    fill: "#f35761" 
+                sileo.error({
+                    title: "Error",
+                    description: msg,
+                    fill: "#f35761",
                 });
                 setSubmitting(false);
                 return;
             }
 
-            // Hydrate the store directly from the confirm-email response
             if (body.user) {
                 setUser(body.user);
                 setRequiresProfileCompletion(body.requiresProfileCompletion ?? false);
             }
 
             handleRedirect();
-
         } catch (error: any) {
-            sileo.error({ 
-                title: "Error de conexión", 
-                description: "No se pudo conectar con el servidor", 
-                fill: "#f35761" 
+            sileo.error({
+                title: "Error de conexión",
+                description: "No se pudo conectar con el servidor",
+                fill: "#f35761",
             });
             setSubmitting(false);
         }
@@ -69,39 +68,42 @@ export default function ConfirmEmailForm() {
 
     if (!isReady) return null;
 
+    /* ── Invalid token ── */
     if (token === null) {
         return (
-            <div className="reset-password-container">
+            <div className="confirm-email-container">
                 <div className="reset-password-header">
-                    <h1 className="reset-password-title">Enlace <span>inválido</span></h1>
-                    <p className="reset-password-subtitle">No se encontró un token válido en la URL.</p>
+                    <h1 className="reset-password-title">
+                        Enlace <span>inválido</span>
+                    </h1>
+                    <p className="reset-password-subtitle">
+                        No se encontró un token válido en la URL.
+                    </p>
                 </div>
-                <button className="reset-password-submit" onClick={() => window.location.href = "/"}>
+                <button
+                    className="reset-password-submit"
+                    onClick={() => (window.location.href = "/")}
+                >
                     Ir al Login
                 </button>
             </div>
         );
     }
 
+    /* ── Main form ── */
     return (
-        <form className="reset-password-container" onSubmit={handleConfirm}>
+        <form className="confirm-email-container" onSubmit={handleConfirm}>
             <div className="reset-password-header">
-                <h1 className="reset-password-title">Confirma tu <span>correo</span></h1>
-                <p className="reset-password-subtitle">Haz clic en el botón de abajo para verificar tu cuenta.</p>
+                <h1 className="reset-password-title">
+                    Confirma tu <span>correo</span>
+                </h1>
+                <p className="reset-password-subtitle">
+                    Haz clic en el botón de abajo para verificar tu cuenta.
+                </p>
             </div>
 
             {errorMsg && (
-                <div style={{ 
-                    padding: "12px", 
-                    borderRadius: "8px", 
-                    background: "#fff1f2", 
-                    color: "#f35761", 
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    border: "1px solid #ffe4e6"
-                }}>
-                    {errorMsg}
-                </div>
+                <div className="confirm-email-error">{errorMsg}</div>
             )}
 
             <button

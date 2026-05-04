@@ -136,3 +136,64 @@
     height: 24px;
     rotate: 20deg;
 }
+
+@media (max-width: 499px) {
+    .body-header-subjects {
+        padding: 20px 20px 12px;
+        gap: 0.25rem;
+    }
+
+    .body-header-title {
+        font-size: 18px;
+        line-height: 24px;
+    }
+
+    .body-header-subtitle {
+        font-size: 13px;
+        line-height: 18px;
+    }
+
+    .body-content {
+        margin: 0 1.25rem;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding-bottom: 1rem;
+        overflow-y: auto;
+    }
+
+    .subject-tag {
+        position: relative;
+        top: unset !important;
+        left: unset !important;
+        transform: none;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-size: 13px;
+        line-height: 18px;
+    }
+
+    .subject-tag:nth-child(5n+1) { margin-left: 6%;  margin-top: 0.2rem;  margin-bottom: 0.8rem; }
+    .subject-tag:nth-child(5n+2) { margin-left: 28%; margin-top: 1rem;    margin-bottom: 0.3rem; }
+    .subject-tag:nth-child(5n+3) { margin-left: 10%; margin-top: 0.5rem;  margin-bottom: 1.2rem; }
+    .subject-tag:nth-child(5n+4) { margin-left: 38%; margin-top: 0.1rem;  margin-bottom: 0.6rem; }
+    .subject-tag:nth-child(5n+5) { margin-left: 18%; margin-top: 0.9rem;  margin-bottom: 0.4rem; }
+
+    .subject-tag:hover {
+        transform: scale(1.06);
+    }
+
+    .subject-tag:active {
+        transform: scale(0.97);
+    }
+
+    .subject-tag-tick {
+        width: 14px;
+        height: 14px;
+        font-size: 9px;
+        top: -6px;
+        left: -6px;
+    }
+}

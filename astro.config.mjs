@@ -3,6 +3,7 @@ import react from '@astrojs/react';
 import node from '@astrojs/node';
 import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
+import astroFont from 'astro-font';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -12,7 +13,7 @@ const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 export default defineConfig({
   output: 'server',
   adapter: isVercel ? vercel({ imageService: true }) : node({ mode: 'standalone' }),
-  integrations: [react()],
+  integrations: [react(), astroFont()],
   vite: {
     plugins: [tailwindcss()],
     resolve: {

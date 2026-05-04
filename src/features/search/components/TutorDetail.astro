@@ -1,7 +1,5 @@
 ---
 import { Image } from "astro:assets";
-import profile from "@/features/search/assets/profile.png";
-
 import star from "@/features/search/assets/star-simple.svg";
 import fullStar from "@/features/search/assets/star-full.svg";
 import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
@@ -24,8 +22,8 @@ import schedule from "@/features/search/assets/schedule.svg"
   </button>
   <section class="upSectionDetail">
     <div class="leftSideDetail">
-      <Image src={profile} alt="" class="profileImgShadow" />
-      <Image src={profile} alt="" class="profileImg" />
+      <img id="tutor-photo-shadow" src="" alt="" class="profileImgShadow" />
+      <img id="tutor-photo" src="" alt="" class="profileImg" />
       <div class="badgeActive">
         <Image src={active} alt="" class="activeIcon" />
         <p>Activo</p>
@@ -109,6 +107,8 @@ import schedule from "@/features/search/assets/schedule.svg"
           )
           .join("");
 
+        (el("tutor-photo") as HTMLImageElement)!.src = tutor.photo ?? "";
+        (el("tutor-photo-shadow") as HTMLImageElement)!.src = tutor.photo ?? "";
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
         el("tutor-total-ratings")!.textContent = `${tutor.totalRatings} valoraciones`;

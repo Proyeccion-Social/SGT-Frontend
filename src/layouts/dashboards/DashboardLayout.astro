@@ -11,7 +11,6 @@ import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/Tu
 import { UserRole } from "@/constants/roles";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import NotificationsPanel from "@features/dashboards/components/notifications/NotificationsPanel";
-import FirstLoginSetup from "@features/dashboards/components/FirstLoginSetup";
 
 interface Props {
   title?: string;
@@ -33,7 +32,6 @@ const userId = getUserIdFromCookie(Astro.cookies);
     </main>
   </div>
   <NotificationsPanel client:load transition:persist />
-  <FirstLoginSetup client:load />
   {
     (rol === "tutor" || rol === "student") && (
       <>

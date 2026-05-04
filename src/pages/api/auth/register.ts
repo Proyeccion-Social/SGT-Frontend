@@ -15,10 +15,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 				headers: { "Content-Type": "application/json" }
 			}
 		);
-	} catch (error: any) {  
+	} catch (error: any) {
+		console.error("[BFF /api/auth/register] Error del backend:", error.message);
 		return new Response(
 			JSON.stringify({ message: error.message }),
-			{ status: 400 }
+			{ status: 400, headers: { "Content-Type": "application/json" } }
 		);
 	}
 };

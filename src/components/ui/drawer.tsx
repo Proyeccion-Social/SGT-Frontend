@@ -121,7 +121,6 @@ export default function VaulDrawer() {
                 payload = {
                     subject_ids: cleanIds, // Tutor espera snake_case
                     phone: submitData.phone,
-                    url_image: submitData.url_image,
                     max_weekly_hours: submitData.max_weekly_hours
                 };
             }

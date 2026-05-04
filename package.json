@@ -8,6 +8,10 @@
     "preview": "astro preview",
     "astro": "astro"
   },
+  "overrides": {
+    "esbuild": "0.25.12",
+    "@esbuild/win32-x64": "0.25.12"
+  },
   "dependencies": {
     "@astrojs/check": "^0.9.7",
     "@astrojs/node": "^9.5.5",

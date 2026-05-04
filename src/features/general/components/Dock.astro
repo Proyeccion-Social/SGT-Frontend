@@ -20,105 +20,108 @@ const { userRole } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
-<nav class="dock" id="mobile-dock">
-  <div class="dock-items">
-
+<nav class='dock' id='mobile-dock'>
+  <div class='dock-items'>
     {/* Dashboard - All Roles */}
-    <a 
-      href="/dashboard" 
+    <a
+      href='/dashboard'
       class={`dock-item ${currentPath === "/dashboard" ? "active" : ""}`}
     >
-      <div class="icon-highlight">
-        <Image src={DashboardIcon} alt="Dashboard" class="icon" />
+      <div class='icon-highlight'>
+        <Image src={DashboardIcon} alt='Dashboard' class='icon' />
       </div>
     </a>
 
     {/* Student Specific */}
-    {userRole === UserRole.STUDENT && (
-      <>
-        <a 
-          href="/sessions" 
-          class={`dock-item ${currentPath === "/sessions" ? "active" : ""}`}
-        >
-          <div class="icon-highlight">
-            <Image src={CalendarIcon} alt="Calendario" class="icon" />
-          </div>
-        </a>
-        <a 
-          href="/history" 
-          class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
-        >
-          <div class="icon-highlight">
-            <Image src={HistoryIcon} alt="Historial" class="icon" />
-          </div>
-        </a>
-        <a 
-          href="/search" 
-          class={`dock-item ${currentPath.startsWith("/search") ? "active" : ""}`}
-        >
-          <div class="icon-highlight">
-            <Image src={SearchIcon} alt="Buscar" class="icon" />
-          </div>
-        </a>
-        <a href="#" class="dock-item">
-          <div class="icon-highlight">
-            <Image src={BinocularIcon} alt="Monitoreo" class="icon" />
-          </div>
-        </a>
-        <a href="#" class="dock-item">
-          <div class="icon-highlight">
-            <Image src={CommunityIcon} alt="Comunidad" class="icon" />
-          </div>
-        </a>
-      </>
-    )}
+    {
+      userRole === UserRole.STUDENT && (
+        <>
+          <a
+            href='/sessions'
+            class={`dock-item calendar-item ${currentPath === "/sessions" ? "active" : ""}`}
+          >
+            <div class='icon-highlight'>
+              <Image src={CalendarIcon} alt='Calendario' class='icon' />
+            </div>
+          </a>
+          <a
+            href='/history'
+            class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+          >
+            <div class='icon-highlight'>
+              <Image src={HistoryIcon} alt='Historial' class='icon' />
+            </div>
+          </a>
+          <a
+            href='/search'
+            class={`dock-item ${currentPath.startsWith("/search") ? "active" : ""}`}
+          >
+            <div class='icon-highlight'>
+              <Image src={SearchIcon} alt='Buscar' class='icon' />
+            </div>
+          </a>
+          <a href='#' class='dock-item'>
+            <div class='icon-highlight'>
+              <Image src={BinocularIcon} alt='Monitoreo' class='icon' />
+            </div>
+          </a>
+          <a href='#' class='dock-item'>
+            <div class='icon-highlight'>
+              <Image src={CommunityIcon} alt='Comunidad' class='icon' />
+            </div>
+          </a>
+        </>
+      )
+    }
 
     {/* Admin Specific */}
-    {userRole === UserRole.ADMIN && (
-      <>
-        <a href="#" class="dock-item">
-          <div class="icon-highlight">
-            <Image src={WindowIcon} alt="Gestión" class="icon" />
-          </div>
-        </a>
-        <a href="#" class="dock-item">
-          <div class="icon-highlight">
-            <Image src={ConfigIcon} alt="Configuración" class="icon" />
-          </div>
-        </a>
-      </>
-    )}
+    {
+      userRole === UserRole.ADMIN && (
+        <>
+          <a href='#' class='dock-item'>
+            <div class='icon-highlight'>
+              <Image src={WindowIcon} alt='Gestión' class='icon' />
+            </div>
+          </a>
+          <a href='#' class='dock-item'>
+            <div class='icon-highlight'>
+              <Image src={ConfigIcon} alt='Configuración' class='icon' />
+            </div>
+          </a>
+        </>
+      )
+    }
 
     {/* Tutor Specific */}
-    {userRole === UserRole.TUTOR && (
-      <>
-        <a 
-          href="/availability/tutor/slots" 
-          class={`dock-item ${currentPath.startsWith("/availability/tutor") ? "active" : ""}`}
-        >
-          <div class="icon-highlight">
-            <Image src={WindowIcon} alt="Disponibilidad" class="icon" />
-          </div>
-        </a>
-        <a 
-          href="/history" 
-          class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
-        >
-          <div class="icon-highlight">
-            <Image src={HistoryIcon} alt="Historial" class="icon" />
-          </div>
-        </a>
-      </>
-    )}
-
+    {
+      userRole === UserRole.TUTOR && (
+        <>
+          <a
+            href='/availability/tutor/slots'
+            class={`dock-item ${currentPath.startsWith("/availability/tutor") ? "active" : ""}`}
+          >
+            <div class='icon-highlight'>
+              <Image src={WindowIcon} alt='Disponibilidad' class='icon' />
+            </div>
+          </a>
+          <a
+            href='/history'
+            class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+          >
+            <div class='icon-highlight'>
+              <Image src={HistoryIcon} alt='Historial' class='icon' />
+            </div>
+          </a>
+        </>
+      )
+    }
   </div>
-
 </nav>
 
 {/* Floating Notifications for Mobile */}
-<a href="#" class="notification-floating">
-  <div class="icon-highlight">
-    <Image src={NotificationIcon} alt="Notificaciones" class="icon" />
+<a href='#' class='notification-floating'>
+  <div class='icon-highlight'>
+    <Image src={NotificationIcon} alt='Notificaciones' class='icon' />
   </div>
 </a>
 
@@ -133,7 +136,7 @@ const currentPath = Astro.url.pathname;
     max-width: 95%;
     height: 56px;
     background: #f6f1ff;
-    z-index: 1000;
+    z-index: 100;
     border-radius: 50px;
     padding: 0 12px;
     overflow: visible;
@@ -162,12 +165,12 @@ const currentPath = Astro.url.pathname;
       bottom: auto !important;
       width: 54px;
       height: 54px;
-      background-color: #e6ffc7 !important;
+      background-color: var(--primary-100) !important;
       border-radius: 50%;
       justify-content: center;
       align-items: center;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      z-index: 10001;
+      z-index: 100;
       border: 2px solid #fff;
     }
   }
@@ -212,6 +215,17 @@ const currentPath = Astro.url.pathname;
     height: 24px;
   }
 
+  .dock-item.calendar-item {
+    background: #b797ff;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0px 3.2px 13px #e7dcff;
+  }
+
+  .dock-item.calendar-item.active {
+    background: #a8e85a;
+    box-shadow: inset 0px 3.2px 13px #e7dcff;
+  }
+
   .dock-item.active {
     background: #e7dcff;
     z-index: 1001;
@@ -238,5 +252,4 @@ const currentPath = Astro.url.pathname;
     border-radius: 0 0 0 18px;
     box-shadow: -6px 0 0 0 #f6f1ff;
   }
-
 </style>

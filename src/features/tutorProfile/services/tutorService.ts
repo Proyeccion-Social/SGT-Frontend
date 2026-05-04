@@ -2,7 +2,7 @@ const API_URL = import.meta.env.API_URL;
 
 export type CompleteTutorProfileDto = {
   phone: string;
-  url_image: string;
+  max_weekly_hours: number;
   subject_ids: string[];
   availabilities?: Array<{
     day: string;

@@ -139,7 +139,7 @@
 
 @media (max-width: 499px) {
     .body-header-subjects {
-        padding: 20px 20px 12px;
+        padding: 24px;
         gap: 0.25rem;
     }
 

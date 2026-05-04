@@ -11,6 +11,12 @@
   view-transition-name: drawer-overlay;
 }
 
+@media(width <= 768px) {
+  .drawer-overlay {
+      z-index: 100000;
+  }
+}
+
 @keyframes overlay-in {
   from {
     opacity: 0;
@@ -387,6 +393,7 @@
 @media (max-width: 499px) {
   .drawer-content--student-additional {
     height: 78%;
+    z-index: 100001;
   }
 }
 

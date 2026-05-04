@@ -83,8 +83,10 @@
 
 @media (max-width: 499px) {
     .student-form-container {
-        gap: 1rem;
-        padding: 0.25rem 1rem;
+        gap: 16px;
+        padding: 0.25rem 24px;
+        height: 40dvh;
+        justify-content: center;
     }
 
     .form-group {

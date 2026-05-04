@@ -246,6 +246,45 @@
   .panel-cta:active {
     transform: scale(0.98);
   }
+
+  @media (max-width: 499px) {
+    .accordion-container {
+      height: 180px;
+      gap: 5px;
+      border-radius: 16px;
+    }
+
+    .accordion-panel {
+      border-radius: 12px;
+    }
+
+    .panel-photo {
+      border-radius: 12px;
+    }
+
+    .panel-overlay {
+      border-radius: 12px;
+    }
+
+    .panel-content {
+      padding: 10px 12px;
+      gap: 4px;
+    }
+
+    .panel-tutor-name {
+      font-size: 15px;
+      line-height: 20px;
+    }
+
+    .panel-cta {
+      font-size: 11px;
+      padding: 5px 12px;
+    }
+
+    .tutor-empty-state {
+      height: 180px;
+    }
+  }
 </style>
 
 <script is:inline>

@@ -83,5 +83,11 @@ const userId = getUserIdFromCookie(Astro.cookies);
       border-radius: 0 !important;
       border: none !important;
     }
+
+    /* Search page manages its own internal scroll on mobile */
+    :global(.search-page) {
+      height: calc(100vh - 100px) !important;
+      overflow: hidden !important;
+    }
   }
 </style>

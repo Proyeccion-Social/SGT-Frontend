@@ -1,7 +1,5 @@
 ---
 import { Image } from "astro:assets";
-import profile from "@/features/search/assets/profile.png";
-
 import star from "@/features/search/assets/star-simple.svg";
 import fullStar from "@/features/search/assets/star-full.svg";
 import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
@@ -24,8 +22,8 @@ import schedule from "@/features/search/assets/schedule.svg"
   </button>
   <section class="upSectionDetail">
     <div class="leftSideDetail">
-      <Image src={profile} alt="" class="profileImgShadow" />
-      <Image src={profile} alt="" class="profileImg" />
+      <img id="tutor-photo-shadow" src="" alt="" class="profileImgShadow" />
+      <img id="tutor-photo" src="" alt="" class="profileImg" />
       <div class="badgeActive">
         <Image src={active} alt="" class="activeIcon" />
         <p>Activo</p>
@@ -109,6 +107,8 @@ import schedule from "@/features/search/assets/schedule.svg"
           )
           .join("");
 
+        (el("tutor-photo") as HTMLImageElement).src = tutor.photo;
+        (el("tutor-photo-shadow") as HTMLImageElement).src = tutor.photo;
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
         el("tutor-total-ratings")!.textContent = `${tutor.totalRatings} valoraciones`;
@@ -152,7 +152,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
 <style>
   #tutor-detail-section {
-    width: 680px;
+    width: 980px;
     border-radius: 22.4px;
     border: none;
     outline: none;
@@ -218,9 +218,8 @@ import schedule from "@/features/search/assets/schedule.svg"
     border-bottom: none;
     border-radius: 22.4px;
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 28px 32px 28px 32px;
+    gap: 22px;
+    padding: 48px;
     background: rgba(256, 256, 256, 0.5);
     backdrop-filter: blur(34.3px);
     position: relative;
@@ -238,23 +237,23 @@ import schedule from "@/features/search/assets/schedule.svg"
   }
 
   .leftSideDetail {
-    width: 108px;
-    height: 108px;
+    width: 260px;
+    height: 225px;
+    flex-shrink: 0;
     display: flex;
     position: relative;
-    align-self: flex-start;
   }
 
   .profileImgShadow {
     position: absolute;
-    top: 8px;
+    top: 15px;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 16px;
-    filter: blur(16px);
-    opacity: 0.7;
+    border-radius: 22.4px;
+    filter: blur(28px);
+    opacity: 0.8;
     z-index: 0;
   }
 
@@ -263,7 +262,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 16px;
+    border-radius: 22.4px;
     z-index: 1;
   }
 
@@ -272,27 +271,26 @@ import schedule from "@/features/search/assets/schedule.svg"
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 2px 6px;
-    gap: 3px;
+    padding: 2.8px 5.6px;
+    gap: 2.8px;
     background: #FFFFFF;
     border-radius: 22.4px;
     position: absolute;
-    bottom: 6px;
-    left: 6px;
+    margin: 8px;
     z-index: 2;
   }
 
   .activeIcon {
-    width: 9px;
-    height: 9px;
+    width: 11.2px;
+    height: 11.2px;
   }
 
   .badgeActive p {
     font-family: 'Cabinet Grotesk Variable';
     font-style: normal;
     font-weight: 400;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 16.8px;
+    line-height: 22px;
     letter-spacing: -0.02em;
     color: var(--text-headings);
   }
@@ -301,10 +299,11 @@ import schedule from "@/features/search/assets/schedule.svg"
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 20px 24px;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 20px 32px;
     border: 1px solid var(--neutral-200);
-    border-radius: 20px;
+    border-radius: 24px;
     position: relative;
   }
 
@@ -323,8 +322,8 @@ import schedule from "@/features/search/assets/schedule.svg"
     font-family: 'Open Sauce Two';
     font-style: normal;
     font-weight: 700;
-    font-size: 32px;
-    line-height: 36px;
+    font-size: 40px;
+    line-height: 44px;
     letter-spacing: -0.02em;
     color: #1A1A1A;
   }
@@ -341,12 +340,11 @@ import schedule from "@/features/search/assets/schedule.svg"
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--primary-400);
     width: fit-content;
     position: absolute;
     top: 24px;
     right: 24px;
-    padding: 8px 8px;
+    padding: 8px 12px;
     background: #DAFFAA;
     border-radius: 8px;
     font-style: normal;
@@ -356,6 +354,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     letter-spacing: -0.02em;
     color: #4D662E;
     transition: all 0.2s ease;
+    height: fit-content;
   }
 
   .scheduleBtn img {
@@ -367,6 +366,78 @@ import schedule from "@/features/search/assets/schedule.svg"
     background: #C6E88B;
   }
 
+  /* ── Responsive ── */
+
+  @media (max-width: 1060px) {
+    #tutor-detail-section {
+      width: calc(100vw - 80px);
+    }
+
+    .leftSideDetail {
+      width: 200px;
+      height: 180px;
+    }
+
+    .tutorName {
+      font-size: 32px;
+      line-height: 36px;
+    }
+
+    .upSectionDetail {
+      padding: 36px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #tutor-detail-section {
+      width: calc(100vw - 48px);
+      border-radius: 18px;
+    }
+
+    .upSectionDetail {
+      padding: 28px 24px;
+      gap: 18px;
+      border-radius: 18px;
+    }
+
+    .leftSideDetail {
+      width: 160px;
+      height: 145px;
+    }
+
+    .profileImg,
+    .profileImgShadow {
+      border-radius: 16px;
+    }
+
+    .tutorName {
+      font-size: 26px;
+      line-height: 30px;
+    }
+
+    .rightSideDetail {
+      padding: 16px 20px;
+      border-radius: 18px;
+      gap: 10px;
+    }
+
+    .badgeActive p {
+      font-size: 13px;
+    }
+
+    .scheduleBtn {
+      font-size: 12px;
+      padding: 6px 10px;
+      top: 16px;
+      right: 16px;
+    }
+
+    .scheduleBtn img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
   @media (max-width: 499px) {
     #tutor-detail-section {
       width: calc(100vw - 24px);
@@ -374,14 +445,37 @@ import schedule from "@/features/search/assets/schedule.svg"
     }
 
     .upSectionDetail {
+      flex-direction: column;
       padding: 20px;
-      gap: 12px;
+      gap: 14px;
       border-radius: 16px;
     }
 
     .leftSideDetail {
-      width: 88px;
-      height: 88px;
+      width: 100%;
+      height: 160px;
+    }
+
+    .profileImg,
+    .profileImgShadow {
+      border-radius: 14px;
+    }
+
+    .badgeActive p {
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .activeIcon {
+      width: 9px;
+      height: 9px;
+    }
+
+    .rightSideDetail {
+      padding: 16px;
+      border-radius: 14px;
+      justify-content: flex-start;
+      gap: 8px;
     }
 
     .tutorName {
@@ -389,25 +483,21 @@ import schedule from "@/features/search/assets/schedule.svg"
       line-height: 28px;
     }
 
-    .rightSideDetail {
-      padding: 16px;
-      border-radius: 14px;
-    }
-
-    .scheduleBtn {
-      font-size: 12px;
-      padding: 6px;
-      top: 16px;
-      right: 16px;
-    }
-
     .containerTutorSubjects {
       gap: 6px;
       margin-bottom: 6px;
     }
+
+    .scheduleBtn {
+      font-size: 12px;
+      padding: 6px 10px;
+      bottom: 16px;
+      right: 16px;
+      top: auto;
+    }
   }
 
-  @media (max-width: 399px) {
+  @media (max-width: 380px) {
     #tutor-detail-section {
       width: calc(100vw - 16px);
       border-radius: 12px;
@@ -420,25 +510,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     }
 
     .leftSideDetail {
-      width: 72px;
-      height: 72px;
-    }
-
-    .profileImg {
-      border-radius: 10px;
-    }
-
-    .profileImgShadow {
-      border-radius: 10px;
-    }
-
-    .badgeActive p {
-      font-size: 10px;
-    }
-
-    .activeIcon {
-      width: 7px;
-      height: 7px;
+      height: 130px;
     }
 
     .tutorName {
@@ -448,26 +520,20 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .rightSideDetail {
       padding: 12px;
-      gap: 8px;
+      gap: 6px;
       border-radius: 10px;
     }
 
     .scheduleBtn {
       font-size: 11px;
-      padding: 5px 6px;
-      top: 12px;
+      padding: 5px 8px;
+      bottom: 12px;
       right: 12px;
-      gap: 4px;
     }
 
     .scheduleBtn img {
       width: 14px;
       height: 14px;
-    }
-
-    .containerTutorSubjects {
-      gap: 4px;
-      margin-bottom: 4px;
     }
   }
 </style>
@@ -544,6 +610,10 @@ import schedule from "@/features/search/assets/schedule.svg"
     .stars {
       padding: 8px 14px;
       gap: 3px;
+    }
+
+    .totalRatings {
+      display: none;
     }
   }
 

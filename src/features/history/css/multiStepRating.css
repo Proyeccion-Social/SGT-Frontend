@@ -23,6 +23,12 @@
   box-sizing: border-box;
 }
 
+@media (max-width: 600px) {
+  .container-dialog {
+    padding: 0 0.5rem;
+  }
+}
+
 /* --- Header --- */
 .evaluation-card-header {
   display: flex;
@@ -151,11 +157,25 @@
   box-sizing: border-box;
 }
 
-/* ---- Mobile: step 2 ---- */
+
+/* ---- Mobile: step 2 — pregunta por pregunta ---- */
 @media (max-width: 600px) {
   .evaluation-card-body-question-container {
     min-height: unset;
-    padding: 0.5rem 0;
+    padding: 0.75rem 0 0.5rem;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Modo pregunta única: sin grid */
+  .evaluation-card-body-question--single {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.75rem;
+    width: 100%;
   }
 
   .evaluation-card-body-question {
@@ -166,7 +186,7 @@
 
   .evaluation-card-body-question-item {
     min-height: unset;
-    padding: 0.6rem 0.75rem;
+    padding: 0.75rem;
     border-radius: 12px;
   }
 
@@ -180,13 +200,46 @@
   }
 
   .evaluation-card-body-question-item-buttons .btn-rating img {
-    height: 24px;
+    height: 32px;
     width: auto;
   }
 
   .evaluation-card-body-question-item-buttons .btn-rating img.star-five {
-    height: 36px;
+    height: 44px;
   }
+
+  /* Dots de progreso */
+  .question-progress-dots {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+
+  .question-dot {
+    /* Área visual */
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: none;
+    background: #d9d0f7;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, width 0.2s;
+    /* Área táctil reducida */
+    padding: 5px;
+    box-sizing: content-box;
+    background-clip: content-box;
+  }
+
+  .question-dot.active {
+    background: #9f74ff;
+    background-clip: content-box;
+    width: 24px;
+    border-radius: 6px;
+  }
+
+
 }
 
 /* --- Comentarios --- */
@@ -338,6 +391,14 @@
 
   .evaluation-card-header-title {
     padding-left: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .evaluation-card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
   }
 }
 

@@ -1,3 +1,7 @@
+/* ============================================
+   multiStepRating.css — emailScreens
+   ============================================ */
+
 @keyframes scaleUpFade {
   0% {
     opacity: 0;
@@ -12,40 +16,55 @@
 .container-dialog {
   background-color: transparent;
   animation: scaleUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  width: 100%;
+  max-width: 827px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .container-dialog {
+    padding: 0 0.5rem;
+  }
 }
 
 /* --- Header --- */
 .evaluation-card-header {
   display: flex;
   flex-direction: row;
-  gap: 200px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
   text-align: left;
-  height: 104px;
-  width: 827px;
+  width: 100%;
+  min-height: 104px;
+  height: auto;
   padding: 1.25rem;
   margin-bottom: 1.25rem;
   border-radius: 16px;
   border: 1px solid #c6c6c6;
   background-color: #ffffff;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .evaluation-card-header-title {
   padding-top: 3px;
   padding-left: 15px;
+  flex: 1;
+  min-width: 0;
 }
 
 .evaluation-card-header-title h3,
 .evaluation-card-header-title span {
   font-family: Open Sauce Two;
   font-weight: 600;
-  font-size: 28px;
-  line-height: 32px;
-  letter-spacing: -2%;
+  font-size: clamp(18px, 3.4vw, 28px);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: #3c3c3c;
 }
 .evaluation-card-header-title span {
   color: #9f74ff;
-  font-size: 28px;
   font-weight: 500;
   padding: 0;
   margin: 0;
@@ -55,11 +74,35 @@
 .evaluation-card-header-title p {
   font-family: "Cabinet Grotesk Variable";
   font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -2%;
+  font-size: clamp(13px, 2vw, 16px);
+  line-height: 1.5;
+  letter-spacing: -0.02em;
   color: #3c3c3c;
   padding-top: 5px;
+}
+
+.evaluation-card-header-buttons {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .evaluation-card-header {
+    min-height: unset;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .evaluation-card-header-title {
+    padding-left: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .evaluation-card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
 }
 
 /* --- Body --- */
@@ -70,10 +113,11 @@
   justify-content: center;
   align-items: center;
   height: auto;
-  width: 827px;
+  width: 100%;
   border-radius: 16px;
   border: 1px solid #c6c6c6;
   background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 .evaluation-card-body-question-container {
@@ -82,32 +126,40 @@
   text-align: center;
   justify-content: center;
   align-items: center;
-  height: 498px;
+  height: auto;
+  min-height: 300px;
+  padding: 1.25rem 0;
   border-radius: 16px;
   background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .evaluation-card-body-question {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
+  gap: 1.5rem;
   justify-content: center;
-  align-items: center;
+  align-items: start;
   height: auto;
   padding: 1.25rem;
   border-radius: 16px;
   background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .evaluation-card-body-question-item {
   display: flex;
   flex-direction: column;
   text-align: center;
-  padding: 0.8rem 1.25rem;
+  padding: 0.8rem 1rem;
   border-radius: 16px;
   border: 1px dashed #b3b2b2;
-  height: 170px;
-  width: 350px;
+  height: auto;
+  min-height: 150px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .evaluation-card-body-question-item-buttons {
@@ -115,7 +167,8 @@
   flex-direction: row;
   height: 75px;
   min-height: 75px;
-  width: 288px;
+  width: 100%;
+  max-width: 288px;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
@@ -123,6 +176,87 @@
   background-color: #f3edff;
   padding: 0.5rem;
   border-radius: 16px;
+  box-sizing: border-box;
+}
+
+/* ---- Mobile: step 2 — pregunta por pregunta ---- */
+@media (max-width: 600px) {
+  .evaluation-card-body-question-container {
+    min-height: unset;
+    padding: 0.75rem 0 0.5rem;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Modo pregunta única: sin grid */
+  .evaluation-card-body-question--single {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.75rem;
+    width: 100%;
+  }
+
+  .evaluation-card-body-question {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .evaluation-card-body-question-item {
+    min-height: unset;
+    padding: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .evaluation-card-body-question-item-buttons {
+    height: 56px;
+    min-height: 56px;
+    max-width: 100%;
+    padding: 0.35rem 0.5rem;
+    gap: 0.25rem;
+    border-radius: 12px;
+  }
+
+  .evaluation-card-body-question-item-buttons .btn-rating img {
+    height: 32px;
+    width: auto;
+  }
+
+  .evaluation-card-body-question-item-buttons .btn-rating img.star-five {
+    height: 44px;
+  }
+
+  /* Dots de progreso */
+  .question-progress-dots {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+
+  .question-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: none;
+    background: #d9d0f7;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, width 0.2s;
+    padding: 5px;
+    box-sizing: content-box;
+    background-clip: content-box;
+  }
+
+  .question-dot.active {
+    background: #9f74ff;
+    background-clip: content-box;
+    width: 24px;
+    border-radius: 6px;
+  }
 }
 
 /* --- Comentarios --- */
@@ -131,13 +265,18 @@
   flex-direction: column;
   text-align: left;
   justify-content: center;
-  height: 261px;
+  height: auto;
+  min-height: 200px;
+  padding: 1.25rem;
   border-radius: 16px;
   background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .comment-textarea {
-  width: 746px;
+  width: 100%;
+  max-width: 746px;
   height: 97px;
   border: 1px solid #c6c6c6;
   border-radius: 8px;
@@ -146,8 +285,10 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 24px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   padding: 10px;
+  box-sizing: border-box;
+  resize: vertical;
 }
 
 /* --- Pantalla final --- */
@@ -156,10 +297,14 @@
   flex-direction: column;
   text-align: center;
   justify-content: center;
-  height: 380px;
+  height: auto;
+  min-height: 300px;
+  padding: 2rem 1.25rem;
   border-radius: 16px;
-  gap: 2.5rem;
+  gap: 2rem;
   background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .checked-icon-container {
@@ -176,7 +321,7 @@
   position: relative;
   color: #000000;
   z-index: 100;
-  font-size: 28px;
+  font-size: clamp(18px, 3.4vw, 28px);
   font-weight: 600;
   padding: 0;
   margin: 0;
@@ -187,7 +332,7 @@
   position: relative;
   color: #000000;
   z-index: 100;
-  font-size: 28px;
+  font-size: clamp(18px, 3.4vw, 28px);
   font-weight: 600;
   display: inline-block;
   padding: 5px 20px;
@@ -202,12 +347,14 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 /* --- Preguntas --- */
 .question-title {
   color: #3c3c3c;
-  font-size: 20px;
+  font-size: clamp(15px, 2.4vw, 20px);
   font-weight: 500;
   padding: 0;
   margin: 0;
@@ -229,6 +376,23 @@
   cursor: pointer;
   padding: 0;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-rating img {
+  height: 32px;
+  width: auto;
+  transition: transform 0.2s ease;
+}
+
+.btn-rating img.star-five {
+  height: 48px;
+}
+
+.btn-rating:hover img {
+  transform: scale(1.1);
 }
 
 .btn-continue {
@@ -238,11 +402,8 @@
   align-items: center;
   padding: 0px 12px;
   gap: 10px;
-  position: absolute;
   width: 110px;
   height: 36px;
-  left: 674px;
-  top: 34px;
   background: #9f74ff;
   border-radius: 8px;
   font-family: "Cabinet Grotesk Variable";
@@ -251,6 +412,9 @@
   line-height: 36px;
   letter-spacing: -0.02em;
   color: #ffffff;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
 }
 
 /* --- Pantalla inicial --- */
@@ -259,19 +423,22 @@
   flex-direction: column;
   text-align: center;
   justify-content: center;
-  height: 380px;
-  width: 827px;
+  min-height: 300px;
+  height: auto;
+  width: 100%;
   border-radius: 16px;
-  gap: 2rem;
+  gap: 1.5rem;
+  padding: 2rem 1.25rem;
   border: 1px solid #c6c6c6;
   background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 .vector-inicial-container p {
   font-family: "Open Sauce Two";
   font-weight: 600;
-  font-size: 28px;
-  line-height: 32px;
+  font-size: clamp(18px, 3.4vw, 28px);
+  line-height: 1.2;
   letter-spacing: -0.02em;
   color: #3c3c3c;
 }
@@ -288,6 +455,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
@@ -297,7 +465,7 @@
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   padding: 8px 12px;
   gap: 10px;
   width: 126px;
@@ -305,6 +473,7 @@
   background: #daffaa;
   border-radius: 8px;
   cursor: pointer;
+  border: none;
 }
 
 .btn-no {
@@ -321,6 +490,7 @@
   background: #cfb9ff;
   border-radius: 8px;
   cursor: pointer;
+  border: none;
 }
 
 .star-description {

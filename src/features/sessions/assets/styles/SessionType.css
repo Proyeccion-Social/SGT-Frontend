@@ -130,3 +130,47 @@
   background: var(--primary-400);
   cursor: pointer;
 }
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  .session-type-title {
+    font-size: 24px;
+    line-height: 40px;
+  }
+
+  .session-type-subtitle {
+    margin: 0 0 20px;
+    font-size: 14px;
+  }
+
+  .session-type-card {
+    padding: 20px 16px;
+  }
+
+  .session-type-options {
+    gap: 12px;
+  }
+
+  .session-type-option {
+    flex: 1;
+    width: auto;
+    height: 110px;
+    font-size: 13px;
+  }
+
+  .session-type-option__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .session-type-footer {
+    margin-top: 16px;
+    justify-content: center;
+  }
+
+  .session-type-footer__continue-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+  }
+}

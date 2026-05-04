@@ -490,9 +490,11 @@ export const SessionDetailView = ({
               </>
             ) : !isTerminalState ? (
               <>
-                <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
-                  Proponer modificación
-                </button>
+                {!(role === UserRole.STUDENT && isPendingConfirmation) && (
+                  <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
+                    Proponer modificación
+                  </button>
+                )}
                 {role === UserRole.TUTOR && String(session.status) === 'SCHEDULED' && (
                   <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
                     Editar

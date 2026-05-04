@@ -125,6 +125,8 @@ export default function VaulDrawer() {
                 };
             }
             
+            console.log('[drawer] endpoint:', endpoint, '| payload:', JSON.stringify(payload, null, 2));
+
             const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -133,6 +135,7 @@ export default function VaulDrawer() {
 
             if (!res.ok) {
                 const err = await res.json().catch(() => null);
+                console.error('[drawer] error response:', res.status, JSON.stringify(err, null, 2));
                 throw new Error(err?.message ?? 'Profile completion failed');
             }
             

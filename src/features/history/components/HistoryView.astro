@@ -2,33 +2,38 @@
 import SessionsBlock from "./SessionsBlock.astro";
 import Layout from "@/layouts/Layout.astro";
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
+import { getHistory } from "@/features/history/services/getHistory";
 
 const currentStatus = Astro.url.searchParams.get("status") || "all";
 const page = Astro.url.searchParams.get("page") || "1";
 const limit = Astro.url.searchParams.get("limit");
 
-const apiUrl = new URL("/api/history", Astro.url);
-if (currentStatus !== "all") {
-  apiUrl.searchParams.append("status", currentStatus);
-}
-apiUrl.searchParams.append("page", page);
-apiUrl.searchParams.append("limit", limit || "10");
-
-const res = await fetch(apiUrl, {
-  headers: Astro.request.headers,
-});
-const history = await res.json();
-
 let userId = getUserIdFromCookie(Astro.cookies);
-// 3. Si no hay ID (no está logueado), rediriges
 if (!userId) {
   return Astro.redirect("/");
 }
+
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const role: "STUDENT" | "TUTOR" =
+  payload.role === "TUTOR" ? "TUTOR" : "STUDENT";
+
+const history = await getHistory({
+  token,
+  role,
+  page: Number(page),
+  limit: limit ? Number(limit) : 10,
+  status: currentStatus !== "all" ? currentStatus : undefined,
+});
 ---
 
-<Layout title="Historial de sesiones">
-  <div class="history-layout">
-    <div class="search-page">
+<Layout title='Historial de sesiones'>
+  <div class='history-layout'>
+    <div class='search-page'>
       <SessionsBlock
         data={history}
         currentStatus={currentStatus}
@@ -43,7 +48,7 @@ if (!userId) {
     display: flex;
     height: 100vh;
     overflow-y: hidden;
-    background: #F6F1FF;
+    background: #f6f1ff;
   }
   .search-page {
     position: relative;

@@ -91,11 +91,13 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
             )
           }
         </div>
-        <SubjectSelector 
-          client:load 
-          initialSubjects={initialSubjects} 
-          initialSelectedId={subjectIdParam}
-        />
+        <article class="container-subjects-filter">
+          <SubjectSelector 
+            client:load 
+            initialSubjects={initialSubjects} 
+            initialSelectedId={subjectIdParam}
+          />
+        </article>
       </div>
     </div>
     <div class='legend'>
@@ -226,7 +228,7 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
 
   .header-left {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     justify-content: center;
     align-items: center;
   }
@@ -308,5 +310,10 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
   .calendar-scroll-area::-webkit-scrollbar-thumb {
     background: #e7dcff;
     border-radius: 10px;
+  }
+
+  .container-subjects-filter {
+    position: relative;
+    top: 2px;
   }
 </style>

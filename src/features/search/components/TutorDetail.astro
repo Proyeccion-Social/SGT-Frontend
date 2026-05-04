@@ -107,8 +107,8 @@ import schedule from "@/features/search/assets/schedule.svg"
           )
           .join("");
 
-        (el("tutor-photo") as HTMLImageElement).src = tutor.photo;
-        (el("tutor-photo-shadow") as HTMLImageElement).src = tutor.photo;
+        (el("tutor-photo") as HTMLImageElement)!.src = tutor.photo ?? "";
+        (el("tutor-photo-shadow") as HTMLImageElement)!.src = tutor.photo ?? "";
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
         el("tutor-total-ratings")!.textContent = `${tutor.totalRatings} valoraciones`;

@@ -35,6 +35,7 @@ async function request<T>(
 
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
+        console.error(`[sessionService] ${options.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, JSON.stringify(errorBody));
         throw new Error(
             errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`
         );

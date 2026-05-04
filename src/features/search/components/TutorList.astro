@@ -324,6 +324,7 @@
     if (window.__tutorsCleanup) window.__tutorsCleanup();
 
     function createAccordionPanel(tutor, isActive) {
+      console.log("Creating panel for tutor:", tutor);
       var template = document.getElementById("accordion-panel-template");
       if (!template) return null;
 
@@ -334,8 +335,7 @@
       if (isActive) panel.classList.add("active");
 
       var img = panel.querySelector(".panel-photo");
-      img.src =
-        tutor.photo || "https://avatars.githubusercontent.com/u/150485576?v=4";
+      img.src = tutor.photo;
       img.alt = tutor.tutorName || tutor.name || "Tutor";
 
       panel.querySelector(".panel-tutor-name").textContent =

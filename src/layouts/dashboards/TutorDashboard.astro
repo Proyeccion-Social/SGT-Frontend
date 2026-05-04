@@ -92,13 +92,13 @@ const userRole = UserRole.TUTOR;
     min-height: 60px;
     overflow: hidden;
     border-radius: 12px;
-    margin: 0 10rem;
+    margin: 0 clamp(1rem, 5vw, 10rem);
     width: auto;
   }
 
   @media (max-width: 1024px) {
     .hours-bar {
-      margin: 0 2rem;
+      margin: 0 clamp(1rem, 3vw, 2rem);
     }
   }
 
@@ -118,21 +118,22 @@ const userRole = UserRole.TUTOR;
   .scheduled-hours-text {
     color: #4d662e;
     font-weight: 400;
-    font-size: 20px 10px;
+    font-size: 20px;
   }
 
   .remaining-hours-text {
     color: #513199;
     font-weight: 400;
-    font-size: 20px 10px;
+    font-size: 20px;
   }
 
   .cards-container {
     display: grid;
     grid-template-columns: 64fr 36fr;
     gap: clamp(15px, 3vw, 40px);
-    margin: 0 10rem;
-    width: auto;
+    padding: 0 clamp(1rem, 5vw, 10rem);
+    width: 100%;
+    box-sizing: border-box;
     align-items: start;
     min-height: 0;
     height: auto;
@@ -141,14 +142,14 @@ const userRole = UserRole.TUTOR;
 
   @media (max-width: 1024px) {
     .cards-container {
-      margin: 0 2rem;
+      padding: 0 clamp(1rem, 3vw, 2rem);
     }
   }
 
   @media (max-width: 768px) {
     .cards-container {
       grid-template-columns: 1fr;
-      margin: 0 1rem;
+      padding: 0 1rem;
       gap: 1.5rem;
     }
   }

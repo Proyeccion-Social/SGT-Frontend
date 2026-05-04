@@ -83,6 +83,7 @@ import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
         }),
       ).then((enriched) => {
         window.__allTutors = enriched;
+        applyFilters();
         return enriched;
       });
     }
@@ -215,7 +216,6 @@ import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
     justify-content: center;
     position: absolute;
     right: 72px;
-
   }
 
   .search-input {

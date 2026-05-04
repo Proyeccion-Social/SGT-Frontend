@@ -500,9 +500,11 @@ export const SessionDetailView = ({
                     Editar
                   </button>
                 )}
-                <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
-                  Cancelar tutoría
-                </button>
+                {String(session.status) === 'SCHEDULED' && (
+                  <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
+                    Cancelar tutoría
+                  </button>
+                )}
               </>
             ) : onEvaluate ? (
               <button className="sdv-btn sdv-btn--edit" onClick={onEvaluate}>

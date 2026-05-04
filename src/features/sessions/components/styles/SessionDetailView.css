@@ -127,6 +127,7 @@
   height: 46px;
   align-items: center;
   justify-content: center;
+  object-fit: cover;
 }
 
 /* Fallback avatar (initials) */

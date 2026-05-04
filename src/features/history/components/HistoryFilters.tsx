@@ -5,9 +5,6 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
   DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -15,6 +12,7 @@ import {
   ListFilterIcon,
   BookOpenIcon,
   CircleDotIcon,
+  ChevronDownIcon,
 } from "lucide-react"
 
 const STATUS_OPTIONS = [
@@ -29,10 +27,11 @@ interface HistoryFiltersProps {
   currentStatus?: string
 }
 
-export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
+export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
   const [subjects, setSubjects] = useState<{ value: string; label: string }[]>([])
   const [selectedStatus, setSelectedStatus] = useState(currentStatus)
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
+  const [openSection, setOpenSection] = useState<"status" | "subject" | null>(null)
 
   useEffect(() => {
     fetch("/api/search/subjects")
@@ -78,6 +77,9 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
     dispatchFilters("all", [])
   }
 
+  const toggleSection = (section: "status" | "subject") =>
+    setOpenSection((prev) => (prev === section ? null : section))
+
   const badgeStyle: React.CSSProperties = {
     backgroundColor: "var(--color-moradops-100, #ede9fe)",
     color: "var(--color-moradops-600, #7c3aed)",
@@ -93,12 +95,40 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
       </span>
     ) : null
 
+  const SectionRow = ({
+    section,
+    icon,
+    label,
+    badgeCount,
+  }: {
+    section: "status" | "subject"
+    icon: React.ReactNode
+    label: string
+    badgeCount: number
+  }) => (
+    <button
+      type="button"
+      onClick={() => toggleSection(section)}
+      className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-colors"
+    >
+      {icon}
+      <span>{label}</span>
+      {badge(badgeCount)}
+      <ChevronDownIcon
+        className="ml-auto size-3.5 text-muted-foreground transition-transform duration-200"
+        style={{
+          transform: openSection === section ? "rotate(180deg)" : "rotate(0deg)",
+        }}
+      />
+    </button>
+  )
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--neutral-200,#e7dcff)] bg-[var(--surface-page,#fff)] px-2 py-2 text-sm font-medium text-[var(--neutral-400,#1e293b)] hover:bg-[var(--surface-focus,#f5f3ff)] hover:text-[var(--primary-default,#9f74ff)] transition-all"
+          className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--neutral-200,#e7dcll)] bg-[var(--surface-page,#fff)] px-2 py-2 text-sm font-medium text-[var(--neutral-400,#1e293b)] hover:bg-[var(--surface-focus,#f5f3ff)] hover:text-[var(--primary-default,#9f74ff)] transition-all"
         >
           <ListFilterIcon className="size-3" />
           {totalActive > 0 && (
@@ -108,7 +138,12 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-56 shadow-xl border-[var(--border-primary)]">
+
+      <DropdownMenuContent
+        align="start"
+        collisionPadding={12}
+        className="w-56 shadow-xl border-[var(--border-primary)]"
+      >
         {/* Header con limpiar */}
         {totalActive > 0 && (
           <div className="mb-1">
@@ -129,14 +164,15 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
           </div>
         )}
 
-        {/* Estado */}
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <CircleDotIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />
-            Estado
-            {badge(selectedStatus !== "all" ? 1 : 0)}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
+        {/* Estado — expandible inline */}
+        <SectionRow
+          section="status"
+          icon={<CircleDotIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />}
+          label="Estado"
+          badgeCount={selectedStatus !== "all" ? 1 : 0}
+        />
+        {openSection === "status" && (
+          <div className="pl-2 pb-1">
             {STATUS_OPTIONS.map((s) => (
               <DropdownMenuCheckboxItem
                 key={s.value}
@@ -146,17 +182,18 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
                 {s.label}
               </DropdownMenuCheckboxItem>
             ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+          </div>
+        )}
 
-        {/* Materia */}
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <BookOpenIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />
-            Materia
-            {badge(selectedSubjects.length)}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="max-h-60 overflow-y-auto">
+        {/* Materia — expandible inline con scroll */}
+        <SectionRow
+          section="subject"
+          icon={<BookOpenIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />}
+          label="Materia"
+          badgeCount={selectedSubjects.length}
+        />
+        {openSection === "subject" && (
+          <div className="pl-2 pb-1 max-h-48 overflow-y-auto">
             {subjects.map((s) => (
               <DropdownMenuCheckboxItem
                 key={s.value}
@@ -170,8 +207,8 @@ export function     HistoryFilters({ currentStatus = "all" }: HistoryFiltersProp
                 {s.label}
               </DropdownMenuCheckboxItem>
             ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

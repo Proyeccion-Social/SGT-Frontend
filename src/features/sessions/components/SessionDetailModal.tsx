@@ -19,8 +19,8 @@ interface Props {
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
   confirmar: (sessionId: string) => Promise<boolean>;
   rechazar: (sessionId: string, reason: string) => Promise<boolean>;
-  aceptarModificacion: (sessionId: string) => Promise<boolean>;
-  rechazarModificacion: (sessionId: string) => Promise<boolean>;
+  aceptarModificacion: (sessionId: string, requestId?: string) => Promise<boolean>;
+  rechazarModificacion: (sessionId: string, requestId?: string) => Promise<boolean>;
 }
  
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar, confirmar, rechazar, aceptarModificacion, rechazarModificacion }: Props) => {
@@ -37,9 +37,11 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
     };
   }, [handleKeyDown]);
  

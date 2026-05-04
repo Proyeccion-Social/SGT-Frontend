@@ -88,16 +88,20 @@ export const DashboardSessionManager = ({ role }: Props) => {
   };
 
   const confirmar = async (sessionId: string): Promise<boolean> => {
+    console.log('[confirmar] sessionId:', sessionId);
     try {
       const res = await fetch('/api/sessions/confirm-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),
       });
-      if (!res.ok) throw new Error();
+      const body = await res.json().catch(() => null);
+      console.log('[confirmar] status:', res.status, 'body:', JSON.stringify(body, null, 2));
+      if (!res.ok) throw new Error(body?.message ?? `HTTP ${res.status}`);
       await refetch();
       return true;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[confirmar] error:', e.message);
       return false;
     }
   };
@@ -117,32 +121,40 @@ export const DashboardSessionManager = ({ role }: Props) => {
     }
   };
 
-  const aceptarModificacion = async (sessionId: string): Promise<boolean> => {
+  const aceptarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
+    console.log('[aceptarModificacion] sessionId:', sessionId, '| requestId:', requestId);
     try {
       const res = await fetch('/api/sessions/accept-modification', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId, requestId }),
       });
-      if (!res.ok) throw new Error();
+      const body = await res.json().catch(() => null);
+      console.log('[aceptarModificacion] status:', res.status, 'body:', JSON.stringify(body, null, 2));
+      if (!res.ok) throw new Error(body?.message ?? `HTTP ${res.status}`);
       await refetch();
       return true;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[aceptarModificacion] error:', e.message);
       return false;
     }
   };
 
-  const rechazarModificacion = async (sessionId: string): Promise<boolean> => {
+  const rechazarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
+    console.log('[rechazarModificacion] sessionId:', sessionId, '| requestId:', requestId);
     try {
       const res = await fetch('/api/sessions/reject-modification', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId, requestId }),
       });
-      if (!res.ok) throw new Error();
+      const body = await res.json().catch(() => null);
+      console.log('[rechazarModificacion] status:', res.status, 'body:', JSON.stringify(body, null, 2));
+      if (!res.ok) throw new Error(body?.message ?? `HTTP ${res.status}`);
       await refetch();
       return true;
-    } catch (e) {
+    } catch (e: any) {
+      console.error('[rechazarModificacion] error:', e.message);
       return false;
     }
   };

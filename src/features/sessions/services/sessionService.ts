@@ -35,6 +35,7 @@ async function request<T>(
 
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
+        console.error(`[sessionService] ${options.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, JSON.stringify(errorBody));
         throw new Error(
             errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`
         );
@@ -160,9 +161,9 @@ export function registerAttendance(
     });
 }
 
-/** GET /scheduling/sessions/{sessionId}/modifications */
+/** GET /scheduling/sessions/{sessionId}/modification-requests */
 export function getSessionModifications(sessionId: string, token: string): Promise<unknown> {
-    return request(`/scheduling/sessions/${sessionId}/modifications`, token);
+    return request(`/scheduling/sessions/${sessionId}/modification-requests`, token);
 }
 
 /** POST /scheduling/sessions/{sessionId}/confirm */

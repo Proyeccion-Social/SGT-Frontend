@@ -32,7 +32,11 @@ export const GET: APIRoute = async ({ request, cookies }) => {
           : (mods as any)?.modifications ?? (mods as any)?.data ?? [];
         const pending = modsArray.find((m: any) => m.status === 'PENDING') ?? modsArray[0];
         if (pending) {
-          (data as any).pendingModification = pending;
+          (data as any).pendingModification = {
+            ...pending,
+            id: pending.id ?? pending.idRequest,
+            proposedBy: pending.proposedBy ?? pending.requestedBy,
+          };
         }
       } catch (modErr: any) {
         console.error('[BFF] detail: fallo al obtener modificaciones:', modErr?.message ?? modErr);

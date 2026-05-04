@@ -10,10 +10,10 @@ export function getUserIdFromCookie(cookies: AstroCookies): string {
         const token = cookies.get("access_token")?.value;
         if (token) {
             const decoded = jwtDecode(token) as any;
-            userId = decoded.id || decoded.sub || decoded.userId;
+            // El campo 'sub' es el estándar para el ID de usuario en el JWT
+            userId = decoded.sub || decoded.idUser || decoded.id || decoded.userId;
         }
     } catch (e) {
-        console.error("Failed to decode token from cookie", e);
     }
     return userId;
 }

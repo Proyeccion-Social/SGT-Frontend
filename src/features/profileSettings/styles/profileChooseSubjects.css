@@ -21,6 +21,13 @@
   min-height: 0;
 }
 
+/* ── Responsive < 500px — altura fija para que el scatter tenga espacio ── */
+@media (max-width: 499px) {
+  .pcs-content {
+    min-height: 280px;
+  }
+}
+
 /* Estado de carga / vacío */
 .pcs-empty {
   display: flex;
@@ -37,14 +44,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.28rem 0.7rem;
+  font-family: "Cabinet Grotesk Variable";
+  padding: 4px 8px;
   border-radius: 14px;
   border: none;
   outline: none;
   cursor: pointer;
-  font-weight: 400;
-  font-size: 11px;
-  line-height: 17px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
   color: var(--neutral-600);
   white-space: nowrap;
   user-select: none;

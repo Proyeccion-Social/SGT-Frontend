@@ -18,6 +18,10 @@
   color: var(--text-body);
 }
 
+.span-lh {
+  line-height: 1;
+}
+
 @media (max-width: 1024px) {
   .welcome-container {
     padding: 0 2rem;
@@ -27,10 +31,20 @@
 @media (max-width: 768px) {
   .welcome-container {
     padding: 0 1.5rem;
-    font-size: clamp(1.5rem, 8vw, 2.5rem);
+    font-size: 40px;
     text-align: center;
     justify-content: center;
+    color: var(--text-headings);
   }
+
+  .highlight-name {
+    font-size: 40px !important;
+  }
+
+  .span-lh {
+    line-height: 48px;
+  }
+
 }
 
 .welcome-container p {

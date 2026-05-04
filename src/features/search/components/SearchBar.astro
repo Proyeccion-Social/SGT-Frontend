@@ -83,6 +83,7 @@ import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
         }),
       ).then((enriched) => {
         window.__allTutors = enriched;
+        applyFilters();
         return enriched;
       });
     }
@@ -215,7 +216,6 @@ import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
     justify-content: center;
     position: absolute;
     right: 72px;
-
   }
 
   .search-input {
@@ -307,5 +307,63 @@ import { TutorFilters } from "@/features/search/components/TutorFilters.tsx";
 
   .search-button:hover {
     background: #a074ff97;
+  }
+
+  @media (max-width: 499px) {
+    .title-section {
+      margin-top: 24px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+
+    .highlight {
+      font-size: 40px;
+    }
+
+    .arrowTutores {
+      display: none ;
+    }
+
+    .arrow-text {
+      font-size: 24px;
+      left: 40px;
+      top: -18px;
+    }
+
+    .search-bar-row {
+      margin-top: 20px;
+      width: calc(100vw - 32px);
+    }
+
+    .search-input-container {
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 56px;
+      padding-left: 16px;
+      padding-right: 52px;
+      font-size: 14px;
+    }
+
+    .search-input::placeholder {
+      font-size: 13px;
+    }
+
+    .search-button {
+      left: auto;
+      right: 8px;
+      width: 40px;
+      height: 40px;
+      padding: 10px;
+    }
+
+    .filters-row {
+      right: 56px;
+    }
   }
 </style>

@@ -290,9 +290,10 @@ export default function SchedulingWizard({ slots }: Props) {
       window.location.reload();
     }, 3000);
   } catch (error) {
+    const msg = error instanceof Error ? error.message : "No se pudo reservar el espacio.";
     sileo.action({
       title: "Error al agendar",
-      description: "No se pudo reservar el espacio. Intenta de nuevo.",
+      description: msg,
       fill: "#f35761",
       styles: { badge: "#ffffff" },
     });

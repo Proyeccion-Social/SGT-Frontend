@@ -10,6 +10,7 @@ import pin from './icons/Pin.svg'
 import calendar from './icons/calendar-day.svg'
 import time from './icons/timer.svg'
 import { useSubjectStore } from '@/store/subjectStore';
+import { useAuthStore } from '@/store/authStore';
 
 
 import type { Session, ModifySessionBody, EditSessionBody, AvailabilitySlot, ModificationRequest } from '../types/session.types';
@@ -181,6 +182,7 @@ export const SessionDetailView = ({
   const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
   const { colorMap } = useSubjectStore();
   const subjectColors = colorMap[String(session.subject.name)];
+  const { user: currentUser } = useAuthStore();
  
   const submitRef      = useRef<(() => Promise<void>) | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -245,6 +247,9 @@ export const SessionDetailView = ({
   const isTerminalState = ['COMPLETED', 'REJECTED_BY_TUTOR', 'CANCELLED_BY_STUDENT', 'CANCELLED_BY_TUTOR', 'CANCELLED_BY_ADMIN'].includes(String(session.status));
   const showConfirmRejectButtons = isPendingConfirmation && role === UserRole.TUTOR && !isAltView;
   const showModificationView    = isPendingModification && !isAltView;
+  // Solo quien NO propuso puede aceptar/rechazar
+  const canRespondToModification = showModificationView &&
+    session.pendingModification?.proposedBy !== currentUser?.id;
   const showFooter = isRejecting || isAltView || showModificationView || showConfirmRejectButtons || !isTerminalState || !!onEvaluate;
  
   return (
@@ -280,6 +285,7 @@ export const SessionDetailView = ({
  
         {/* ── Section title ── */}
         {(isAltView || showModificationView) && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <p className="sdv__section-title" style={{ margin: 0 }}>
               <span className="sdv__section-dot" />
@@ -311,6 +317,12 @@ export const SessionDetailView = ({
                 Ver estado actual
               </button>
             )}
+          </div>
+          {showModificationView && !canRespondToModification && (
+            <p style={{ margin: 0, fontSize: 13, color: '#3c3c3c', fontStyle: 'italic' }}>
+              {session.tutor?.id === currentUser?.id ? 'El estudiante' : 'El tutor'} está revisando tu propuesta de modificación.
+            </p>
+          )}
           </div>
         )}
 

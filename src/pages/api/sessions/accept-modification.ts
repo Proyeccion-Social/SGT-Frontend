@@ -26,7 +26,7 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const { sessionId } = await request.json();
+    const { sessionId, requestId: requestIdFromBody } = await request.json();
     if (!sessionId) {
       return new Response(
         JSON.stringify({ message: 'sessionId es requerido' }),
@@ -34,7 +34,7 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const requestId = await resolveRequestId(sessionId, token);
+    const requestId = requestIdFromBody || await resolveRequestId(sessionId, token);
     if (!requestId) {
       console.error('[BFF] accept-modification: no se encontró requestId para sessionId:', sessionId);
       return new Response(

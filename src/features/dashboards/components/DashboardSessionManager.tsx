@@ -117,12 +117,12 @@ export const DashboardSessionManager = ({ role }: Props) => {
     }
   };
 
-  const aceptarModificacion = async (sessionId: string): Promise<boolean> => {
+  const aceptarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
     try {
       const res = await fetch('/api/sessions/accept-modification', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId, requestId }),
       });
       if (!res.ok) throw new Error();
       await refetch();
@@ -132,12 +132,12 @@ export const DashboardSessionManager = ({ role }: Props) => {
     }
   };
 
-  const rechazarModificacion = async (sessionId: string): Promise<boolean> => {
+  const rechazarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
     try {
       const res = await fetch('/api/sessions/reject-modification', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId, requestId }),
       });
       if (!res.ok) throw new Error();
       await refetch();

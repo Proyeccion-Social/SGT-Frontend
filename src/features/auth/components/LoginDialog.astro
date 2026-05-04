@@ -100,6 +100,15 @@ import ToasterReact from "@/components/ui/ToasterReact";
         closeDialog();
       }
     });
+
+    // ── Auto-open login when redirect param exists (email action flow) ──
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.has('redirect')) {
+      // Small delay to ensure DOM is fully ready
+      setTimeout(() => {
+        openDialog();
+      }, 300);
+    }
   }
 
   document.addEventListener("astro:page-load", initLoginDialog);

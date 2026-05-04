@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { cancelSession } from '@features/sessions/services/sessionService';
+import { getErrorMessage } from '@/utils/errorMessages';
 
 export const DELETE: APIRoute = async ({ request, cookies }) => {
   try {
@@ -27,7 +28,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
   } catch (error: any) {
     console.error('[BFF] Error en cancel-session:', error);
     return new Response(
-      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      JSON.stringify({ message: getErrorMessage(error.message) }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

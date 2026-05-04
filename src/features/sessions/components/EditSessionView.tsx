@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import { sileo } from 'sileo';
 import type { Session, EditSessionBody } from '../types/session.types';
+import { useSessionStore } from '@/store/sessionStore';
 import './styles/EditField.css';
 
 
@@ -38,20 +39,25 @@ export const EditSessionForm = ({
       ...(location.trim()    && { location }),
     };
 
-    await sileo.promise(
-      async () => {
-        const success = await editar(session.id, body);
-        if (!success) throw new Error('No se pudieron guardar los cambios.');
-        onSuccess();
-      },
-      {
-        loading: { title: 'Guardando cambios...' },
-        success: { title: 'Cambios guardados',  description: 'La sesión ha sido actualizada.', fill: '#2ecc71' },
-        error:   { title: 'Error al guardar',   fill: '#f35761' },
-      }
-    ).finally(() => {
-      onSubmittingChange?.(false);
-    });
+    const success = await editar(session.id, body);
+
+    if (success) {
+      sileo.action({
+        title: 'Cambios guardados',
+        description: 'La sesión ha sido actualizada.',
+        fill: '#2ecc71',
+      });
+      onSuccess();
+    } else {
+      const errorMsg = useSessionStore.getState().error ?? 'Error al guardar los cambios';
+      sileo.action({
+        title: 'Error al guardar',
+        description: errorMsg,
+        fill: '#f35761',
+      });
+    }
+
+    onSubmittingChange?.(false);
   };
  
   if (triggerSubmitRef) {

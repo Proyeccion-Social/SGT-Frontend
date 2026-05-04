@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createSession } from "@/features/sessions/services/sessionService";
+import { getErrorMessage } from "@/utils/errorMessages";
 
 export const prerender = false;
 
@@ -23,7 +24,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
   } catch (error: any) {
     return new Response(
-      JSON.stringify({ message: error.message ?? "Error interno del servidor" }),
+      JSON.stringify({ message: getErrorMessage(error.message) }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

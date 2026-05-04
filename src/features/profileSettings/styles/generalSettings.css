@@ -208,3 +208,23 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Responsive < 480px ──────────────────────────────────── */
+@media (max-width: 499px) {
+  .gs-view {
+    flex-direction: column;
+  }
+
+  .gs-main {
+    padding: 20px;
+  }
+
+  .gs-form {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .gs-label {
+    font-size: 14px;
+  }
+}

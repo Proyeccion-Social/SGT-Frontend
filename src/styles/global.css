@@ -145,7 +145,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 10002; /* Above modal content */
+  z-index: 999999;
 }
 
 /* Force sileo to be absolute instead of fixed when inside a local wrapper */
@@ -154,6 +154,12 @@
   top: 20px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
+}
+
+/* Force sileo to be absolute instead of fixed when inside a local wrapper */
+.local-toaster-wrapper [data-sileo-viewport] {
+  z-index: 999999111 !important;
+  /* position: static !important; */
 }
 
 /* CSS Reset */
@@ -204,7 +210,7 @@ h6 {
 }
 
 [data-sileo-viewport] {
-  z-index: 200 !important;
+  z-index: 999999 !important;
 }
 
 button {

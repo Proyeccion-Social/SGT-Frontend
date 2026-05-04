@@ -17,19 +17,19 @@
     0 8px 32px rgba(130, 80, 255, 0.2),
     inset 0 1px 1px rgba(255, 255, 255, 0.15);
   max-height: 380px;
+  width: 100%;
 }
 
 .session-container-header {
-  padding: 20px;
+  padding: clamp(10px, 3vw, 20px);
   border-bottom: 1.5px solid rgba(255, 255, 255, 0.25);  
 }
 
 .main-title {
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
   font-weight: 600;
   letter-spacing: -0.02em;
 }
-
 
 .cards-stack {
   display: flex;
@@ -37,7 +37,7 @@
   gap: 1rem;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: 20px;
+  padding: clamp(10px, 3vw, 20px);
 }
 
 .cards-stack::-webkit-scrollbar {
@@ -50,6 +50,14 @@
   align-items: center;
 }
 
+@media (max-width: 480px) {
+  .session-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}
+
 .card-content {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(10px);
@@ -60,6 +68,12 @@
   flex: 1;
   box-shadow: 0 2px 12px rgba(130, 80, 255, 0.08);
   transition: all 0.25s ease;
+}
+
+@media (max-width: 480px) {
+  .card-content {
+    padding: 12px;
+  }
 }
 
 .card-content:hover {
@@ -76,6 +90,8 @@
   font-size: 1rem;
   margin: 0;
   font-weight: 700;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .badge-time {
@@ -85,10 +101,10 @@
   border: 1px solid rgba(218, 255, 170, 0.5);
   color: #5a7a2e;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
-  padding: 4px 10px;
-  margin-left: 5px;
+  padding: 2px 8px;
+  margin-left: auto;
   height: max-content;
   display: flex;
   align-items: center;
@@ -97,10 +113,10 @@
 
 .description {
   font-family: 'Open Sauce Two';
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 400;
   color: #3c3c3c;
-  margin: -2px 0;
+  margin: 4px 0;
   letter-spacing: -0.02em;
 }
 
@@ -109,13 +125,16 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 15px;
   border-radius: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .tags {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .tag-subject {
@@ -123,9 +142,9 @@
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border: 1px solid transparent;
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   height: auto;
   align-items: center;
@@ -133,9 +152,9 @@
 }
 
 .tag-status {
-  padding: 3px 10px;
+  padding: 2px 8px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -147,7 +166,6 @@
   border: 1px solid rgba(200, 200, 200, 0.35);
   color: #555;
   height: auto;
-
 }
 
 .tag-status.upcoming {
@@ -170,25 +188,35 @@
 
 .time-label {
   color: #a3a3a3;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 300;
 }
 
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .actions button {
+    flex: 1;
+  }
 }
 
 .btn-details,
 .btn-terminar,
 .btn-asistencia,
 .btn-calificar {
-  padding: 7px 14px;
+  padding: 6px 12px;
   border-radius: 10px;
   border: none;
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.25s ease;

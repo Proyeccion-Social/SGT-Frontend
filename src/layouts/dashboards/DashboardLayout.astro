@@ -83,5 +83,16 @@ const userId = getUserIdFromCookie(Astro.cookies);
       border-radius: 0 !important;
       border: none !important;
     }
+
+    /* Hide dock and floating elements when a modal is open */
+    :global(body.modal-open .dock),
+    :global(body.modal-open .notification-floating) {
+      display: none !important;
+    }
+  }
+
+  /* Hide user header globally when a modal is open (Desktop and Mobile) */
+  :global(body.modal-open .user-header) {
+    display: none !important;
   }
 </style>

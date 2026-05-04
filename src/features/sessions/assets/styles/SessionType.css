@@ -1,0 +1,132 @@
+/* SessionTypeStep.css */
+
+/* ── Encabezado ── */
+.session-type-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 64px;
+  letter-spacing: -0.02em;
+}
+
+.session-type-title__highlight {
+  position: relative;
+  display: inline-block;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.session-type-title__highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/resaltado-informacion.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  z-index: -1;
+}
+
+.session-type-subtitle {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0 0 32px;
+}
+
+/* ── Contenedor principal ── */
+.session-type-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 32px;
+  background: #fafafa;
+}
+
+/* ── Encabezado interno de la sección ── */
+.session-type-card__label {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.session-type-card__hint {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 24px;
+}
+
+/* ── Lista de opciones ── */
+.session-type-options {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* ── Botón individual de tipo de sesión ── */
+.session-type-option {
+  position: relative;
+  overflow: visible;
+  width: 160px;
+  height: 140px;
+  border: none;
+  border-radius: 14px;
+  background: #f3f4f6;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #7c3aed;
+  font-weight: 500;
+}
+
+.session-type-option--selected {
+  background: #ede9fe;
+}
+
+/* ── Indicador de selección (check) ── */
+.session-type-option__check-badge {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 24px;
+  height: 24px;
+  background: #cfb9ff;
+  border-radius: 100px;
+  transform: rotate(20deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* ── Ícono del tipo de sesión ── */
+.session-type-option__icon {
+  width: 48px;
+  height: 48px;
+}
+
+/* ── Pie con botón de continuar ── */
+.session-type-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.session-type-footer__continue-btn {
+  background: #c4b5fd;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.session-type-footer__continue-btn--active {
+  background: var(--primary-400);
+  cursor: pointer;
+}

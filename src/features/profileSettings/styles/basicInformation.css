@@ -1,0 +1,132 @@
+/* ============================================================
+   BasicInformation — tutor left panel card
+   prefix: bi-
+   ============================================================ */
+
+.bi-card {
+  width: 245px;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-radius: 19.2px;
+  background: linear-gradient(
+    to bottom,
+    var(--primary-300) 55%,
+    var(--primary-100) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+
+/* ── Status badge (top-right) ────────────────────────────── */
+.bi-status {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 2.8px 5.6px;
+  gap: 2.8px;
+
+  background: #FFFFFF;
+  border: 0.5px solid rgba(0, 0, 0, 0.05);
+  border-radius: 22.4px;
+  z-index: 1000;
+
+}
+
+.bi-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bi-status-dot--active {
+  background: var(--success-default);
+}
+.bi-status-dot--inactive {
+  background: var(--error-400);
+}
+.bi-status-dot--suspended {
+  background: var(--error-400);
+}
+
+.bi-status-label {
+  font-family: 'Cabinet Grotesk Variable';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: var(--text-headings);
+}
+
+/* ── Photo area (upper half) ─────────────────────────────── */
+.bi-photo-area {
+  width: 100%;
+  padding-top: 20.2px;
+  padding-left: 24px;
+  padding-right: 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.bi-margen-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.bi-margen {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bi-avatar {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 142px;
+  height: 142px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--color-violeta-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: var(--primary-600);
+  user-select: none;
+}
+
+/* ── Name ────────────────────────────────────────────────── */
+.bi-name {
+  color: var(--neutral-blanco);
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  padding: 10px 12px 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ── Role badge ──────────────────────────────────────────── */
+.bi-role {
+  margin-top: 6px;
+  padding: 4px 14px;
+  border-radius: 19.2px;
+  background: var(--secondary-100);
+  color: var(--secondary-600);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}

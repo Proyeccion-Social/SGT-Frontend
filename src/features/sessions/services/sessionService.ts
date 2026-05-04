@@ -1,92 +1,202 @@
-import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery } from '../types/session.types';
+import type {
+    Session,
+    CreateSessionDTO,
+    SessionTutor,
+    CancelSessionResponse,
+    ModifySessionBody,
+    EditSessionBody,
+    RegisterAttendanceDTO,
+    RegisterAttendanceResult,
+    CompleteSessionBody,
+    CompleteSessionResult,
+    ConfirmSessionBody,
+    ConfirmSessionResult,
+    RejectSessionBody,
+    RejectSessionResult,
+    AcceptModificationResult,
+    RejectModificationResult
+} from '../types/session.types';
 
-const API_URL = import.meta.env.API_URL;
+const API_URL = (import.meta.env.API_URL ?? '').replace(/\/$/, '');
 
-async function handleResponse<T>(res: Response): Promise<T> {
-  if (res.status === 401) {
-    throw new Error('UNAUTHORIZED'); // ← distinguible en el hook
-  }
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.message ?? `Error ${res.status}`);
-  }
-  return res.json();
+async function request<T>(
+    path: string,
+    token: string,
+    options: RequestInit = {}
+): Promise<T> {
+    const res = await fetch(`${API_URL}${path.startsWith('/') ? path : `/${path}`}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            ...options.headers,
+        },
+    });
+
+    if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        throw new Error(
+            errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`
+        );
+    }
+
+    return res.json() as Promise<T>;
 }
 
 
-function getAuthHeaders(): HeadersInit {
-    const token = document.cookie
-    .split('; ')
-    .find(row => row.startsWith('access_token='))
-    ?.split('=')[1];
 
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+
+function normalizeMySessionsPayload(raw: unknown): Session[] {
+    if (Array.isArray(raw)) return raw as Session[];
+    if (raw && typeof raw === 'object' && 'data' in raw) {
+        const data = (raw as { data: unknown }).data;
+        if (Array.isArray(data)) return data as Session[];
+    }
+    return [];
 }
 
-// ─── Crear sesión ───────────────────────────────────────────
-export async function createSession(data: CreateSessionDTO): Promise<Session> {
-  const res = await fetch(`${API_URL}/sessions`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message ?? 'Error al crear la sesión');
-  }
-
-  return res.json();
+/** POST /scheduling/sessions/individual */
+export function createSession(data: CreateSessionDTO, token: string): Promise<Session> {
+    return request<Session>('/scheduling/sessions/individual', token, {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
 }
 
-// ─── Obtener sesiones del usuario autenticado ───────────────
-export async function getMySessions(): Promise<Session[]> {
-  const res = await fetch(`${API_URL}/`, {
-    headers: getAuthHeaders(),
-  });
 
-  if (!res.ok) throw new Error('Error al obtener sesiones');
-  return res.json();
+
+/** GET /scheduling/sessions/my-sessions/{role} */
+export async function getSessions(role: string, token: string): Promise<Session[]> {
+    const raw = await request<unknown>(
+        `/scheduling/sessions/my-sessions/${role.toLowerCase()}`,
+        token
+    );
+    return normalizeMySessionsPayload(raw);
 }
 
-// ─── Obtener sesiones de un tutor específico ────────────────
-export async function getSessionsByTutor(tutorId: string): Promise<Session[]> {
-  const res = await fetch(`${API_URL}/`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) throw new Error('Error al obtener sesiones del tutor');
-  return res.json();
+/** GET /scheduling/sessions/{sessionId} */
+export function getSessionDetail(sessionId: string, token: string): Promise<Session> {
+    return request<Session>(`/scheduling/sessions/${sessionId}`, token);
 }
 
-// ─── Cancelar sesión ────────────────────────────────────────
-export async function cancelSession(sessionId: string): Promise<void> {
-  const res = await fetch(`${API_URL}/`, {
-    method: 'PATCH',
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message ?? 'Error al cancelar la sesión');
-  }
+/** GET /tutors/{tutorId} */
+export function getTutorInfo(tutorId: string, token: string): Promise<SessionTutor> {
+    return request<SessionTutor>(`/tutors/${tutorId}`, token);
 }
 
-// ─── Consultar disponibilidad ───────────────────────────────
-export async function getAvailability(query: AvailabilityQuery): Promise<AvailabilitySlot[]> {
-  const params = new URLSearchParams({
-    tutorId: query.tutorId,
-    fecha: query.date,
-    ...(query.modality ? { modality: query.modality } : {}),
-  });
+/** DELETE /scheduling/sessions/{sessionId} */
+export function cancelSession(
+    sessionId: string,
+    reason: string,
+    token: string
+): Promise<CancelSessionResponse> {
+    return request<CancelSessionResponse>(
+        `/scheduling/sessions/${sessionId}`,
+        token,
+        { method: 'DELETE', body: JSON.stringify({ reason }) }
+    );
+}
 
-  const res = await fetch(`${API_URL}`, {
-    headers: getAuthHeaders(),
-  });
+/** POST /scheduling/sessions/{sessionId}/propose-modification */
+export function modifySession(
+    sessionId: string,
+    body: ModifySessionBody,
+    token: string
+): Promise<{ success: boolean; message: string }> {
+    return request(`/scheduling/sessions/${sessionId}/propose-modification`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
 
-  if (!res.ok) throw new Error('Error al consultar disponibilidad');
-  return res.json();
+/** PATCH /scheduling/sessions/{sessionId}/details */
+export function editSession(
+    sessionId: string,
+    body: EditSessionBody,
+    token: string
+): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
+    return request(`/scheduling/sessions/${sessionId}/details`, token, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+    });
+}
+
+/** GET /tutor/{tutorId}/slots */
+export function getTutorSlots(tutorId: string, token: string): Promise<unknown> {
+    return request(`/tutor/${tutorId}/slots`, token);
+}
+
+/** PATCH /scheduling/sessions/{sessionId}/modifications/{requestId}/accept */
+export function acceptModification(
+    sessionId: string,
+    requestId: string,
+    token: string
+): Promise<AcceptModificationResult> {
+    return request(`/scheduling/sessions/${sessionId}/modifications/${requestId}/accept`, token, {
+        method: 'PATCH',
+    });
+}
+
+/** PATCH /scheduling/sessions/{sessionId}/modifications/{requestId}/reject */
+export function rejectModification(
+    sessionId: string,
+    requestId: string,
+    token: string
+): Promise<RejectModificationResult> {
+    return request(`/scheduling/sessions/${sessionId}/modifications/${requestId}/reject`, token, {
+        method: 'PATCH',
+    });
+}
+
+/** PATCH /session-execution/sessions/{sessionId}/attendance */
+export function registerAttendance(
+    sessionId: string,
+    body: RegisterAttendanceDTO,
+    token: string
+): Promise<RegisterAttendanceResult> {
+    return request(`/session-execution/sessions/${sessionId}/attendance`, token, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+    });
+}
+
+/** GET /scheduling/sessions/{sessionId}/modification-requests */
+export function getSessionModifications(sessionId: string, token: string): Promise<unknown> {
+    return request(`/scheduling/sessions/${sessionId}/modification-requests`, token);
+}
+
+/** POST /scheduling/sessions/{sessionId}/confirm */
+export function confirmSession(
+    sessionId: string,
+    body: ConfirmSessionBody,
+    token: string
+): Promise<ConfirmSessionResult> {
+    return request(`/scheduling/sessions/${sessionId}/confirm`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
+
+/** POST /scheduling/sessions/{sessionId}/reject */
+export function rejectSession(
+    sessionId: string,
+    body: RejectSessionBody,
+    token: string
+): Promise<RejectSessionResult> {
+    return request(`/scheduling/sessions/${sessionId}/reject`, token, {
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
+
+/** PATCH /session-execution/sessions/{sessionId}/complete */
+export function registerCompletedSession(
+    sessionId: string,
+    body: CompleteSessionBody,
+    token: string
+): Promise<CompleteSessionResult> {
+    return request(`/session-execution/sessions/${sessionId}/complete`, token, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+    });
 }

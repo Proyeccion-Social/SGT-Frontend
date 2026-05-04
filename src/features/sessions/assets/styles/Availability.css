@@ -1,0 +1,173 @@
+
+/* ── Encabezado ── */
+.availability-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 64px;
+  letter-spacing: -0.02em;
+}
+
+.availability-title__highlight {
+  position: relative;
+  display: inline-block;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.availability-title__highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/resaltado.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  z-index: -1;
+}
+
+.availability-subtitle {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0 0 32px;
+  letter-spacing: -0.02em;
+}
+
+/* ── Contenedor principal de la tarjeta ── */
+.availability-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 40px 32px;
+  background: #fafafa;
+}
+
+/* ── Lista de tutores ── */
+.tutor-list {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── Tarjeta individual del tutor ── */
+.tutor-card {
+  position: relative;
+  border: none;
+  border-radius: 16px;
+  overflow: visible;
+  width: 240px;
+  background: #fff;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  box-shadow: 0 0 0 1px #e5e7eb;
+}
+
+.tutor-card--selected {
+  box-shadow: 0 0 0 2px var(--primary-400);
+}
+
+/* ── Indicador de selección (check) ── */
+.tutor-card__check-badge {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 24px;
+  height: 24px;
+  background: #cfb9ff;
+  border-radius: 100px;
+  transform: rotate(20deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* ── Badge de materia ── */
+.tutor-card__subject-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: var(--text-headings);
+  font-family: "Cabinet Grotesk Variable";
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  z-index: 2;
+  letter-spacing: -0.02em;
+}
+
+/* ── Foto del tutor ── */
+.tutor-card__photo-wrapper {
+  width: 100%;
+  height: 200px;
+  background: #e5e7eb;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.tutor-card__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tutor-card__photo-placeholder {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* ── Nombre superpuesto sobre la foto ── */
+.tutor-card__name-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  letter-spacing: -0.02em;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: -32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Información del tutor (modalidad / tipo) ── */
+.tutor-card__info {
+  padding: 12px 14px;
+}
+
+.tutor-card__info-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 2px;
+  font-style: italic;
+}
+
+.tutor-card__info-text:last-child {
+  margin: 0;
+}
+
+/* ── Pie de la tarjeta con el botón de continuar ── */
+.availability-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.availability-footer__continue-btn {
+  background: #c4b5fd;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.availability-footer__continue-btn--active {
+  background: var(--primary-400);
+  cursor: pointer;
+}

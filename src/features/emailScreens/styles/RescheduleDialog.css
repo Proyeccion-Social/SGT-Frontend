@@ -1,0 +1,120 @@
+@import './EmailScreensShared.css';
+
+.es-card--reschedule {
+  max-width: 600px;
+  min-width: 600px;
+  max-height: 380px;
+  min-height: 380px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.es-reschedule-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.es-reschedule-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.es-reschedule-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.es-reschedule-title {
+  font-family: Open Sauce Two;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 32px;
+  letter-spacing: -2%;
+  text-align: center;
+  color: #3C3C3C;
+  margin: 0;
+}
+
+.es-reschedule-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.es-btn-general-reschedule {
+  height: 38px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform .14s, box-shadow .14s, filter .14s;
+  border: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.es-btn-general-reschedule:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.074);
+}
+
+.es-btn--reschedule {
+  padding: 0px;
+  background-color: #D9C9FF;
+  color: #7C3AED;
+  box-shadow: none;
+  width: 105px;
+  font-family: Open Sauce Two;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -2%;
+  text-align: center;
+}
+
+.es-btn--reschedule:hover {
+  background-color: #CBB6FF;
+}
+
+.es-btn--exit {
+  background-color: #FEE2E2;
+  color: #EF4444;
+  box-shadow: none;
+  width: 105px;
+  font-family: Open Sauce Two;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: -2%;
+}
+
+.es-btn--exit:hover {
+  background-color: #FECACA;
+}
+
+.es-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(124, 58, 237, 0.1);
+  border-left-color: #7c3aed;
+  border-radius: 50%;
+  animation: es-spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes es-spin {
+  to { transform: rotate(360deg); }
+}
+
+.es-subtext {
+  font-size: 14px;
+  color: #64748b;
+  margin-top: 8px;
+}

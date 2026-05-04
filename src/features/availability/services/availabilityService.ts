@@ -1,5 +1,5 @@
 // Importación de la API y la ruta de disponibilidad
-const API_URL = import.meta.env.API_URL;
+const API_URL = (import.meta.env.API_URL ?? '').replace(/\/$/, '');
 const AVAILABILITY_PATH = '/availability';
 
 //===============================================================
@@ -16,21 +16,46 @@ export type SlotStatus = 'AVAILABLE' | 'BOOKED';
 //===============================================================
 // Interfaces
 //===============================================================
+export interface RawSlot {
+  slotId: string;
+  dayOfWeek: string;
+  dayOfWeekNumber: number;
+  startTime: string;
+  endTime: string;
+  modality: string;
+  duration: number;
+  isAvailable: boolean;
+}
+
+export interface TutorAvailabilityResponse {
+  tutorId: string;
+  tutorName: string;
+  weekReference: string; // "yyyy-mm-dd" — lunes de la semana consultada
+  totalSlots: number;
+  availableSlots: RawSlot[];
+  groupedByDay: Record<string, RawSlot[]>;
+}
+
 export interface Slot {
-    id: string;
-    dayOfWeek: DayOfWeek;
-    startTime: string;
-    modality: Modality;
-    endTime?: string;
-    location?: string;
-    platform?: string;
-    isBooked?: boolean;
+  id: string;
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  modality: Modality | null;
+  endTime?: string;
+  location?: string;
+  platform?: string;
+  isBooked?: boolean;
+  tutorIds?: string[];
+  subject?: string;
+  subjectId?: string;
+  weekReference?: string;
 }
 
 export interface GetAvailabilityQueryDto {
     onlyAvailable?: boolean;
     onlyFuture?: boolean;
     modality?: Modality;
+    weekStart?: string;
 }
 
 export interface CreateSlotDto {
@@ -74,30 +99,33 @@ export interface ApiError {
     description: string;
 }
 
+export interface TutorAvailabilityPublic {
+    tutorId: string;
+    tutorName: string;
+    totalSlots: number;
+    availableSlots: Slot[];
+    groupedByDay: Record<DayOfWeek, Slot[]>;
+}
+
+export interface TutorProfile {
+    id: string;
+    name: string;
+    email: string;
+    maxWeeklyHours: number;
+}
+
 //===============================================================
 // Funciones
 //===============================================================
 
-/**
- * Obtiene el JWT desde las cookies del navegador
- */
-function getToken(): string | null {
-    if (typeof document === 'undefined') return null;
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; access_token=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-    return null;
-}
 
 /**
- * Construye los headers para los endpoint protegidos. 
+ * Construye los headers para los endpoints protegidos. 
  * Incluye el JWT en el header Authorization.
- * Lanza el error si no se encuentra el JWT.
  */
-function buildAuthHeaders(): HeadersInit {
-    const token = getToken();
+function buildAuthHeaders(token?: string): HeadersInit {
     if (!token) {
-        throw new Error('AUTH_05: No hay token de sesión. Por favor inicia sesión.')
+        throw new Error('AUTH_05: No hay token de sesión. Pásalo explícitamente desde la ruta de Astro.')
     }
 
     return {
@@ -115,12 +143,20 @@ async function handleResponse<T>(response: Response): Promise<T> {
         return response.json() as Promise<T>;
     }
 
-    const errorBody: ApiError = await response.json().catch(() => ({
-        code: 'INTERNAL_01',
-        httpStatus: response.status,
-        message: 'Error interno del servidor',
-        description: 'Error al procesar la respuesta del servidor'
-    }));
+    const rawBody = await response.json().catch(() => null);
+
+    // Normalise to ApiError regardless of backend error format
+    // (NestJS default: { statusCode, message } vs custom: { code, httpStatus, message, description })
+    const errorBody: ApiError = {
+        code: rawBody?.code ?? 'INTERNAL_01',
+        httpStatus: rawBody?.httpStatus ?? String(rawBody?.statusCode ?? response.status),
+        message: rawBody?.message ?? 'Error interno del servidor',
+        description: rawBody?.description ?? 'Error al procesar la respuesta del servidor',
+    };
+
+    if (typeof window === 'undefined') {
+        console.error(`[API Error] ${response.status} ${response.url}:`, rawBody ?? '(no body)');
+    }
 
     throw errorBody;
 }
@@ -157,7 +193,9 @@ export async function getTutorSlots(
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`, {
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`;
+
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -215,11 +253,14 @@ export async function getTutorSlots(
  * - PERMISSION_01 (403): El usuario no tiene el rol de tutor.
  */
 export async function manageSlot(
-    dto: ManageSlotDto
+    dto: ManageSlotDto,
+    token?: string
 ): Promise<SlotResponse> {
-    const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders(token);
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutor/slots`, {
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutor/slots`;
+
+    const response = await fetch(url, {
         method: 'POST',
         headers,
         body: JSON.stringify(dto),
@@ -240,11 +281,14 @@ export async function manageSlot(
  * - PERMISSION_01 (403): El usuario no tiene rol de tutor.
  */
 export async function setWeeklyLimit(
-    maxHours: number
+    maxHours: number,
+    token?: string
 ): Promise<void> {
-    const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders(token);
 
-    const response = await fetch(`${API_URL}${AVAILABILITY_PATH}/tutor/limits`, {
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutor/limits`;
+
+    const response = await fetch(url, {
         method: 'PUT',
         headers,
         body: JSON.stringify({ maxHours }),
@@ -264,16 +308,18 @@ export async function setWeeklyLimit(
  * - AUTH_05 (401): Token no proporcionado
  * - PERMISSION_01 (403): El usuario no tiene rol de tutor
  */
-export async function getTutorWorkload(): Promise<{
+export async function getTutorWorkload(token?: string): Promise<{
     totalAvailableHours: number;
     scheduledHours: number;
     remainingHours: number;
     limitReachedPercentage: number;
 }> {
-    const headers = buildAuthHeaders();
+    const headers = buildAuthHeaders(token);
+
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutor/workload`;
 
     const response = await fetch(
-        `${API_URL}${AVAILABILITY_PATH}/tutor/workload`,
+        url,
         {
             method: 'POST',
             headers,
@@ -281,4 +327,138 @@ export async function getTutorWorkload(): Promise<{
     );
 
     return handleResponse(response);
+}
+
+/**
+ * GET /api/v1/availability/tutor/me
+ * Consulta la disponibilidad propia del tutor.
+ * Rol requerido: Tutor
+ */
+export async function getMyAvailability(token?: string): Promise<TutorAvailabilityPublic> {
+    const headers = buildAuthHeaders(token);
+
+    const url = `${API_URL}${AVAILABILITY_PATH}/tutors/me`;
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers,
+    });
+
+    return handleResponse<TutorAvailabilityPublic>(response);
+}
+
+/**
+ * GET /api/v1/tutors/profile
+ * Obtiene el perfil propio del tutor autenticado.
+ */
+export async function getOwnTutorProfile(token?: string): Promise<TutorProfile> {
+    const headers = buildAuthHeaders(token);
+
+    const url = `${API_URL}/tutors/profile`;
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers,
+    });
+
+    return handleResponse<TutorProfile>(response);
+}
+
+export async function getAllTutorsSSR(token: string): Promise<{ tutorId: string; tutorName: string; modalities: Modality[] }[]> {
+  const response = await fetch(
+    `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots`,
+    { method: "GET", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } }
+  );
+  const result = await handleResponse<any>(response);
+  const tutors: any[] = Array.isArray(result) ? result : (result.data ?? []);
+  return tutors.map((t: any) => ({
+    tutorId: t.tutorId,
+    tutorName: t.tutorName,
+    modalities: t.modalities ?? [],
+  }));
+}
+
+export async function getAllTutorSlotsSSR(
+  query?: GetAvailabilityQueryDto,
+  token?: string
+): Promise<Slot[]> {
+  const tutors = await getAllTutorsSSR(token ?? '');
+
+  const params = new URLSearchParams();
+    if (query?.onlyAvailable !== undefined)
+    params.append("onlyAvailable", query.onlyAvailable.toString());
+    if (query?.onlyFuture !== undefined)
+    params.append("onlyFuture", query.onlyFuture.toString());
+    if (query?.modality !== undefined)
+    params.append("modality", query.modality);
+    if (query?.weekStart !== undefined)
+    params.append("weekStart", query.weekStart); // ← nombre correcto
+    const queryString = params.toString() ? `?${params.toString()}` : "";
+
+  const dayMap: Record<string, DayOfWeek> = {
+    MONDAY: "LUNES", TUESDAY: "MARTES", WEDNESDAY: "MIERCOLES",
+    THURSDAY: "JUEVES", FRIDAY: "VIERNES", SATURDAY: "SABADO",
+  };
+
+  const allSlotsNested = await Promise.all(
+    tutors.map(async (tutor) => {
+      const authHeaders: HeadersInit = {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+      };
+
+      const [slotsResponse, tutorResponse] = await Promise.all([
+        fetch(
+          `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/${tutor.tutorId}/slots${queryString}`,
+          { method: "GET", headers: authHeaders }
+        ),
+        fetch(
+          `${import.meta.env.API_URL}/tutors/${tutor.tutorId}`,
+          { method: "GET", headers: authHeaders }
+        ),
+      ]);
+
+      const slotsResult = await handleResponse<TutorAvailabilityResponse>(slotsResponse);
+      const tutorInfo = await handleResponse<any>(tutorResponse);
+
+      // weekReference viene del backend — sirve como ancla de semana para estos slots
+      const weekReference: string =
+        slotsResult.weekReference ?? "";
+
+      // Extraer slots del groupedByDay (incluye disponibles e no disponibles)
+      let rawSlots: RawSlot[] = [];
+      if (slotsResult.groupedByDay) {
+        Object.values(slotsResult.groupedByDay).forEach((s) =>
+          rawSlots.push(...s)
+        );
+      } else {
+        rawSlots =
+          slotsResult.availableSlots ??
+          (Array.isArray(slotsResult) ? (slotsResult as any) : []);
+      }
+
+
+      const subjects: { id: string; name: string }[] =
+        tutorInfo.subjects ?? [];
+      
+      const mapped = rawSlots.flatMap((s) =>
+        subjects.map((subject) => ({
+          id: s.slotId,
+          dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] ?? s.dayOfWeek,
+          startTime: s.startTime?.substring(0, 5),
+          endTime: s.endTime?.substring(0, 5),
+          modality: (s.modality as Modality) ?? null,
+          isBooked: s.isAvailable === false,
+          tutorIds: [tutor.tutorId],
+          subject: subject.name,
+          subjectId: subject.id,
+          weekReference: slotsResult.weekReference,
+        }))
+      );
+
+      return mapped;
+    })
+  );
+    const flat = allSlotsNested.flat();
+    return flat;
 }

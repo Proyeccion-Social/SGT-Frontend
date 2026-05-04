@@ -1,0 +1,106 @@
+/* ============================================================
+   HoursLimit — tutor weekly hours card
+   prefix: hl-
+   ============================================================ */
+
+.hl-card {
+  flex: 1;
+  border-radius: 16px;
+  background: var(--neutral-blanco);
+  border: 1px solid var(--primary-50);
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 32px 20px;
+}
+
+/* ── Title ───────────────────────────────────────────────── */
+.hl-title {
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 32px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: #1A1A1A;
+}
+
+/* "Límite de horas" with resaltado.svg overlaid beneath */
+.hl-highlight {
+  position: relative;
+  display: inline-block;
+}
+
+.hl-resaltado {
+  position: absolute;
+  bottom: 2px;
+  left: -1px;
+  width: calc(100% + 8px);
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hl-highlight-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Description ─────────────────────────────────────────── */
+.hl-description {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  letter-spacing: -0.02em;
+  color: #1A1A1A;
+  width: 70%;
+  margin-bottom: 8px;
+}
+
+/* ── Number input ────────────────────────────────────────── */
+.hl-input-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.hl-input {
+  width: 120px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--neutral-700);
+  outline: none;
+  padding: 0 12px;
+  transition: border-color 0.15s ease;
+  background: var(--neutral-blanco);
+}
+
+.hl-input:focus {
+  border-color: var(--primary-300);
+}
+
+.hl-input::-webkit-inner-spin-button,
+.hl-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+.hl-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── Half in / half out action ───────────────────────────── */
+.hl-actions {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+}

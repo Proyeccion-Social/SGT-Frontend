@@ -2,17 +2,22 @@ import type { Slot } from "@/features/availability/services/availabilityService"
 import { HOUR_START, HOUR_HEIGHT } from "./calendarConstants";
 
 export function getWeekDates(base: Date): Record<string, Date> {
-    const dayOfWeek = base.getDay() || 7;
-    const monday = new Date(base);
-    monday.setDate(base.getDate() - (dayOfWeek - 1));
-    const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
-    const result: Record<string, Date> = {};
-    keys.forEach((key, i) => {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + i);
-        result[key] = d;
-    });
-    return result;
+  const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
+
+  // Calcular el lunes real de la semana de base
+  const currentDay = base.getDay() === 0 ? 6 : base.getDay(); // 1=Lunes...6=Sábado
+  const monday = new Date(base);
+  monday.setDate(base.getDate() - (currentDay - 1));
+  monday.setHours(0, 0, 0, 0);
+
+  const result: Record<string, Date> = {};
+  keys.forEach((key, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    result[key] = d;
+  });
+
+  return result;
 }
 
 export function isSlotInPast(slot: Slot, weekDates: Record<string, Date>): boolean {
@@ -59,6 +64,74 @@ export function getSlotStyle(slot: Slot): string {
     const top = ((startMin - calStartMin) / 60) * HOUR_HEIGHT;
     const height = ((endMin - startMin) / 60) * HOUR_HEIGHT;
     return `top: ${top}px; height: ${height}px;`;
+}
+
+export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
+  const daySlots = slots.filter(
+    (s) => s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase()
+  );
+
+  if (daySlots.length === 0) return [];
+
+  daySlots.sort(
+    (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime)
+  );
+
+  // Agrupar por franja horaria (misma startTime y endTime)
+  const timeGroups: Record<string, Slot[]> = {};
+  daySlots.forEach((slot) => {
+    const key = `${slot.startTime}-${slot.endTime}`;
+    if (!timeGroups[key]) timeGroups[key] = [];
+    timeGroups[key].push(slot);
+  });
+
+  // Convertir grupos a bloques unificados
+  const parallelMerged = Object.values(timeGroups).map((group) => {
+    const allTutorIds = [...new Set(group.flatMap((s) => (s as any).tutorIds || []))];
+    const allIds = group.map((s) => s.id);
+
+    return {
+      ...group[0],
+      groupedIds: allIds,
+      originalSlots: group,
+      tutorIds: allTutorIds,
+      tutorCount: allTutorIds.length,
+    };
+  });
+
+  // Ahora aplicar merge contiguo sobre los bloques paralelos ya unificados
+  parallelMerged.sort(
+    (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime)
+  );
+
+  const grouped = [];
+  let current = { ...parallelMerged[0] };
+  let currentEnd = timeToMinutes(current.endTime || "");
+
+  for (let i = 1; i < parallelMerged.length; i++) {
+    const next = parallelMerged[i];
+    const nextStart = timeToMinutes(next.startTime);
+    const nextEnd = timeToMinutes(next.endTime || "");
+    const isContiguous = currentEnd === nextStart;
+    const isSameStatus = current.isBooked === next.isBooked;
+
+    if (isContiguous && isSameStatus) {
+      currentEnd = nextEnd;
+      const h = Math.floor(currentEnd / 60).toString().padStart(2, "0");
+      const m = (currentEnd % 60).toString().padStart(2, "0");
+      current.endTime = `${h}:${m}`;
+      current.groupedIds = [...current.groupedIds, ...next.groupedIds];
+      current.originalSlots = [...current.originalSlots, ...next.originalSlots];
+      current.tutorIds = [...new Set([...current.tutorIds, ...next.tutorIds])];
+      current.tutorCount = current.tutorIds.length;
+    } else {
+      grouped.push(current);
+      current = { ...next };
+      currentEnd = nextEnd;
+    }
+  }
+  grouped.push(current);
+  return grouped;
 }
 
 export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {

@@ -40,17 +40,6 @@ import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
         title='Gestionar tutores'
       />
     </div>
-
-    <div class='user-header'>
-      <button class='role-change-button'
-        ><Image
-          src={RoleChangeIcon}
-          alt='Change Role'
-          class='role-change-img'
-        /></button
-      >
-      <button class='avatar'><Image src={UserIcon} alt='User' /></button>
-    </div>
   </div>
 </main>
 
@@ -66,64 +55,39 @@ import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    border-radius: 16px;
+    border-radius: 32px 0 0 32px;
+    border: 1px solid var(--neutral-200);
     overflow-y: auto;
     align-items: center;
     justify-content: center;
+    padding-top: 72px;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  @media (max-width: 768px) {
+    .dashboard-content {
+      border-radius: 0;
+      justify-content: flex-start;
+      padding-top: 8rem; /* Extra space for fixed header */
+    }
+
+    .buttons {
+      flex-direction: column;
+      width: 100%;
+      padding: 0 2rem;
+      margin-bottom: 2rem;
+    }
   }
 
   .welcome-banner-slot {
     min-height: 72px;
   }
 
-  .welcome-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    font-size: 60px;
-    font-weight: bold;
-    color: #3c3c3c;
-  }
-
-  p {
-    font-size: 60px;
-    font-weight: bold;
-    color: #3c3c3c;
-  }
-
-  .user-header {
-    position: absolute;
-    top: 63px;
-    right: 70px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .color-change-button {
-    background-color: #f5f1ff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 29px;
-    height: 29px;
-  }
-
-  .avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
   .buttons {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 24px;
     margin-top: 40px;
   }

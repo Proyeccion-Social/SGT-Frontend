@@ -121,7 +121,7 @@ export default function VaulDrawer() {
                 payload = {
                     subject_ids: cleanIds, // Tutor espera snake_case
                     phone: submitData.phone,
-                    max_weekly_hours: submitData.max_weekly_hours
+                    max_weekly_hours: Math.round(Number(submitData.max_weekly_hours) || 8),
                 };
             }
             

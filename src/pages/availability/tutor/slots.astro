@@ -2,6 +2,7 @@
 export const prerender = false;
 import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
 import CalendarSlots from "@/layouts/availability/CalendarSlots.astro";
+import { UserRole } from "@/constants/roles";
 
 const token = Astro.cookies.get("access_token")?.value;
 
@@ -10,6 +11,6 @@ if (!token) {
 }
 ---
 
-<DashboardLayout title='Tu Disponibilidad' rol='tutor'>
+<DashboardLayout title='Tu Disponibilidad' rol={UserRole.TUTOR}>
   <CalendarSlots token={token} />
 </DashboardLayout>

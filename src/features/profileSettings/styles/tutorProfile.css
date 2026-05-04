@@ -1,0 +1,184 @@
+/* ============================================================
+   Tutor Profile Dialog — shell
+   prefix: tp-
+   ============================================================ */
+
+/* ── Dialog ──────────────────────────────────────────────── */
+.tp-dialog {
+  width: 800px !important;
+  max-width: 800px !important;
+  height: 640px !important;
+  max-height: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  overflow: visible !important;
+  border-radius: 20px !important;
+}
+
+.tp-dialog > *:not(.ps-close-btn) {
+  overflow: hidden;
+}
+
+/* ── Body — BasicInformation + content panel ─────────────── */
+.tp-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  gap: 12px;
+  padding: 40px 60px;
+  overflow: visible;
+}
+
+/* ── Right panel (holds the active card) ─────────────────── */
+.tp-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: visible;
+}
+
+/* ── Shared outline button (white bg, #B797FF border+text) ── */
+.tp-btn {
+  height: 38px;
+  padding: 4px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--primary-300);
+  background: var(--neutral-blanco);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  font-family: "Cabinet Grotesk Variable";
+  font-style: normal;
+  font-weight: 700;
+  line-height: 20px;
+  letter-spacing: -0.02em;
+  color: #b797ff;
+}
+
+.tp-btn-guardar {
+  background-color: var(--primary-400);
+  border-color: var(--primary-400);
+  color: var(--neutral-blanco);
+}
+
+.tp-btn:hover:not(:disabled) {
+  background: var(--primary-50);
+}
+
+.tp-btn-guardar:hover:not(:disabled) {
+  background-color: var(--primary-300);
+  border-color: var(--primary-300);
+  color: var(--neutral-blanco);
+}
+
+.tp-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ── Bottom navigation bar ───────────────────────────────── */
+.tp-bottom {
+  height: 60px;
+  flex-shrink: 0;
+  background-color: rgba(245, 240, 255, 0.92);
+  border-top: 1px solid var(--color-violeta-100);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tp-bottom-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Icon buttons with solid bg (calendario #9F74FF, activacion #9ACC5B) */
+.tp-nav-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.15s ease;
+  outline: none;
+}
+
+.tp-nav-icon-btn--calendar {
+  background-color: var(--primary-400);
+}
+.tp-nav-icon-btn--activacion {
+  background-color: var(--secondary-500);
+}
+.tp-nav-icon-btn--inactive {
+  background-color: var(--error-400);
+}
+
+.tp-nav-icon-btn:hover {
+  opacity: 0.85;
+}
+.tp-nav-icon-btn:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+.tp-nav-icon-btn.tp-nav-active {
+  outline: 2px solid rgba(0, 0, 0, 0.18);
+  outline-offset: 1px;
+}
+
+.tp-nav-icon-btn--activacion img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.tp-nav-icon-btn--calendar img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+/* Raw icon nav buttons (settings, horas) */
+.tp-nav-raw {
+  width: auto;
+  height: auto;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: opacity 0.15s ease;
+  outline: none;
+}
+
+.tp-nav-raw:hover:not(.tp-nav-active) {
+  opacity: 0.6;
+}
+.tp-nav-raw.tp-nav-active {
+  opacity: 0.45;
+}
+.tp-nav-raw:focus-visible {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}
+
+.tp-nav-raw img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}

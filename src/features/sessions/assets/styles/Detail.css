@@ -1,0 +1,129 @@
+/* DetailsStep.css */
+
+/* ── Encabezado ── */
+.details-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 64px;
+  letter-spacing: -0.02em;
+}
+
+.details-title__highlight {
+  position: relative;
+  display: inline-block;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.details-title__highlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../../assets/resaltado-informacion.svg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  z-index: -1;
+}
+
+.details-subtitle {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0 0 32px;
+  letter-spacing: -0.02em;
+}
+
+/* ── Contenedor principal ── */
+.details-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 32px;
+  background: #fafafa;
+}
+
+/* ── Grupo de campo (tema / descripción) ── */
+.details-field {
+  margin-bottom: 28px;
+}
+
+.details-field:last-of-type {
+  margin-bottom: 0;
+}
+
+.details-field__label {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.details-field__hint {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 12px;
+}
+
+/* ── Inputs compartidos ── */
+.details-field__input,
+.details-field__textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.details-field__textarea {
+  resize: none;
+}
+
+/* ── Estados de error en inputs ── */
+.details-field__input--error,
+.details-field__textarea--error {
+  border-color: #f87171;
+}
+
+/* ── Footer de campo: error + contador ── */
+.details-field__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+.details-field__error {
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.details-field__counter {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-left: auto;
+}
+
+/* ── Pie con botón de continuar ── */
+.details-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.details-footer__continue-btn {
+  background: #c4b5fd;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.details-footer__continue-btn--active {
+  background: #7c3aed;
+  cursor: pointer;
+}

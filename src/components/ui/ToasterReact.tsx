@@ -1,8 +1,12 @@
 import { Toaster } from "sileo";
 
-export default function ToasterReact() {
+interface Props {
+    isLocal?: boolean;
+}
+
+export default function ToasterReact({ isLocal }: Props) {
     return (
-        <div style={{position: "relative", zIndex: 9999999}}>
+        <div className={isLocal ? "local-toaster-wrapper" : ""}>
             <Toaster position="top-center" options={{
                 styles: {title: "#ffffff", description: "#ffffff", badge: "#ffffff" }
             }}/>

@@ -1,9 +1,17 @@
+import { useEffect } from "react";
 import "../styles/Finish.css";
 import { Button } from "@/components/ui/button";
 import marked from "../assets/marked.svg"
 import arrow from "../assets/arrowContinuar.svg"
 
 export default function Finish({ onNext, userName }: { onNext: () => void; userName?: string }) {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onNext();
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [onNext]);
+
     return (
         <>
             <div className="drawer-body finish-body">

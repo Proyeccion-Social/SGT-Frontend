@@ -1,11 +1,10 @@
-export type Modality = 'VIRT' | 'PRES';
-
-export type SessionType = 'INDIVIDUAL' | 'COLLABORATIVE';
+export type Modality = 'VIRT' | 'PRES' | "";
 
 export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
   | 'CONFIRMED'
   | 'COMPLETED'
+  | 'SCHEDULED'
   | 'CANCELLED';
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
@@ -14,7 +13,7 @@ export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
 export interface SessionTutor {
   id: string;        
   name: string;
-  photo: string;     // URL
+  photo?: string;     // URL
 }
 
 export interface SessionSubject {
@@ -26,27 +25,42 @@ export interface SessionParticipant {
   id: string;        
   name: string;
   status: ParticipantStatus;
+  role: string;
 }
 
 // ─── Entidad principal Session ───────────────────────────────
 
+export interface ModificationRequest {
+  id: string;
+  newModality?: Modality;
+  newDurationHours?: number;
+  newScheduledDate?: string;
+  newStartTime?: string;
+  newEndTime?: string;
+  proposedBy?: string;
+  status: string;
+  createdAt?: string;
+}
+
 export interface Session {
-  id: string;                      
-  tutor: SessionTutor;               
-  subject: SessionSubject;           
+  id: string;
+  tutor: SessionTutor;
+  subject: SessionSubject;
   scheduledDate: string;             // "YYYY-MM-DD"
   startTime: string;                 // "HH:mm:ss"
   endTime: string;                   // "HH:mm:ss"
-  duration: number;                  // en horas
-  type: SessionType;
+  duration: number;
   modality: Modality;
   status: SessionStatus;
   title: string;
   description: string;
   participants: SessionParticipant[];
-  createdAt: string;                 // ISO date-time
+  createdAt: string;
+  location: string;
+  virtualLink: string;            // ISO date-time
   cancelledAt: string | null;
   cancellationReason: string | null;
+  pendingModification?: ModificationRequest;
 }
 
 export type EvaluationAspect =
@@ -55,7 +69,8 @@ export type EvaluationAspect =
   | 'PUNCTUALITY'
   | 'KNOWLEDGE'
   | 'USEFULNESS';
-export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'NO_SHOW';
+
+export type AttendanceStatus = 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
 // ─── Asistencia (RF34) ───────────────────────────────────────
 
@@ -67,6 +82,16 @@ export interface AttendanceRecord {
 
 export interface RegisterAttendanceDTO {
   attendances: AttendanceRecord[];
+  tutorId?: string;
+}
+
+export interface CompleteSessionBody {
+  tutorId: string;
+}
+
+export interface CompleteSessionResult {
+  success: boolean;
+  message: string;
 }
 
 export interface AttendanceResponse {
@@ -226,22 +251,25 @@ export interface AvailabilityQuery {
 }
 
 export interface AvailabilitySlot {
-  start: string;
-  end: string;
-  availability: boolean;
+  id: string;
+  date: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  available: boolean;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────
 
 export interface CreateSessionDTO {
   tutorId: string;
-  date: string;
-  duration: number;
+  availabilityId: number;
+  scheduledDate : string;
   title: string;
   description: string;
-  modalidad: Modality;
-  type?: SessionType;
+  modality: Modality;
   subjectId?: string;
+  durationHours: number;
 }
 
 // ─── Errores del API ─────────────────────────────────────────
@@ -262,4 +290,72 @@ export interface ApiError {
   errorCode: ApiErrorCode;
   message: string;
   errors?: Array<{ field: string; message: string }>;
+}
+
+export interface TutorInfo {
+  id: string;
+  name: string;
+  photo: string;
+  subjects: Array<{ id: string; name: string }>;
+}
+
+export interface CancelSessionResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ModifySessionBody {
+  newScheduledDate?: string;    // ISO date string
+  newAvailabilityID?: string;   // ID del slot de disponibilidad del tutor
+  newModality?: string;
+  newDurationHours?: number;
+}
+
+export interface EditSessionBody {
+  title: string;
+  description: string;
+  virtualLink?: string;           // T002 — Q4 confirmed
+  location?: string;   
+}
+
+// Controls which sub-view is rendered inside SessionDetailModal
+export type ModalView = 'detail' | 'propose' | 'edit' | 'reject';
+
+export interface ConfirmSessionBody {
+  message?: string;
+}
+
+export interface ConfirmSessionResult {
+  success: boolean;
+  message: string;
+  autoRejectedCount: number;
+  session: {
+    id: string;
+    status: string;
+    tutorConfirmed: boolean;
+    tutorConfirmedAt: string;
+    scheduledDate: string;
+    startTime: string;
+    endTime: string;
+    participants: Array<{ id: string; name: string; status: string }>;
+  };
+}
+
+export interface RejectSessionBody {
+  reason: string;
+}
+
+export interface RejectSessionResult {
+  success: boolean;
+  message: string;
+}
+
+export interface AcceptModificationResult {
+  success: boolean;
+  message: string;
+}
+
+export interface RejectModificationResult {
+  success: boolean;
+  message: string;
 }

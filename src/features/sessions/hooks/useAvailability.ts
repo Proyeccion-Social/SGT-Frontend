@@ -1,38 +1,45 @@
-import { useState, useCallback } from 'react';
-import { getAvailability } from '../services/sessionService';
+import { useState, useEffect } from 'react';
 import type { AvailabilitySlot, AvailabilityQuery } from '../types/session.types';
 
-interface UseAvailabilityReturn {
-  slots: AvailabilitySlot[];
-  loading: boolean;
-  error: string | null;
-  fetchAvailability: (query: AvailabilityQuery) => Promise<void>;
-  reset: () => void;
-}
-
-export function useAvailability(): UseAvailabilityReturn {
-  const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
+export function useTutorSlots(tutorId: string | null) {
+  const [slots, setSlots]     = useState<AvailabilitySlot[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
 
-  const fetchAvailability = useCallback(async (query: AvailabilityQuery) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAvailability(query);
-      setSlots(data);
-    } catch (e: any) {
-      setError(e.message);
-      setSlots([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  useEffect(() => {
+    if (!tutorId) return;
 
-  const reset = useCallback(() => {
-    setSlots([]);
-    setError(null);
-  }, []);
+    const fetchSlots = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/availability/tutor-availability?tutorId=${tutorId}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+        const data = await res.json();
 
-  return { slots, loading, error, fetchAvailability, reset };
+
+        const mapped: AvailabilitySlot[] = data.slots.map((s: Record<string, unknown>) => ({
+          id: String(s.id ?? ''),
+          date: String(s.date ?? ''),
+          dayOfWeek: String(s.dayOfWeek ?? ''),
+          startTime: String(s.startTime ?? ''),
+          endTime: String(s.endTime ?? ''),
+          available: s.isBooked === false,
+        }));
+        setSlots(mapped);
+      } catch (err) {
+        console.error('[useTutorSlots] error:', err);
+        setError(err instanceof Error ? err.message : 'Error fetching slots');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSlots();
+  }, [tutorId]);
+
+  return { slots, loading, error };
 }

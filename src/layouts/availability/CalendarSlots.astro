@@ -5,7 +5,6 @@ import { Image } from "astro:assets";
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
 import type { Slot } from "@/features/availability/services/availabilityService";
 
-import UserHeader from "@/features/general/components/UserHeader.astro";
 import Calendar from "@/features/availability/components/Calendar.astro";
 import RightCalendarMenu from "@/features/availability/components/RightCalendarMenu.astro";
 
@@ -39,7 +38,6 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
       <button class='mes-btn' id='right-menu-toggle'
         >Mes <Image src={ArrowUpIcon} alt='Arrow Up' /></button
       >
-      <UserHeader userRole='tutor' />
     </div>
     <div class='legend'>
       <p>Franjas horarias disponibles de tu semana</p>
@@ -67,10 +65,12 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    border-radius: 16px;
     position: relative;
     justify-content: flex-start;
     overflow: hidden;
+    border-radius: 32px 0px 0px 32px;
+    border: 1px solid var(--neutral-200);
+    height: 100%;
   }
 
   .content-wrapper.no-scroll {

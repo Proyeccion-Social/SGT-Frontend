@@ -69,13 +69,14 @@ export const GET: APIRoute = async ({ url }) => {
           description: error.description,
         }),
         {
-          status: error.httpStatus,
+          status: parseInt(error.httpStatus, 10) || 500,
           headers: { "Content-Type": "application/json" },
         }
       );
     }
 
     // Error inesperado
+    console.error('[tutor-availability BFF] Unexpected error:', error);
     return new Response(
       JSON.stringify({
         code: "INTERNAL_01",

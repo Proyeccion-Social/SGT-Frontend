@@ -1,0 +1,24 @@
+---
+import Nav from "@/features/landing/components/Nav.astro";
+import Sign from "@/features/underConstruction/components/Sign.astro";
+---
+
+<div class="construction-page">
+  <Nav />
+  <Sign />
+</div>
+
+<style>
+  .construction-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      #cfb9ff 0%,
+      #ffffff 63.46%
+    );
+  }
+</style>

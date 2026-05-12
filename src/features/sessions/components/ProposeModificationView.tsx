@@ -15,8 +15,7 @@ export type SessionType = 'individual' | 'grupal' | '';
  
 export interface AvailabilitySlot {
   id: string;
-  label: string; // e.g. "Lunes 14:00 – 15:00 · Virtual"
-  modality?: string;
+  label: string; // e.g. "Lunes 14:00 – 15:00"
 }
  
 interface Props {
@@ -50,7 +49,7 @@ export const ProposeModificationForm = ({
     const body: ModifySessionBody = {
   ...(newModality      && { newModality }),
   ...(newDurationHours && { newDurationHours: Number(newDurationHours) }),
-  ...(newAvailabilityId && { newAvailabilityID: String(newAvailabilityId) }),
+  ...(newAvailabilityId && { newAvailabilityId: Number(newAvailabilityId) }),
 };
 
     const ok = await modificar(session.id, body);
@@ -130,13 +129,7 @@ export const ProposeModificationForm = ({
         <CustomSelect
           options={slotOptions}
           value={newAvailabilityId}
-          onChange={(v) => {
-            setNewAvailabilityId(v);
-            const slot = availabilitySlots.find((s) => s.id === v);
-            if (slot?.modality) {
-              setNewModality(slot.modality as Modality);
-            }
-          }}
+          onChange={setNewAvailabilityId}
           disabled={!slotsAvailable}
           hint={!slotsAvailable ? 'La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.' : undefined}
         />

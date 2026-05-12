@@ -28,7 +28,6 @@ export function useTutorSlots(tutorId: string | null) {
           startTime: String(s.startTime ?? ''),
           endTime: String(s.endTime ?? ''),
           available: s.isBooked === false,
-          modality: s.modality as AvailabilitySlot['modality'],
         }));
         setSlots(mapped);
       } catch (err) {

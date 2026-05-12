@@ -257,7 +257,6 @@ export interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   available: boolean;
-  modality?: Modality;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────

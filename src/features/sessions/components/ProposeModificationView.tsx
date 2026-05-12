@@ -6,7 +6,6 @@ import './styles/ProposeModificationView.css'
 import { useCallback, useEffect, useState } from 'react';
 import { sileo } from 'sileo';
 import type { Session, ModifySessionBody, Modality } from '../types/session.types';
-import { useSessionStore } from '@/store/sessionStore';
 import { CustomSelect } from './CustomSelect';
 import type { SelectOption } from './CustomSelect';
 
@@ -52,25 +51,20 @@ export const ProposeModificationForm = ({
   ...(newAvailabilityId && { newAvailabilityId: Number(newAvailabilityId) }),
 };
 
-    const ok = await modificar(session.id, body);
-
-    if (ok) {
-      sileo.action({
-        title: 'Modificación propuesta',
-        description: 'El tutor recibirá tu solicitud.',
-        fill: '#2ecc71',
-      });
-      onSuccess();
-    } else {
-      const errorMsg = useSessionStore.getState().error ?? 'Error al proponer la modificación';
-      sileo.action({
-        title: 'Error al proponer',
-        description: errorMsg,
-        fill: '#f35761',
-      });
-    }
-
-    onSubmittingChange?.(false);
+    await sileo.promise(
+      async () => {
+        const ok = await modificar(session.id, body);
+        if (!ok) throw new Error('No se pudo proponer la modificación.');
+        onSuccess();
+      },
+      {
+        loading: { title: 'Proponiendo modificación...' },
+        success: { title: 'Modificación propuesta',    description: 'El tutor recibirá tu solicitud.', fill: '#2ecc71' },
+        error:   { title: 'Error al proponer',          fill: '#f35761' },
+      }
+    ).finally(() => {
+      onSubmittingChange?.(false);
+    });
   }, [newModality, newDurationHours, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
 
   useEffect(() => {

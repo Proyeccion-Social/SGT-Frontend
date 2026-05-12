@@ -1,6 +1,5 @@
 import type { APIRoute } from 'astro';
 import { editSession } from '@features/sessions/services/sessionService';
-import { getErrorMessage } from '@/utils/errorMessages';
 
 export const PATCH: APIRoute = async ({ request, cookies }) => {
   try {
@@ -28,7 +27,7 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
   } catch (error: any) {
     console.error('[BFF] Error en edit-session:', error);
     return new Response(
-      JSON.stringify({ message: getErrorMessage(error.message) }),
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

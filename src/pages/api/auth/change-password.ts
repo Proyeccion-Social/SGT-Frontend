@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { changePassword } from "@/features/auth/services/authService";
-import { getErrorMessage } from "@/utils/errorMessages";
 
 export const prerender = false;
 
@@ -22,7 +21,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             status: 200,
         });
     } catch (error: any) {
-        return new Response(JSON.stringify({ message: getErrorMessage(error.message) ?? "Error al cambiar la contraseña" }), {
+        return new Response(JSON.stringify({ message: error.message ?? "Error al cambiar la contraseña" }), {
             status: 500,
         });
     }

@@ -3,7 +3,6 @@ import type { Session, CreateSessionDTO, Modality, ModifySessionBody, EditSessio
 import { useAuthStore } from '@/store/authStore';
 import { useSessionStore } from '@/store/sessionStore';
 import { UserRole } from '@/constants/roles';
-import { getErrorMessage } from '@/utils/errorMessages';
 
 interface UseSessionsReturn {
   sessions: Session[];
@@ -28,17 +27,14 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
     setError(null);
     try {
       const res = await fetch(`/api/sessions/my-sessions?role=${role.toLowerCase()}`);
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message ?? 'Error al obtener sesiones');
-      }
+      if (!res.ok) throw new Error('Error al obtener sesiones');
       const json = await res.json();
       const list: Session[] = Array.isArray(json) ? json : (json?.data ?? []);
       setSessions(list);
       setLastFetched(Date.now());
     } catch (err) {
       console.error('[useSession] error:', err);
-      setError(getErrorMessage(err instanceof Error ? err.message : null));
+      setError(err instanceof Error ? err.message : 'Error fetching sessions');
     } finally {
       setLoading(false);
     }
@@ -72,7 +68,7 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
         setSessions([...sessions, nueva]);
         return true;
       } catch (e: any) {
-        setError(getErrorMessage(e.message));
+        setError(e.message);
         return false;
       } finally {
         setLoading(false);
@@ -90,17 +86,14 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, reason }),
       });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body?.message ?? 'Error al cancelar sesión');
-      }
+      if (!res.ok) throw new Error('Error al cancelar sesión');
       setSessions(
         sessions.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
       );
       return true;
     } catch (err) {
       console.error('[useSession] cancelar error:', err);
-      setError(getErrorMessage(err instanceof Error ? err.message : null));
+      setError(err instanceof Error ? err.message : 'Error cancelling session');
       return false;
     } finally {
       setLoading(false);
@@ -117,14 +110,11 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, ...data }),
         });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? 'Error al proponer modificación');
-        }
+        if (!res.ok) throw new Error('Error al proponer modificación');
         return true;
       } catch (err) {
         console.error('[useSession] modificar error:', err);
-        setError(getErrorMessage(err instanceof Error ? err.message : null));
+        setError(err instanceof Error ? err.message : 'Error modifying session');
         return false;
       } finally {
         setLoading(false);
@@ -143,10 +133,7 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sessionId, ...data }),
         });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? 'Error al editar la sesión');
-        }
+        if (!res.ok) throw new Error('Error al editar la sesión');
         const result = await res.json();
         if (result.success) {
           setSessions(sessions.map(s => (s.id === sessionId ? { ...s, ...data } : s)));
@@ -155,7 +142,7 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
         return false;
       } catch (err) {
         console.error('[useSession] editar error:', err);
-        setError(getErrorMessage(err instanceof Error ? err.message : null));
+        setError(err instanceof Error ? err.message : 'Error editing session');
         return false;
       } finally {
         setLoading(false);

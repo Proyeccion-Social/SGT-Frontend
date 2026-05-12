@@ -61,13 +61,14 @@ export default function VaulDrawer() {
         career: user?.career || '',
     });
 
-    // Open drawer ONLY when explicitly triggered by email confirmation (via sessionStorage)
+    // Open drawer when profile completion is required
     useEffect(() => {
-        if (sessionStorage.getItem("openProfileDrawer") === "true") {
-            sessionStorage.removeItem("openProfileDrawer");
+        if (requiresProfileCompletion) {
+            setIsOpen(true);
+        } else if (isStudent && !user?.preferredModality) {
             setIsOpen(true);
         }
-    }, []);
+    }, [requiresProfileCompletion, user, isStudent]);
 
     useEffect(() => {
         const handlePageTransition = () => {

@@ -30,12 +30,23 @@ type DialogTarget = {
 
 export default function UserMenuDropdown() {
   const { user, clearUser } = useAuthStore();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTarget, setDialogTarget] = useState<DialogTarget>({ view: "general" });
 
   const [tutorDialogOpen, setTutorDialogOpen]     = useState(false);
   const [tutorView, setTutorView]                 = useState<TutorProfileDialogProps["initialView"]>("general");
   const [tutorGeneralMode, setTutorGeneralMode]   = useState<"info" | "password">("info");
+
+  async function handleTriggerClick(e: React.MouseEvent) {
+    e.preventDefault();
+    const res = await fetch("/api/auth/check-session");
+    if (!res.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
+    setDropdownOpen(true);
+  }
 
   const initials = user?.name
     ? user.name
@@ -80,9 +91,9 @@ export default function UserMenuDropdown() {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
-          <button className="umd-trigger" aria-label="Menú de usuario">
+          <button className="umd-trigger" aria-label="Menú de usuario" onClick={handleTriggerClick}>
             <span className="umd-trigger__initials">{initials}</span>
           </button>
         </DropdownMenuTrigger>

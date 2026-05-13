@@ -202,7 +202,12 @@ export default function SchedulingWizard({ slots }: Props) {
   };
 
   const handleSubmit = async (currentData: WizardData) => {
-  
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
+
   try {
     const dayMap: Record<string, number> = {
       LUNES: 1,

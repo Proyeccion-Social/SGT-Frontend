@@ -40,7 +40,14 @@ export function ProfileSettingsDialog({
     : "U";
 
   useEffect(() => {
-    if (open) setActiveView(initialView ?? "general");
+    if (!open) return;
+    fetch("/api/auth/check-session").then((check) => {
+      if (!check.ok) {
+        window.location.href = "/?session_expired=true";
+        return;
+      }
+      setActiveView(initialView ?? "general");
+    });
   }, [open, initialView]);
 
   return (

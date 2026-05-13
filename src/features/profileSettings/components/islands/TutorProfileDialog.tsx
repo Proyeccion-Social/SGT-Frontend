@@ -48,17 +48,27 @@ export function TutorProfileDialog({
     : "T";
 
   useEffect(() => {
-    if (open) {
-      setActiveView(initialView ?? "general");
+    if (!open) return;
+    setActiveView(initialView ?? "general");
+    fetch("/api/auth/check-session").then((check) => {
+      if (!check.ok) {
+        window.location.href = "/?session_expired=true";
+        return;
+      }
       fetch("/api/settings/tutor-profile")
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { setPhone(data?.phone ?? null); })
         .catch(() => { setPhone(null); });
-    }
+    });
   }, [open, initialView]);
 
   async function handleToggleActive() {
     if (toggling || !user) return;
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
     const next = !isActive;
     setToggling(true);
     await sileo

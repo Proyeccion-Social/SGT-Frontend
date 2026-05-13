@@ -10,16 +10,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     cookies.set("access_token", result.accessToken, {
       httpOnly: true,
+      secure: import.meta.env.PROD,
+      sameSite: "strict",
       path: "/",
-      maxAge: 60 * 15
+      maxAge: 60 * 60
     });
 
     cookies.set("refresh_token", result.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: import.meta.env.PROD,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7
+      maxAge: 60 * 60 * 24 * 30
     });
 
     const me = await fetchMe(result.accessToken);

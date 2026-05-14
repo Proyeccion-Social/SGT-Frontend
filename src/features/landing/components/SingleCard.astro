@@ -72,11 +72,14 @@ const { imgSrc, title, header, headerSubtitle, bg } = Astro.props;
 
     .cardImage {
         object-fit: cover;
+        height: 100%;
+        display: flex;
+        align-items: end;
     }
 
     .cardImage img {
         width: 100%;
-        height: 100%;
+        height: 95%;
         object-fit: cover;
     }
 

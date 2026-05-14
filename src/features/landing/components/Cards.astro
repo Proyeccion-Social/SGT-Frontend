@@ -1,5 +1,6 @@
 ---
-import Card from "./SingleCard.astro"
+import Card from "./SingleCard.astro";
+import GalleryCard from "./GalleryCard.astro";
 
 import bgCardBuscar from "../assets/imgs/BuscarCardBg.png";
 import imgCardBuscar from "../assets/imgs/ImageBuscar.png";
@@ -8,32 +9,42 @@ import bgCardAgendar from "../assets/imgs/AgendarCardBg.png";
 import imgCardAgendar from "../assets/imgs/ImageAgendar.png";
 
 import bgCardSesiones from "../assets/imgs/SesionesCardBg.png";
-import imgCardSesiones from "../assets/imgs/ImageAgendar.png";
+import sesionesImg1 from "../assets/imgs/Gallery1.png";
+import sesionesImg2 from "../assets/imgs/Gallery2.png";
+import sesionesImg3 from "../assets/imgs/Gallery3.png";
 ---
 
-<section class="cardSection">
-  <h2><span>Atlas</span> centraliza las tutorías de Proyección Social en un solo lugar</h2>
+<section class='cardSection'>
+  <h2>
+    <span>Atlas</span> centraliza las tutorías de Proyección Social en un solo lugar
+  </h2>
   <div>
     <Card
       imgSrc={imgCardAgendar}
-      title="Agendar"
-      header="Agendar"
-      headerSubtitle="Elige tu modalidad y horario. Tú decides cómo aprender"
+      title='Agendar'
+      header='Agendar'
+      headerSubtitle='Elige tu modalidad y horario. Tú decides cómo aprender'
       bg={bgCardAgendar}
     />
     <Card
       imgSrc={imgCardBuscar}
-      title="Buscar"
-      header="Buscar"
-      headerSubtitle="Encuentra expertos en las materias que necesitas"
+      title='Buscar'
+      header='Buscar'
+      headerSubtitle='Encuentra expertos en las materias que necesitas'
       bg={bgCardBuscar}
     />
 
-    <Card
-      imgSrc={imgCardSesiones}
-      title="Sesiones"
-      header="Sesiones"
-      headerSubtitle="Aprende en grupo y resuelve dudas junto a otros estudiantes"
+    <GalleryCard
+      images={[
+        sesionesImg3,
+        sesionesImg1,
+        sesionesImg3,
+        sesionesImg2,
+        sesionesImg1,
+      ]}
+      title='Sesiones'
+      header='Sesiones'
+      headerSubtitle='Aprende en grupo y resuelve dudas junto a otros estudiantes'
       bg={bgCardSesiones}
     />
   </div>
@@ -52,7 +63,7 @@ import imgCardSesiones from "../assets/imgs/ImageAgendar.png";
   }
 
   .cardSection h2 {
-    font-family: 'Open Sauce Two';
+    font-family: "Open Sauce Two";
     font-style: normal;
     font-weight: 700;
     font-size: 48px;
@@ -61,11 +72,10 @@ import imgCardSesiones from "../assets/imgs/ImageAgendar.png";
     letter-spacing: -0.02em;
     color: #1a1a1a;
     width: 798px;
-
   }
 
   .cardSection h2 span {
-    color: #8751FF;
+    color: #8751ff;
   }
 
   .cardSection div {
@@ -76,26 +86,23 @@ import imgCardSesiones from "../assets/imgs/ImageAgendar.png";
     justify-content: center;
   }
 
-  @media(width <= 810px) {
+  @media (width <= 810px) {
     .cardSection h2 {
       font-size: 40px;
       padding: 0px 20px;
       line-height: 40px;
-      width: auto; 
+      width: auto;
     }
 
     @media (width <= 768px) {
-
-     .cardSection h2 {
+      .cardSection h2 {
         font-size: 30px;
         line-height: 40px;
-
       }
       .cardSection {
-        padding: 0px  20px;
+        padding: 0px 20px;
       }
-  
     }
   }
-  
-</style> 
+</style>
+

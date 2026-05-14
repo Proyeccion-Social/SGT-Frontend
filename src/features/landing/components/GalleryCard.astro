@@ -1,0 +1,304 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  images: ImageMetadata[];
+  title: string;
+  header: string;
+  headerSubtitle: string;
+  bg: ImageMetadata;
+}
+
+const { images, title, header, headerSubtitle, bg } = Astro.props;
+---
+
+<article
+  class='cardContainer'
+  style={`background-image: url(${bg.src}); background-size: cover; background-position: center; background-repeat: no-repeat;`}
+>
+  <header class='cardHeader'>
+    <h4>{header}</h4>
+    <p>{headerSubtitle}</p>
+  </header>
+
+  <div class='deckWrapper'>
+    <div
+      class='deck'
+      id='galleryDeck'
+      role='button'
+      tabindex='0'
+      aria-label='Galería de sesiones'
+    >
+      {
+        images.map((img, i) => (
+          <div class='deckCard' data-index={i}>
+            <Image
+              src={img}
+              alt={`${title} - imagen ${i + 1}`}
+              draggable='false'
+            />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</article>
+
+<script>
+  const deck = document.getElementById("galleryDeck");
+  if (deck) {
+    const cards = Array.from(deck.querySelectorAll<HTMLElement>(".deckCard"));
+
+    // Symmetric fan: index 0 = back-left, index 4 = front center
+    const positions = [
+      { rotate: -13, x: -46, scale: 0.8 },
+      { rotate: -7, x: -26, scale: 0.87 },
+      { rotate: 7, x: 26, scale: 0.87 },
+      { rotate: 13, x: 46, scale: 0.8 },
+      { rotate: 0, x: 0, scale: 1.0 }, // front center
+    ];
+
+    const DURATION = 200;
+    const THRESHOLD = 70;
+    let isAnimating = false;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragX = 0;
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    type Pos = (typeof positions)[0];
+    function css(p: Pos) {
+      return `rotate(${p.rotate}deg) translateX(${p.x}px) scale(${p.scale})`;
+    }
+
+    // Apply resting stack positions. Snap if animate=false, transition if true.
+    function applyStack(animate = false) {
+      const ease = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1), opacity ${DURATION}ms ease`;
+      cards.forEach((card, i) => {
+        const isTop = i === cards.length - 1;
+        card.style.transition = animate ? ease : "none";
+        card.style.transform = css(positions[i]);
+        card.style.opacity = "1";
+        card.style.zIndex = String(i);
+        card.style.cursor = isTop ? "grab" : "default";
+        card.style.pointerEvents = isTop ? "auto" : "none";
+      });
+    }
+
+    // Dismiss the front card.
+    // Strategy: front card fades out where it is (no z-index crossing), others
+    // shift forward simultaneously. Then, while invisible, front card snaps to
+    // back-of-stack and fades back in. Clean — no z-index glitch.
+    function commitDismiss() {
+      if (isAnimating) return;
+      isAnimating = true;
+      isDragging = false;
+
+      const n = cards.length - 1;
+      const top = cards[n];
+      const moveEase = `transform ${DURATION}ms cubic-bezier(0.4,0,0.2,1)`;
+      const fadeEase = `opacity ${DURATION}ms ease`;
+
+      // Fade out front card from wherever it currently is (drag pos or center)
+      top.style.transition = fadeEase;
+      top.style.opacity = "0";
+      top.style.pointerEvents = "none";
+      top.style.cursor = "default";
+
+      // Remaining cards shift forward one slot simultaneously
+      for (let i = 0; i < n; i++) {
+        cards[i].style.transition = moveEase;
+        cards[i].style.transform = css(positions[i + 1]);
+      }
+
+      // After fade: silently move dismissed card to back-of-stack, then fade in
+      setTimeout(() => {
+        deck.prepend(top);
+        cards.unshift(cards.pop()!);
+
+        // Snap to back position while still invisible — no visual jump
+        top.style.transition = "none";
+        top.style.transform = css(positions[0]);
+        top.style.zIndex = "0";
+
+        // Sync all z-indices (DOM order already correct, just refreshing)
+        cards.forEach((card, i) => {
+          card.style.zIndex = String(i);
+          const isTopNow = i === cards.length - 1;
+          card.style.cursor = isTopNow ? "grab" : "default";
+          card.style.pointerEvents = isTopNow ? "auto" : "none";
+        });
+
+        // Force reflow so transition fires
+        void top.offsetWidth;
+
+        // Fade in at back position
+        top.style.transition = `opacity ${Math.round(DURATION * 0.6)}ms ease`;
+        top.style.opacity = "1";
+
+        setTimeout(
+          () => {
+            cards.forEach((c) => (c.style.transition = "none"));
+            isAnimating = false;
+          },
+          DURATION * 0.6 + 40,
+        );
+      }, DURATION + 30);
+    }
+
+    // During drag: front card follows finger, others lerp toward next positions.
+    // Releasing past 40% threshold commits; below threshold snaps back.
+    deck.addEventListener("dragstart", (e) => e.preventDefault());
+
+    deck.addEventListener("pointerdown", (e: PointerEvent) => {
+      const hit = (e.target as HTMLElement).closest<HTMLElement>(".deckCard");
+      if (!hit || hit !== cards[cards.length - 1] || isAnimating) return;
+      e.preventDefault();
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragX = 0;
+      deck.setPointerCapture(e.pointerId);
+      hit.style.cursor = "grabbing";
+    });
+
+    deck.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!isDragging) return;
+      dragX = e.clientX - dragStartX; // both directions allowed
+      const t = Math.min(Math.abs(dragX) / THRESHOLD, 1);
+      const n = cards.length - 1;
+      cards.forEach((card, i) => {
+        card.style.transition = "none";
+        if (i === n) {
+          // Front card: follows finger exactly + gentle tilt + fades with progress
+          card.style.transform = `rotate(${dragX * 0.07}deg) translateX(${dragX}px) scale(1)`;
+          card.style.opacity = String(1 - t * 0.55);
+        } else {
+          // Others: lerp toward their next (closer-to-front) position
+          const p = {
+            rotate: lerp(positions[i].rotate, positions[i + 1].rotate, t),
+            x: lerp(positions[i].x, positions[i + 1].x, t),
+            scale: lerp(positions[i].scale, positions[i + 1].scale, t),
+          };
+          card.style.transform = css(p);
+        }
+      });
+    });
+
+    deck.addEventListener("pointerup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (Math.abs(dragX) >= THRESHOLD * 0.4) {
+        commitDismiss();
+      } else {
+        applyStack(true); // snap back — reverses the animation
+      }
+    });
+
+    deck.addEventListener("pointercancel", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      applyStack(true);
+    });
+
+    deck.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (["ArrowLeft", "ArrowRight", "Enter", " "].includes(e.key)) {
+        e.preventDefault();
+        commitDismiss();
+      }
+    });
+
+    applyStack();
+  }
+</script>
+
+<style>
+  .cardContainer {
+    width: 362px;
+    height: 380px;
+    border: 8px solid #e8e8e8;
+    border-radius: 32px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    overflow: hidden;
+  }
+
+  .cardHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .cardHeader h4 {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+    color: #1a1a1a;
+  }
+
+  .cardHeader p {
+    font-family: "Open Sauce Two";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: -0.02em;
+    color: #3c3c3c;
+  }
+
+  /* Deck */
+  .deckWrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    bottom: -60px;
+  }
+
+  .deck {
+    position: relative;
+    width: 200px;
+    height: 230px;
+    outline: none;
+  }
+
+  .deckCard {
+    position: absolute;
+    width: 200px;
+    height: 230px;
+    top: 0;
+    left: 0;
+    border-radius: 24px;
+    overflow: hidden;
+    transform-origin: center center;
+    will-change: transform;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .deckCard img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (width <= 768px) {
+    .cardContainer {
+      width: 100%;
+      max-width: 362px;
+    }
+  }
+</style>

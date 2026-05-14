@@ -9,7 +9,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 		const result = await register(data);
 
 		return new Response(
-			JSON.stringify({ user: result.user }),
+			JSON.stringify({ user: result.user }),	
 			{
 				status: 200,
 				headers: { "Content-Type": "application/json" }

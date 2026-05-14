@@ -91,10 +91,10 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
             )
           }
         </div>
-        <article class="container-subjects-filter">
-          <SubjectSelector 
-            client:load 
-            initialSubjects={initialSubjects} 
+        <article class='container-subjects-filter'>
+          <SubjectSelector
+            client:load
+            initialSubjects={initialSubjects}
             initialSelectedId={subjectIdParam}
           />
         </article>
@@ -315,5 +315,49 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
   .container-subjects-filter {
     position: relative;
     top: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .schedule-header {
+      padding: 24px 20px 16px;
+      gap: 10px;
+    }
+
+    .header-left {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .nav-actions {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-title h1 {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .date-range {
+      font-size: 14px;
+      bottom: 0;
+    }
+
+    .legend {
+      display: none;
+    }
+
+    .week-nav {
+      top: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  @media (max-width: 768px) {
+    .notification-floating {
+      display: none !important;
+    }
   }
 </style>

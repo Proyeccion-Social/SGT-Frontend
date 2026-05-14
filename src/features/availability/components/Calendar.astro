@@ -45,6 +45,30 @@ const systemToday = new Date();
 
 <div class='calendar-outer'>
   <div class='calendar-wrapper'>
+    <div class='mobile-day-selector'>
+      {
+        DAYS.map((day, idx) => {
+          const date = weekDates[day.key];
+          const isToday =
+            date &&
+            systemToday.getFullYear() === date.getFullYear() &&
+            systemToday.getMonth() === date.getMonth() &&
+            systemToday.getDate() === date.getDate();
+          return (
+            <button
+              class={`mobile-day-btn${idx === 0 ? " mobile-day-btn--active" : ""}${isToday ? " mobile-day-btn--today" : ""}`}
+              data-day-key={day.key}
+            >
+              <span class='mobile-day-btn__abbr'>{day.label.slice(0, 3)}</span>
+              <span class='mobile-day-btn__num'>
+                {date?.getDate().toString().padStart(2, "0")}
+              </span>
+            </button>
+          );
+        })
+      }
+    </div>
+
     <div class='calendar-header'>
       <div class='time-gutter'></div>
       {
@@ -57,7 +81,10 @@ const systemToday = new Date();
             systemToday.getDate() === date.getDate();
 
           return (
-            <div class={`day-header ${isToday ? "today" : ""}`}>
+            <div
+              class={`day-header ${isToday ? "today" : ""}`}
+              data-day-key={day.key}
+            >
               <span class='day-name'>{day.label}</span>
               <span class='day-number'>
                 {date?.getDate().toString().padStart(2, "0")}
@@ -77,6 +104,7 @@ const systemToday = new Date();
         DAYS.map((day) => (
           <div
             class='day-column'
+            data-day-key={day.key}
             style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
             {hours.map((_) => (
@@ -321,6 +349,7 @@ const systemToday = new Date();
     overflow: hidden;
     box-sizing: border-box;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    touch-action: none;
   }
 
   .slot-half-hour-block {
@@ -433,17 +462,17 @@ const systemToday = new Date();
     font-size: 12px;
     line-height: 16px;
     letter-spacing: -0.02em;
-    color: #3C3C3C;
+    color: #3c3c3c;
   }
 
   .slot-time-range {
-    font-family: 'Cabinet Grotesk Variable';
+    font-family: "Cabinet Grotesk Variable";
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
     line-height: 16px;
     letter-spacing: -0.02em;
-    color: #3C3C3C;
+    color: #3c3c3c;
   }
 
   .slot-student-half {
@@ -472,24 +501,108 @@ const systemToday = new Date();
     font-size: 12px;
     line-height: 16px;
     letter-spacing: -0.02em;
-    color: #3C3C3C;
+    color: #3c3c3c;
   }
 
   .slot-student-half__time {
-    font-family: 'Cabinet Grotesk Variable';
+    font-family: "Cabinet Grotesk Variable";
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
     line-height: 16px;
     letter-spacing: -0.02em;
-    color: #3C3C3C;
+    color: #3c3c3c;
   }
   .slot-selected {
     z-index: 100;
     overflow: visible;
   }
 
+  /* ── Mobile day selector ── */
+  .mobile-day-selector {
+    display: none;
+  }
 
+  @media (max-width: 768px) {
+    .mobile-day-selector {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e8e8e8;
+      scrollbar-width: none;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 11;
+    }
+
+    .mobile-day-selector::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-day-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 12px;
+      background: #f3f4f6;
+      cursor: pointer;
+      gap: 3px;
+      transition: background 0.15s ease;
+    }
+
+    .mobile-day-btn--active {
+      background: #e7dcff;
+    }
+
+    .mobile-day-btn--today .mobile-day-btn__num {
+      color: #9acc5b;
+    }
+
+    .mobile-day-btn__abbr {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      font-family: "Cabinet Grotesk Variable", sans-serif;
+    }
+
+    .mobile-day-btn--active .mobile-day-btn__abbr {
+      color: #7c3aed;
+    }
+
+    .mobile-day-btn__num {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #374151;
+      font-family: "Cabinet Grotesk Variable", sans-serif;
+      line-height: 1;
+    }
+
+    .mobile-day-btn--active .mobile-day-btn__num {
+      color: #7c3aed;
+    }
+
+    .calendar-header {
+      display: none;
+    }
+
+    .calendar-body {
+      grid-template-columns: 56px 1fr;
+    }
+
+    .day-column {
+      display: none;
+    }
+
+    .day-column.mobile-active {
+      display: block;
+    }
+  }
 </style>
 
 <script>
@@ -681,6 +794,35 @@ const systemToday = new Date();
     if (e.key === "Escape") cleanupDrag();
   }
 
+  function setupMobileDaySelector() {
+    const selector = document.querySelector(".mobile-day-selector");
+    if (!selector) return;
+
+    const dayColumns = document.querySelectorAll(".day-column[data-day-key]");
+
+    const setActiveDay = (dayKey) => {
+      selector.querySelectorAll(".mobile-day-btn").forEach((btn) => {
+        btn.classList.toggle(
+          "mobile-day-btn--active",
+          btn.dataset.dayKey === dayKey,
+        );
+      });
+      dayColumns.forEach((col) => {
+        col.classList.toggle("mobile-active", col.dataset.dayKey === dayKey);
+      });
+    };
+
+    const firstBtn = selector.querySelector(".mobile-day-btn");
+    if (firstBtn) setActiveDay(firstBtn.dataset.dayKey);
+
+    selector.querySelectorAll(".mobile-day-btn").forEach((btn) => {
+      btn.addEventListener("click", () => setActiveDay(btn.dataset.dayKey));
+    });
+  }
+
   // astro:page-load se dispara en carga inicial Y en cada navegación — no usar DOMContentLoaded
-  document.addEventListener("astro:page-load", setupDrag);
+  document.addEventListener("astro:page-load", () => {
+    setupDrag();
+    setupMobileDaySelector();
+  });
 </script>

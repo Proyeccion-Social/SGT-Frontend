@@ -4,7 +4,7 @@ import starFilled from "@/features/history/assets/star-simple.svg";
 import starFull from "@/features/history/assets/star-full.svg";
 import starFullUnfilled from "@/features/history/assets/star-full-unfilled.svg";
 import checkedIcon from "@/features/history/assets/checked.png";
-import vectorFinal from "@/features/history/assets/vectorfinal.png";
+import vectorFinal from "@/features/history/assets/vectorFinal.png";
 import vectorInicial from "@/features/history/assets/vectorInicial.png";
 import "@/features/history/css/multiStepRating.css";
 

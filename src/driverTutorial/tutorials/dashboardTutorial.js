@@ -9,6 +9,7 @@ export function startDashboardTutorial() {
                     title: "Bienvenido a Atlas",
                     description: "Tu plataforma inteligente de gestión de tutorías. Vamos a darte un recorrido rápido.",
                     popoverClass: "welcome-popover",
+                    showButtons: ["next"]
                 }
             },
             {

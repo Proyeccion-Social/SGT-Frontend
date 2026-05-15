@@ -47,8 +47,6 @@ export default function VaulDrawer() {
     const [isOpen, setIsOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const [hasCheckedProfile, setHasCheckedProfile] = React.useState(false);
-
     const isStudent = user?.role === 'STUDENT';
     const activeSteps = isStudent ? STUDENT_STEPS : TUTOR_STEPS;
     const finishStepId = isStudent ? 3 : 4;
@@ -62,66 +60,12 @@ export default function VaulDrawer() {
         career: user?.career || '',
     });
 
-    // Fetch student preferences if missing (to avoid opening drawer if already completed)
-    useEffect(() => {
-        // No hacer nada hasta que el objeto user esté cargado
-        if (!user) return;
-
-        const checkStudentProfile = async () => {
-            // Solo verificamos si es estudiante y no tiene modalidad en el store
-            if (isStudent && !user?.preferredModality && !hasCheckedProfile) {
-                try {
-                    const res = await fetch('/api/student/preferences');
-                    console.log('[VaulDrawer] BFF response status:', res.status);
-                    
-                    if (res.ok) {
-                        const data = await res.json();
-                        console.log('[VaulDrawer] Received data from BFF:', data);
-                        if (data.preferredModality) {
-                            console.log('[VaulDrawer] Found existing preferences, updating store...');
-                            useAuthStore.setState({
-                                user: {
-                                    ...user!,
-                                    preferredModality: data.preferredModality,
-                                    career: data.career,
-                                    subjects: data.subjects
-                                }
-                            });
-                        }
-                    } else {
-                        const errorData = await res.json().catch(() => ({}));
-                        console.error('[VaulDrawer] BFF error data:', errorData);
-                    }
-                } catch (err) {
-                    console.error('[VaulDrawer] Fetch exception:', err);
-                } finally {
-                    setHasCheckedProfile(true);
-                }
-            } else if (!hasCheckedProfile) {
-                // Si no es estudiante (ya con user cargado) o ya tiene datos, marcamos como revisado
-                setHasCheckedProfile(true);
-            }
-        };
-
-        checkStudentProfile();
-    }, [user, isStudent, user?.preferredModality, hasCheckedProfile]);
-
     // Open drawer when profile completion is required
     useEffect(() => {
-        if (!hasCheckedProfile) return; // ESPERAR a que la verificación termine
-
-        console.log('[VaulDrawer] Final evaluation:', { 
-            requiresProfileCompletion, 
-            isStudent, 
-            hasPreferredModality: !!user?.preferredModality,
-        });
-        
         if (requiresProfileCompletion) {
             setIsOpen(true);
-        } else if (isStudent && !user?.preferredModality) {
-            setIsOpen(true);
         }
-    }, [requiresProfileCompletion, user, isStudent, hasCheckedProfile]);
+    }, [requiresProfileCompletion]);
 
     useEffect(() => {
         const handlePageTransition = () => {

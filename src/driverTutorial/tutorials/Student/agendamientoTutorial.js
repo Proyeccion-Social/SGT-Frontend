@@ -1,10 +1,11 @@
-import { createTour } from "../createTour";
+import { createTour } from "../../createTour";
+import "../../styles/dashStyles.css"
 
 export function startAgendamientoTutorial() {
 
     const tour = createTour({
 
-        
+
 
         steps: [
 
@@ -36,16 +37,16 @@ export function startAgendamientoTutorial() {
                     showButtons: []
                 },
                 disableActiveInteraction: false
-                
+
             }
 
         ]
 
     });
 
-      /*
-      Detectar click del boton
-    */
+    /*
+    Detectar click del boton
+  */
 
     const btn = document.querySelector(
         "#goSearchStudentTUTORIAL"

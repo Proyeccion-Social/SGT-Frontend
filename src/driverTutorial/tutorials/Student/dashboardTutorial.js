@@ -1,5 +1,5 @@
-import { createTour } from "../createTour";
-import "../styles/dashStyles.css";
+import { createTour } from "../../createTour";
+import "../../styles/dashStyles.css";
 
 export function startDashboardTutorial() {
     const tour = createTour({
@@ -13,7 +13,7 @@ export function startDashboardTutorial() {
                 }
             },
             {
-                
+
                 element: "#dashboardMainTUTORIAL",
                 popover: {
                     title: "Dashboard - Pantalla Inicial",

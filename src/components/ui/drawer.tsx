@@ -335,6 +335,10 @@ export default function VaulDrawer() {
                                                 setTimeout(() => {
                                                     window.dispatchEvent(new CustomEvent('open-initial-config-dialog'));
                                                 }, 20);
+                                            } else {
+                                                setTimeout(() => {
+                                                    window.dispatchEvent(new CustomEvent('tutorial:start'));
+                                                }, 500); // Give it a slight delay so the drawer completely closes before starting the tutorial overlay
                                             }
                                         }} />
                                     )}

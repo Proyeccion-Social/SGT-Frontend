@@ -11,7 +11,7 @@ export function startFinalTutorial() {
             {
                 popover: {
                     title: "Disfruta tu experiencia en Atlas",
-                    description: "Esto ha sido todo en el tutorial",
+                    description: "Este ha sido todo el tutorial",
                     popoverClass: "final-popover",
                     showButtons: ["next"],
                 },

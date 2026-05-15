@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { startDashboardTutorial } from "./tutorials/dashboardTutorial";
-import { startAgendamientoTutorial } from "./tutorials/agendamientoTutorial";
-import { startSearchTutorial } from "./tutorials/searchTutorial";
+import { startDashboardTutorial } from "./tutorials/Student/dashboardTutorial";
+import { startAgendamientoTutorial } from "./tutorials/Student/agendamientoTutorial";
+import { startSearchTutorial } from "./tutorials/Student/searchTutorial";
 import { startFinalTutorial } from "./tutorials/finalTutorial";
 
 export default function TutorialInitializer() {

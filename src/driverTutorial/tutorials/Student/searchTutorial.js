@@ -1,11 +1,11 @@
-import { createTour } from "../createTour";
-import "../styles/dashStyles.css";
+import { createTour } from "../../createTour";
+import "../../styles/dashStyles.css";
 
 export function startSearchTutorial() {
 
     const tour = createTour({
 
-        
+
 
         steps: [
             {
@@ -21,7 +21,7 @@ export function startSearchTutorial() {
                     title: "El mejor para ti <3",
                     description:
                         "Mira los tutores que mas se adecuan con los filtros que seleccionaste",
-                    
+
                 }
             },
             {
@@ -31,7 +31,7 @@ export function startSearchTutorial() {
                     title: "Tu historial",
                     description: "En este apartado podras ver todas tus sesiones (futuras, actuales, pasadas, etc). Despues podras verlo con mas detalle",
                 },
-                
+
             },
             {
                 element: "#goNotificationsTUTORIAL",
@@ -40,7 +40,7 @@ export function startSearchTutorial() {
                     title: "Tus notificaciones",
                     description: "Mantente al dia con tus sesiones! Luego veras lo util que es.",
                 },
-                
+
             },
             {
                 element: "#godashboardTUTORIAL",
@@ -51,16 +51,16 @@ export function startSearchTutorial() {
                     showButtons: []
                 },
                 disableActiveInteraction: false
-                
+
             }
 
         ]
 
     });
 
-      /*
-      Detectar click del boton
-    */
+    /*
+    Detectar click del boton
+  */
 
     const btn = document.querySelector(
         "#godashboardTUTORIAL"

@@ -4,6 +4,8 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/figtree";
 @import "./variables.css";
+@import "driver.js/dist/driver.css";
+@import "../driverTutorial/styles/dashStyles.css";
 @custom-variant dark (&:is(.dark *));
 
 /* Fonts */

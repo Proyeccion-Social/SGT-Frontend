@@ -20,9 +20,8 @@ interface Props {
 const { userRole } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
-
 <aside class='sidebar' id='main-sidebar'>
-  <div class='navbar-items'>
+  <div class='navbar-items' id="sidebarTUTORIAL">
     <div class='nav-group'>
       <div class='sidebarShow'>
         <Image src={SidebarIcon} alt='Menu' class='icon' />
@@ -32,7 +31,7 @@ const currentPath = Astro.url.pathname;
         class={`dashboard-container ${currentPath === "/dashboard" ? "active-link" : ""}`}
         data-tooltip='Dashboard'
       >
-        <a href='/dashboard'>
+        <a href='/dashboard' id="godashboardTUTORIAL">
           <Image src={DashboardIcon} alt='Dashboard' class='icon' />
           <span class='nav-label'>Dashboard</span>
         </a>
@@ -46,7 +45,7 @@ const currentPath = Astro.url.pathname;
         userRole === UserRole.STUDENT && (
           <div class='calendar-container' data-tooltip='Calendario'>
             <a href='/sessions'>
-              <Image src={CalendarIcon} alt='Calendar' class='icon' />
+              <Image src={CalendarIcon} alt='Calendar' class='icon' id="goAgendamientoTUTORIAL" />
               <span class='nav-label'>Calendario</span>
             </a>
           </div>
@@ -107,7 +106,7 @@ const currentPath = Astro.url.pathname;
               class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
               data-tooltip='Historial'
             >
-              <a href='/history'>
+              <a href='/history' id="goHistorialStudentTUTORIAL">
                 <Image src={HistoryIcon} alt='History' class='icon' />
                 <span class='nav-label'>Historial</span>
               </a>
@@ -117,7 +116,7 @@ const currentPath = Astro.url.pathname;
               data-tooltip='Buscar'
               class={currentPath.startsWith("/search") ? "active-link" : ""}
             >
-              <Image src={SearchIcon} alt='Search' class='icon' />
+              <Image src={SearchIcon} alt='Search' class='icon' id="goSearchStudentTUTORIAL" />
               <span class='nav-label'>Buscar</span>
             </a>
             <a href='#' data-tooltip='Explorar'>
@@ -131,7 +130,7 @@ const currentPath = Astro.url.pathname;
           </>
         )
       }
-      <div class='notification-container'>
+      <div class='notification-container' id="goNotificationsTUTORIAL">
         <button
           id='notification-trigger'
           aria-label='Abrir notificaciones'
@@ -150,6 +149,7 @@ const currentPath = Astro.url.pathname;
     </div>
   </div>
 </aside>
+
 
 <style>
   .sidebar {

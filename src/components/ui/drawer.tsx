@@ -64,9 +64,9 @@ export default function VaulDrawer() {
     // Open drawer when profile completion is required
     useEffect(() => {
         if (requiresProfileCompletion) {
-            setIsOpen(true);
+            setIsOpen(false);
         } else if (isStudent && !user?.preferredModality) {
-            setIsOpen(true);
+            setIsOpen(false);
         }
     }, [requiresProfileCompletion, user, isStudent]);
 

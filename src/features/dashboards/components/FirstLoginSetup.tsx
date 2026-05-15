@@ -26,7 +26,12 @@ export default function FirstLoginSetup() {
   return (
     <ProfileSettingsDialog
       open={open}
-      onOpenChange={setOpen}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen && open) {
+          window.dispatchEvent(new CustomEvent("tutorial:start"));
+        }
+      }}
       initialView="preferences"
     />
   );

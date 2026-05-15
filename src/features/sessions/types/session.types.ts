@@ -7,7 +7,7 @@ export type SessionStatus =
   | 'SCHEDULED'
   | 'CANCELLED';
 
-export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
 
 export interface SessionTutor {

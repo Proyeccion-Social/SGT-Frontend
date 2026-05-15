@@ -15,7 +15,8 @@ export function startFinalTutorial() {
                     popoverClass: "final-popover",
                     showButtons: ["next"],
                 },
-                showProgress: false
+                showProgress: false,
+                
                 
             },
 
@@ -31,6 +32,8 @@ export function startFinalTutorial() {
                     // Auto-cerrar el tutorial después de 3.5 segundos
                     setTimeout(() => {
                         tour.destroy();
+                        localStorage.removeItem(
+                "current-tour");
                     }, 1600);
                 }
             }

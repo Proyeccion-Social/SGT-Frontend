@@ -5,6 +5,7 @@ import { startAgendamientoStudentTutorial } from "./tutorials/Student/agendamien
 import { startSearchStudentTutorial } from "./tutorials/Student/searchTutorial";
 import { startFinalTutorial } from "./tutorials/finalTutorial";
 import { startDashboardTutorTutorial } from "./tutorials/Tutor/dashboardTutorial"
+import { startDisponibilidadTutorTutorial } from "./tutorials/Tutor/disponibilidadTutorial";
 
 export default function TutorialInitializer() {
   const { user } = useAuthStore();
@@ -42,7 +43,24 @@ export default function TutorialInitializer() {
       }
     }
     else if(user?.role === 'TUTOR'){
-
+      if (path === "/dashboard") {
+        const currentTour = localStorage.getItem("current-tour");
+        if (currentTour === "final") {
+          const timer = setTimeout(() => {
+            startFinalTutorial();
+          }, 500);
+          return () => clearTimeout(timer);
+        }
+      }
+      if(path === "/availability/tutor/slots"){
+        const currentTour = localStorage.getItem("current-tour");
+        if (currentTour === "disponibilidad") {
+          const timer = setTimeout(() => {
+            startDisponibilidadTutorTutorial();
+          }, 500);
+          return () => clearTimeout(timer);
+        }
+      }
     }
   }, [user?.role]);
 

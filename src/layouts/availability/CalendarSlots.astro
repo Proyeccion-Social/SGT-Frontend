@@ -31,8 +31,8 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
 
 <main class={`content-wrapper ${isMenuOpen ? "no-scroll" : ""}`}>
   <div class={`overlay ${isMenuOpen ? "active" : ""}`} id='menu-overlay'></div>
-  <div class='calendar-header'>
-    <div class='week-selector'>
+  <div class='calendar-header' id="weekMonthTutorTUTORIAL">
+    <div class='week-selector' >
       <h3>Tu Semana</h3>
       <p>{weekRangeStr}</p>
       <button class='mes-btn' id='right-menu-toggle'
@@ -44,7 +44,7 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     </div>
   </div>
 
-  <div class='calendar-container'>
+  <div class='calendar-container' id="calendarTutorTUTORIAL">
     <Calendar slots={Slots} baseDate={today} />
   </div>
 

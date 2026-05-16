@@ -102,6 +102,7 @@ export function TutorProfileDialog({
         }}
         showCloseButton={false}
         id="profileViewTutorTUTORIAL"
+        
       >
         <DialogClose asChild>
           <button type="button" className="ps-close-btn" aria-label="Cerrar">

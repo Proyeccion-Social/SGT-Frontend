@@ -78,6 +78,7 @@ const currentPath = Astro.url.pathname;
                   ? "active-link"
                   : ""
               }
+              id="goDisponibilidadTutorTUTORIAL"
             >
               <Image src={WindowIcon} alt='Slots' class='icon' />
               <span class='nav-label'>Tu Disponibilidad</span>
@@ -90,7 +91,7 @@ const currentPath = Astro.url.pathname;
               class={`history-container ${currentPath.startsWith("/history") ? "active-link" : ""}`}
               data-tooltip='Historial'
             >
-              <a href='/history'>
+              <a href='/history' id="goHistorialTutorTUTORIAL">
                 <Image src={HistoryIcon} alt='History' class='icon' />
                 <span class='nav-label'>Historial</span>
               </a>

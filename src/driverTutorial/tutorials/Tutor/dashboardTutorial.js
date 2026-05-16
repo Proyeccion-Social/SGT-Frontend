@@ -59,6 +59,7 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     title: "Configura y Actualiza",
                     description: "Aquí podras consultar informacion relacionada con tu perfil, preferencias, actualizacion de contraseña, etc.",
+                    showButtons: ["next"]
                 }
             },
             {
@@ -91,6 +92,7 @@ export function startDashboardTutorTutorial() {
                 element: "#profileViewTutorTUTORIAL",
                 popover: {
                     description: "Mira tu perfil y ten la posibilidad de cambiar tu numero de telefono y contraseña.",
+                    showButtons: ["next"]
                 }
             },
             {
@@ -112,16 +114,38 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     title: "Estado de tu cuenta",
                     description: "Podras activar y desactivar tu cuenta. En caso de desactivarla comunicalo!",
+                    onNextClick: (element, step, { driver }) => {
+                        document.querySelector('.ps-close-btn')?.click();
+                        setTimeout(() => driver.moveNext(), 300);
+                    }
                 }
+
+            },
+            {
+                element: "#sidebarTUTORIAL",
+                popover: {
+                    title: "Navegación Principal",
+                    description: "Desde aquí puedes acceder rápidamente a todas las secciones de la plataforma: Dashboard, Sesiones, Búsqueda e Historial.",
+                    showButtons: ["next"]
+                }
+            },
+            {
+                element: "#goDisponibilidadTutorTUTORIAL",
+                popover: {
+                    title: "-------",
+                    description: "------------- ----------",
+                    showButtons: []
+                },
+                disableActiveInteraction: false
             }
-        ]
+        ]   
     });
 
-    const btn = document.querySelector("#goAgendamientoTUTORIAL");
+    const btn = document.querySelector("#goDisponibilidadTutorTUTORIAL");
     if (btn) {
         btn.addEventListener("click", () => {
-            localStorage.setItem("current-tour", "agendamiento");
-            window.location.href = "/sessions";
+            localStorage.setItem("current-tour", "disponibilidad");
+            window.location.href = "/availability/tutor/slots";
         });
     }
 

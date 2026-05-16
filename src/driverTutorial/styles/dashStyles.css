@@ -7,6 +7,12 @@
   border: 2px solid #8751FF !important;
   box-shadow: 0 10px 30px rgba(81, 49, 153, 0.15) !important;
   font-family: "Open Sauce Two", sans-serif !important;
+  z-index: 100006 !important; /* Popover por encima del overlay (100005) */
+}
+
+/* Overlay Styling */
+.driver-overlay, .driver-overlay * {
+  z-index: 100005 !important; /* Overlay por encima del modal de Radix (que es 100000), así el "hueco" recorta el modal y oscurece el resto */
 }
 
 /* Title Styling */

@@ -87,7 +87,7 @@ export default function UserMenuDropdown() {
           </button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" className="umd-content w-72">
+        <DropdownMenuContent align="end" className="umd-content w-72" id="sectionsProfileTutorTUTORIAL">
           {/* Sección 1: Info del usuario */}
           <div className="umd-user-info">
             <span className="umd-user-info__avatar">{initials}</span>
@@ -123,7 +123,7 @@ export default function UserMenuDropdown() {
             )}
             {isTutor && (
               <>
-                <DropdownMenuItem onSelect={() => openTutorDialog("general")}>
+                <DropdownMenuItem onSelect={() => openTutorDialog("general")} id="goIntoProfileTutorTUTORIAL">
                   <img src={generalIconSrc} alt="" aria-hidden="true" className="umd-item-icon" />
                   Mi perfil
                 </DropdownMenuItem>

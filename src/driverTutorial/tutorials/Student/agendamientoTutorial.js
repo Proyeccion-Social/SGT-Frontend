@@ -1,7 +1,7 @@
 import { createTour } from "../../createTour";
 import "../../styles/dashStyles.css"
 
-export function startAgendamientoTutorial() {
+export function startAgendamientoStudentTutorial() {
 
     const tour = createTour({
 

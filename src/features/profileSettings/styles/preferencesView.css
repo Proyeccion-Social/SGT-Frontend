@@ -38,10 +38,10 @@
   background: transparent;
   cursor: pointer;
   font-family: "Cabinet Grotesk Variable";
-  /* ── Intercambiado: tamaño grande y negrita del botón original ── */
+  /* ── Igualado: Tamaño y peso idéntico al botón de guardar ── */
   font-weight: 700;
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 16px;
+  line-height: 22px;
   letter-spacing: -0.02em;
   color: var(--neutral-blanco);
   transition:
@@ -152,8 +152,8 @@
 
 /* ── Intercambiado: estilo de tipografía del botón de guardar ── */
 .pv-actions .gs-submit-btn {
-  font-weight: 600;
-  font-size: 16px; /* Ajustado: mayor que 13px y menor que 20px */
+  font-weight: 700; /* Igualado con la píldora */
+  font-size: 16px;  /* Igualado con la píldora */
   line-height: 22px;
   height: auto;
   padding: 10px 32px;

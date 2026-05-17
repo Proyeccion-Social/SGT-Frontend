@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { sileo } from "sileo";
 import ProfileChooseSubjects from "./ProfileChooseSubjects";
 import type { PCSHandle } from "./ProfileChooseSubjects";
@@ -12,8 +12,14 @@ type PrefSubTab = "modality" | "subjects";
 export function PreferencesView() {
   const [activeTab, setActiveTab] = useState<PrefSubTab>("modality");
 
+  // Estados originales del backend
   const [initialSelected, setInitialSelected] = useState<string[]>([]);
+  const [initialModality, setInitialModality] = useState<Modality | null>(null);
+
+  // Estados interactivos actuales
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [modality, setModality] = useState<Modality | null>(null);
+
   const [saving, setSaving] = useState(false);
   const subjectsRef = useRef<PCSHandle>(null);
 
@@ -25,7 +31,13 @@ export function PreferencesView() {
       .then(([subjData, prefData]) => {
         const ids: string[] = (subjData.subjects ?? []).map((s: { id: string }) => s.id);
         setInitialSelected(ids);
-        if (prefData.preferredModality) setModality(prefData.preferredModality as Modality);
+        setSelectedSubjects(ids);
+
+        if (prefData.preferredModality) {
+          const mod = prefData.preferredModality as Modality;
+          setInitialModality(mod);
+          setModality(mod);
+        }
       })
       .catch(() => {
         sileo.error({
@@ -36,18 +48,35 @@ export function PreferencesView() {
       });
   }, []);
 
+  // Comparación reactiva de cambios para activar/desactivar el botón Guardar
+  const hasChanges = useMemo(() => {
+    // 1. Comparar modalidad
+    const modalityChanged = modality !== initialModality;
+
+    // 2. Comparar materias (independientemente de su ordenación)
+    const sortedInitial = [...initialSelected].sort();
+    const sortedCurrent = [...selectedSubjects].sort();
+    const subjectsChanged = JSON.stringify(sortedInitial) !== JSON.stringify(sortedCurrent);
+
+    return modalityChanged || subjectsChanged;
+  }, [modality, initialModality, selectedSubjects, initialSelected]);
+
   async function handleSave() {
-    const data = subjectsRef.current?.getData();
     setSaving(true);
 
     const requests: Promise<void>[] = [];
 
-    if (data) {
+    // Guardamos materias si cambiaron
+    const sortedInitial = [...initialSelected].sort();
+    const sortedCurrent = [...selectedSubjects].sort();
+    const subjectsChanged = JSON.stringify(sortedInitial) !== JSON.stringify(sortedCurrent);
+
+    if (subjectsChanged) {
       requests.push(
         fetch("/api/settings/subjects", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ subjectIds: data.subjectIds }),
+          body: JSON.stringify({ subjectIds: selectedSubjects }),
         }).then(async (res) => {
           if (!res.ok) {
             const err = await res.json().catch(() => null);
@@ -57,7 +86,8 @@ export function PreferencesView() {
       );
     }
 
-    if (modality) {
+    // Guardamos modalidad si cambió
+    if (modality && modality !== initialModality) {
       requests.push(
         fetch("/api/settings/preferences", {
           method: "PATCH",
@@ -77,6 +107,11 @@ export function PreferencesView() {
         loading: { title: "Guardando preferencias…",    fill: "#8751ff" },
         success: { title: "Preferencias actualizadas",  fill: "#58d68d" },
         error:   { title: "No se pudieron guardar",     fill: "#f35761" },
+      })
+      .then(() => {
+        // Al guardar con éxito, refrescamos el estado "original" del backend
+        setInitialSelected(selectedSubjects);
+        setInitialModality(modality);
       })
       .finally(() => setSaving(false));
   }
@@ -134,6 +169,7 @@ export function PreferencesView() {
               ref={subjectsRef}
               initialSelected={initialSelected}
               maxSelections={MAX_SUBJECT_SELECTIONS}
+              onChange={setSelectedSubjects}
             />
           </div>
         )}
@@ -144,7 +180,7 @@ export function PreferencesView() {
             type="button"
             className="gs-submit-btn"
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || !hasChanges}
           >
             {saving ? "Guardando…" : "Guardar"}
           </button>

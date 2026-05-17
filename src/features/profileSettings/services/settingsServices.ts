@@ -108,11 +108,13 @@ export async function updateStudentPreferences(dto: UpdatePreferencesDto, token?
 export interface TutorProfileData {
     phone?: string | null;
     maxWeeklyHours: number | null;
+    subjects?: Subject[];
 }
 
 export interface UpdateTutorProfileDto {
     phone?: string;
     max_weekly_hours?: number;
+    subject_ids?: string[];
 }
 
 export interface TutorHoursStatus {

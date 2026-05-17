@@ -17,8 +17,20 @@
 .pcs-content {
   position: relative;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
   min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  gap: 20px 24px; /* Mayor espacio (breathing room) horizontal y vertical */
+  padding: 32px 16px 80px; /* Padding moderado para el Tutor para que no quede tan abajo */
+  margin-top: 0;
+}
+
+/* Vista del Estudiante: mayor padding superior para librar la píldora flotante y centrar verticalmente */
+.pv-subjects-panel .pcs-content {
+  padding: 100px 32px 100px;
 }
 
 /* ── Responsive < 500px — altura fija para que el scatter tenga espacio ── */
@@ -40,7 +52,7 @@
 
 /* ── Tag base ────────────────────────────────────────────── */
 .pcs-tag {
-  position: absolute;
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -65,11 +77,35 @@
 
 .pcs-tag:hover {
   transform: scale(1.09);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .pcs-tag:active {
   transform: scale(0.95);
+}
+
+/* ── Efecto de dispersión orgánica (Scattered Cloud) ─────── */
+/* Rompe la alineación lineal perfecta de flexbox añadiendo desvíos
+   alternados para que parezca una nube de etiquetas natural */
+.pcs-tag:nth-child(2n) {
+  transform: translateY(8px);
+}
+.pcs-tag:nth-child(2n):hover {
+  transform: translateY(8px) scale(1.09);
+}
+
+.pcs-tag:nth-child(3n) {
+  transform: translateY(-6px);
+}
+.pcs-tag:nth-child(3n):hover {
+  transform: translateY(-6px) scale(1.09);
+}
+
+.pcs-tag:nth-child(5n) {
+  transform: translateY(4px);
+}
+.pcs-tag:nth-child(5n):hover {
+  transform: translateY(4px) scale(1.09);
 }
 
 /* ── Tick de confirmación ────────────────────────────────── */

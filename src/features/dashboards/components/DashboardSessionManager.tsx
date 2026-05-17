@@ -10,9 +10,7 @@ import { SessionDetailModal } from '@/features/sessions/components/SessionDetail
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
 import { UserRole } from '@/constants/roles';
 import type { ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
-import { fetchTutorDashboardBFF, fetchStudentDashboardBFF } from '../services/dashboardService';
-import { mapDashboardSessions } from '../utils/dashboardMapper';
-import { useAvailabilityStore } from '@/store/availabilityStore';
+import { useDashboardData } from '../services/dashboardService';
 
 interface Props {
   role: UserRole;
@@ -20,29 +18,10 @@ interface Props {
 
 export const DashboardSessionManager = ({ role }: Props) => {
   if (!role) return null;
-  const { sessions, loading, error, setSessions } = useSessionStore();
-  const { setDashboardMetrics } = useAvailabilityStore();
+  const { sessions, loading, error } = useSessionStore();
+  const { loadTutorDashboard, loadStudentDashboard } = useDashboardData();
 
-  const refetch = async () => {
-    try {
-      if (role === UserRole.TUTOR) {
-        const data = await fetchTutorDashboardBFF();
-        setSessions(mapDashboardSessions(data.upcomingSessions, role));
-        setDashboardMetrics({
-          weeklyHoursUsed: data.weeklyHoursUsed,
-          weeklyHoursLimit: data.weeklyHoursLimit,
-          weeklyHoursRemaining: data.weeklyHoursRemaining,
-          totalStudentsReached: data.totalStudentsReached
-        });
-      } else {
-        const data = await fetchStudentDashboardBFF();
-        setSessions(mapDashboardSessions(data.upcomingSessions, role));
-        setDashboardMetrics({
-          weeklySessionsCount: data.weeklySessionsCount
-        });
-      }
-    } catch (e) {}
-  };
+  const refetch = role === UserRole.TUTOR ? loadTutorDashboard : loadStudentDashboard;
 
   const cancelar = async (id: string, reason: string) => {
     try {

@@ -26,7 +26,7 @@ const { title, noToaster = false } = Astro.props;
     <TooltipProvider>
       <slot />
     </TooltipProvider>
-    <StoreHydrator client:load />
-    {!noToaster && <ToasterReact client:load />}
+    <StoreHydrator client:load transition:persist />
+    {!noToaster && <ToasterReact client:load transition:persist />}
   </body>
 </html>

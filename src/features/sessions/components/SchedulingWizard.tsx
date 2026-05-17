@@ -6,7 +6,7 @@ import DetailsStep from "./scheduling/Details";
 import SessionTypeStep from "./scheduling/SessionType";
 import ModalityStep from "./scheduling/Modality";
 import SlotPopover from "./scheduling/SlotPopover";
-import type { Slot } from "@features/availability/services/availabilityService";
+import type { Slot, TutorProfileInfo } from "@features/availability/services/availabilityService";
 import { sileo } from "sileo";
 
 import StepOne from "../assets/StepOne.svg";
@@ -36,11 +36,14 @@ interface PopoverData {
 
 interface Props {
   slots: Slot[];
+  tutorProfiles?: Record<string, TutorProfileInfo>;
 }
 
-export default function SchedulingWizard({ slots }: Props) {
+export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = {} }: Props) {
+  const [slots, setSlots] = useState<Slot[]>(initialSlots);
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
   const [slotContext, setSlotContext] = useState<any>(null);
   const { colorMap } = useSubjectStore();
@@ -202,7 +205,8 @@ export default function SchedulingWizard({ slots }: Props) {
   };
 
   const handleSubmit = async (currentData: WizardData) => {
-  
+  if (isSubmitting) return;
+  setIsSubmitting(true);
   try {
     const dayMap: Record<string, number> = {
       LUNES: 1,
@@ -277,6 +281,20 @@ export default function SchedulingWizard({ slots }: Props) {
 
     await res.json();
 
+    // Marcar el slot como reservado en el estado local (evita reload)
+    const bookedSlotId = currentData.slot?.id;
+    if (bookedSlotId) {
+      setSlots((prev) =>
+        prev.map((s) => (s.id === bookedSlotId ? { ...s, isBooked: true } : s))
+      );
+      document.dispatchEvent(
+        new CustomEvent("slot:booked", {
+          detail: { slotId: bookedSlotId },
+          bubbles: true,
+        })
+      );
+    }
+
     sileo.action({
       title: "Tutoría agendada",
       description: "Tu espacio ha sido reservado exitosamente.",
@@ -285,10 +303,6 @@ export default function SchedulingWizard({ slots }: Props) {
     });
 
     handleClose();
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 3000);
   } catch (error) {
     const msg = error instanceof Error ? error.message : "No se pudo reservar el espacio.";
     sileo.action({
@@ -297,6 +311,8 @@ export default function SchedulingWizard({ slots }: Props) {
       fill: "#f35761",
       styles: { badge: "#ffffff" },
     });
+  } finally {
+    setIsSubmitting(false);
   }
 };
 
@@ -355,16 +371,24 @@ export default function SchedulingWizard({ slots }: Props) {
                     tutorIds={tutorIds}
                     subject={data.subject}
                     subjectColor={colorMap[data.subject]}
+                    tutorProfiles={tutorProfiles}
                     onSelect={(tutorId) => {
                       const selectedSlot =
                         availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
-                      setData((prev) => ({ ...prev, tutorId, slot: selectedSlot }));
+                      setData((prev) => ({
+                        ...prev,
+                        tutorId,
+                        slot: selectedSlot,
+                        tutorName: tutorProfiles[tutorId]?.name ?? prev.tutorName,
+                      }));
                       setStep(2);
                     }}
                   />
                 )}
                 {step === 2 && (
                   <DetailsStep
+                    initialTitle={data.title}
+                    initialDescription={data.description}
                     onNext={(title, description) => {
                       setData((prev) => ({ ...prev, title, description }));
                       setStep(3);
@@ -374,23 +398,27 @@ export default function SchedulingWizard({ slots }: Props) {
                 )}
                 {step === 3 && (
                   <SessionTypeStep
+                    initialType={data.sessionType}
                     onNext={(sessionType) => {
                       const updatedData = { ...data, sessionType };
                       setData(updatedData);
                       if (needsModality) setStep(4);
-                      else handleSubmit(updatedData);  // pasar data actualizado
+                      else handleSubmit(updatedData);
                     }}
                     onBack={() => setStep(2)}
+                    isSubmitting={isSubmitting}
                   />
                 )}
                 {step === 4 && needsModality && (
                   <ModalityStep
+                    initialModality={data.modality}
                     onNext={(modality) => {
                       const updatedData = { ...data, modality };
                       setData(updatedData);
-                      handleSubmit(updatedData);  // pasar data actualizado
+                      handleSubmit(updatedData);
                     }}
                     onBack={() => setStep(3)}
+                    isSubmitting={isSubmitting}
                   />
                 )}
               </div>

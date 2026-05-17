@@ -105,11 +105,31 @@
   margin-left: auto;
 }
 
-/* ── Pie con botón de continuar ── */
+/* ── Pie con botones de navegación ── */
 .details-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 24px;
+}
+
+.details-footer__back-btn {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.details-footer__back-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 .details-footer__continue-btn {
@@ -150,7 +170,14 @@
 
   .details-footer {
     margin-top: 16px;
-    justify-content: center;
+    justify-content: space-between;
+  }
+
+  .details-footer__back-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    margin-right: 8px;
   }
 
   .details-footer__continue-btn {

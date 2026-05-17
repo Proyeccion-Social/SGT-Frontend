@@ -9,11 +9,13 @@ const DESC_MAX = 500;
 interface Props {
   onNext: (title: string, description: string) => void;
   onBack: () => void;
+  initialTitle?: string;
+  initialDescription?: string;
 }
 
-export default function DetailsStep({ onNext, onBack }: Props) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+export default function DetailsStep({ onNext, onBack, initialTitle = "", initialDescription = "" }: Props) {
+  const [title, setTitle] = useState(initialTitle);
+  const [description, setDescription] = useState(initialDescription);
   const [titleTouched, setTitleTouched] = useState(false);
   const [descTouched, setDescTouched] = useState(false);
 
@@ -93,8 +95,14 @@ export default function DetailsStep({ onNext, onBack }: Props) {
           </div>
         </div>
 
-        {/* ── Pie con botón de continuar ── */}
+        {/* ── Pie con botones de navegación ── */}
         <div className="details-footer">
+          <button
+            onClick={onBack}
+            className="details-footer__back-btn"
+          >
+            Atrás
+          </button>
           <button
             disabled={!isReady}
             onClick={() => isReady && onNext(title, description)}

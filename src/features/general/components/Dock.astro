@@ -234,3 +234,29 @@ const currentPath = Astro.url.pathname;
     z-index: 1001;
   }
 </style>
+
+<script>
+  function updateDockActive() {
+    const path = window.location.pathname;
+    const dock = document.getElementById("mobile-dock");
+    if (!dock) return;
+
+    // Clear all active classes
+    dock
+      .querySelectorAll(".dock-item.active")
+      .forEach((el) => el.classList.remove("active"));
+
+    // Re-apply based on current path
+    dock.querySelectorAll("a.dock-item[href]").forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href || href === "#") return;
+
+      const matched =
+        href === path || (href !== "/dashboard" && path.startsWith(href));
+
+      if (matched) link.classList.add("active");
+    });
+  }
+
+  document.addEventListener("astro:page-load", updateDockActive);
+</script>

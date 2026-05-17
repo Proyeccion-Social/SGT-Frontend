@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /search
+Disallow: /search/
+Disallow: /sessions
+Disallow: /sessions/
+Disallow: /history
+Disallow: /history/
+Disallow: /availability
+Disallow: /availability/
+Disallow: /change-password
+Disallow: /confirm-email
+Disallow: /reset-password
+Disallow: /api
+Disallow: /api/
+
+Sitemap: https://atlas-tutoring.vercel.app/sitemap.xml

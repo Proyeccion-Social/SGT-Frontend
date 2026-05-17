@@ -185,6 +185,30 @@
   height: 28px;
 }
 
+/* ── Responsive < 480px ──────────────────────────────────── */
+@media (max-width: 499px) {
+  .ps-dialog {
+    width: calc(100vw - 32px);
+    max-width: calc(100vw - 32px);
+    height: auto;
+    max-height: 92dvh;
+  }
+
+  .ps-header {
+    padding: 20px 24px 16px;
+  }
+
+  .ps-title {
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  .ps-description {
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
 /* Foto de perfil circular (centro del bottom nav) */
 .ps-avatar-circle {
   width: 44px;

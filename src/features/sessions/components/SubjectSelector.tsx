@@ -70,38 +70,35 @@ export function SubjectSelector({ initialSubjects = [], initialSelectedId = null
             style={{ 
               minWidth: "180px", 
               height: "42px",
-              ...(selectedId ? { borderColor: "#9bcd5d", color: "#9bcd5d" } : {})
+              ...(selectedId ? { borderColor: "var(--secondary-500)", color: "var(--secondary-500)" } : {})
             }}
             className={`
               flex items-center justify-between gap-2 px-4 py-2 rounded-full border transition-all duration-200
               ${
                 selectedId
-                  ? "bg-[var(--secondary-100)]"
-                  : "bg-white border-gray-200 text-gray-600 hover:border-[var(--primary-default)]"
+                  ? "bg-(--secondary-100)"
+                  : "bg-white border-(--border-primary) text-(--neutral-default) hover:border-(--primary-default)"
               }
             `}
           >
             <div className="flex items-center gap-2 overflow-hidden">
-              <BookOpenIcon className="w-4 h-4 flex-shrink-0" />
+              <BookOpenIcon className="w-4 h-4 shrink-0" />
               <span className="text-sm font-medium truncate">
                 {currentSubject ? currentSubject.name : "Todas las materias"}
               </span>
             </div>
             <ChevronDownIcon
-              className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+              className={`w-4 h-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
             />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto shadow-xl border-gray-100 rounded-2xl p-2">
-          <div className="px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Filtrar por materia
-          </div>
-          <DropdownMenuSeparator className="my-1 bg-gray-50" />
+        <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto shadow-xl border-(--neutral-100) rounded-2xl p-2">
+          <DropdownMenuSeparator className="my-1 bg-(--neutral-100)" />
           
           <DropdownMenuCheckboxItem
             checked={!selectedId}
             onCheckedChange={() => handleSelect(null)}
-            className="rounded-lg mb-1 focus:bg-gray-50"
+            className="rounded-lg mb-1 focus:bg-(--surface-focus)"
           >
             Todas las materias
           </DropdownMenuCheckboxItem>
@@ -111,7 +108,7 @@ export function SubjectSelector({ initialSubjects = [], initialSelectedId = null
               key={s.id}
               checked={selectedId === s.id}
               onCheckedChange={() => handleSelect(s.id)}
-              className="rounded-lg mb-1 focus:bg-gray-50"
+              className="rounded-lg mb-1 focus:bg-(--surface-focus)"
             >
               {s.name}
             </DropdownMenuCheckboxItem>

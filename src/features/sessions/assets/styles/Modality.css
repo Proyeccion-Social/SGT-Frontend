@@ -129,3 +129,47 @@
   background: #7c3aed;
   cursor: pointer;
 }
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  .modality-title {
+    font-size: 24px;
+    line-height: 40px;
+  }
+
+  .modality-subtitle {
+    margin: 0 0 20px;
+    font-size: 14px;
+  }
+
+  .modality-card {
+    padding: 20px 16px;
+  }
+
+  .modality-options {
+    gap: 12px;
+  }
+
+  .modality-option {
+    flex: 1;
+    width: auto;
+    height: 110px;
+    font-size: 13px;
+  }
+
+  .modality-option__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .modality-footer {
+    margin-top: 16px;
+    justify-content: center;
+  }
+
+  .modality-footer__continue-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+  }
+}

@@ -4,7 +4,7 @@ import starFilled from "@/features/history/assets/star-simple.svg";
 import starFull from "@/features/history/assets/star-full.svg";
 import starFullUnfilled from "@/features/history/assets/star-full-unfilled.svg";
 import checkedIcon from "@/features/history/assets/checked.png";
-import vectorFinal from "@/features/history/assets/vectorfinal.png";
+import vectorFinal from "@/features/history/assets/vectorFinal.png";
 import vectorInicial from "@/features/history/assets/vectorInicial.png";
 import "@/features/history/css/multiStepRating.css";
 
@@ -33,11 +33,13 @@ export default function MultiStepDialog({
   onClose,
 }: MultiStepDialogProps) {
 
-  // ========== TODOS LOS HOOKS AL INICIO ==========
+  // ========== HOOKS ==========
   const [questionnaire, setQuestionnaire] = useState<any>(null);
   const [canRate, setCanRate] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const [formData, setFormData] = useState<{
     answers: Record<string, number>;
     comment: string;
@@ -48,7 +50,16 @@ export default function MultiStepDialog({
     overallRating: 1,
   });
 
-  // Fetch the data always
+  // Detectar breakpoint mobile
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 600px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  // Fetch questionnaire y estado de evaluación
   useEffect(() => {
     let cancelled = false;
 
@@ -80,7 +91,7 @@ export default function MultiStepDialog({
     return () => { cancelled = true; };
   }, []);
 
-  // Cuando questionnaire se carga, inicializar las respuestas
+  // Inicializar respuestas cuando llega el cuestionario
   useEffect(() => {
     if (questionnaire?.questions) {
       const initial = Object.fromEntries(
@@ -90,18 +101,23 @@ export default function MultiStepDialog({
     }
   }, [questionnaire]);
 
-  // Cuando canRate se resuelve, ajustar el paso inicial
+  // Ajustar paso inicial si ya calificó
   useEffect(() => {
     if (canRate === false) setStep(3);
   }, [canRate]);
 
-  // Auto-cerrar en paso final
+  // Auto-cerrar en pantalla final
   useEffect(() => {
     if (step === 3 || canRate === false) {
       const timer = setTimeout(() => onClose(), 2500);
       return () => clearTimeout(timer);
     }
   }, [step, canRate]);
+
+  // Reset índice de pregunta al entrar al paso de evaluación
+  useEffect(() => {
+    if (step === 1) setCurrentQuestionIndex(0);
+  }, [step]);
 
   // ========== FUNCIONES ==========
   const next = () => setStep((s) => s + 1);
@@ -153,8 +169,6 @@ export default function MultiStepDialog({
   };
 
   // ========== RENDER ==========
-
-  // Loading
   if (loading || !questionnaire) return null;
 
   const steps = [
@@ -164,9 +178,50 @@ export default function MultiStepDialog({
     { title: "Final" },
   ];
   const current = steps[step];
+  const questions: any[] = current.questions ?? [];
+  const totalQuestions = questions.length;
+  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+
+  // Render de una tarjeta de pregunta
+  const renderQuestion = (q: any) => (
+    <div key={q.aspect} className="evaluation-card-body-question-item">
+      <p className="question-title">{q.label}</p>
+      <p className="question-description">
+        <span className="star-description">1 Estrella</span> ={" "}
+        {description1[q.aspect]} ·{" "}
+        <span className="star-description">5 Estrellas</span> ={" "}
+        {description2[q.aspect]}
+      </p>
+      <div className="evaluation-card-body-question-item-buttons">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            className="btn-rating"
+            onClick={() => updateAnswer(q.aspect, n)}
+          >
+            <img
+              className={n === 5 ? "star-five" : ""}
+              src={
+                n === 5
+                  ? formData.answers[q.aspect] >= 5
+                    ? starFull.src
+                    : starFullUnfilled.src
+                  : formData.answers[q.aspect] >= n
+                    ? starFilled.src
+                    : starUnfilled.src
+              }
+              alt="star"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="container-dialog">
+
+      {/* ── Pantalla inicial ── */}
       {current.title === "Inicio" && (
         <div className="vector-inicial-container">
           <img src={vectorInicial.src} alt="vector" className="vector-inicial" />
@@ -178,6 +233,7 @@ export default function MultiStepDialog({
         </div>
       )}
 
+      {/* ── Header (Evaluación / Comentarios) ── */}
       {(current.title === "Evaluación" || current.title === "Comentarios") && (
         <div className="evaluation-card-header">
           <div className="evaluation-card-header-title">
@@ -189,56 +245,71 @@ export default function MultiStepDialog({
           </div>
           <div className="evaluation-card-header-buttons">
             {step < steps.length - 2 ? (
-              <button onClick={next} className="btn-continue">Continuar</button>
-            ) : step === 2 && (
-              <button onClick={submitEvaluation} className="btn-continue">Guardar</button>
-            )}
+              /* En mobile dentro del paso Evaluación: Siguiente pregunta o Continuar al paso de comentarios */
+              isMobile && current.title === "Evaluación" ? (
+                isLastQuestion ? (
+                  <button onClick={next} className="btn-continue">
+                    Continuar
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setCurrentQuestionIndex((i) => i + 1)}
+                    className="btn-continue"
+                  >
+                    Siguiente
+                  </button>
+                )
+              ) : (
+                <button onClick={next} className="btn-continue">
+                  Continuar
+                </button>
+              )
+            ) : step === 2 ? (
+              <button onClick={submitEvaluation} className="btn-continue">
+                Guardar
+              </button>
+            ) : null}
           </div>
         </div>
       )}
 
+      {/* ── Body ── */}
       {current.title !== "Inicio" && (
         <div className="evaluation-card-body">
-          {current.questions && (
+
+          {/* Preguntas */}
+          {questions.length > 0 && (
             <div className="evaluation-card-body-question-container">
-              <div className="evaluation-card-body-question">
-                {current.questions.map((q: any) => (
-                  <div key={q.aspect} className="evaluation-card-body-question-item">
-                    <p className="question-title">{q.label}</p>
-                    <p className="question-description">
-                      <span className="star-description">1 Estrella</span> ={" "}
-                      {description1[q.aspect]} ·{" "}
-                      <span className="star-description">5 Estrellas</span> ={" "}
-                      {description2[q.aspect]}
-                    </p>
-                    <div className="evaluation-card-body-question-item-buttons">
-                      {[1, 2, 3, 4, 5].map((n) => (
-                        <button
-                          key={n}
-                          className="btn-rating"
-                          onClick={() => updateAnswer(q.aspect, n)}
-                        >
-                          <img
-                            src={
-                              n === 5
-                                ? formData.answers[q.aspect] >= 5
-                                  ? starFull.src
-                                  : starFullUnfilled.src
-                                : formData.answers[q.aspect] >= n
-                                  ? starFilled.src
-                                  : starUnfilled.src
-                            }
-                            alt="star"
-                          />
-                        </button>
-                      ))}
-                    </div>
+              {isMobile ? (
+                /* Mobile: una pregunta a la vez */
+                <>
+                  <div className="evaluation-card-body-question evaluation-card-body-question--single">
+                    {renderQuestion(questions[currentQuestionIndex])}
                   </div>
-                ))}
-              </div>
+
+                  {/* Dots de progreso */}
+                  <div className="question-progress-dots">
+                    {questions.map((_: any, idx: number) => (
+                      <button
+                        key={idx}
+                        className={`question-dot${idx === currentQuestionIndex ? " active" : ""}`}
+                        onClick={() => setCurrentQuestionIndex(idx)}
+                        aria-label={`Pregunta ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+
+              ) : (
+                /* Desktop: grid completo */
+                <div className="evaluation-card-body-question">
+                  {questions.map((q: any) => renderQuestion(q))}
+                </div>
+              )}
             </div>
           )}
 
+          {/* Comentarios */}
           {current.comments?.enabled && (
             <div className="evaluation-card-body-comment-container">
               <p className="question-title">Comentarios Adicionales</p>
@@ -256,6 +327,7 @@ export default function MultiStepDialog({
             </div>
           )}
 
+          {/* Pantalla final */}
           {current.title === "Final" && (
             <div className="evaluation-card-body-final-container">
               <div className="checked-icon-container">

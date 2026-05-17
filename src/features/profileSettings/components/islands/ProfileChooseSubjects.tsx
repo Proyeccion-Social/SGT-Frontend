@@ -80,22 +80,29 @@ function computePositions(
     const n = subjects.length;
     if (n === 0 || containerW === 0 || containerH === 0) return [];
 
-    const GAP = 14; // separación mínima entre tags
-    const SAFE = 22; // margen de seguridad respecto al borde del contenedor
+    const GAP  = 10;
+    const SAFE = 18;
+
+    // Tamaño máximo de celda para que los tags no queden muy separados
+    const MAX_CELL_W = 180;
+    const MAX_CELL_H = 72;
 
     const avgTagW =
         subjects.reduce((s, sub) => s + estimateTagPx(sub.name).w, 0) / n;
-    const tagH = 26;
 
-    // Número de columnas que caben cómodamente
     const cols = Math.max(1, Math.floor(containerW / (avgTagW + GAP)));
     const rows = Math.max(1, Math.ceil(n / cols));
 
-    // Tamaño de celda que reparte uniformemente todo el contenedor
-    const cellW = containerW / cols;
-    const cellH = containerH / rows;
+    // Celdas capeadas: la grilla puede ser más pequeña que el contenedor
+    const cellW = Math.min(containerW / cols, MAX_CELL_W);
+    const cellH = Math.min(containerH / rows, MAX_CELL_H);
 
-    // Ordenar celdas: la más cercana al centro primero
+    // Centrar la grilla dentro del contenedor
+    const gridW = cols * cellW;
+    const gridH = rows * cellH;
+    const offsetX = (containerW - gridW) / 2;
+    const offsetY = (containerH - gridH) / 2;
+
     const centerCol = (cols - 1) / 2;
     const centerRow = (rows - 1) / 2;
 
@@ -115,17 +122,15 @@ function computePositions(
         const cell = cells[i % cells.length];
         const { w, h } = estimateTagPx(sub.name);
 
-        // Centro de la celda
-        const cx = (cell.col + 0.5) * cellW;
-        const cy = (cell.row + 0.5) * cellH;
+        const cx = offsetX + (cell.col + 0.5) * cellW;
+        const cy = offsetY + (cell.row + 0.5) * cellH;
 
-        // Jitter acotado al espacio libre dentro de la celda
+        // Jitter acotado al espacio libre de la celda (reducido)
         const freeX = Math.max(0, cellW - w);
         const freeY = Math.max(0, cellH - h);
-        const jx = (seededRandom(i * 7 + 1) - 0.5) * freeX * 0.55;
-        const jy = (seededRandom(i * 7 + 2) - 0.5) * freeY * 0.55;
+        const jx = (seededRandom(i * 7 + 1) - 0.5) * freeX * 0.35;
+        const jy = (seededRandom(i * 7 + 2) - 0.5) * freeY * 0.35;
 
-        // Esquina superior-izquierda del tag, clampeada en px
         const left = Math.max(SAFE, Math.min(containerW - w - SAFE, cx + jx - w / 2));
         const top  = Math.max(SAFE, Math.min(containerH - h - SAFE, cy + jy - h / 2));
 

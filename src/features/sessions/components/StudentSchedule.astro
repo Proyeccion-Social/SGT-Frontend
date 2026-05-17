@@ -91,11 +91,13 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
             )
           }
         </div>
-        <SubjectSelector 
-          client:load 
-          initialSubjects={initialSubjects} 
-          initialSelectedId={subjectIdParam}
-        />
+        <article class='container-subjects-filter'>
+          <SubjectSelector
+            client:load
+            initialSubjects={initialSubjects}
+            initialSelectedId={subjectIdParam}
+          />
+        </article>
       </div>
     </div>
     <div class='legend'>
@@ -226,7 +228,7 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
 
   .header-left {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     justify-content: center;
     align-items: center;
   }
@@ -308,5 +310,54 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
   .calendar-scroll-area::-webkit-scrollbar-thumb {
     background: #e7dcff;
     border-radius: 10px;
+  }
+
+  .container-subjects-filter {
+    position: relative;
+    top: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .schedule-header {
+      padding: 24px 20px 16px;
+      gap: 10px;
+    }
+
+    .header-left {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .nav-actions {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header-title h1 {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    .date-range {
+      font-size: 14px;
+      bottom: 0;
+    }
+
+    .legend {
+      display: none;
+    }
+
+    .week-nav {
+      top: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  @media (max-width: 768px) {
+    .notification-floating {
+      display: none !important;
+    }
   }
 </style>

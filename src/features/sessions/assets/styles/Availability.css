@@ -1,4 +1,3 @@
-
 /* ── Encabezado ── */
 .availability-title {
   font-size: 32px;
@@ -170,4 +169,47 @@
 .availability-footer__continue-btn--active {
   background: var(--primary-400);
   cursor: pointer;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  .availability-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .availability-subtitle {
+    margin: 0 0 20px;
+    font-size: 14px;
+  }
+
+  .availability-card {
+    padding: 20px 16px;
+  }
+
+  .tutor-list {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .tutor-card {
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .tutor-card__photo-wrapper {
+    height: 160px;
+  }
+
+  .availability-footer {
+    margin-top: 20px;
+    justify-content: center;
+  }
+
+  .availability-footer__continue-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+  }
 }

@@ -121,11 +121,12 @@ export default function VaulDrawer() {
                 payload = {
                     subject_ids: cleanIds, // Tutor espera snake_case
                     phone: submitData.phone,
-                    url_image: submitData.url_image,
-                    max_weekly_hours: submitData.max_weekly_hours
+                    max_weekly_hours: Math.round(Number(submitData.max_weekly_hours) || 8),
                 };
             }
             
+            console.log('[drawer] endpoint:', endpoint, '| payload:', JSON.stringify(payload, null, 2));
+
             const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -134,6 +135,7 @@ export default function VaulDrawer() {
 
             if (!res.ok) {
                 const err = await res.json().catch(() => null);
+                console.error('[drawer] error response:', res.status, JSON.stringify(err, null, 2));
                 throw new Error(err?.message ?? 'Profile completion failed');
             }
             
@@ -203,7 +205,7 @@ export default function VaulDrawer() {
             >
                 <Drawer.Portal container={containerRef.current}>
                     <Drawer.Overlay className="drawer-overlay" data-state={isOpen ? "open" : "closed"} />
-                    <Drawer.Content className="drawer-content">
+                    <Drawer.Content className={`drawer-content${isStudent && (step === 1 || step === 2) ? ' drawer-content--student-additional' : ''}`}>
                         {/* Drag handle */}
                         <div aria-hidden className="drawer-handle" />
 

@@ -53,17 +53,17 @@
   border-radius: var(--sdv-radius-modal);
   box-shadow: var(--sdv-shadow);
 
-  /* CAMBIOS CLAVE */
-  width: fit-content; /* El contenedor ahora abraza el ancho del contenido */
-  min-width: 793px; /* Opcional: para que no se vea demasiado flaco con poco contenido */
-  max-width: 900px; /* Se limita al máximo de tu modal-card para no romperse */
+  /* RESPONSIVE WIDTH */
+  width: 100%;
+  max-width: 900px;
+  box-sizing: border-box;
 
-  padding: 24px 24px 24px 24px; /* bottom padding leaves room for buttons */
+  padding: clamp(16px, 4vw, 24px);
   position: relative;
   animation: sdv-slide-up 0.28s cubic-bezier(0.22, 0.68, 0, 1.2);
   overflow: visible;
 
-  gap: 8px;
+  gap: 12px; /* Reduced gap between sections */
   display: flex;
   flex-direction: column;
 }
@@ -102,25 +102,32 @@
 .sdv__top {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  background: var(--sdv-surface);
-  border-radius: var(--sdv-radius-card);
-  padding: 20px;
+  gap: 6px;
   background: rgba(232, 232, 232, 0.5);
   backdrop-filter: blur(34.3px);
   border-radius: 16px;
   border: 1px solid var(--neutral-200);
+  padding: clamp(12px, 3vw, 20px);
+}
+
+@media (max-width: 640px) {
+  .sdv__top {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 }
 
 /* Avatar */
 .sdv-avatar {
   border-radius: 50%;
-  object-fit: cover;
   flex-shrink: 0;
   border: 2px solid var(--sdv-violet-light);
-  width: 76px;
-  height: 76px;
-  border-radius: 8px;
+  width: 46px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  object-fit: cover;
 }
 
 /* Fallback avatar (initials) */
@@ -146,9 +153,14 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  height: 76px;
   justify-content: center;
   gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .sdv__header-text {
+    height: auto;
+  }
 }
 
 .sdv__title {
@@ -180,10 +192,26 @@
    ══════════════════════════════ */
 .sdv__tags {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allowed to wrap by default */
   gap: 6px;
   margin-bottom: 14px;
   align-items: center;
+}
+
+@media (max-width: 500px) {
+  .sdv__tags {
+    flex-wrap: nowrap; /* Force single line on very small screens */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 4px 0;
+    width: 100%;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  }
+  .sdv__tags::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .sdv-tag {
@@ -195,10 +223,11 @@
   white-space: nowrap;
   font-family: "Cabinet Grotesk Variable";
   font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 19px;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  font-size: clamp(12px, 2vw, 14px); /* Responsive font size */
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
 }
 
 /* Subject tag – yellow pastel */
@@ -246,8 +275,20 @@
 .sdv__cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 12px; /* Reduced from 24px */
+}
+
+@media (max-width: 900px) {
+  .sdv__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .sdv__cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 .sdv-card {
@@ -256,13 +297,13 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 15px 8px;
+  padding: clamp(10px, 2vw, 15px) 8px;
   text-align: center;
   transition:
     border-color 0.18s,
     box-shadow 0.18s;
-  width: 100%; /* Ocupa el total de su celda (que es 1/4 del grid) */
-  aspect-ratio: 1 / 1; /* Fuerza a que el alto sea igual al ancho automáticamente */
+  width: 100%;
+  aspect-ratio: 1 / 1;
   box-sizing: border-box;
   background: rgba(243, 237, 255, 0.5);
   border: 1px dashed var(--neutral-200);
@@ -270,10 +311,22 @@
   border-radius: 16px;
 }
 
+@media (max-width: 640px) {
+  .sdv-card {
+    aspect-ratio: auto; /* Remove square constraint on mobile */
+    min-height: 80px;
+    padding: 12px;
+    flex-direction: row; /* Horizontal layout for cards on mobile */
+    justify-content: flex-start;
+    text-align: left;
+    gap: 12px;
+  }
+}
+
 /* Icon circle */
 .sdv-card__icon {
-  width: 38px;
-  height: 38px;
+  width: clamp(32px, 8vw, 38px);
+  height: clamp(32px, 8vw, 38px);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -297,8 +350,8 @@
   font-family: "Open Sauce Two";
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 20px;
+  font-size: clamp(14px, 2vw, 16px);
+  line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--neutral-600);
 }
@@ -318,33 +371,45 @@
    4. FOOTER BUTTONS
    ══════════════════════════════ */
 .sdv__footer {
-  position: absolute;
-  bottom: -22px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
+  margin-top: 8px; /* Reduced from 12px */
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
-  width: calc(100% - 48px);
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .sdv__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .sdv-btn {
   flex: 1;
-  max-width: 200px;
+  min-width: 140px;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 8px 12px;
+  padding: clamp(10px, 2vw, 12px) 16px;
   gap: 10px;
   background: var(--secondary-200);
-  border-radius: 8px;
+  border-radius: 10px;
 
   font-family: "Open Sauce Two";
   font-style: normal;
   font-weight: 500;
-  font-size: 16px;
+  font-size: clamp(14px, 2vw, 16px);
   line-height: 20px;
   letter-spacing: -0.02em;
+}
+
+@media (max-width: 640px) {
+  .sdv-btn {
+    max-width: none;
+    width: 100%;
+  }
 }
 
 .sdv-btn--propose {
@@ -386,8 +451,7 @@
 }
 
 /* ══════════════════════════════════════════════════════
-   ProposeModificationForm + EditSessionForm — bloques .pmf
-   Añadir al final de SessionDetailView.css
+   Propose Modification Form + Edit Session Form (.pmf)
    ══════════════════════════════════════════════════════ */
 
 /* ── Contenedor principal ── */
@@ -405,34 +469,15 @@
   gap: 12px;
 }
 
-/* ── Fila de ancho completo (Disponibilidad) ── */
+@media (max-width: 768px) {
+  .pmf__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Fila de ancho completo ── */
 .pmf__row--full {
-  grid-template-columns: 1fr;
-}
-
-/* ══════════════════════════════════════════════════════
-   ProposeModificationForm + EditSessionForm — bloques .pmf
-   Añadir al final de SessionDetailView.css
-   ══════════════════════════════════════════════════════ */
-
-/* ── Contenedor principal ── */
-.pmf {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 4px 0;
-}
-
-/* ── Fila genérica: 2 columnas iguales ── */
-.pmf__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-/* ── Fila de ancho completo (Disponibilidad) ── */
-.pmf__row--full {
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr !important;
 }
 
 /* ── Caja visual de cada campo ── */
@@ -683,17 +728,7 @@
   border-left: 3px solid var(--error-300);
 }
 
-/* ── Responsive: apilar en móvil ── */
-@media (max-width: 480px) {
-  .pmf__row {
-    grid-template-columns: 1fr;
-  }
 
-  .pmf__card {
-    aspect-ratio: unset;
-    padding: 16px 12px;
-  }
-}
 
 /* ══════════════════════════════
    Keyframes
@@ -720,20 +755,15 @@
 /* ══════════════════════════════
    Responsive
    ══════════════════════════════ */
-@media (max-width: 540px) {
+@media (max-width: 640px) {
   .sdv {
-    padding: 20px 16px 72px 16px;
+    padding: 20px 16px 40px 16px; /* Increased bottom padding */
     border-radius: 18px;
+    width: 100%;
+    margin: 0 auto;
   }
   .sdv__cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .sdv__footer {
-    flex-direction: column;
-    width: calc(100% - 32px);
-  }
-  .sdv-btn {
-    flex: unset;
-    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }

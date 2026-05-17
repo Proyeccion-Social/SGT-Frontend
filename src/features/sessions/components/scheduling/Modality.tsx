@@ -21,13 +21,6 @@ export default function ModalityStep({ onNext, onBack, initialModality = null, i
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="modality-title">
-        <span className="modality-title__highlight">Información</span>{" "}
-        adicional
-      </h2>
-      <p className="modality-subtitle">Estás agendando un espacio nuevo</p>
-
       {/* ── Contenedor principal ── */}
       <div className="modality-card">
         <h3 className="modality-card__label">Modalidad</h3>

@@ -82,7 +82,7 @@ export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
 
   const badgeStyle: React.CSSProperties = {
     backgroundColor: "var(--color-moradops-100, #ede9fe)",
-    color: "var(--color-moradops-600, #7c3aed)",
+    color: "var(--color-moradops-600, #8751ff)",
   }
 
   const badge = (count: number) =>
@@ -155,7 +155,7 @@ export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
               <button
                 type="button"
                 onClick={clearAll}
-                className="text-xs font-semibold text-[var(--text-action,#7c3aed)] hover:text-[var(--text-action-hover)] transition-colors"
+                className="text-xs font-semibold text-[var(--text-action,#8751ff)] hover:text-[var(--text-action-hover)] transition-colors"
               >
                 Limpiar
               </button>

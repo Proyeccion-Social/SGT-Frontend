@@ -85,14 +85,6 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="availability-title">
-        <span className="availability-title__highlight">Selecciona</span>{" "}
-        el tutor de tu preferencia
-      </h2>
-      <p className="availability-subtitle">Estás agendando un espacio nuevo</p>
-
-      {/* ── Contenedor principal ── */}
       <div className="availability-card">
 
         {/* ── Lista de tutores ── */}
@@ -146,10 +138,6 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
                       : info?.modality === "VIRT"
                       ? "Virtual"
                       : "Presencial o virtual"}
-                  </p>
-                  <p className="tutor-card__info-text">
-                    <strong>Tipo:</strong>{" "}
-                    {info?.type ?? "Sin especificar"}
                   </p>
                 </div>
               </button>

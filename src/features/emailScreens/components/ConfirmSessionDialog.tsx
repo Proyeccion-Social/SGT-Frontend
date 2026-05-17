@@ -139,7 +139,7 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
               {session.tutor?.photo ? (
                 <img src={session.tutor.photo} alt={session.tutor.name} className="es-avatar" />
               ) : (
-                <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                <div className="es-avatar" style={{ background: '#8751ff', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                   {session.tutor?.name?.charAt(0) ?? 'T'}
                 </div>
               )}

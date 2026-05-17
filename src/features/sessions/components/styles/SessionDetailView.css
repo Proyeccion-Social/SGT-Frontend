@@ -508,12 +508,12 @@
 
 /* Foco: resalta la card cuando el campo interno está activo */
 .pmf__card:focus-within {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .pmf__card .form-field__input:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -537,7 +537,7 @@
 }
 
 .pmf__card .form-field__textarea:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -628,7 +628,7 @@
 
 /* Foco: resalta la card cuando el campo interno está activo */
 .pmf__card:focus-within {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -653,7 +653,7 @@
 }
 
 .pmf__card .form-field__select:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
   outline: none;
 }
@@ -678,7 +678,7 @@
 }
 
 .pmf__card .form-field__input:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -703,7 +703,7 @@
 }
 
 .pmf__card .form-field__textarea:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 

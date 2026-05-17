@@ -39,6 +39,7 @@
   border-radius: 16px;
   padding: 32px;
   background: #fafafa;
+  margin-top: 32px;
 }
 
 /* ── Grupo de campo (tema / descripción) ── */
@@ -144,7 +145,7 @@
 }
 
 .details-footer__continue-btn--active {
-  background: #7c3aed;
+  background: #8751ff;
   cursor: pointer;
 }
 

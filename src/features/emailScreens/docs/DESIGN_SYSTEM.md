@@ -4,7 +4,7 @@ La feature utiliza un sistema de diseño estrictamente coherente con el componen
 
 ## 1. Tokens de Diseño (CSS Variables)
 Localizados en `EmailScreensShared.css`, definen la paleta de colores y radios:
-- `--es-violet`: Color principal para acentos (#7c3aed).
+- `--es-violet`: Color principal para acentos (#8751ff).
 - `--es-lime`: Para acciones positivas (Aceptar/Confirmar).
 - `--es-coral`: Para acciones negativas o críticas (Rechazar/Cancelar).
 - `--es-radius-modal`: 24px para el contenedor principal.

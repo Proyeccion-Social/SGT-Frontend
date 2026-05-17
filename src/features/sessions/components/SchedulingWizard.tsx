@@ -93,7 +93,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
             }`}
           </span>
         ),
-        fill: "#7c3aed",
+        fill: "#8751ff",
         styles: { badge: "#ffffff" },
       });
 
@@ -331,10 +331,20 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
   ];
 
-  const needsModality = data.slot?.modality === null;
+  const slotContextModality = slotContext?.modality;
+  const isSlotContextAmbiguousModality =
+    !slotContextModality || slotContextModality === "null";
+  const needsModality = isSlotContextAmbiguousModality || data.slot?.modality == null;
   const totalSteps = needsModality ? 4 : 3;
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
+  const stepTitleByStep: Record<number, { highlight: string; rest: string }> = {
+    1: { highlight: "Selecciona", rest: "el tutor de tu preferencia" },
+    2: { highlight: "Información", rest: "adicional" },
+    3: { highlight: "Selecciona", rest: "el tipo de espacio" },
+    4: { highlight: "Selecciona", rest: "la modalidad del espacio" },
+  };
+  const currentTitle = stepTitleByStep[step] ?? stepTitleByStep[1];
 
   return (
     <>
@@ -362,10 +372,29 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
             <div className="wizard-drawer__handle" />
 
             {/* ── Área de contenido scrolleable ── */}
+
+            <article className="wizard-step-header">
+              <div className="wizard-header-text">
+                <h2 className="wizard-step-title">
+                  <span className="wizard-step-title__highlight">{currentTitle.highlight}</span>{" "}
+                  {currentTitle.rest}
+                </h2>
+                <p className="wizard-step-subtitle">Estás agendando un espacio nuevo</p>
+              </div>
+              <div className="wizard-drawer__step-indicator">
+                Paso
+                <img
+                  src={stepImages[step - 1]}
+                  alt={`Paso ${step} de ${totalSteps}`}
+                  className="wizard-drawer__step-image"
+                />
+              </div>
+            </article>
             <div className="wizard-drawer__content">
 
               {/* ── Wrapper del step activo ── */}
               <div className="wizard-drawer__step-wrapper">
+
                 {step === 1 && (
                   <AvailabilityStep
                     tutorIds={tutorIds}
@@ -422,17 +451,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                   />
                 )}
               </div>
-            </div>
-
-            {/* ── Indicador de paso ── */}
-            <div className="wizard-drawer__step-indicator">
-              Paso
-              <img
-                src={stepImages[step - 1]}
-                alt={`Paso ${step}`}
-                className="wizard-drawer__step-image"
-              />
-            </div>
+            </div>           
 
           </Drawer.Content>
         </Drawer.Portal>

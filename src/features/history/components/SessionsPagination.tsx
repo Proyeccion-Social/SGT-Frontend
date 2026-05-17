@@ -53,7 +53,7 @@ export function SessionsPagination({
 
   if (totalPages <= 1) return null;
 
-  const navBtnBase = "size-8 rounded-lg border border-[#e7dcff] bg-white text-[#9f74ff] hover:bg-[#f3edff] hover:text-[#7c3aed] transition-colors"
+  const navBtnBase = "size-8 rounded-lg border border-[#e7dcff] bg-white text-[#9f74ff] hover:bg-[#f3edff] hover:text-[#8751ff] transition-colors"
   const navBtnDisabled = "pointer-events-none opacity-40"
 
   return (

@@ -37,13 +37,6 @@ export default function DetailsStep({ onNext, onBack, initialTitle = "", initial
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="details-title">
-        <span className="details-title__highlight">Información</span>{" "}
-        adicional
-      </h2>
-      <p className="details-subtitle">Estás agendando un espacio nuevo</p>
-
       {/* ── Contenedor principal ── */}
       <div className="details-card">
 

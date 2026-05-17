@@ -78,7 +78,7 @@
   justify-content: center;
   gap: 12px;
   font-size: 14px;
-  color: #7c3aed;
+  color: #8751ff;
   font-weight: 500;
 }
 
@@ -169,6 +169,8 @@
 
   .session-type-options {
     gap: 12px;
+    flex-direction: column;
+    height: 300px;
   }
 
   .session-type-option {
@@ -176,6 +178,7 @@
     width: auto;
     height: 110px;
     font-size: 13px;
+    gap: 4px;
   }
 
   .session-type-option__icon {

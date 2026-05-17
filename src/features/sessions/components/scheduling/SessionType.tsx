@@ -21,13 +21,6 @@ export default function SessionTypeStep({ onNext, onBack, initialType = null, is
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="session-type-title">
-        <span className="session-type-title__highlight">Información</span>{" "}
-        adicional
-      </h2>
-      <p className="session-type-subtitle">Estás agendando un espacio nuevo</p>
-
       {/* ── Contenedor principal ── */}
       <div className="session-type-card">
         <h3 className="session-type-card__label">Tipo</h3>

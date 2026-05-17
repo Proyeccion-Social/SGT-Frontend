@@ -73,7 +73,7 @@
 /* ── Chevron ── */
 .cs__chevron {
   flex-shrink: 0;
-  color: var(--sdv-violet, #7c3aed);
+  color: var(--sdv-violet, #8751ff);
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -123,12 +123,12 @@
 
 .cs__option:hover {
   background: rgba(243, 237, 255, 0.8);
-  color: var(--sdv-violet, #7c3aed);
+  color: var(--sdv-violet, #8751ff);
 }
 
 .cs__option--selected {
   background: rgba(124, 58, 237, 0.07);
-  color: var(--sdv-violet, #7c3aed);
+  color: var(--sdv-violet, #8751ff);
   font-weight: 600;
 
 }
@@ -136,7 +136,7 @@
 /* ── Check icon en opción seleccionada ── */
 .cs__option-check {
   flex-shrink: 0;
-  color: var(--sdv-violet, #7c3aed);
+  color: var(--sdv-violet, #8751ff);
 }
 
 /* ── Hint debajo del trigger ── */

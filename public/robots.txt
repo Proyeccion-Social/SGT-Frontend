@@ -17,4 +17,4 @@ Disallow: /reset-password
 Disallow: /api
 Disallow: /api/
 
-Sitemap: https://atlas-tutoring.vercel.app/sitemap.xml
+Sitemap: https://atlas.proysocial.org/sitemap.xml

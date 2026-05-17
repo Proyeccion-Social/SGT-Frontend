@@ -11,7 +11,7 @@ const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
 
 export default defineConfig({
   // Set PUBLIC_SITE_URL in .env to your production domain for correct canonical URLs
-  site: process.env.PUBLIC_SITE_URL ?? 'https://atlas-tutoring.vercel.app',
+  site: process.env.PUBLIC_SITE_URL ?? 'https://atlas.proysocial.org',
   output: 'server',
   adapter: isVercel ? vercel({ imageService: true }) : node({ mode: 'standalone' }),
   integrations: [react()],

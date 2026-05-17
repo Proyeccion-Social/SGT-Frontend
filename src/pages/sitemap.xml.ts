@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 
 const SITE_URL =
-  import.meta.env.PUBLIC_SITE_URL ?? "https://atlas-tutoring.vercel.app";
+  import.meta.env.PUBLIC_SITE_URL ?? "https://atlas.proysocial.org";
 
 const pages = [
   { loc: "/", changefreq: "weekly", priority: "1.0" },

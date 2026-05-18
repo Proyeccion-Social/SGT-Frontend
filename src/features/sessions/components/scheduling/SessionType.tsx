@@ -7,10 +7,12 @@ import "../../assets/styles/SessionType.css";
 interface Props {
   onNext: (type: "INDIVIDUAL" | "GRUPAL") => void;
   onBack: () => void;
+  initialType?: "INDIVIDUAL" | "GRUPAL" | null;
+  isSubmitting?: boolean;
 }
 
-export default function SessionTypeStep({ onNext, onBack }: Props) {
-  const [selected, setSelected] = useState<"INDIVIDUAL" | "GRUPAL" | null>(null);
+export default function SessionTypeStep({ onNext, onBack, initialType = null, isSubmitting = false }: Props) {
+  const [selected, setSelected] = useState<"INDIVIDUAL" | "GRUPAL" | null>(initialType);
 
   const options = [
     { value: "INDIVIDUAL" as const, label: "Individual", icon: individualIcon },
@@ -19,13 +21,6 @@ export default function SessionTypeStep({ onNext, onBack }: Props) {
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="session-type-title">
-        <span className="session-type-title__highlight">Información</span>{" "}
-        adicional
-      </h2>
-      <p className="session-type-subtitle">Estás agendando un espacio nuevo</p>
-
       {/* ── Contenedor principal ── */}
       <div className="session-type-card">
         <h3 className="session-type-card__label">Tipo</h3>
@@ -57,14 +52,20 @@ export default function SessionTypeStep({ onNext, onBack }: Props) {
           ))}
         </div>
 
-        {/* ── Pie con botón de continuar ── */}
+        {/* ── Pie con botones de navegación ── */}
         <div className="session-type-footer">
           <button
-            disabled={!selected}
-            onClick={() => selected && onNext(selected)}
-            className={`session-type-footer__continue-btn${selected ? " session-type-footer__continue-btn--active" : ""}`}
+            onClick={onBack}
+            className="session-type-footer__back-btn"
           >
-            Continuar
+            Atrás
+          </button>
+          <button
+            disabled={!selected || isSubmitting}
+            onClick={() => selected && !isSubmitting && onNext(selected)}
+            className={`session-type-footer__continue-btn${selected && !isSubmitting ? " session-type-footer__continue-btn--active" : ""}`}
+          >
+            {isSubmitting ? "Agendando..." : "Continuar"}
           </button>
         </div>
       </div>

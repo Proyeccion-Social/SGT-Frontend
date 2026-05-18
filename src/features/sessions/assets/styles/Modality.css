@@ -77,7 +77,7 @@
   justify-content: center;
   gap: 12px;
   font-size: 14px;
-  color: #7c3aed;
+  color: #8751ff;
   font-weight: 500;
 }
 
@@ -107,11 +107,31 @@
   height: 48px;
 }
 
-/* ── Pie con botón de continuar ── */
+/* ── Pie con botones de navegación ── */
 .modality-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 24px;
+}
+
+.modality-footer__back-btn {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.modality-footer__back-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 .modality-footer__continue-btn {
@@ -126,7 +146,7 @@
 }
 
 .modality-footer__continue-btn--active {
-  background: #7c3aed;
+  background: #8751ff;
   cursor: pointer;
 }
 
@@ -164,7 +184,14 @@
 
   .modality-footer {
     margin-top: 16px;
-    justify-content: center;
+    justify-content: space-between;
+  }
+
+  .modality-footer__back-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    margin-right: 8px;
   }
 
   .modality-footer__continue-btn {

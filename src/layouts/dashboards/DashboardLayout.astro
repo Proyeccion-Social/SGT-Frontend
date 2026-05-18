@@ -36,11 +36,12 @@ const userId = getUserIdFromCookie(Astro.cookies);
       <slot />
     </main>
   </div>
-  <NotificationsPanel client:load transition:persist />
+  <NotificationsPanel client:idle transition:persist />
+  <!-- <FirstLoginSetup client:idle transition:persist /> -->
   {
     (rol === "tutor" || rol === "student") && (
       <>
-        <VaulDrawer client:load transition:persist />
+        <VaulDrawer client:idle transition:persist />
         {rol === "tutor" && <TutorAvailabilityOverlay />}
       </>
     )
@@ -75,7 +76,6 @@ const userId = getUserIdFromCookie(Astro.cookies);
     .main-content {
       height: 100vh;
       background-color: #fff;
-      padding-bottom: 100px; /* Space for floating bottom dock */
     }
 
     /* Global overrides to ensure white area has no rounded corners on mobile */
@@ -98,12 +98,5 @@ const userId = getUserIdFromCookie(Astro.cookies);
   /* Hide user header globally when a modal is open (Desktop and Mobile) */
   :global(body.modal-open .user-header) {
     display: none !important;
-  }
-
-  @media (max-width: 768px) {
-    :global(.search-page) {
-      height: calc(100vh - 100px) !important;
-      overflow: hidden !important;
-    }
   }
 </style>

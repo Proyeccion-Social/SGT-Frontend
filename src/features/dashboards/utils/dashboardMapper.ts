@@ -8,12 +8,22 @@ export const mapDashboardSessionToSession = (
 ): Session => {
   const isTutor = userRole === UserRole.TUTOR;
 
+  // Calculate duration in hours from startTime/endTime (HH:mm)
+  const parseMinutes = (t: string): number => {
+    const [h = 0, m = 0] = t.split(':').map(Number);
+    return h * 60 + m;
+  };
+  const duration = Math.max(
+    0,
+    (parseMinutes(summary.endTime) - parseMinutes(summary.startTime)) / 60
+  );
+
   // For a tutor, otherPerson is a student (participant)
   // For a student, otherPerson is the tutor
   
   const tutor: SessionTutor = isTutor 
-    ? { id: 'me', name: 'Yo', photo: '' } // Placeholder for "Me" as tutor
-    : { id: 'other', name: summary.otherPersonName, photo: summary.otherPersonImage };
+    ? { id: 'me', name: 'Yo', photo: '' }
+    : { id: 'other', name: summary.otherPersonName, photo: summary.otherPersonImage ?? '' };
 
   const participants: SessionParticipant[] = isTutor
     ? [{ id: 'other', name: summary.otherPersonName, status: 'CONFIRMED', role: UserRole.STUDENT }]
@@ -31,8 +41,7 @@ export const mapDashboardSessionToSession = (
     scheduledDate: summary.scheduledDate,
     startTime: summary.startTime,
     endTime: summary.endTime,
-    duration: 1, // Default or calculated
-    type: summary.sessionType,
+    duration,
     modality: summary.modality,
     status: summary.status,
     tutor,

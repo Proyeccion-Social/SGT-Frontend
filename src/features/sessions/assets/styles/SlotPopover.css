@@ -71,7 +71,7 @@
 
 .slot-selection-border {
   position: fixed;
-  border: 3px dashed #7c3aed;
+  border: 3px dashed #8751ff;
   border-radius: 10px;
   pointer-events: none;
   z-index: 5002;

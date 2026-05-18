@@ -67,7 +67,8 @@
 
 @font-face {
   font-family: "Open Sauce Two";
-  src: url("../assets/fonts/sans/OpenSauceSans-ExtraBold.ttf") format("truetype");
+  src: url("../assets/fonts/sans/OpenSauceSans-ExtraBold.ttf")
+    format("truetype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;

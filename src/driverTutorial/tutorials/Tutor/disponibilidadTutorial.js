@@ -7,36 +7,36 @@ export function startDisponibilidadTutorTutorial(){
                 element: "#calendarTutorTUTORIAL",
                 popover: {
                     title: "Tus franjas como tutor",
-                    description:"Aqui podras ver tu calendario semanal de franjas disponibles/libres"
+                    description:"Aquí podrás ver tu calendario semanal de franjas disponibles/libres."
                 }
             },
             {
                 element: "#weekMonthTutorTUTORIAL",
                 popover: {
                     title: "Organizado y Eficaz",
-                    description: "Puedes ver  tus franjas tanto como por semana como por mes",
+                    description: "Puedes ver tus franjas tanto por semana como por mes.",
                 }
             },
             {
                 element: "#goHistorialTutorTUTORIAL",
                 popover: {
                     title: "Tu historial",
-                    description:  "Aqui podras ver todas tus sesiones. Luego lo podras ver mas detalladamente",
+                    description:  "Aquí podrás ver todas tus sesiones. Luego podrás verlas con más detalle.",
                 }
             },
             {
                 element: "#goNotificationsTUTORIAL",
                 popover: {
-                    title: "Al dia en un click",
-                    description: "Revisa tus notificaciones de modificacion, propuesta, cancelacion, etc.",
+                    title: "Al día con un clic",
+                    description: "Revisa tus notificaciones de modificación, propuesta, cancelación, etc.",
                 }
             },
             {
                 element: "#godashboardTUTORIAL",
 
                 popover: {
-                    title: "Volvamos a la seccion principal",
-                    description: "dale click",
+                    title: "Volvamos a la sección principal",
+                    description: "Dale clic.",
                     showButtons: []
                 },
                 disableActiveInteraction: false

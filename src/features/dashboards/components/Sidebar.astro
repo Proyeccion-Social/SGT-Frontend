@@ -153,6 +153,10 @@ const currentPath = Astro.url.pathname;
 
 
 <style>
+  .sidebarShow {
+    display: none;
+  }
+
   .sidebar {
     width: 80px;
     height: 100vh;
@@ -441,3 +445,39 @@ const currentPath = Astro.url.pathname;
   }
 </style>
 
+<script>
+  function updateSidebarActive() {
+    const path = window.location.pathname;
+    const sidebar = document.getElementById("main-sidebar");
+    if (!sidebar) return;
+
+    // Clear all active-link classes
+    sidebar
+      .querySelectorAll(".active-link")
+      .forEach((el) => el.classList.remove("active-link"));
+
+    // Re-apply based on current path
+    sidebar.querySelectorAll("a[href]").forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href || href === "#") return;
+
+      const matched =
+        href === path || (href !== "/dashboard" && path.startsWith(href));
+
+      if (matched) {
+        // dashboard-container and history-container carry active-link on the wrapper div
+        const wrapper = link.closest(
+          ".dashboard-container, .history-container",
+        );
+        if (wrapper) {
+          wrapper.classList.add("active-link");
+        } else {
+          // Direct <a> or calendar-container (uses :has(a.active-link) in CSS)
+          link.classList.add("active-link");
+        }
+      }
+    });
+  }
+
+  document.addEventListener("astro:page-load", updateSidebarActive);
+</script>

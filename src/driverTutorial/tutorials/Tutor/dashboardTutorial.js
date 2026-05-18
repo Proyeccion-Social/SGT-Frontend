@@ -13,11 +13,18 @@ export function startDashboardTutorTutorial() {
                 }
             },
             {
-
                 element: "#dashboardMainTUTORIAL",
+                onHighlightStarted: () => {
+                    const path = document.querySelector('.driver-overlay path');
+                    if (path) path.style.opacity = '0';
+                },
+                onDeselected: () => {
+                    const path = document.querySelector('.driver-overlay path');
+                    if (path) path.style.opacity = '0.5';
+                },
                 popover: {
                     title: "Dashboard - Pantalla Inicial",
-                    description: "Aqui podras ver y gestionar de manera rapida y facil tus tutorias.",
+                    description: "Aquí podrás ver y gestionar de manera rápida y fácil tus tutorías.",
                 }
             },
             {
@@ -31,7 +38,7 @@ export function startDashboardTutorTutorial() {
                 element: "#profileIconTUTORIAL",
                 popover: {
                     title: "Tu perfil",
-                    description: "Miremos que contiene. Haz click",
+                    description: "Miremos qué contiene. Haz clic.",
                     showButtons: []
                 },
                 disableActiveInteraction: false,
@@ -58,14 +65,14 @@ export function startDashboardTutorTutorial() {
                 element: "#sectionsProfileTutorTUTORIAL",
                 popover: {
                     title: "Configura y Actualiza",
-                    description: "Aquí podras consultar informacion relacionada con tu perfil, preferencias, actualizacion de contraseña, etc.",
+                    description: "Aquí podrás consultar información relacionada con tu perfil, preferencias, actualización de contraseña, etc.",
                     showButtons: ["next"]
                 }
             },
             {
                 element: "#goIntoProfileTutorTUTORIAL",
                 popover: {
-                    description: "Miremos mas detalladamente esta seccion. Haz click",
+                    description: "Miremos más detalladamente esta sección. Haz clic.",
                     showButtons: []
                 },
                 disableActiveInteraction: false,
@@ -91,7 +98,7 @@ export function startDashboardTutorTutorial() {
             {
                 element: "#profileViewTutorTUTORIAL",
                 popover: {
-                    description: "Mira tu perfil y ten la posibilidad de cambiar tu numero de telefono y contraseña.",
+                    description: "Mira tu perfil y ten la posibilidad de cambiar tu número de teléfono y contraseña.",
                     showButtons: ["next"]
                 }
             },
@@ -99,21 +106,21 @@ export function startDashboardTutorTutorial() {
                 element: "#disponibilidadTutorTUTORIAL",
                 popover: {
                     title: "Actualiza tus horarios",
-                    description: "Aqui puedes modificar tus franjas de disponibilidad semanales",
+                    description: "Aquí puedes modificar tus franjas de disponibilidad semanales.",
                 }
             },
             {
                 element: "#horasDispTutorTUTORIAL",
                 popover: {
-                    title: "Ponle un limite a tu carga semanal",
-                    description: "Actualiza tus horas maximas de tutorias semanales",
+                    title: "Ponle un límite a tu carga semanal",
+                    description: "Actualiza tus horas máximas de tutorías semanales.",
                 }
             },
             {
                 element: "#activarCuentaTutorTUTORIAL",
                 popover: {
                     title: "Estado de tu cuenta",
-                    description: "Podras activar y desactivar tu cuenta. En caso de desactivarla comunicalo!",
+                    description: "Podrás activar y desactivar tu cuenta. En caso de desactivarla, ¡comúnicalo!",
                     onNextClick: (element, step, { driver }) => {
                         document.querySelector('.ps-close-btn')?.click();
                         setTimeout(() => driver.moveNext(), 600); // 600ms para permitir que la animación de cierre termine y el dock se muestre
@@ -133,7 +140,7 @@ export function startDashboardTutorTutorial() {
                 element: "#goDisponibilidadTutorTUTORIAL",
                 popover: {
                     title: "Tu Calendario de disponibilidad",
-                    description: "Dale click",
+                    description: "Dale clic.",
                     showButtons: []
                 },
                 disableActiveInteraction: false

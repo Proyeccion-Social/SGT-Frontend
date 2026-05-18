@@ -16,6 +16,7 @@
   flex-shrink: 0;
   padding: 0 10rem;
   color: var(--text-body);
+  letter-spacing: -0.02em;
 }
 
 .span-lh {
@@ -38,7 +39,7 @@
   }
 
   .highlight-name {
-    font-size: 40px !important;
+    font-size: 46px !important;
   }
 
   .span-lh {
@@ -126,10 +127,12 @@
 
 .highlight-name {
   color: #9f74ff;
-  font-size: clamp(2rem, 5vw, 4rem);
-  font-weight: bold;
+  font-size: clamp(2.3rem, 5.5vw, 4.5rem);
+  font-weight: 800;
   position: relative;
   display: inline-block;
+  font-family: "Cabinet Grotesk Variable";
+  letter-spacing: -0.02em;
 }
 
 .hand-drawn-line {

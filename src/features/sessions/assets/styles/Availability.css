@@ -1,4 +1,4 @@
-/* ── Encabezado ── */
+
 .availability-title {
   font-size: 32px;
   font-weight: 600;
@@ -83,6 +83,7 @@
 
 /* ── Badge de materia ── */
 .tutor-card__subject-badge {
+  opacity: 0.8;
   position: absolute;
   top: 10px;
   right: 10px;
@@ -99,7 +100,7 @@
 /* ── Foto del tutor ── */
 .tutor-card__photo-wrapper {
   width: 100%;
-  height: 200px;
+  height: 230px;
   background: #e5e7eb;
   border-radius: 16px 16px 0 0;
   display: flex;
@@ -121,7 +122,6 @@
 
 /* ── Nombre superpuesto sobre la foto ── */
 .tutor-card__name-overlay {
-  background: rgba(0, 0, 0, 0.5);
   color: #fff;
   letter-spacing: -0.02em;
   padding: 6px 12px;
@@ -130,6 +130,8 @@
   margin-top: -32px;
   position: relative;
   z-index: 1;
+  background: rgba(255, 255, 255, 0.19);
+  backdrop-filter: blur(14px);
 }
 
 /* ── Información del tutor (modalidad / tipo) ── */
@@ -199,7 +201,7 @@
   }
 
   .tutor-card__photo-wrapper {
-    height: 160px;
+    height: 230px;
   }
 
   .availability-footer {
@@ -211,5 +213,9 @@
     width: 100%;
     padding: 14px;
     border-radius: 12px;
+  }
+
+  .tutor-card__photo {
+    object-position: 50% 15%;
   }
 }

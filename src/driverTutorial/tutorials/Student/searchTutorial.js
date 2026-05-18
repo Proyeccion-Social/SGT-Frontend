@@ -20,7 +20,7 @@ export function startSearchStudentTutorial() {
                 popover: {
                     title: "El mejor para ti <3",
                     description:
-                        "Mira los tutores que mas se adecuan con los filtros que seleccionaste",
+                        "Mira los tutores que más se adecuan con los filtros que seleccionaste.",
 
                 }
             },
@@ -29,7 +29,7 @@ export function startSearchStudentTutorial() {
 
                 popover: {
                     title: "Tu historial",
-                    description: "En este apartado podras ver todas tus sesiones (futuras, actuales, pasadas, etc). Despues podras verlo con mas detalle",
+                    description: "En este apartado podrás ver todas tus sesiones (futuras, actuales, pasadas, etc.). Después podrás verlo con más detalle.",
                 },
 
             },
@@ -38,7 +38,7 @@ export function startSearchStudentTutorial() {
 
                 popover: {
                     title: "Tus notificaciones",
-                    description: "Mantente al dia con tus sesiones! Luego veras lo util que es.",
+                    description: "¡Mantente al día con tus sesiones! Luego verás lo útil que es.",
                 },
 
             },
@@ -46,8 +46,8 @@ export function startSearchStudentTutorial() {
                 element: "#godashboardTUTORIAL",
 
                 popover: {
-                    title: "Volvamos a la seccion principal",
-                    description: "dale click",
+                    title: "Volvamos a la sección principal",
+                    description: "Dale clic.",
                     showButtons: []
                 },
                 disableActiveInteraction: false

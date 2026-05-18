@@ -101,13 +101,14 @@
    ══════════════════════════════ */
 .sdv__top {
   display: flex;
-  align-items: flex-start;
   gap: 6px;
   background: rgba(232, 232, 232, 0.5);
   backdrop-filter: blur(34.3px);
   border-radius: 16px;
   border: 1px solid var(--neutral-200);
   padding: clamp(12px, 3vw, 20px);
+  justify-content: center;
+  align-items: center;
 }
 
 @media (max-width: 640px) {
@@ -133,11 +134,11 @@
 
 /* Avatar */
 .sdv-avatar {
-  border-radius: 50%;
+  border-radius: 12px;
   flex-shrink: 0;
   border: 2px solid var(--sdv-violet-light);
-  width: 46px;
-  height: 46px;
+  width: 62px;
+  height: 62px;
   align-items: center;
   justify-content: center;
   object-fit: cover;
@@ -534,12 +535,12 @@
 
 /* Foco: resalta la card cuando el campo interno está activo */
 .pmf__card:focus-within {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .pmf__card .form-field__input:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -563,7 +564,7 @@
 }
 
 .pmf__card .form-field__textarea:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -654,7 +655,7 @@
 
 /* Foco: resalta la card cuando el campo interno está activo */
 .pmf__card:focus-within {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -679,7 +680,7 @@
 }
 
 .pmf__card .form-field__select:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
   outline: none;
 }
@@ -704,7 +705,7 @@
 }
 
 .pmf__card .form-field__input:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -729,7 +730,7 @@
 }
 
 .pmf__card .form-field__textarea:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 

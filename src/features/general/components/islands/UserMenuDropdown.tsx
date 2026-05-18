@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
+import { UserRole } from "@/constants/roles";
 import { navigate } from "astro:transitions/client";
 import {
   DropdownMenu,
@@ -29,7 +30,9 @@ type DialogTarget = {
 };
 
 export default function UserMenuDropdown() {
-  const { user, clearUser } = useAuthStore();
+  const user        = useAuthStore(state => state.user);
+  const clearUser   = useAuthStore(state => state.clearUser);
+  const hasHydrated = useAuthStore(state => state._hasHydrated);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogTarget, setDialogTarget] = useState<DialogTarget>({ view: "general" });
 
@@ -37,14 +40,14 @@ export default function UserMenuDropdown() {
   const [tutorView, setTutorView]                 = useState<TutorProfileDialogProps["initialView"]>("general");
   const [tutorGeneralMode, setTutorGeneralMode]   = useState<"info" | "password">("info");
 
-  const initials = user?.name
+  const initials = hasHydrated && user?.name
     ? user.name
         .split(" ")
         .map((w: string) => w[0])
         .slice(0, 2)
         .join("")
         .toUpperCase()
-    : "?";
+    : "";
 
   function openDialog(target: DialogTarget) {
     setDialogTarget(target);
@@ -75,8 +78,8 @@ export default function UserMenuDropdown() {
     }
   }
 
-  const isStudent = user?.role === "STUDENT";
-  const isTutor = user?.role === "TUTOR";
+  const isStudent = user?.role?.toLowerCase() === UserRole.STUDENT;
+  const isTutor   = user?.role?.toLowerCase() === UserRole.TUTOR;
 
   return (
     <>
@@ -94,7 +97,6 @@ export default function UserMenuDropdown() {
             <div className="umd-user-info__details">
               <span className="umd-user-info__name">{user?.name ?? "—"}</span>
               <span className="umd-user-info__email">{user?.email ?? "—"}</span>
-              <span className="umd-user-info__role">{user?.role ?? "—"}</span>
             </div>
           </div>
 

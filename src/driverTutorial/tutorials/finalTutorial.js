@@ -11,7 +11,7 @@ export function startFinalTutorial() {
             {
                 popover: {
                     title: "Disfruta tu experiencia en Atlas",
-                    description: "Este ha sido todo el tutorial",
+                    description: "Este ha sido todo el tutorial.",
                     popoverClass: "final-popover",
                     showButtons: ["next"],
                 },
@@ -24,7 +24,7 @@ export function startFinalTutorial() {
                 // Paso tipo Modal (sin elemento)
                 popover: {
                     title: "",
-                    description: `<img src="/gifs/cat-cat-licking.gif" style="width: 300px; border-radius: 20px; margin: auto;" />`,
+                    description: `<img src="/favicon.svg" style="width: 200px; margin: auto; display: block;" />`,
                     popoverClass: "celebration-popover",
                     showButtons: [], // Ocultamos botones
                 },

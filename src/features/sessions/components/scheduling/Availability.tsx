@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
-import type { Slot } from "@features/availability/services/availabilityService";
+import type { Slot, TutorProfileInfo } from "@features/availability/services/availabilityService";
 import "../../assets/styles/Availability.css";
 
 interface TutorInfo {
@@ -16,20 +16,33 @@ interface Props {
   tutorIds: string[];
   subject: string;
   subjectColor?: { color: string; borderColor: string };
+  tutorProfiles?: Record<string, TutorProfileInfo>;
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSelect }: Props) {
+export default function AvailabilityStep({ tutorIds, subject, subjectColor, tutorProfiles = {}, onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
-  const [tutors, setTutors] = useState<Record<string, TutorInfo>>({});
+
+  // Pre-populate from SSR profiles; only fetch what's missing
+  const buildInitialTutors = (): Record<string, TutorInfo> => {
+    const map: Record<string, TutorInfo> = {};
+    for (const id of tutorIds) {
+      const p = tutorProfiles[id];
+      if (p) {
+        map[id] = { id, name: p.name, photo: p.photo, modality: "", type: "", subjects: p.subjects };
+      }
+    }
+    return map;
+  };
+
+  const [tutors, setTutors] = useState<Record<string, TutorInfo>>(buildInitialTutors);
   const [loading, setLoading] = useState(false);
 
-  // Cargar info de tutores desde el BFF
+  // Cargar info de tutores desde el BFF solo para los no pre-cargados
   useEffect(() => {
-    if (!tutorIds || tutorIds.length === 0) {
-      setTutors({});
-      return;
-    }
+    const uncachedIds = tutorIds.filter((id) => !tutorProfiles[id]);
+
+    if (uncachedIds.length === 0) return;
 
     let cancelled = false;
 
@@ -37,7 +50,7 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSe
       setLoading(true);
       try {
         const results = await Promise.all(
-          tutorIds.map(async (id) => {
+          uncachedIds.map(async (id) => {
             const res = await fetch(`/api/sessions/scheduleapi?tutorId=${id}`)
 
             if (!res.ok) {
@@ -50,11 +63,13 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSe
 
         if (cancelled) return;
 
-        const byId: Record<string, TutorInfo> = {};
-        for (const t of results) {
-          byId[t.id] = t;
-        }
-        setTutors(byId);
+        setTutors((prev) => {
+          const updated = { ...prev };
+          for (const t of results) {
+            updated[t.id] = t;
+          }
+          return updated;
+        });
       } catch (e) {
         console.error("Error cargando tutores", e);
       } finally {
@@ -70,14 +85,6 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSe
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="availability-title">
-        <span className="availability-title__highlight">Selecciona</span>{" "}
-        el tutor de tu preferencia
-      </h2>
-      <p className="availability-subtitle">Estás agendando un espacio nuevo</p>
-
-      {/* ── Contenedor principal ── */}
       <div className="availability-card">
 
         {/* ── Lista de tutores ── */}
@@ -131,10 +138,6 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, onSe
                       : info?.modality === "VIRT"
                       ? "Virtual"
                       : "Presencial o virtual"}
-                  </p>
-                  <p className="tutor-card__info-text">
-                    <strong>Tipo:</strong>{" "}
-                    {info?.type ?? "Sin especificar"}
                   </p>
                 </div>
               </button>

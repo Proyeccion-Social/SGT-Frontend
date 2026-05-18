@@ -15,7 +15,7 @@ export function startAgendamientoStudentTutorial() {
                 popover: {
                     title: "Calendario Semanal",
                     description:
-                        "Mira todos los horarios disponibles para agendar una tutoria. \n Solo selecciona el espacio y elije la materia!"
+                        "Mira todos los horarios disponibles para agendar una tutoría. Solo selecciona el espacio y elige la materia."
                 }
             },
             {
@@ -24,7 +24,8 @@ export function startAgendamientoStudentTutorial() {
                 popover: {
                     title: "Planea y Filtra",
                     description:
-                        "Avanza a la siguiente semana y agenda tu tutoria con anticipacion, y filtra por la materia que quieras!"
+                        "Avanza a la siguiente semana y agenda tu tutoría con anticipación, y filtra por la materia que quieras.",
+                    popoverClass: "bottom-popover"
                 }
             },
 
@@ -32,8 +33,8 @@ export function startAgendamientoStudentTutorial() {
                 element: "#goSearchStudentTUTORIAL",
 
                 popover: {
-                    title: "Zona de busqueda",
-                    description: "Quieres buscar y filtrar tutorias mas facil? Este es el lugar. Dale click",
+                    title: "Zona de búsqueda",
+                    description: "¿Quieres buscar y filtrar tutorías más fácil? Este es el lugar. Dale clic.",
                     showButtons: []
                 },
                 disableActiveInteraction: false

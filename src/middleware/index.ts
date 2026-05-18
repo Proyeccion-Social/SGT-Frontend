@@ -74,11 +74,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
         context.cookies.set('access_token', data.accessToken, {
           httpOnly: true,
-          path: '/',
-          maxAge: 60 * 15, // 15 minutos
+          secure: import.meta.env.PROD,
           sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 60,
         });
-      } catch {
+
+        context.cookies.set('refresh_token', data.refreshToken, {
+          httpOnly: true,
+          secure: import.meta.env.PROD,
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 30,
+        });
+      } catch (err) {
+        console.error('[middleware] Error al renovar el token:', err);
         context.cookies.delete('access_token', { path: '/' });
         context.cookies.delete('refresh_token', { path: '/' });
         return context.redirect(`/?session=expired&redirect=${redirectParam}`);

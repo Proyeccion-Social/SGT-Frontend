@@ -205,8 +205,13 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   };
 
   const handleSubmit = async (currentData: WizardData) => {
-  if (isSubmitting) return;
-  setIsSubmitting(true);
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
   try {
     const dayMap: Record<string, number> = {
       LUNES: 1,

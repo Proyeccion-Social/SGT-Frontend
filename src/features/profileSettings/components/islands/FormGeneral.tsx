@@ -82,6 +82,11 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
       return;
     }
     setPhoneError("");
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
     setSavingInfo(true);
     await sileo
       .promise(
@@ -114,6 +119,11 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
     setPwErrors(errors);
     if (Object.values(errors).some(Boolean)) return;
 
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
     setSavingPw(true);
     await sileo
       .promise(

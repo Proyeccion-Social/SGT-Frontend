@@ -29,6 +29,11 @@ export function HoursLimit() {
 
   async function handleSave() {
     if (hours === "" || (hours as number) < 1) return;
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
     setSaving(true);
     await sileo
       .promise(

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { fetchMe } from '@features/auth/services/authService';
 
 export const prerender = false;
 
@@ -23,12 +24,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const data = await res.json().catch(() => ({}));
 
-    if (res.ok && data.accessToken && data.refreshToken) {
+    if (!res.ok) {
+      return new Response(JSON.stringify(data), {
+        status: res.status,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (data.accessToken && data.refreshToken) {
       cookies.set("access_token", data.accessToken, {
         httpOnly: true,
         path: "/",
         sameSite: "strict",
-        maxAge: 60 * 60, // 1h matches JWT expiry
+        maxAge: 60 * 60,
       });
       cookies.set("refresh_token", data.refreshToken, {
         httpOnly: true,
@@ -36,8 +44,21 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         sameSite: "strict",
         maxAge: 60 * 60 * 24 * 30,
       });
+
+      // Fetch full user profile to get requiresProfileCompletion correctly
+      // (same pattern as api/auth/login BFF)
+      const me = await fetchMe(data.accessToken);
+
+      return new Response(
+        JSON.stringify({
+          user: me.user,
+          requiresProfileCompletion: me.requiresProfileCompletion ?? false,
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
+    // Fallback: return raw data if tokens are missing (shouldn't happen on success)
     return new Response(JSON.stringify(data), {
       status: res.status,
       headers: { 'Content-Type': 'application/json' },

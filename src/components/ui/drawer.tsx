@@ -11,7 +11,6 @@ import Finish from '@/features/tutorProfile/components/Finish';
 import { Button } from '@/components/ui/button';
 
 import { useAuthStore } from '@/store/authStore';
-import type { CompleteTutorProfileDto } from '@/features/tutorProfile/services/tutorService';
 
 import './styles/drawer.css';
 import checkedIcon from "./images/checked-icon.svg"
@@ -67,24 +66,11 @@ export default function VaulDrawer() {
         }
     }, [requiresProfileCompletion]);
 
-    useEffect(() => {
-        const handlePageTransition = () => {
-            if (isOpen) {
-            }
-        };
-
-        document.addEventListener('astro:after-swap', handlePageTransition);
-        return () => document.removeEventListener('astro:after-swap', handlePageTransition);
-    }, [isOpen]);
 
     const nextStep = (newData?: Partial<DrawerFormData>) => {
         const merged = newData ? { ...formData, ...newData } : formData;
         if (newData) {
             setFormData(merged);
-        }
-
-        if (newData?.subjectIds) {
-            console.log("Materias seleccionadas (IDs):", newData.subjectIds);
         }
 
         setCanContinue(false);
@@ -101,28 +87,23 @@ export default function VaulDrawer() {
             let payload: any;
             let endpoint: string;
 
-            // Limpieza de IDs común
-            const cleanIds = (submitData.subjectIds || [])
-                .filter(id => typeof id === 'string' && id.trim() !== '')
-                .map(id => id.trim());
-
             if (isStudent) {
                 endpoint = '/api/student/complete-profile';
                 payload = {
-                    subjectIds: cleanIds,
                     preferredModality: submitData.preferredModality,
-                    career: submitData.career
+                    career: submitData.career,
                 };
             } else {
+                const cleanIds = (submitData.subjectIds || [])
+                    .filter(id => typeof id === 'string' && id.trim() !== '')
+                    .map(id => id.trim());
                 endpoint = '/api/tutor/complete-profile';
                 payload = {
-                    subject_ids: cleanIds, // Tutor espera snake_case
+                    subject_ids: cleanIds,
                     phone: submitData.phone,
                     max_weekly_hours: Math.round(Number(submitData.max_weekly_hours) || 8),
                 };
             }
-            
-            console.log('[drawer] endpoint:', endpoint, '| payload:', JSON.stringify(payload, null, 2));
 
             const res = await fetch(endpoint, {
                 method: 'POST',
@@ -132,7 +113,6 @@ export default function VaulDrawer() {
 
             if (!res.ok) {
                 const err = await res.json().catch(() => null);
-                console.error('[drawer] error response:', res.status, JSON.stringify(err, null, 2));
                 throw new Error(err?.message ?? 'Profile completion failed');
             }
             
@@ -145,7 +125,6 @@ export default function VaulDrawer() {
                 if (isStudent) {
                     updatedUser.preferredModality = payload.preferredModality || user.preferredModality || '';
                     updatedUser.career = payload.career || user.career || '';
-                    updatedUser.subjects = payload.subjectIds?.map((id: string) => ({ id })) || user.subjects || [];
                 } else {
                     updatedUser.phone = payload.phone || user.phone || '';
                     updatedUser.max_weekly_hours = payload.max_weekly_hours || user.max_weekly_hours || 8;

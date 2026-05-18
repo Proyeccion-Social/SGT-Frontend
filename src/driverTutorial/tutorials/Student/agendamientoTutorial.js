@@ -1,4 +1,4 @@
-import { createTour } from "../../createTour";
+import { createTour, getInteractiveElement } from "../../createTour";
 import "../../styles/dashStyles.css"
 
 export function startAgendamientoStudentTutorial() {
@@ -48,9 +48,7 @@ export function startAgendamientoStudentTutorial() {
     Detectar click del boton
   */
 
-    const btn = document.querySelector(
-        "#goSearchStudentTUTORIAL"
-    );
+    const btn = getInteractiveElement("#goSearchStudentTUTORIAL");
 
     if (btn) {
         btn.addEventListener("click", () => {

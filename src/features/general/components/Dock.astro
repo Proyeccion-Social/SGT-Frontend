@@ -26,6 +26,7 @@ const currentPath = Astro.url.pathname;
     <a
       href='/dashboard'
       class={`dock-item ${currentPath === "/dashboard" ? "active" : ""}`}
+      id="goDashboardMobileTUTORIAL"
     >
       <div class='icon-highlight'>
         <Image src={DashboardIcon} alt='Dashboard' class='icon' />
@@ -41,12 +42,13 @@ const currentPath = Astro.url.pathname;
             class={`dock-item calendar-item ${currentPath === "/sessions" ? "active" : ""}`}
           >
             <div class='icon-highlight'>
-              <Image src={CalendarIcon} alt='Calendario' class='icon' />
+              <Image src={CalendarIcon} alt='Calendario' class='icon' id="goAgendamientoMobileTUTORIAL" />
             </div>
           </a>
           <a
             href='/history'
             class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+            id="goHistorialStudentMobileTUTORIAL"
           >
             <div class='icon-highlight'>
               <Image src={HistoryIcon} alt='Historial' class='icon' />
@@ -57,7 +59,7 @@ const currentPath = Astro.url.pathname;
             class={`dock-item ${currentPath.startsWith("/search") ? "active" : ""}`}
           >
             <div class='icon-highlight'>
-              <Image src={SearchIcon} alt='Buscar' class='icon' />
+              <Image src={SearchIcon} alt='Buscar' class='icon' id="goSearchStudentMobileTUTORIAL" />
             </div>
           </a>
           <a href='#' class='dock-item'>
@@ -99,6 +101,7 @@ const currentPath = Astro.url.pathname;
           <a
             href='/availability/tutor/slots'
             class={`dock-item ${currentPath.startsWith("/availability/tutor") ? "active" : ""}`}
+            id="goDisponibilidadTutorMobileTUTORIAL"
           >
             <div class='icon-highlight'>
               <Image src={WindowIcon} alt='Disponibilidad' class='icon' />
@@ -107,6 +110,7 @@ const currentPath = Astro.url.pathname;
           <a
             href='/history'
             class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+            id="goHistorialTutorMobileTUTORIAL"
           >
             <div class='icon-highlight'>
               <Image src={HistoryIcon} alt='Historial' class='icon' />
@@ -119,7 +123,7 @@ const currentPath = Astro.url.pathname;
 </nav>
 
 {/* Floating Notifications for Mobile */}
-<a href='#' class='notification-floating'>
+<a href='#' class='notification-floating' id="goNotificationsMobileTUTORIAL">
   <div class='icon-highlight'>
     <Image src={NotificationIcon} alt='Notificaciones' class='icon' />
   </div>

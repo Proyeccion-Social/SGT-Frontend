@@ -10,6 +10,8 @@ export type LoginResult = {
     role: string;
     emailVerified: boolean;
   };
+  requiresPasswordChange?: boolean;
+  requiresProfileCompletion?: boolean;
 };
 
 export type RegisterDto = {

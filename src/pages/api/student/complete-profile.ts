@@ -13,8 +13,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     try {
         const body = await request.json();
-        const res = await fetch(`${API_URL}/students/me/complete-profile`, {
-            method: "POST",
+        const res = await fetch(`${API_URL}/students/me/preferences`, {
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`

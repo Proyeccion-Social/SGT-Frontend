@@ -1,0 +1,1934 @@
+// DashboardSessionManager.tsx
+// React orchestration wrapper — owns all modal state
+// Option B: listens to 'open-detail' CustomEvent dispatched by IncomingSessionsCard
+
+import { useState, useEffect } from 'react';
+import type { Session } from '../../sessions/types/session.types';
+import { useSession } from '../..//sessions/hooks/useSession';
+import { IncomingSessionsCard } from './IncomingSessionsCard';
+import { SessionDetailModal } from '@features/sessions/components/SessionDetailModal';
+import { CancelSessionModal } from '@features/sessions/components/CancelSessionModal';
+
+interface Props {
+  role: 'tutor' | 'student';
+}
+
+export const DashboardSessionManager = ({ role }: Props) => {
+  const { cancelar, modificar, editar, sessions, loading, error, fetchMySessions: refetch } = useSession(role);
+  // canCancel es tu lógica de ventana de tiempo — ejemplo:
+  const canCancel = (session: Session) => {
+    // tu lógica aquí, ej: verificar que falten más de X horas
+    return true;
+  };
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal]     = useState(false);
+  const [sessionToCancel, setSessionToCancel]     = useState<Session | null>(null);
+  
+  // Option B: listen to CustomEvent dispatched by IncomingSessionsCard
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const sessionId = (e as CustomEvent<{ sessionId: string }>).detail.sessionId;
+      if (sessionId) setSelectedSessionId(sessionId);
+    };
+    document.addEventListener('open-detail', handler);
+    return () => document.removeEventListener('open-detail', handler);
+  }, []);
+
+  const handleRequestCancel = (session: Session) => {
+    setSessionToCancel(session);
+    setSelectedSessionId(null);
+    setShowCancelModal(true);
+  };
+
+  const handleCancelClose = () => {
+    setShowCancelModal(false);
+    setSessionToCancel(null);
+  };
+
+  const handleCancelSuccess = () => {
+    setShowCancelModal(false);
+    setSessionToCancel(null);
+    refetch();
+  };
+
+  return (
+    <>
+      <IncomingSessionsCard
+        sessions={sessions}
+        isLoading={loading}
+        error={error}
+      />
+
+      {selectedSessionId && (
+        <SessionDetailModal
+          sessionId={selectedSessionId}
+          role={role}
+          onClose={() => setSelectedSessionId(null)}
+          onRequestCancel={handleRequestCancel}
+          modificar={modificar}
+          editar={editar}
+        />  
+      )}
+
+      {showCancelModal && sessionToCancel && (
+        <CancelSessionModal
+          session={sessionToCancel}
+          session_id={sessionToCancel.id}
+          onClose={handleCancelClose}
+          onSuccess={handleCancelSuccess}
+          cancelar={cancelar}
+          canCancel={canCancel}
+          isLoading={loading}
+          error={error}
+        />
+      )}
+    </>
+  );
+};
+
+export default DashboardSessionManager;
+
+// IncomingSessionsCard.tsx
+// Renders sessions fetched by DashboardSessionManager via useSessions
+// Option B: Detalles button dispatches CustomEvent 'open-detail' to document
+
+import '../styles/IncomingSessionsCard.css';
+import type { Session } from '../../sessions/types/session.types';
+
+interface Props {
+  sessions: Session[];
+  isLoading: boolean;
+  error: string | null;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const formatTime = (time: string) => time.substring(0, 5); // "HH:mm:ss" → "HH:mm"
+
+const formatDate = (date: string) => {
+  const [year, month, day] = date.split('-');
+  return `${day}/${month}/${year}`;
+};
+
+const getTimeLeft = (scheduledDate: string, startTime: string): string => {
+  const sessionDate = new Date(`${scheduledDate}T${startTime}`);
+  const now         = new Date();
+  const diffMs      = sessionDate.getTime() - now.getTime();
+  if (diffMs <= 0) return 'En curso';
+  const diffDays  = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  if (diffDays > 0) return `En ${diffDays}d ${diffHours}h`;
+  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  if (diffHours > 0) return `En ${diffHours}h ${diffMins}min`;
+  return `En ${diffMins}min`;
+};
+
+const openDetail = (sessionId: string) => {
+  document.dispatchEvent(
+    new CustomEvent('open-detail', { detail: { sessionId } })
+  );
+};
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+const SkeletonCard = () => (
+  <div className="session-card" aria-hidden="true">
+    <div className="card-content">
+      <div className="skeleton" style={{ height: 16, width: '60%', marginBottom: 8 }} />
+      <div className="skeleton" style={{ height: 12, width: '90%', marginBottom: 6 }} />
+      <div className="skeleton" style={{ height: 12, width: '40%' }} />
+    </div>
+    <div className="actions">
+      <div className="skeleton" style={{ height: 34, width: 80, borderRadius: 10 }} />
+    </div>
+  </div>
+);
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export const IncomingSessionsCard = ({ sessions, isLoading, error }: Props) => {
+  return (
+    <div className="session-container">
+      <h2 className="main-title">Tus proximas sesiones</h2>
+
+      <div className="cards-stack">
+        {isLoading && (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        )}
+
+        {!isLoading && error && (
+          <p style={{ color: 'white', fontSize: 14 }}>{error}</p>
+        )}
+
+        {!isLoading && !error && sessions.length === 0 && (
+          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14 }}>
+            No tienes sesiones próximas agendadas.
+          </p>
+        )}
+
+        {!isLoading && !error && sessions.map((session) => (
+          <div key={session.id} className="session-card">
+            <div className="card-content">
+              <div className="card-header">
+                <span>{session.title}</span>
+                <span className="badge-time">
+                  {getTimeLeft(session.scheduledDate, session.startTime)}
+                </span>
+              </div>
+
+              <p className="description">{session.description}</p>
+
+              <div className="card-footer">
+                <div className="tags">
+                  <span className="tag-subject">{String(session.subject)}</span>
+                  <span className="tag-status">{String(session.status)}</span>
+                </div>
+                <span className="time-label">
+                  {formatDate(session.scheduledDate)} · {formatTime(session.startTime)}
+                </span>
+              </div>
+            </div>
+
+            <div className="actions">
+              <button
+                className="btn-details"
+                onClick={() => openDetail(session.id)}
+                aria-label={`Ver detalles de ${session.title}`}
+              >
+                Detalles
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bottom-overlay">
+        <span className="view-more">Ver más</span>
+      </div>
+    </div>
+  );
+};
+
+export default IncomingSessionsCard;
+
+
+import "@/features/sessions/styles/AttendancePostSession.css";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import CloseIcon from "@/features/sessions/images/CloseIcon.svg";
+
+export default function AttendencePostSession() {
+    const [isOpen, setIsOpen] = useState(true);
+
+    const handleAttendanceClose = () => {
+        setIsOpen(false);
+    };
+
+    const handleAttendanceOpen = () => {
+        setIsOpen(true);
+    };
+
+    //Información mockeada, cambiar por consumo de la API
+    const attendanceData = [
+        {
+            name: "Johan Sebastian",
+        },
+        {
+            name: "Luna Maria",
+        },
+        {
+            name: "Juan David",
+        },
+        {
+            name: "Juan David",
+        },
+        {
+            name: "Juan David",
+        },
+        {
+            name: "Juan David",
+        },
+    ];
+
+    if (!isOpen) return null;
+    
+    return (
+        <>
+            <div className="attendance-overlay"></div>
+            <div className="attendance-container">
+                <Button className="attendance-close" onClick={handleAttendanceClose}><img src={CloseIcon.src} alt="Close" /></Button>
+                <div className="attendance-header">
+                    <h6>Nombre</h6>
+                    <h6>Asistió</h6>
+                </div>
+                <div className="attendance-content">
+                    <div className="attendance-content-item">
+                        {attendanceData.map((item, index) => (
+                            <div className="attendance-content-item-name" key={index}>
+                                <p>{item.name}</p>
+                                <input className="attendance-checkbox" type="checkbox" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="attendance-footer">
+                    <Button className="attendance-button" variant="default">Guardar</Button>
+                </div>
+            </div>
+        </>
+    )
+}
+
+
+// CancelSessionModal.tsx
+import './styles/CancelSessionModal.css';
+
+import { useState } from 'react';
+import type { Session } from '../types/session.types';
+import { useAuthStore } from '@/store/authStore';
+
+interface Props {
+  session: Session;
+  session_id : string;
+  onClose: () => void;
+  onSuccess: () => void;
+  canCancel: (session: Session) => boolean;
+  cancelar: (sessionId: string, reason: string, token: string) => Promise<boolean>;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export const CancelSessionModal = ({
+  session,
+  session_id,
+  onClose,
+  onSuccess,
+  canCancel,
+  cancelar,
+  isLoading,
+  error,
+}: Props) => {
+  const [reason, setReason] = useState('');
+  const [windowWarning, setWindowWarning] = useState(false);
+
+  const token = useAuthStore(state => state.token);
+
+  const handleCancel = async () => {
+    if (!canCancel(session)) {
+      setWindowWarning(true);
+      return;
+    }
+    setWindowWarning(false);
+    const ok = await cancelar(session.id, reason, token ?? '');
+    if (ok) onSuccess();
+  };
+
+  return (
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Cancel session">
+      <div className="modal-card modal-card--cancel">
+        <button className="modal-card__close" onClick={onClose} aria-label="Close">✕</button>
+
+        <h2 className="cancel-modal__title">
+          Antes de irte, explica por qué quieres cancelar esta tutoría
+        </h2>
+
+        <p className="cancel-modal__session-name">{session.title}</p>
+
+        <textarea
+          className="cancel-modal__textarea"
+          placeholder="Escribe tu justificación aquí…"
+          value={reason}
+          onChange={(e) => { setReason(e.target.value); setWindowWarning(false); }}
+          rows={5}
+          aria-label="Justificación de cancelación"
+          aria-required="true"
+        />
+
+        {windowWarning && (
+          <p className="cancel-modal__warning" role="alert">
+            La ventana de cancelación para esta sesión ya expiró.
+          </p>
+        )}
+
+        {error && (
+          <p className="cancel-modal__error" role="alert" aria-live="polite">
+            {error}
+          </p>
+        )}
+
+        <div className="cancel-modal__footer">
+          <button className="sdv-btn sdv-btn--propose" onClick={onClose} disabled={isLoading}>
+            Volver
+          </button>
+          <button
+            className="sdv-btn sdv-btn--cancel"
+            onClick={handleCancel}
+            disabled={reason.trim() === '' || isLoading}
+          >
+            {isLoading ? 'Cancelando…' : 'Cancelar tutoría'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CancelSessionModal;
+
+// EditSessionView.tsx — Tutor only
+// T014: 4 controlled inputs pre-populated with current session values
+// T015: Connected to editSession service
+
+import { useState } from 'react';
+import type { Session, EditSessionBody } from '../types/session.types';
+
+interface Props {
+  session: Session;
+  onSuccess: () => void;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
+  triggerSubmitRef?: React.MutableRefObject<(() => Promise<void>) | null>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
+}
+ 
+export const EditSessionForm = ({
+  session,
+  onSuccess,
+  onSubmittingChange,
+  triggerSubmitRef,
+  editar,
+}: Props) => {
+  const [title,       setTitle]       = useState(session.title);
+  const [description, setDescription] = useState(session.description);
+  const [location,    setLocation]    = useState('');
+  const [virtualLink, setVirtualLink] = useState('');
+  const [error,       setError]       = useState<string | null>(null);
+ 
+  const handleConfirm = async () => {
+    setError(null);
+    onSubmittingChange?.(true);
+ 
+    const body: EditSessionBody = {
+      title,
+      description,
+      ...(virtualLink.trim() && { virtualLink }),
+      ...(location.trim()    && { location }),
+    };
+ 
+    try {
+      const success = await editar(session.id, body);
+      if (!success) throw new Error('No se pudieron guardar los cambios.');
+      onSuccess();
+    } catch (err: any) {
+      setError(err?.message ?? 'Error al guardar cambios.');
+    } finally {
+      onSubmittingChange?.(false);
+    }
+  };
+ 
+  if (triggerSubmitRef) {
+    triggerSubmitRef.current = handleConfirm;
+  }
+ 
+  return (
+    <div className="pmf">
+ 
+      {/* ── Fila 1: Título + Descripción ── */}
+      <div className="pmf__row">
+ 
+        <div className="pmf__card pmf__card--unratio">
+          <div className="form-field">
+            <label htmlFor="edit-title" className="form-field__label">Título</label>
+            <input
+              id="edit-title"
+              type="text"
+              className="form-field__input"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Título de la sesión"
+            />
+          </div>
+        </div>
+ 
+        <div className="pmf__card pmf__card--unratio">
+          <div className="form-field">
+            <label htmlFor="edit-description" className="form-field__label">Descripción</label>
+            <textarea
+              id="edit-description"
+              className="form-field__textarea"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Descripción de la sesión"
+            />
+          </div>
+        </div>
+ 
+      </div>
+ 
+      {/* ── Fila 2: Lugar + Link virtual ── */}
+      <div className="pmf__row">
+ 
+        <div className="pmf__card pmf__card--unratio">
+          <div className="form-field">
+            <label htmlFor="edit-location" className="form-field__label">Lugar de encuentro</label>
+            <input
+              id="edit-location"
+              type="text"
+              className="form-field__input"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Ej. Sala 204, Biblioteca B"
+            />
+          </div>
+        </div>
+ 
+        <div className="pmf__card pmf__card--unratio">
+          <div className="form-field">
+            <label htmlFor="edit-virtual-link" className="form-field__label">Link virtual</label>
+            <input
+              id="edit-virtual-link"
+              type="url"
+              className="form-field__input"
+              value={virtualLink}
+              onChange={(e) => setVirtualLink(e.target.value)}
+              placeholder="https://meet.example.com/sesion"
+            />
+          </div>
+        </div>
+ 
+      </div>
+ 
+      {error && <p className="pmf__error" role="alert">{error}</p>}
+ 
+    </div>
+  );
+};
+ 
+export default EditSessionForm;
+
+
+// ProposeModificationView.tsx
+// T012: 3 controlled selectors — modality, duration, schedule (stub until T003)
+// T013: Connected to modifySession service
+import './styles/ProposeModificationView.css'
+
+import { useCallback, useEffect, useState } from 'react';
+import type { Session, ModifySessionBody } from '../types/session.types';
+
+export type SessionType = 'individual' | 'grupal' | '';
+export type Modality    = 'VIRT' | 'PRES' | '';
+ 
+export interface AvailabilitySlot {
+  id: string;
+  label: string; // e.g. "Lunes 14:00 – 15:00"
+}
+ 
+interface Props {
+  session: Session;
+  /** Slots de disponibilidad provistos por el consumidor (vacío = stub deshabilitado). */
+  availabilitySlots?: AvailabilitySlot[];
+  onSuccess: () => void;
+  /** Expone el estado de envío para que el padre controle el botón Confirmar. */
+  onSubmittingChange?: (isSubmitting: boolean) => void;
+  /** El padre llama a triggerSubmitRef.current() cuando presiona Confirmar. */
+  triggerSubmitRef?: React.MutableRefObject<(() => Promise<void>) | null>;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
+}
+ 
+export const ProposeModificationForm = ({
+  session,
+  availabilitySlots = [],
+  onSuccess,
+  onSubmittingChange,
+  triggerSubmitRef,
+  modificar,
+}: Props) => {
+  const [newModality,       setNewModality]       = useState<Modality>('');
+  const [newDurationHours, setNewDurationHours] = useState<string>('');
+  const [newAvailabilityId, setNewAvailabilityId] = useState('');
+  const [error,             setError]             = useState<string | null>(null);
+ 
+ 
+  const handleConfirm = useCallback(async () => {
+    setError(null);
+    onSubmittingChange?.(true);
+
+    const body: ModifySessionBody = {
+  ...(newModality      && { newModality }),
+  ...(newDurationHours && { newDurationHours: Number(newDurationHours) }),
+  ...(newAvailabilityId && { newAvailabilityId: Number(newAvailabilityId) }),
+};
+
+    try {
+      console.log('[ProposeModification] handleConfirm ejecutado', { sessionId: session.id, body });
+      const ok = await modificar(session.id, body);
+      if (ok) {
+        console.log('ejecutada la modificacion con exito');
+        onSuccess();
+      } else {
+        console.error('FALLO EL MODIFICAR');
+        setError('No se pudo proponer la modificación.');
+      }
+    } catch (err: any) {
+      setError(err?.message ?? 'Error al proponer modificación.');
+    } finally {
+      onSubmittingChange?.(false);
+    }
+  }, [newModality, newDurationHours, newAvailabilityId, modificar, session.id, onSuccess, onSubmittingChange]);
+
+  useEffect(() => {
+    if (triggerSubmitRef) {
+      triggerSubmitRef.current = handleConfirm;
+    }
+  }, [handleConfirm]);
+ 
+  const slotsAvailable = availabilitySlots.length > 0;
+ 
+  return (
+    <div className="pmf">
+ 
+      {/* ── Fila 1: Modalidad + Tipo ── */}
+      <div className="pmf__row">
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-modality" className="form-field__label">Modalidad</label>
+            <select
+              id="pmf-modality"
+              className="form-field__select"
+              value={newModality}
+              onChange={(e) => setNewModality(e.target.value as Modality)}
+            >
+              <option value="">Sin cambio</option>
+              <option value="VIRT">Virtual</option>
+              <option value="PRES">Presencial</option>
+            </select>
+          </div>
+        </div>
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-duration" className="form-field__label">Duración</label>
+            <select
+              id="pmf-duration"
+              className="form-field__select"
+              value={newDurationHours}
+              onChange={(e) => setNewDurationHours(e.target.value)}
+            >
+              <option value="">Sin cambio</option>
+              <option value="1">1 hora</option>
+              <option value="1.5">1 hora 30 min</option>
+              <option value="2">2 horas</option>
+            </select>
+          </div>
+        </div>
+ 
+      </div>
+ 
+      {/* ── Fila 2: Disponibilidad ── */}
+      <div className="pmf__row pmf__row--full">
+ 
+        <div className="pmf__card">
+          <div className="form-field">
+            <label htmlFor="pmf-slot" className="form-field__label">Disponibilidad</label>
+            <select
+              id="pmf-slot"
+              className="form-field__select"
+              value={newAvailabilityId}
+              onChange={(e) => setNewAvailabilityId(e.target.value)}
+              disabled={!slotsAvailable}
+              title={!slotsAvailable ? 'Pendiente de disponibilidad del tutor' : undefined}
+            >
+              {slotsAvailable ? (
+                <>
+                  <option value="">Selecciona un horario</option>
+                  {availabilitySlots.map((slot) => (
+                    <option key={slot.id} value={slot.id}>{slot.label}</option>
+                  ))}
+                </>
+              ) : (
+                <option value="">Próximamente…</option>
+              )}
+            </select>
+            {!slotsAvailable && (
+              <p className="form-field__hint">
+                La selección de horario estará disponible cuando se confirme la disponibilidad del tutor.
+              </p>
+            )}
+          </div>
+        </div>
+ 
+      </div>
+ 
+      {error && <p className="pmf__error" role="alert">{error}</p>}
+ 
+    </div>
+  );
+};
+ 
+export default ProposeModificationForm;
+ 
+
+// SessionDetailModal.tsx
+// Modal shell — backdrop blur, ModalView state, Escape/backdrop close
+
+import { useState, useEffect, useCallback } from 'react';
+import './styles/SessionDetailModal.css';
+import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import { useSessionDetail } from '../hooks/useSessionDetail';
+import { SessionDetailView } from './SessionDetaiView';
+import { useTutorSlots } from '../hooks/useAvailability';
+import type { AvailabilitySlot } from './ProposeModificationView';
+
+export type ModalView = 'detail' | 'propose' | 'edit';
+ 
+interface Props {
+  sessionId: string;
+  role: 'tutor' | 'student';
+  onClose: () => void;
+  onRequestCancel: (session: Session) => void;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
+}
+ 
+export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar }: Props) => {
+  const [view, setView] = useState<ModalView>('detail');
+  const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
+  const { slots: availabilitySlots } = useTutorSlots(session?.tutor?.id ?? null); 
+ 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
+    [onClose]
+  );
+ 
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [handleKeyDown]);
+ 
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+ 
+  return (
+    <div
+      className="modal-overlay"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Session detail"
+    >
+      <div className="modal-card">
+        <button className="modal-card__close" onClick={onClose} aria-label="Close modal">
+          ✕
+        </button>
+ 
+        {isLoading && (
+          <div className="modal-card__loading" aria-live="polite">
+            <p>Cargando sesión…</p>
+          </div>
+        )}
+ 
+        {!isLoading && error && (
+          <div className="modal-card__error" role="alert">
+            <p>Error al cargar la sesión: {error}</p>
+            <button className="sdv-btn sdv-btn--propose" onClick={onClose}>Cerrar</button>
+          </div>
+        )}
+ 
+        {!isLoading && !error && session && (
+          <SessionDetailView
+            session={session}
+            tutorInfo={tutorInfo}
+            role={role}
+            isProposing={view === 'propose'}
+            isEditing={view === 'edit'}
+            availabilitySlots={availabilitySlots}
+            onProposeModification={() => setView('propose')}
+            onBack={() => setView('detail')}
+            onEdit={() => setView('edit')}
+            onCancel={() => onRequestCancel(session)}
+            onProposeSuccess={onClose}
+            onEditSuccess={onClose}
+            modificar={modificar} 
+            editar={editar}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+ 
+export default SessionDetailModal;
+
+
+// SessionDetailView.tsx — styled to match design
+import { useRef, useState } from 'react';
+
+import './styles/SessionDetailView.css'
+import compu from './icons/compu.svg'
+import ubicacion from './icons/compu.svg'
+import pin from './icons/Pin.svg'
+import calendar from './icons/calendar-day.svg'
+import time from './icons/timer.svg'
+
+
+import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import { ProposeModificationForm } from './ProposeModificationView';
+import type { AvailabilitySlot }   from './ProposeModificationView';
+import { EditSessionForm } from './EditSessionView'
+
+interface TutorInfo {
+  id: string;
+  name: string;
+  photo?: string;
+}
+ 
+interface Props {
+  session: Session;
+  tutorInfo: TutorInfo | null;
+  role: 'tutor' | 'student';
+  isProposing?: boolean;
+  isEditing?: boolean;
+  availabilitySlots?: AvailabilitySlot[];
+  onProposeModification: () => void;
+  onBack: () => void;
+  onEdit: () => void;
+  onCancel: () => void;
+  onProposeSuccess: () => void;
+  onEditSuccess: () => void;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
+}
+ 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+ 
+const formatDuration = (start: string, end: string): string => {
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  const mins = (eh * 60 + em) - (sh * 60 + sm);
+  if (mins <= 0) return `${start} – ${end}`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h > 0 ? `${h} hora${h > 1 ? 's' : ''}${m > 0 ? ` ${m}min` : ''}` : `${m}min`;
+};
+ 
+const formatDate = (date: string, startTime: string): string => {
+  const [year, month, day] = date.split('-').map(Number);
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const t = startTime.substring(0, 5);
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12  = h % 12 || 12;
+  return `${day} de ${months[month - 1]}\n${h12}:${String(m).padStart(2,'0')}${ampm}`;
+};
+ 
+const modalityIcon = (modality: string) => {
+  const mo = String(modality).toLowerCase();
+  const iconAsset = (mo.includes('virt') || !mo.includes('pres')) ? compu : ubicacion;
+  const src = typeof iconAsset === 'string' ? iconAsset : iconAsset.src;
+  return (
+    <a href={src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+      <img src={src} alt="Icono de modalidad" style={{ width: '40px', height: '40px' }} />
+    </a>
+  );
+};
+ 
+const statusLabel = (status: string): string => {
+  const map: Record<string, string> = {
+    PENDING_TUTOR_CONFIRMATION: 'Pendiente de confirmación',
+    SCHEDULED:                  'Programada',
+    PENDING_MODIFICATION:       'Modificación pendiente',
+    REJECTED_BY_TUTOR:          'Rechazada por tutor',
+    CANCELLED_BY_STUDENT:       'Cancelada por estudiante',
+    CANCELLED_BY_TUTOR:         'Cancelada por tutor',
+    CANCELLED_BY_ADMIN:         'Cancelada por administrador',
+    COMPLETED:                  'Completada',
+  };
+  return map[status] ?? status;
+};
+
+const modalityLabel = (modality: string): string => {
+  const map: Record<string, string> = {
+    VIRT: 'Virtual',
+    PRES: 'Presencial',
+  };
+  return map[String(modality).toUpperCase()] ?? modality;
+};
+ 
+const FallbackAvatar = ({ name }: { name: string }) => (
+  <div className="sdv-avatar sdv-avatar--fallback">
+    {name.charAt(0).toUpperCase()}
+  </div>
+);
+ 
+// ─── Component ────────────────────────────────────────────────────────────────
+ 
+export const SessionDetailView = ({
+  session,
+  tutorInfo,
+  role,
+  isProposing = false,
+  isEditing   = false,
+  availabilitySlots = [],
+  onProposeModification,
+  onBack,
+  onEdit,
+  onCancel,
+  onProposeSuccess,
+  onEditSuccess,
+  modificar,
+  editar,
+}: Props) => {
+  const tutorName = tutorInfo?.name ?? session.tutor?.name ?? 'Tutor';
+  const [dateStr, timeStr] = formatDate(session.scheduledDate, session.startTime).split('\n');
+ 
+  const submitRef      = useRef<(() => Promise<void>) | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+ 
+  const isAltView = isProposing || isEditing;
+ 
+  return (
+    <div className='sdv-overlay'>
+      <div className="sdv">
+ 
+        {/* ── Top: photo + title + description ── */}
+        <div className="sdv__top">
+          {tutorInfo?.photo ? (
+            <img src={tutorInfo.photo} alt={tutorName} className="sdv-avatar" />
+          ) : (
+            <FallbackAvatar name={tutorName} />
+          )}
+          <div className="sdv__header-text">
+            <h2 className="sdv__title">{session.title}</h2>
+            <p className="sdv__description">{session.description}</p>
+          </div>
+        </div>
+ 
+        {/* ── Tags ── */}
+        <div className="sdv__tags">
+          <span className="sdv-tag sdv-tag--subject">{String(session.subject.name)}</span>
+          <span className="sdv-tag sdv-tag--tutor">
+            <span className="sdv-tag__dot sdv-tag__dot--purple" />
+            {tutorName}
+          </span>
+          <span className="sdv-tag sdv-tag--status">{statusLabel(String(session.status))}</span>
+        </div>
+ 
+        {/* ── Section title (only in alt views) ── */}
+        {isAltView && (
+          <p className="sdv__section-title">
+            <span className="sdv__section-dot" />
+            {isProposing ? 'Proponer modificación' : 'Editando...'}
+          </p>
+        )}
+ 
+        {/* ── Cards / Propose form / Edit form ── */}
+        {isProposing ? (
+          <ProposeModificationForm
+            session={session}
+            availabilitySlots={availabilitySlots}
+            onSuccess={onProposeSuccess}
+            onSubmittingChange={setIsSubmitting}
+            triggerSubmitRef={submitRef}
+            modificar={modificar}   // ← nuevo
+          />
+        ) : isEditing ? (
+          <EditSessionForm
+            session={session}
+            onSuccess={onEditSuccess}
+            onSubmittingChange={setIsSubmitting}
+            triggerSubmitRef={submitRef}
+            editar={editar}
+          />
+        ) : (
+          <div className="sdv__cards">
+ 
+            <div className="sdv-card">
+              <div className="sdv-card__icon sdv-card__icon--blue">
+                {modalityIcon(String(session.modality))}
+              </div>
+              <span className="sdv-card__label">
+                {modalityLabel(String(session.modality))}
+              </span>
+            </div>
+ 
+            <div className="sdv-card">
+              <a href={time.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+                <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
+              </a>
+              <span className="sdv-card__label">
+                {formatDuration(session.startTime, session.endTime)}
+              </span>
+            </div>
+ 
+            <div className="sdv-card">
+              <a href={calendar.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+                <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
+              </a>
+              <span className="sdv-card__label">
+                {dateStr}
+                <br/>
+                <span className="sdv-card__sublabel">{timeStr}</span>
+              </span>
+            </div>
+ 
+            <div className="sdv-card">
+              <a href={pin.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+                <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
+              </a>
+              <span className="sdv-card__label">{statusLabel(String(session.status))}</span>
+            </div>
+ 
+          </div>
+        )}
+ 
+        {/* ── Footer ── */}
+        <div className="sdv__footer">
+          {isAltView ? (
+            <>
+              <button
+                className="sdv-btn sdv-btn--propose"
+                onClick={onBack}
+                disabled={isSubmitting}
+              >
+                Volver
+              </button>
+              <button
+                className="sdv-btn sdv-btn--edit"
+                onClick={() => submitRef.current?.()}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Guardando…' : 'Confirmar'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
+                Proponer modificación
+              </button>
+              {role === 'tutor' && (
+                <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
+                  Editar
+                </button>
+              )}
+              <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
+                Cancelar tutoría
+              </button>
+            </>
+          )}
+        </div>
+ 
+      </div>
+    </div>
+  );
+};
+ 
+export default SessionDetailView;
+
+
+import { useState, useCallback, useEffect } from 'react';
+import { getAvailability } from '../services/sessionService';
+import type { AvailabilitySlot as SlotFromAPI, AvailabilityQuery } from '../types/session.types';
+import type { AvailabilitySlot } from '../components/ProposeModificationView';
+
+export function useTutorSlots(tutorId: string | null) {
+  const [slots, setSlots]     = useState<AvailabilitySlot[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!tutorId) return;
+
+    const fetchSlots = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/availability/tutor-availability?tutorId=${tutorId}`);
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+
+        console.log('[useTutorSlots] respuesta cruda:', data);
+
+        // Mapear Slot → AvailabilitySlot para ProposeModificationForm
+        const mapped: AvailabilitySlot[] = data.slots.map((s: SlotFromAPI) => ({
+          id: s.id,
+          label: `${s.dayOfWeek} ${s.startTime} – ${s.endTime}`,
+        }));
+        console.log('[useTutorSlots] slots mapeados:', mapped);
+        setSlots(mapped);
+      } catch (err) {
+        console.error('[useTutorSlots] error:', err);
+        setError(err instanceof Error ? err.message : 'Error fetching slots');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSlots();
+  }, [tutorId]);
+
+  return { slots, loading, error };
+}
+
+
+import { useState, useCallback, useEffect } from 'react';
+import {
+  createSession,
+} from '../services/sessionService';
+import type { Session, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import { useAuthStore } from '@/store/authStore';
+
+interface UseSessionReturn {
+  error: string | null;
+  fetchMySessions: () => Promise<void>;
+  agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
+  cancelar: (sessionId: string, reason: string) => Promise<boolean>;
+  modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
+  editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
+}
+
+export function useSession(role: 'tutor' | 'student'): UseSessionReturn {
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+    }
+  }, [_hasHydrated, user?.id]);
+
+  const fetchMySessions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/sessions/my-sessions?role=${role}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
+      }
+      const json = await res.json();
+      setSessions(json.data ?? json);
+    } catch (err) {
+      console.error('[useSessions] error:', err);
+      setError(err instanceof Error ? err.message : 'Error fetching sessions');
+    } finally {
+      setLoading(false);
+    }
+  }, [role]);
+
+  const agendar = useCallback(
+    async (data: CreateSessionDTO): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        const nueva = await createSession(data);
+        setSessions(prev => [...prev, nueva]);
+        return true;
+      } catch (e: any) {
+        setError(e.message);
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const cancelar = useCallback(async (sessionId: string, reason: string): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/sessions/cancel-session`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reason }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
+      }
+
+      setSessions(prev =>
+        prev.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
+      );
+      return true;
+    } catch (err) {
+      console.error('[useSessions] error:', err);
+      setError(err instanceof Error ? err.message : 'Error cancelling session');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const modificar = useCallback(
+    async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/sessions/modify-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, ...data }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+
+        const updated: Session = await res.json();
+        setSessions(prev =>
+          prev.map(s => (s.id === sessionId ? { ...s, ...updated } : s))
+        );
+        return true;
+      } catch (err) {
+        console.error('[useSessions] error:', err);
+        setError(err instanceof Error ? err.message : 'Error modifying session');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // ── EDITAR ─────────────────────────────────────────────────────────────────
+  // Diferente a modificar: usa PATCH /scheduling/sessions/{sessionId}
+  // Actualiza campos como virtualLink y location sobre una sesión existente
+  const editar = useCallback(
+    async (sessionId: string, data: EditSessionBody): Promise<boolean> => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`/api/sessions/edit-session`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, ...data }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+
+        const result = await res.json();
+
+        // Refrescamos la sesión actualizada en el estado local
+        setSessions(prev =>
+          prev.map(s => (s.id === sessionId ? { ...s, ...data } : s))
+        );
+
+        return true;
+      } catch (err) {
+        console.error('[useSessions] editar error:', err);
+        setError(err instanceof Error ? err.message : 'Error editing session');
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+  // ──────────────────────────────────────────────────────────────────────────
+
+  return { sessions, loading, error, fetchMySessions, agendar, cancelar, modificar, editar };
+}
+
+
+
+// useSessionDetail.ts
+// Calls BFF routes — no token, no store dependency
+// BFF handles HttpOnly cookie → backend fetch
+
+import { useState, useEffect } from 'react';
+import type { Session, SessionTutor } from '../types/session.types';
+
+interface UseSessionDetailReturn {
+  session: Session | null;
+  tutorInfo: SessionTutor | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export function useSessionDetail(sessionId: string | null): UseSessionDetailReturn {
+  const [session, setSession]     = useState<Session | null>(null);
+  const [tutorInfo, setTutorInfo] = useState<SessionTutor | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError]         = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!sessionId) return;
+
+    let cancelled = false;
+    setIsLoading(true);
+    setError(null);
+    setSession(null);
+    setTutorInfo(null);
+
+    fetch(`/api/sessions/detail?sessionId=${sessionId}`)
+      .then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `HTTP ${res.status}`);
+        }
+        return res.json() as Promise<Session>;
+      })
+      .then(async (sessionData) => {
+        if (cancelled) return;
+        setSession(sessionData);
+
+        const tutorId = sessionData.tutor?.id;
+        if (!tutorId) return;
+
+        try {
+          const tutorRes = await fetch(`/api/sessions/tutor-info?tutorId=${tutorId}`);
+          if (tutorRes.ok) {
+            const tutorData: SessionTutor = await tutorRes.json();
+            if (!cancelled) setTutorInfo(tutorData);
+          }
+        } catch {
+          if (!cancelled) setTutorInfo(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'Error loading session');
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [sessionId]);
+
+  return { session, tutorInfo, isLoading, error };
+}
+
+
+
+import type { Session, CreateSessionDTO, AvailabilitySlot, AvailabilityQuery, SessionTutor,
+  CancelSessionResponse,
+  ModifySessionBody,
+  EditSessionBody, } from '../types/session.types';
+
+const API_URL = import.meta.env.PUBLIC_API_URL;
+
+async function request<T>(
+  path: string,
+  token: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    },
+  });
+ 
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(
+      errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`
+    );
+  }
+ 
+  return res.json() as Promise<T>;
+}
+
+
+  };
+}
+
+export async function createSession(data: CreateSessionDTO, token? : string): Promise<Session> {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/scheduling/sessions/individual`, { 
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(token && { Authorization: token }) },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const error = await res.json();
+      throw new Error(error.message ?? 'Error al crear la sesión');
+    } else {
+      throw new Error(`Error crítico del servidor: Código ${res.status}`);
+    }
+  }
+
+  return res.json();
+  return res.json();
+}
+
+// ─── Consultar disponibilidad ───────────────────────────────
+export async function getAvailability(query: AvailabilityQuery): Promise<AvailabilitySlot[]> {
+  const params = new URLSearchParams({
+  if (!res.ok) throw new Error('Error al consultar disponibilidad');
+  return res.json();
+}
+
+/** GET /sessions/my-sessions/{role} */
+export async function getSessions(
+  role: 'tutor' | 'student',
+  token: string
+): Promise<Session[]> {
+  console.log('[getSessions] URL:', `${API_URL}/scheduling/sessions/my-sessions/${role}`);
+  const res = await request<{ data: Session[] }>(
+    `/scheduling/sessions/my-sessions/${role}`,
+    token
+  );
+  return res.data;
+}
+ 
+/** GET /scheduling/sessions/{sessionId} */
+export function getSessionDetail(
+  sessionId: string,
+  token: string
+): Promise<Session> {
+  return request<Session>(`/scheduling/sessions/${sessionId}`, token);
+}
+ 
+/** GET /tutors/{tutorId} */
+export function getTutorInfo(
+  tutorId: string,
+  token: string
+): Promise<SessionTutor> {
+  return request<SessionTutor>(`/tutors/${tutorId}`, token);
+}
+ 
+/** DELETE /scheduling/sessions/{sessionId}
+ *  Q3 answer: body includes { reason: string }
+ */
+export function cancelSession(
+  sessionId: string,
+  reason: string,
+  token: string
+): Promise<CancelSessionResponse> {
+  return request<CancelSessionResponse>(
+    `/scheduling/sessions/${sessionId}`,
+    token,
+    {
+      method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    }
+  );
+}
+ 
+/** POST /scheduling/sessions/{sessionId} */
+export function modifySession(
+  sessionId: string,
+  body: ModifySessionBody,
+  token: string
+): Promise<{ success: boolean; message: string }> {
+  return request(`/scheduling/sessions/${sessionId}/propose-modification`, token, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+}
+ 
+/** PATCH /scheduling/sessions/{sessionId}
+ *  Q4 answer: body includes virtualLink and location
+ */
+export function editSession(
+  sessionId: string,
+  body: EditSessionBody,
+  token: string
+): Promise<{ success: boolean; message: string; requestId: string; expiresAt: string }> {
+  return request(`/scheduling/sessions/${sessionId}/details`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+ 
+/** GET /tutor/{tutorId}/slots — Q2 answer */
+export function getTutorSlots(
+  tutorId: string,
+  token: string
+): Promise<unknown> {
+  return request(`/tutor/${tutorId}/slots`, token);
+}
+ 
+
+
+---
+import { Image } from "astro:assets";
+import { jwtDecode } from "jwt-decode";
+import MainLayout from "../Layout.astro";
+import Sidebar from "../../features/dashboards/components/Sidebar.astro";
+import RoleBadge from "../../features/dashboards/components/RoleBadge.astro";
+import DashboardSessionManager from '@features/dashboards/components/DashboarSessionsManager';
+import StatCard from "../../features/dashboards/components/StatCard.astro";
+import UserHeader from "../../features/general/components/UserHeader.astro";
+import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
+import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
+
+import MainLayout from "../Layout.astro";
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as "admin" | "tutor" | "student";
+
+const studentStats = { value: 3, text: "Tutorías esta semana" };
+---
+
+<MainLayout title='Dashboard'>
+  <div class='dashboard-container'>
+    <Sidebar userRole={userRole} />
+
+    <main class='content-wrapper'>
+      <div class='dashboard-content'>
+        <UserHeader userRole={userRole} />
+
+        <div class='welcome-banner-slot'>
+          <WelcomeBanner client:only='react' />
+        </div>
+
+        <div class='cards-container'>
+          <div class='left-side'>
+            <div class='incoming-sessions-container'>
+              <DashboardSessionManager role="student" client:only="react" />
+            </div>
+
+            <div class='green-photo-space'>
+              <Image src={ImageIcon} alt='Image' />
+            </div>
+          </div>
+          <div class='stats-container'>
+            <StatCard
+              value={studentStats.value}
+              description={studentStats.text}
+            />
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</MainLayout>
+
+
+
+---
+import { Image } from "astro:assets";
+import MainLayout from "../Layout.astro";
+import Sidebar from "../../features/dashboards/components/Sidebar.astro";
+import UserHeader from "../../features/general/components/UserHeader.astro";
+import DashboardSessionManager from '@features/dashboards/components/DashboarSessionsManager';
+import StatCard from "../../features/dashboards/components/StatCard.astro";
+import { WelcomeBanner } from "../../features/dashboards/components/WelcomeBanner";
+import { jwtDecode } from "jwt-decode";
+
+import MainLayout from "../Layout.astro";
+import Sidebar from "@/features/dashboards/components/Sidebar.astro";
+import UserHeader from "@/features/general/components/UserHeader.astro";
+import IncomingSessionsCard from "@/features/dashboards/components/IncomingSessionsCard.astro";
+import StatCard from "@/features/dashboards/components/StatCard.astro";
+import AttendencePostSession from "@/features/sessions/components/AttendencePostSession";
+
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) return Astro.redirect("/");
+  }
+} catch (e) {}
+
+const tutorStats = { value: 20, text: "Estudiantes alcanzados" };
+const mockWorkload = {
+  scheduledHours: 2,
+    <Sidebar userRole={userRole} />
+
+    <main class='content-wrapper'>
+      <AttendencePostSession client:only='react' />
+      <div class='dashboard-content'>
+        <UserHeader userRole={userRole} />
+
+
+        <div class='cards-container'>
+          <div class='incoming-sessions-container'>
+            <DashboardSessionManager role="tutor" client:only="react" /> 
+          </div>
+
+          <div class='stats-container'>
+            <StatCard value={tutorStats.value} description={tutorStats.text} />
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</MainLayout>
+
+
+import type { APIRoute } from 'astro';
+import { fetchMe } from '@features/auth/services/authService';
+
+export const GET: APIRoute = async ({ cookies }) => {
+  try {
+    const token = cookies.get('access_token')?.value;
+
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await fetchMe(token);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en me:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+
+
+// src/pages/api/sessions/cancel-session.ts
+// BFF: reads HttpOnly cookie, calls cancelSession
+import type { APIRoute } from 'astro';
+import { cancelSession } from '@features/sessions/services/sessionService';
+
+export const DELETE: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get('access_token')?.value;
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+
+    // ✅ Ahora — ambos desde el body
+    const { sessionId, reason } = await request.json();
+
+    if (!sessionId || !reason) {
+    return new Response(
+        JSON.stringify({ message: 'sessionId y reason son requeridos' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+    }
+
+    const data = await cancelSession(sessionId, reason, token);
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en cancel session:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+
+
+// src/pages/api/sessions/detail.ts
+// BFF: reads HttpOnly cookie, calls getSessionDetail
+
+import type { APIRoute } from 'astro';
+import { getSessionDetail } from '@features/sessions/services/sessionService';
+
+export const GET: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get('access_token')?.value;
+
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const url       = new URL(request.url);
+    const sessionId = url.searchParams.get('sessionId');
+
+    if (!sessionId) {
+      return new Response(
+        JSON.stringify({ message: 'sessionId requerido' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await getSessionDetail(sessionId, token);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en session detail:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+
+
+// src/pages/api/sessions/edit-session.ts
+// BFF: reads HttpOnly cookie, calls editSession
+import type { APIRoute } from 'astro';
+import { editSession } from '@features/sessions/services/sessionService';
+
+export const PATCH: APIRoute = async ({ request, cookies }) => {
+  console.log('[BFF] API_URL:', import.meta.env.PUBLIC_API_URL);
+  try {
+    const token = cookies.get('access_token')?.value;
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { sessionId, ...body } = await request.json();
+    if (!sessionId) {
+      return new Response(
+        JSON.stringify({ message: 'sessionId es requerido' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('DATOS RECIBIDOS:', {
+      body,
+      token,
+      sessionId,
+    });
+
+    const data = await editSession(sessionId, body, token);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en edit session:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+// src/pages/api/sessions/modify-session.ts
+// BFF: reads HttpOnly cookie, calls modifySession
+import type { APIRoute } from 'astro';
+import { modifySession } from '@features/sessions/services/sessionService';
+
+export const POST: APIRoute = async ({ request, cookies }) => {
+    console.log('[BFF] API_URL:', import.meta.env.PUBLIC_API_URL);
+  try {
+    const token = cookies.get('access_token')?.value;
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { sessionId, ...body } = await request.json();
+    if (!sessionId) {
+      return new Response(
+        JSON.stringify({ message: 'sessionId es requerido' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    console.log("DATOS RECIBIDA: ",
+          "{",
+            " body: ", body,
+            " token: ", token,
+            " sessionId: ", sessionId,
+            "}"
+        );
+    const data = await modifySession(sessionId, body, token);
+    
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en modify session:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+
+// src/pages/api/sessions/my-sessions.ts
+// BFF: reads HttpOnly cookie, calls sessionService, returns sessions to client
+
+import type { APIRoute } from 'astro';
+import { getSessions } from '@features/sessions/services/sessionService';
+
+export const GET: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get('access_token')?.value;
+
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const url  = new URL(request.url);
+    const role = url.searchParams.get('role');
+
+    if (!role || (role !== 'student' && role !== 'tutor')) {
+      return new Response(
+        JSON.stringify({ message: 'role inválido. Usa student o tutor.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await getSessions(role, token);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en my-sessions:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+
+// src/pages/api/sessions/tutor-info.ts
+// BFF: reads HttpOnly cookie, calls getTutorInfo
+
+import type { APIRoute } from 'astro';
+import { getTutorInfo } from '@features/sessions/services/sessionService';
+
+export const GET: APIRoute = async ({ request, cookies }) => {
+  try {
+    const token = cookies.get('access_token')?.value;
+
+    if (!token) {
+      return new Response(
+        JSON.stringify({ message: 'No autenticado' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const url     = new URL(request.url);
+    const tutorId = url.searchParams.get('tutorId');
+
+    if (!tutorId) {
+      return new Response(
+        JSON.stringify({ message: 'tutorId requerido' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await getTutorInfo(tutorId, token);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error: any) {
+    console.error('[BFF] Error en tutor-info:', error);
+    return new Response(
+      JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+};
+
+export default function AuthHydrator() {
+    const setUser = useAuthStore((state) => state.setUser);
+    const setToken = useAuthStore((state) => state.setToken);
+    const setHasHydrated = useAuthStore((state) => state.setHasHydrated);
+
+    useEffect(() => {
+        async function hydrate() {
+            try {
+                // El navegador enviará automáticamente la cookie HTTP-only
+                const res = await fetch("/api/auth/me", {
+                    method: "GET",
+                    credentials: "include", // 👈 clave para enviar cookies
+                });
+
+                if (!res.ok) {
+                    setHasHydrated(true);
+                    return;
+                }
+
+                const { user, token, requiresPasswordChange, requiresProfileCompletion } = await res.json();
+
+                setUser(user);
+
+                if (token) {
+                    setToken(token);
+                }
+
+            } catch (err) {
+                console.error("Error al hidratar sesión:", err);
+            } finally {
+                setHasHydrated(true);
+            }
+        }
+
+        hydrate();
+    }, []);
+
+    return null;
+}
+
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+type Role = 'ADMIN' | 'TUTOR' | 'STUDENT';
+type Status = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+
+
+interface AuthStore {
+    user: User | null;
+    token: string | null;
+    requiresPasswordChange: boolean;
+    requiresProfileCompletion: boolean;
+    _hasHydrated: boolean;
+    setHasHydrated: (val: boolean) => void;
+    setUser: (user: User) => void;
+    setToken: (token: string) => void;
+    clearUser: () => void;
+}
+
+export const useAuthStore = create<AuthStore>()(
+    persist(
+        (set) => ({
+            user: null,
+            token: null,
+            requiresPasswordChange: false,
+            requiresProfileCompletion: false,
+            _hasHydrated: false,
+            setHasHydrated: (val) => set({ _hasHydrated: val }),
+            setUser: (user) => set({ user }),
+            setToken: (token) => set({ token }),
+            clearUser: () => set({ user: null, token: null }),
+        }),
+        {
+            name: 'auth-storage',
+            },
+        }
+    )
+);

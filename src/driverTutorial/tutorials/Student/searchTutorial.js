@@ -1,4 +1,4 @@
-import { createTour } from "../../createTour";
+import { createTour, getInteractiveElement } from "../../createTour";
 import "../../styles/dashStyles.css";
 
 export function startSearchStudentTutorial() {
@@ -62,9 +62,7 @@ export function startSearchStudentTutorial() {
     Detectar click del boton
   */
 
-    const btn = document.querySelector(
-        "#godashboardTUTORIAL"
-    );
+    const btn = getInteractiveElement("#godashboardTUTORIAL");
 
     if (btn) {
         btn.addEventListener("click", () => {

@@ -1,4 +1,4 @@
-import { createTour } from "../../createTour";
+import { createTour, getInteractiveElement } from "../../createTour";
 import "../../styles/dashStyles.css";
 
 export function startDashboardTutorTutorial() {
@@ -116,7 +116,7 @@ export function startDashboardTutorTutorial() {
                     description: "Podras activar y desactivar tu cuenta. En caso de desactivarla comunicalo!",
                     onNextClick: (element, step, { driver }) => {
                         document.querySelector('.ps-close-btn')?.click();
-                        setTimeout(() => driver.moveNext(), 300);
+                        setTimeout(() => driver.moveNext(), 600); // 600ms para permitir que la animación de cierre termine y el dock se muestre
                     }
                 }
 
@@ -132,8 +132,8 @@ export function startDashboardTutorTutorial() {
             {
                 element: "#goDisponibilidadTutorTUTORIAL",
                 popover: {
-                    title: "-------",
-                    description: "------------- ----------",
+                    title: "Tu Calendario de disponibilidad",
+                    description: "Dale click",
                     showButtons: []
                 },
                 disableActiveInteraction: false
@@ -141,7 +141,7 @@ export function startDashboardTutorTutorial() {
         ]   
     });
 
-    const btn = document.querySelector("#goDisponibilidadTutorTUTORIAL");
+    const btn = getInteractiveElement("#goDisponibilidadTutorTUTORIAL");
     if (btn) {
         btn.addEventListener("click", () => {
             localStorage.setItem("current-tour", "disponibilidad");

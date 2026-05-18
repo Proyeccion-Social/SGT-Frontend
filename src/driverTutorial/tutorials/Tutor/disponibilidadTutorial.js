@@ -1,4 +1,4 @@
-import {createTour} from "../../createTour"
+import { createTour, getInteractiveElement } from "../../createTour";
 
 export function startDisponibilidadTutorTutorial(){
     const tour = createTour({
@@ -6,29 +6,29 @@ export function startDisponibilidadTutorTutorial(){
             {
                 element: "#calendarTutorTUTORIAL",
                 popover: {
-                    title: "--------------",
-                    description: "------- --------- ---------",
+                    title: "Tus franjas como tutor",
+                    description:"Aqui podras ver tu calendario semanal de franjas disponibles/libres"
                 }
             },
             {
                 element: "#weekMonthTutorTUTORIAL",
                 popover: {
-                    title: "--------------",
-                    description: "------- --------- ---------",
+                    title: "Organizado y Eficáz",
+                    description: "Puedes ver  tus franjas tanto como por semana como por mes",
                 }
             },
             {
                 element: "#goHistorialTutorTUTORIAL",
                 popover: {
-                    title: "--------------",
-                    description: "------- --------- ---------",
+                    title: "Tu historial",
+                    description:  "Aqui podras ver todas tus sesiones. Luego lo podras ver mas detalladamente",
                 }
             },
             {
                 element: "#goNotificationsTUTORIAL",
                 popover: {
-                    title: "--------------",
-                    description: "------- --------- ---------",
+                    title: "Al dia en un click",
+                    description: "Revisa tus notificaciones de modificacion, propuesta, cancelacion, etc.",
                 }
             },
             {
@@ -46,10 +46,10 @@ export function startDisponibilidadTutorTutorial(){
     }
     );
 
-     const btn = document.querySelector("#godashboardTUTORIAL");
+     const btn = getInteractiveElement("#godashboardTUTORIAL");
 
-    if (btn) {
-        btn.addEventListener("click", () => {
+     if (btn) {
+         btn.addEventListener("click", () => {
 
             /*
               Guardar progreso

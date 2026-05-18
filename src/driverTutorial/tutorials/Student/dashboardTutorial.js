@@ -1,4 +1,4 @@
-import { createTour } from "../../createTour";
+import { createTour, getInteractiveElement } from "../../createTour";
 import "../../styles/dashStyles.css";
 
 export function startDashboardStudentTutorial() {
@@ -53,7 +53,7 @@ export function startDashboardStudentTutorial() {
         ]
     });
 
-    const btn = document.querySelector("#goAgendamientoTUTORIAL");
+    const btn = getInteractiveElement("#goAgendamientoTUTORIAL");
     if (btn) {
         btn.addEventListener("click", () => {
             localStorage.setItem("current-tour", "agendamiento");

@@ -180,7 +180,6 @@
 }
 
 .gs-submit-btn {
-  height: 38px;
   border: none;
   cursor: pointer;
   transition:
@@ -226,5 +225,16 @@
 
   .gs-label {
     font-size: 14px;
+  }
+
+  .gs-submit-btn {
+    width: 100%;
+    font-size: 16px;
+    line-height: 20px;
+    padding: 8px;
+  }
+
+  .gs-form-actions {
+    padding: 0px
   }
 }

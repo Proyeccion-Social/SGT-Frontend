@@ -9,6 +9,8 @@
     />
   </div>
 
+  <a id="register-btn" class="register-cta" hidden>¿Aún no tienes una cuenta? <span>Regístrate aquí</span></a>
+
   <div id='password-field' class='field'>
     <article>
       <label for='password'>Contraseña</label>
@@ -40,11 +42,19 @@
       ".login-card",
     ) as HTMLElement | null;
     const arrowText = document.querySelector(".arrowText");
+    const registerBtn = document.getElementById("register-btn") as HTMLAnchorElement | null;
 
     let passwordVisible = false;
 
     document.addEventListener("reset-login-form", () => {
       passwordVisible = false;
+      if (registerBtn) registerBtn.hidden = true;
+    });
+
+    registerBtn?.addEventListener("click", () => {
+      const loginDialog = document.getElementById("loginDialog") as HTMLDialogElement | null;
+      loginDialog?.close();
+      document.querySelector<HTMLElement>("[data-open-registry]")?.click();
     });
 
     form?.addEventListener("submit", async (e) => {
@@ -80,6 +90,7 @@
                 passwordInput?.focus();
                 passwordVisible = true;
               } else {
+                if (registerBtn) registerBtn.hidden = false;
                 throw new Error("Email no válido");
               }
             },
@@ -283,6 +294,25 @@
 
   .login-form button:hover {
     background-color: #6c41cc;
+  }
+
+  .register-cta {
+    font-family: "Cabinet Grotesk Variable";
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    text-decoration: none;
+    color: #1a1a1a;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .register-cta span {
+    text-decoration: underline;
+  }
+
+  .register-cta[hidden] {
+    display: none;
   }
 
   #email:focus,

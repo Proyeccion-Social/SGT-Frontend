@@ -99,7 +99,7 @@ export function TutorProfileDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} >
       <DialogContent
         className="tp-dialog"
         style={{
@@ -113,6 +113,8 @@ export function TutorProfileDialog({
           gap: 0,
         }}
         showCloseButton={false}
+        id="profileViewTutorTUTORIAL"
+        
       >
         <DialogClose asChild>
           <button type="button" className="ps-close-btn" aria-label="Cerrar">
@@ -142,6 +144,7 @@ export function TutorProfileDialog({
         <nav className="tp-bottom" aria-label="Navegación del perfil de tutor">
           <div className="tp-bottom-inner">
             <button
+              id="disponibilidadTutorTUTORIAL"
               type="button"
               className="tp-nav-icon-btn tp-nav-icon-btn--calendar"
               aria-label="Gestionar disponibilidad"
@@ -178,6 +181,7 @@ export function TutorProfileDialog({
             </div>
 
             <button
+              id="horasDispTutorTUTORIAL"
               type="button"
               className={`tp-nav-raw${activeView === "hours" ? " tp-nav-active" : ""}`}
               onClick={() => setActiveView("hours")}
@@ -188,6 +192,7 @@ export function TutorProfileDialog({
             </button>
 
             <button
+              id="activarCuentaTutorTUTORIAL"
               type="button"
               className={`tp-nav-icon-btn tp-nav-icon-btn--activacion${isActive ? "" : " tp-nav-icon-btn--inactive"}`}
               onClick={handleToggleActive}

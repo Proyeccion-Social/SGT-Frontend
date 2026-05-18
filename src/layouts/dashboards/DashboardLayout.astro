@@ -11,7 +11,7 @@ import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/Tu
 import { UserRole } from "@/constants/roles";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import NotificationsPanel from "@features/dashboards/components/notifications/NotificationsPanel";
-import FirstLoginSetup from "@features/dashboards/components/FirstLoginSetup";
+import TutorialInitializer from "@/driverTutorial/TutorialInitializer";
 
 interface Props {
   title?: string;
@@ -20,20 +20,23 @@ interface Props {
 
 const { rol, title = "Atlas" } = Astro.props;
 const userId = getUserIdFromCookie(Astro.cookies);
+
 ---
 
 <Layout title={title} noindex={true}>
   <div class='dashboardContainer'>
-    <UserHeader userRole={rol} transition:persist />
-    <Sidebar userRole={rol} transition:persist />
-
-    <main class='main-content'>
+    <div>
+      <UserHeader userRole={rol} transition:persist  />
+    </div>
+    <div>
+      <Sidebar userRole={rol} transition:persist />
+    </div>
+    <main class='main-content' id="dashboardMainTUTORIAL">
       <Dock userRole={rol} transition:persist />
       <slot />
     </main>
   </div>
   <NotificationsPanel client:load transition:persist />
-  <FirstLoginSetup client:load />
   {
     (rol === "tutor" || rol === "student") && (
       <>
@@ -43,6 +46,7 @@ const userId = getUserIdFromCookie(Astro.cookies);
     )
   }
   <EmailActionController client:only='react' userId={userId} />
+  <TutorialInitializer client:load />
 </Layout>
 
 <style>

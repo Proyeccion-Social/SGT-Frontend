@@ -99,6 +99,7 @@
     }
 
     .arrow-continue {
-        top: -44px;
+        display: none;
     }
+
 }

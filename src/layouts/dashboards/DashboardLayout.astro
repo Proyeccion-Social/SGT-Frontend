@@ -26,11 +26,11 @@ const userId = getUserIdFromCookie(Astro.cookies);
 
 <Layout title={title}>
   <div class='dashboardContainer'>
-    <div >
-    <UserHeader userRole={rol} transition:persist  />
+    <div>
+      <UserHeader userRole={rol} transition:persist  />
     </div>
-    <div id="">
-    <Sidebar userRole={rol} transition:persist />
+    <div>
+      <Sidebar userRole={rol} transition:persist />
     </div>
     <main class='main-content' id="dashboardMainTUTORIAL">
       <Dock userRole={rol} transition:persist />

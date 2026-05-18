@@ -5,6 +5,9 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
   DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
@@ -27,11 +30,21 @@ interface HistoryFiltersProps {
   currentStatus?: string
 }
 
+const MOBILE_BP = 768
+
 export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
   const [subjects, setSubjects] = useState<{ value: string; label: string }[]>([])
   const [selectedStatus, setSelectedStatus] = useState(currentStatus)
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
   const [openSection, setOpenSection] = useState<"status" | "subject" | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < MOBILE_BP)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
   useEffect(() => {
     fetch("/api/search/subjects")
@@ -95,6 +108,7 @@ export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
       </span>
     ) : null
 
+  // Mobile: fila de sección con chevron y expansión inline
   const SectionRow = ({
     section,
     icon,
@@ -128,7 +142,7 @@ export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--neutral-200,#e7dcll)] bg-[var(--surface-page,#fff)] px-2 py-2 text-sm font-medium text-[var(--neutral-400,#1e293b)] hover:bg-[var(--surface-focus,#f5f3ff)] hover:text-[var(--primary-default,#9f74ff)] transition-all"
+          className="inline-flex items-center gap-2 rounded-[8px] border border-[var(--neutral-200,#e7dcff)] bg-[var(--surface-page,#fff)] px-2 py-2 text-sm font-medium text-[var(--neutral-400,#1e293b)] hover:bg-[var(--surface-focus,#f5f3ff)] hover:text-[var(--primary-default,#9f74ff)] transition-all"
         >
           <ListFilterIcon className="size-3" />
           {totalActive > 0 && (
@@ -139,11 +153,7 @@ export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="start"
-        collisionPadding={12}
-        className="w-56 shadow-xl border-[var(--border-primary)]"
-      >
+      <DropdownMenuContent align="start" className="w-56 shadow-xl border-[var(--border-primary)]">
         {/* Header con limpiar */}
         {totalActive > 0 && (
           <div className="mb-1">
@@ -164,50 +174,98 @@ export function HistoryFilters({ currentStatus = "all" }: HistoryFiltersProps) {
           </div>
         )}
 
-        {/* Estado — expandible inline */}
-        <SectionRow
-          section="status"
-          icon={<CircleDotIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />}
-          label="Estado"
-          badgeCount={selectedStatus !== "all" ? 1 : 0}
-        />
-        {openSection === "status" && (
-          <div className="pl-2 pb-1">
-            {STATUS_OPTIONS.map((s) => (
-              <DropdownMenuCheckboxItem
-                key={s.value}
-                checked={selectedStatus === s.value}
-                onCheckedChange={() => handleStatusChange(s.value)}
-              >
-                {s.label}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </div>
-        )}
+        {isMobile ? (
+          /* ── Mobile: acordeón inline ── */
+          <>
+            <SectionRow
+              section="status"
+              icon={<CircleDotIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />}
+              label="Estado"
+              badgeCount={selectedStatus !== "all" ? 1 : 0}
+            />
+            {openSection === "status" && (
+              <div className="pl-2 pb-1">
+                {STATUS_OPTIONS.map((s) => (
+                  <DropdownMenuCheckboxItem
+                    key={s.value}
+                    checked={selectedStatus === s.value}
+                    onCheckedChange={() => handleStatusChange(s.value)}
+                  >
+                    {s.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </div>
+            )}
 
-        {/* Materia — expandible inline con scroll */}
-        <SectionRow
-          section="subject"
-          icon={<BookOpenIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />}
-          label="Materia"
-          badgeCount={selectedSubjects.length}
-        />
-        {openSection === "subject" && (
-          <div className="pl-2 pb-1 max-h-48 overflow-y-auto">
-            {subjects.map((s) => (
-              <DropdownMenuCheckboxItem
-                key={s.value}
-                checked={selectedSubjects.includes(s.value)}
-                onCheckedChange={() => {
-                  const next = toggleValue(selectedSubjects, s.value)
-                  setSelectedSubjects(next)
-                  dispatchFilters(selectedStatus, next)
-                }}
-              >
-                {s.label}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </div>
+            <SectionRow
+              section="subject"
+              icon={<BookOpenIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />}
+              label="Materia"
+              badgeCount={selectedSubjects.length}
+            />
+            {openSection === "subject" && (
+              <div className="pl-2 pb-1 max-h-48 overflow-y-auto">
+                {subjects.map((s) => (
+                  <DropdownMenuCheckboxItem
+                    key={s.value}
+                    checked={selectedSubjects.includes(s.value)}
+                    onCheckedChange={() => {
+                      const next = toggleValue(selectedSubjects, s.value)
+                      setSelectedSubjects(next)
+                      dispatchFilters(selectedStatus, next)
+                    }}
+                  >
+                    {s.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          /* ── Desktop: submenús hover ── */
+          <>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <CircleDotIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />
+                Estado
+                {badge(selectedStatus !== "all" ? 1 : 0)}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {STATUS_OPTIONS.map((s) => (
+                  <DropdownMenuCheckboxItem
+                    key={s.value}
+                    checked={selectedStatus === s.value}
+                    onCheckedChange={() => handleStatusChange(s.value)}
+                  >
+                    {s.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <BookOpenIcon className="size-4 text-[var(--primary-400,#a78bfa)]" />
+                Materia
+                {badge(selectedSubjects.length)}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="max-h-60 overflow-y-auto">
+                {subjects.map((s) => (
+                  <DropdownMenuCheckboxItem
+                    key={s.value}
+                    checked={selectedSubjects.includes(s.value)}
+                    onCheckedChange={() => {
+                      const next = toggleValue(selectedSubjects, s.value)
+                      setSelectedSubjects(next)
+                      dispatchFilters(selectedStatus, next)
+                    }}
+                  >
+                    {s.label}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

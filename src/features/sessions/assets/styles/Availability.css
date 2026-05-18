@@ -201,7 +201,7 @@
   }
 
   .tutor-card__photo-wrapper {
-    height: 160px;
+    height: 230px;
   }
 
   .availability-footer {
@@ -213,5 +213,9 @@
     width: 100%;
     padding: 14px;
     border-radius: 12px;
+  }
+
+  .tutor-card__photo {
+    object-position: 50% 15%;
   }
 }

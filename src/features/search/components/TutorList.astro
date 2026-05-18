@@ -99,6 +99,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: 50% 15%;
     border-radius: 16px;
     background: var(--color-negrops-100, #e8e8e8);
   }
@@ -258,7 +259,7 @@
       border-radius: 16px;
       scroll-snap-type: none;
       scrollbar-width: none;
-      padding: 8px;
+      padding: 20px 8px;
     }
 
     /* Cada card: altura fija, ancho completo, sin expansión flex */
@@ -266,7 +267,7 @@
     .accordion-panel.active {
       flex: none !important;
       width: 100%;
-      height: 110px;
+      height: 300px;
       border-radius: 12px;
       scroll-snap-align: start;
       transition: none;

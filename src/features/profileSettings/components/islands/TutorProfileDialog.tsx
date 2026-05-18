@@ -18,10 +18,12 @@ import settingsIconSrc   from "../../assets/settings.svg?url";
 import horasIconSrc      from "../../assets/horas.svg?url";
 import calendarioIconSrc from "../../assets/calendario.svg?url";
 import activacionIconSrc from "../../assets/activacion.svg?url";
+import materiasIconSrc   from "../../assets/materias.svg?url";
+import { TutorSubjectsView } from "./TutorSubjectsView";
 import "../../styles/profileSettings.css";
 import "../../styles/tutorProfile.css";
 
-type TutorView = "general" | "hours";
+type TutorView = "general" | "hours" | "subjects";
 
 export interface TutorProfileDialogProps {
   open: boolean;
@@ -38,6 +40,7 @@ export function TutorProfileDialog({
 }: TutorProfileDialogProps) {
   const [activeView, setActiveView] = useState<TutorView>(initialView ?? "general");
   const [phone, setPhone]           = useState<string | null>(null);
+  const [tutorSubjectIds, setTutorSubjectIds] = useState<string[]>([]);
   const [toggling, setToggling]     = useState(false);
   const { user, setUser } = useAuthStore();
 
@@ -48,17 +51,36 @@ export function TutorProfileDialog({
     : "T";
 
   useEffect(() => {
-    if (open) {
-      setActiveView(initialView ?? "general");
+    if (!open) return;
+    setActiveView(initialView ?? "general");
+    fetch("/api/auth/check-session").then((check) => {
+      if (!check.ok) {
+        window.location.href = "/?session_expired=true";
+        return;
+      }
       fetch("/api/settings/tutor-profile")
         .then((r) => r.ok ? r.json() : null)
-        .then((data) => { setPhone(data?.phone ?? null); })
-        .catch(() => { setPhone(null); });
-    }
+        .then((data) => { 
+          setPhone(data?.phone ?? null); 
+          if (data?.subjects && Array.isArray(data.subjects)) {
+            setTutorSubjectIds(data.subjects.map((s: { id: string }) => s.id));
+          } else if (data?.subject_ids && Array.isArray(data.subject_ids)) {
+            setTutorSubjectIds(data.subject_ids);
+          } else if (data?.subjectIds && Array.isArray(data.subjectIds)) {
+            setTutorSubjectIds(data.subjectIds);
+          }
+        })
+        .catch(() => { setPhone(null); setTutorSubjectIds([]); });
+    });
   }, [open, initialView]);
 
   async function handleToggleActive() {
     if (toggling || !user) return;
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
     const next = !isActive;
     setToggling(true);
     await sileo
@@ -87,7 +109,7 @@ export function TutorProfileDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} >
       <DialogContent
         className="tp-dialog"
         style={{
@@ -101,6 +123,8 @@ export function TutorProfileDialog({
           gap: 0,
         }}
         showCloseButton={false}
+        id="profileViewTutorTUTORIAL"
+        
       >
         <DialogClose asChild>
           <button type="button" className="ps-close-btn" aria-label="Cerrar">
@@ -123,12 +147,14 @@ export function TutorProfileDialog({
           <div className="tp-panel">
             {activeView === "general" && <FormGeneral user={user} initialMode={initialGeneralMode} initialPhone={phone ?? undefined} />}
             {activeView === "hours"   && <HoursLimit />}
+            {activeView === "subjects" && <TutorSubjectsView initialSubjectIds={tutorSubjectIds} onSuccess={() => onOpenChange(false)} />}
           </div>
         </div>
 
         <nav className="tp-bottom" aria-label="Navegación del perfil de tutor">
           <div className="tp-bottom-inner">
             <button
+              id="disponibilidadTutorTUTORIAL"
               type="button"
               className="tp-nav-icon-btn tp-nav-icon-btn--calendar"
               aria-label="Gestionar disponibilidad"
@@ -150,11 +176,22 @@ export function TutorProfileDialog({
               <img src={settingsIconSrc} alt="" aria-hidden="true" />
             </button>
 
+            <button
+              type="button"
+              className={`tp-nav-raw${activeView === "subjects" ? " tp-nav-active" : ""}`}
+              onClick={() => setActiveView("subjects")}
+              aria-label="Materias"
+              aria-pressed={activeView === "subjects"}
+            >
+              <img src={materiasIconSrc} alt="" aria-hidden="true" />
+            </button>
+
             <div className="ps-avatar-circle">
               <span className="ps-avatar-fallback">{initials}</span>
             </div>
 
             <button
+              id="horasDispTutorTUTORIAL"
               type="button"
               className={`tp-nav-raw${activeView === "hours" ? " tp-nav-active" : ""}`}
               onClick={() => setActiveView("hours")}
@@ -165,6 +202,7 @@ export function TutorProfileDialog({
             </button>
 
             <button
+              id="activarCuentaTutorTUTORIAL"
               type="button"
               className={`tp-nav-icon-btn tp-nav-icon-btn--activacion${isActive ? "" : " tp-nav-icon-btn--inactive"}`}
               onClick={handleToggleActive}

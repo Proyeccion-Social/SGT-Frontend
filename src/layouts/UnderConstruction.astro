@@ -1,12 +1,38 @@
 ---
 import Nav from "@/features/landing/components/Nav.astro";
 import Sign from "@/features/underConstruction/components/Sign.astro";
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import { UserRole } from "@/constants/roles";
+
+const token = Astro.cookies.get("access_token")?.value;
+let userRole: UserRole | null = null;
+
+if (token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    userRole = payload.role.toLowerCase() as UserRole;
+  } catch (e) {
+    userRole = null;
+  }
+}
+
+const isInternal = !!userRole;
 ---
 
-<div class="construction-page">
-  <Nav />
-  <Sign />
-</div>
+{
+  isInternal ? (
+    <DashboardLayout rol={userRole!} title='En Construcción | Atlas'>
+      <div class='internal-construction-container'>
+        <Sign />
+      </div>
+    </DashboardLayout>
+  ) : (
+    <div class='construction-page'>
+      <Nav />
+      <Sign />
+    </div>
+  )
+}
 
 <style>
   .construction-page {
@@ -21,4 +47,12 @@ import Sign from "@/features/underConstruction/components/Sign.astro";
       #ffffff 63.46%
     );
   }
-</style>
+
+  .internal-construction-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+</style>

@@ -101,30 +101,44 @@
    ══════════════════════════════ */
 .sdv__top {
   display: flex;
-  align-items: flex-start;
   gap: 6px;
   background: rgba(232, 232, 232, 0.5);
   backdrop-filter: blur(34.3px);
   border-radius: 16px;
   border: 1px solid var(--neutral-200);
   padding: clamp(12px, 3vw, 20px);
+  justify-content: center;
+  align-items: center;
 }
 
 @media (max-width: 640px) {
   .sdv__top {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     text-align: center;
+    padding: 10px;
+  }
+  .sdv-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .sdv__title {
+    font-size: 13px;
+    line-height: 13px;
+  }
+  .sdv__description {
+    font-size: 10px;
+    line-height: 12px;
   }
 }
 
 /* Avatar */
 .sdv-avatar {
-  border-radius: 50%;
+  border-radius: 12px;
   flex-shrink: 0;
   border: 2px solid var(--sdv-violet-light);
-  width: 46px;
-  height: 46px;
+  width: 62px;
+  height: 62px;
   align-items: center;
   justify-content: center;
   object-fit: cover;
@@ -313,13 +327,22 @@
 
 @media (max-width: 640px) {
   .sdv-card {
-    aspect-ratio: auto; /* Remove square constraint on mobile */
-    min-height: 80px;
-    padding: 12px;
-    flex-direction: row; /* Horizontal layout for cards on mobile */
-    justify-content: flex-start;
-    text-align: left;
-    gap: 12px;
+    aspect-ratio: auto;
+    padding: 8px;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+  }
+  .sdv-card__icon {
+    width: 28px;
+    height: 28px;
+  }
+  .sdv-card__label {
+    font-size: 12px;
+  }
+  .sdv-card__sublabel {
+    font-size: 11px;
   }
 }
 
@@ -381,8 +404,10 @@
 
 @media (max-width: 640px) {
   .sdv__footer {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: stretch;
+    gap: 8px;
   }
 }
 
@@ -408,7 +433,10 @@
 @media (max-width: 640px) {
   .sdv-btn {
     max-width: none;
-    width: 100%;
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 0;
   }
 }
 
@@ -507,12 +535,12 @@
 
 /* Foco: resalta la card cuando el campo interno está activo */
 .pmf__card:focus-within {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .pmf__card .form-field__input:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -536,7 +564,7 @@
 }
 
 .pmf__card .form-field__textarea:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -627,7 +655,7 @@
 
 /* Foco: resalta la card cuando el campo interno está activo */
 .pmf__card:focus-within {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -652,7 +680,7 @@
 }
 
 .pmf__card .form-field__select:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
   outline: none;
 }
@@ -677,7 +705,7 @@
 }
 
 .pmf__card .form-field__input:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -702,7 +730,7 @@
 }
 
 .pmf__card .form-field__textarea:focus {
-  border-color: var(--sdv-violet, #7c3aed);
+  border-color: var(--sdv-violet, #8751ff);
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
@@ -757,13 +785,14 @@
    ══════════════════════════════ */
 @media (max-width: 640px) {
   .sdv {
-    padding: 20px 16px 40px 16px; /* Increased bottom padding */
+    padding: 16px;
     border-radius: 18px;
     width: 100%;
     margin: 0 auto;
+    gap: 10px;
   }
   .sdv__cards {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 }

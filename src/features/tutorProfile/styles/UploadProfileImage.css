@@ -5,6 +5,7 @@
   border-radius: var(--border-radius-lg);
   background: var(--color-color-white);
   z-index: 100001;
+  height: 100%;
 }
 
 .body-header {
@@ -13,22 +14,6 @@
   padding: 40px 40px 0px 40px;
   gap: 0.5rem;
   text-wrap: balance;
-}
-
-.body-header-title {
-  font-weight: 500;
-  font-size: 26px;
-  line-height: 36px;
-  letter-spacing: -2%;
-  color: #1a1a1a;
-}
-
-.body-header-subtitle {
-  font-weight: 300;
-  font-size: 16px;
-  line-height: 20px;
-  letter-spacing: -2%;
-  color: #3c3c3c;
 }
 
 .body-content {
@@ -376,3 +361,10 @@
   height: 24px;
   rotate: 20deg;
 }
+
+@media (width <= 768px) {
+  .drawer-body {
+    height: 100%;
+  }
+
+} 

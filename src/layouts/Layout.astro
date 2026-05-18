@@ -4,12 +4,27 @@ import { ClientRouter } from "astro:transitions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ToasterReact from "@/components/ui/ToasterReact";
 import StoreHydrator from "@/store/StoreHydrator";
+import SEO from "@/components/seo/SEO.astro";
+
 interface Props {
   title: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  schema?: object;
   noToaster?: boolean;
 }
 
-const { title, noToaster = false } = Astro.props;
+const {
+  title,
+  description = "Atlas es la plataforma de tutorías universitarias para la Universidad Distrital Francisco José de Caldas. Agenda sesiones con tutores especializados en Bogotá.",
+  canonical,
+  ogImage,
+  noindex = false,
+  schema,
+  noToaster = false,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -19,14 +34,21 @@ const { title, noToaster = false } = Astro.props;
     <meta name='viewport' content='width=device-width' />
     <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
     <meta name='generator' content={Astro.generator} />
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonical}
+      ogImage={ogImage}
+      noindex={noindex}
+      schema={schema}
+    />
     <ClientRouter />
-    <title>{title}</title>
   </head>
   <body>
     <TooltipProvider>
       <slot />
     </TooltipProvider>
-    <StoreHydrator client:load />
-    {!noToaster && <ToasterReact client:load />}
+    <StoreHydrator client:load transition:persist />
+    {!noToaster && <ToasterReact client:load transition:persist />}
   </body>
 </html>

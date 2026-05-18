@@ -10,7 +10,6 @@
   position: relative;
   text-align: center;
   width: 100%;
-  aspect-ratio: 1/1;
   margin: 0 auto;
 }
 
@@ -48,7 +47,7 @@
   font-family: 'Caveat', sans-serif;
   font-size: 40px;
   font-weight: 700;
-  color: #818181;
+  color: var(--primary-400);
   justify-content: center;
   margin: 0 48px;
   letter-spacing: -0.02em;

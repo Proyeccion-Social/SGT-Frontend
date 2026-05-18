@@ -7,10 +7,12 @@ import "../../assets/styles/Modality.css";
 interface Props {
   onNext: (modality: "VIRT" | "PRES") => void;
   onBack: () => void;
+  initialModality?: "VIRT" | "PRES" | null;
+  isSubmitting?: boolean;
 }
 
-export default function ModalityStep({ onNext, onBack }: Props) {
-  const [selected, setSelected] = useState<"VIRT" | "PRES" | null>(null);
+export default function ModalityStep({ onNext, onBack, initialModality = null, isSubmitting = false }: Props) {
+  const [selected, setSelected] = useState<"VIRT" | "PRES" | null>(initialModality);
 
   const options = [
     { value: "VIRT" as const, label: "Virtual", icon: virtualIcon },
@@ -19,13 +21,6 @@ export default function ModalityStep({ onNext, onBack }: Props) {
 
   return (
     <div>
-      {/* ── Encabezado ── */}
-      <h2 className="modality-title">
-        <span className="modality-title__highlight">Información</span>{" "}
-        adicional
-      </h2>
-      <p className="modality-subtitle">Estás agendando un espacio nuevo</p>
-
       {/* ── Contenedor principal ── */}
       <div className="modality-card">
         <h3 className="modality-card__label">Modalidad</h3>
@@ -57,14 +52,20 @@ export default function ModalityStep({ onNext, onBack }: Props) {
           ))}
         </div>
 
-        {/* ── Pie con botón de continuar ── */}
+        {/* ── Pie con botones de navegación ── */}
         <div className="modality-footer">
           <button
-            disabled={!selected}
-            onClick={() => selected && onNext(selected)}
-            className={`modality-footer__continue-btn${selected ? " modality-footer__continue-btn--active" : ""}`}
+            onClick={onBack}
+            className="modality-footer__back-btn"
           >
-            Continuar
+            Atrás
+          </button>
+          <button
+            disabled={!selected || isSubmitting}
+            onClick={() => selected && !isSubmitting && onNext(selected)}
+            className={`modality-footer__continue-btn${selected && !isSubmitting ? " modality-footer__continue-btn--active" : ""}`}
+          >
+            {isSubmitting ? "Agendando..." : "Continuar"}
           </button>
         </div>
       </div>

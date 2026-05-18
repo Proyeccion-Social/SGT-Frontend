@@ -2,6 +2,7 @@
 import './styles/CancelSessionModal.css';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { sileo, Toaster } from 'sileo';
 import ToasterReact from '@/components/ui/ToasterReact';
 import type { Session } from '../types/session.types';
@@ -54,7 +55,7 @@ export const CancelSessionModal = ({
     });
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Cancel session">
       <Toaster position="top-center" />
       <div className="modal-card modal-card--cancel">
@@ -93,7 +94,8 @@ export const CancelSessionModal = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

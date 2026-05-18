@@ -29,26 +29,6 @@ export const formatDate = (date: string) => {
   return `${day}/${month}/${year}`;
 };
 
-
-export const getTimeLeft = (scheduledDate: string, startTime: string, endTime: string): string => {
-  const phase = getSessionTimePhase(scheduledDate, startTime, endTime);
-  if (phase === 'in_progress') return 'En curso';
-  if (phase === 'ended') return 'Finalizada';
-
-  const start = new Date(`${scheduledDate}T${startTime}`);
-  const now = new Date();
-  const diffMs = start.getTime() - now.getTime();
-
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  if (diffDays > 0) return `En ${diffDays}d ${diffHours}h`;
-
-  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  if (diffHours > 0) return `En ${diffHours}h ${diffMins}min`;
-  if (diffMins > 0) return `En ${diffMins}min`;
-  return 'En menos de 1 min';
-};
-
 /** Orden: finalizadas → en curso → próximas (próximas: de la más cercana a la más lejana). */
 export function sortSessionsForDisplay(sessions: Session[]): Session[] {
   const startMs = (s: Session) =>

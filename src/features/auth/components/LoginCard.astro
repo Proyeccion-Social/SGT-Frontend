@@ -1,47 +1,48 @@
 ---
-import { Image } from "astro:assets"; 
-import Arrow from "../assets/imgs/Arrow.svg"
+import { Image } from "astro:assets";
+import Arrow from "../assets/imgs/Arrow.svg";
 ---
-<div class="login-card">
-    <button class="closeBtn" data-close-dialog aria-label="Cerrar">
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M18 6L6 18M6 6l12 12"></path>
-      </svg>
-    </button>
-    <article class="arrowText">
-        <Image src={Arrow} alt="Flecha izquierda" />
-        <p>Solo correos @udistrital.edu.co</p>
-    </article>
-    <slot/>
+
+<div class='login-card'>
+  <button class='closeBtn' data-close-dialog aria-label='Cerrar'>
+    <svg
+      width='24'
+      height='24'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      stroke-width='2'
+    >
+      <path d='M18 6L6 18M6 6l12 12'></path>
+    </svg>
+  </button>
+  <article class='arrowText'>
+    <Image src={Arrow} alt='Flecha izquierda' />
+    <p>Solo correos @udistrital.edu.co</p>
+  </article>
+  <slot />
 </div>
 
 <style>
-    .login-card {
-        background: #ffffff;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 24px;
-        width: 100%;
-        max-width: 484px;
-        height: auto; /* para que se ajuste al contenido */
+  .login-card {
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 484px;
+    height: auto; /* para que se ajuste al contenido */
 
-        background: #FFFFFF;
-        box-shadow: 0px 4px 37px 4px rgba(0, 0, 0, 0.1);
-        border-radius: 24px;
-        transition: height 0.3s ease-in-out;
-        position: relative;
-    }
+    background: #ffffff;
+    box-shadow: 0px 4px 37px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    transition: height 0.3s ease-in-out;
+    position: relative;
+  }
 
-      .closeBtn {
+  .closeBtn {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -66,49 +67,47 @@ import Arrow from "../assets/imgs/Arrow.svg"
     color: #1a1a1a;
   }
 
-    .arrowText {
-        display: flex;
-        position: absolute;
-        left: -120px;
-        top: -100px;
+  .arrowText {
+    display: flex;
+    position: absolute;
+    left: -120px;
+    top: -100px;
 
-        opacity: 1;
-        visibility: visible;
-        transition: opacity .3s ease, visibility .3s ease;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+  }
+
+  .arrowText.hidden {
+    display: none;
+    opacity: 0;
+  }
+
+  .arrowText p {
+    position: absolute;
+    left: 30px;
+    top: 10px;
+    width: 500px;
+
+    font-family: "Caveat";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 30px;
+
+    color: #ffffff;
+  }
+
+  @media (width >= 1024px) {
+    .login-card {
+      min-height: 569px;
     }
-
-    .arrowText.hidden {
-        display: none;
-        opacity: 0;
-    }
-
-    .arrowText p {
-        position: absolute;
-        left: 30px;
-        top: 10px;
-        width: 500px;
-
-        font-family: 'Caveat';
-        font-style: normal;
-        font-weight: 400;
-        font-size: 24px;
-        line-height: 30px;
-
-        color: #FFFFFF;
-
-
-    }
-
-    
-    @media (width >= 1024px){
-        .login-card {
-            min-height: 569px; 
-
-    }}
-    @media (768px < width < 1024px){
-        .login-card {
-            min-height: 569px; 
-
+  }
+  @media (768px < width < 1024px) {
+    .login-card {
+      min-height: 569px;
     }
     }
     @media (width <= 768px) {
@@ -118,17 +117,12 @@ import Arrow from "../assets/imgs/Arrow.svg"
         .login-card {
             width: 90%;
             height: auto;
-            padding: 40px 20px;
+            padding: 40px 36px;            
         }
 
-        .arrowText {
-            left: -80px;
-            top: -80px;
-        }
+    .arrowText {
+      left: -80px;
+      top: -80px;
     }
-
-
-
+  }
 </style>
-
-

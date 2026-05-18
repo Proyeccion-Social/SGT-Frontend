@@ -13,36 +13,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     try {
         const body = await request.json();
-        const { subjectIds, preferredModality, career } = body;
-
-        // 1. Update Preferences (Modality and Career)
-        const prefRes = await fetch(`${API_URL}/students/me/preferences`, {
+        const res = await fetch(`${API_URL}/students/me/preferences`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify({ preferredModality, career })
+            body: JSON.stringify(body)
         });
 
-        if (!prefRes.ok) {
-            const err = await prefRes.json().catch(() => ({}));
-            throw new Error(err.message || "Error al actualizar preferencias");
-        }
-
-        // 2. Update Interested Subjects
-        const subjRes = await fetch(`${API_URL}/students/me/interested-subjects`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({ subjectIds })
-        });
-
-        if (!subjRes.ok) {
-            const err = await subjRes.json().catch(() => ({}));
-            throw new Error(err.message || "Error al actualizar materias de interés");
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || "Error al completar perfil del estudiante");
         }
 
         return new Response(JSON.stringify({ success: true }), {

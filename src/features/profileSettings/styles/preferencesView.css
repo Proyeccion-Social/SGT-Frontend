@@ -100,11 +100,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  padding-bottom: 20px;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   z-index: 5;
 }
 
@@ -119,10 +116,10 @@
 }
 
 .pv-modality-label {
-  font-family: "Cabinet Grotesk Variable";
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 20px;
+  font-weight: 400;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 18px;
   color: var(--primary-default);
 }
 
@@ -179,5 +176,20 @@
 
   .pv-modality-card {
     max-width: 140px;
+  }
+
+  .pv-modality-card img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .pv-modality-label {
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 4px;
+  }
+
+  .pv-main {
+    min-height: 400px;
   }
 }

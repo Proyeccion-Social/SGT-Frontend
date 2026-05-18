@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { sileo } from "sileo";
 import ProfileChooseSubjects from "./ProfileChooseSubjects";
+import virtualIcon from "../../assets/virtual.svg";
+import presencialIcon from "../../assets/presencial.svg";
 import type { PCSHandle } from "./ProfileChooseSubjects";
 import "../../styles/preferencesView.css";
 
@@ -149,6 +151,7 @@ export function PreferencesView() {
               onClick={() => setModality("PRES")}
               aria-pressed={modality === "PRES"}
             >
+              <img src={presencialIcon.src} alt="Presencial" />
               <span className="pv-modality-label">Presencial</span>
             </button>
 
@@ -158,6 +161,7 @@ export function PreferencesView() {
               onClick={() => setModality("VIRT")}
               aria-pressed={modality === "VIRT"}
             >
+              <img src={virtualIcon.src} alt="Virtual" />
               <span className="pv-modality-label">Virtual</span>
             </button>
           </div>

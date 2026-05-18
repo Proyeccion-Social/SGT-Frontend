@@ -13,7 +13,7 @@ export function startDisponibilidadTutorTutorial(){
             {
                 element: "#weekMonthTutorTUTORIAL",
                 popover: {
-                    title: "Organizado y Eficáz",
+                    title: "Organizado y Eficaz",
                     description: "Puedes ver  tus franjas tanto como por semana como por mes",
                 }
             },

@@ -31,7 +31,7 @@ export const COMMUNITY_CONSTS = {
     WhatsApp: {
         iconSrc: WhatsAppIcon,
         bgSrc: null,
-        url: "https://wa.me/",
+        url: "https://chat.whatsapp.com/KwzMiTVELkxER81NjXlkhN",
         account: "WhatsApp",
         font: "Open Sauce Two",
     },

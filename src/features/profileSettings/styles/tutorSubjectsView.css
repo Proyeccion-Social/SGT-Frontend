@@ -1,0 +1,40 @@
+/* ============================================================
+   TutorSubjectsView — prefix: tsv-
+   Contenedor con cuadrícula de fondo y botón flotante inferior.
+   ============================================================ */
+
+.tsv-root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border-radius: 16px;
+  border: 1px solid var(--primary-50);
+  overflow: visible;   /* permite que el botón cuelgue sin ser recortado */
+
+  /* Cuadrícula decorativa estilo cuaderno */
+  background-color: var(--neutral-blanco);
+  background-image:
+    linear-gradient(to right,  var(--primary-100) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--primary-100) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Zona de materias — ocupa todo el espacio disponible */
+.tsv-subjects {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 16px;  /* recorta el contenido al borde de la card */
+}
+
+/* Botón que cuelga a medio camino del borde inferior */
+.tsv-actions {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+}

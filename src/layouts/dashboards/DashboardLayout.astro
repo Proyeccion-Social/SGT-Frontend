@@ -23,8 +23,7 @@ const userId = getUserIdFromCookie(Astro.cookies);
 
 ---
 
-
-<Layout title={title}>
+<Layout title={title} noindex={true}>
   <div class='dashboardContainer'>
     <div>
       <UserHeader userRole={rol} transition:persist  />

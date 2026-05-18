@@ -44,8 +44,7 @@ import { Image } from "astro:assets";
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 97%;
-    margin-top: 40px;
+    width: 100%;
     height: 100%;
     background-size: cover;
     background-position: center;
@@ -83,6 +82,7 @@ import { Image } from "astro:assets";
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
   }
 
   .navContent {
@@ -93,27 +93,6 @@ import { Image } from "astro:assets";
     position: absolute;
     top: 0;
   }
-  
- @media (width >= 1024px){
-
-  section {
-    height: 97vh;
-    max-height: 1000px;
-  }
-
-
-
-  .principalPage {
-    margin-top: 30px;
-
-  }
-  .arrow {
-    top: 95px;
-    left: -350px;
-  }
-
-
-}
 
  @media (768px < width < 1024px) {
 
@@ -139,6 +118,7 @@ import { Image } from "astro:assets";
   
   section {
     height: 97vh;
+    padding: 0px;
   }
   .principalPage {
     margin-top: 20px;

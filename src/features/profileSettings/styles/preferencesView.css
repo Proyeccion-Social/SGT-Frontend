@@ -1,12 +1,12 @@
 /* ============================================================
-   Preferences View
-   prefix: pv-
+   Preferences View  — prefix: pv-
+   Layout: la píldora flota de forma absoluta sobre el panel
+   completo, el cual ocupa el 100% de la pantalla.
    ============================================================ */
 
-/* ── View layout (column) ────────────────────────────────── */
+/* ── View: contenedor relativo para posicionar la píldora ── */
 .pv-view {
   position: relative;
-  isolation: isolate; /* nuevo stacking context para contener el z-index negativo */
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -14,87 +14,182 @@
   min-height: 0;
 }
 
-/* Cuadrícula decorativa — fondo único, detrás de todos los hijos */
-.pv-view::before {
-  content: "";
+/* ── Píldora de tabs flotante (Posición Absoluta sobre todo) ── */
+.pv-tab-bar {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1; /* detrás de los hijos; isolation: isolate evita que escape al padre */
-  background-image:
-    linear-gradient(to right, var(--primary-100) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--primary-100) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* ── Modality bar (top strip) ────────────────────────────── */
-.pv-modality-bar {
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20; /* Por encima de las materias y modalidades */
   display: flex;
-  justify-content: center;
-  padding: 12px 20px 8px;
-  flex-shrink: 0;
-}
-
-.pv-modality-selector {
-  padding: 4px;
-  display: inline-flex;
   flex-direction: row;
   gap: 4px;
-  background: #b797ff;
-  border: 1px solid #9f74ff;
-  border-radius: 8px;
+  padding: 4px;
+  background: var(--primary-200);
+  border-radius: 999px;
+  width: fit-content;
+  box-shadow: 0 4px 16px rgba(159, 116, 255, 0.25); /* Sombra de elevación premium */
 }
 
-.pv-modality-option {
-  padding: 7px 20px;
-  border-radius: 6px;
+.pv-tab-btn {
+  padding: 8px 32px;
+  border-radius: 999px;
   border: none;
   background: transparent;
   cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.15s ease;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
+  font-family: "Cabinet Grotesk Variable";
+  /* ── Igualado: Tamaño y peso idéntico al botón de guardar ── */
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: var(--neutral-blanco);
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+  white-space: nowrap;
 }
 
-.pv-modality-option--selected {
-  background-color: var(--primary-200);
-}
-
-.pv-modality-option:hover:not(.pv-modality-option--selected) {
-  background-color: rgba(255, 255, 255, 0.18);
-}
-
-/* ── Subjects wrapper (fills remaining height) ───────────── */
-.pv-subjects-wrapper {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.pv-subjects-wrapper .pcs-root {
-  flex: 1;
-  min-height: 0;
-}
-
-/* ── Actions bar ─────────────────────────────────────────── */
-.pv-subjects-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 28px;
-  flex-shrink: 0;
-  border-top: 1px solid var(--primary-50);
-}
-
-.pv-subjects-actions [data-slot="button"] {
+.pv-tab-btn--active {
   background-color: var(--primary-400);
 }
 
-.pv-subjects-actions [data-slot="button"]:hover:not(:disabled) {
-  background-color: var(--primary-default);
+.pv-tab-btn:hover:not(.pv-tab-btn--active) {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Panel principal (ocupa el 100% del contenedor) ──────── */
+.pv-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--neutral-blanco);
+}
+
+/* ── Panel de modalidad ──────────────────────────────────── */
+.pv-modality-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 100px 40px 100px; /* Padding superior de 100px para empujar hacia el centro y librar la píldora flotante */
+
+  /* Cuadrícula decorativa estilo cuaderno también en Modalidad */
+  background-image:
+    linear-gradient(to right,  var(--primary-100) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--primary-100) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: var(--neutral-blanco);
+}
+
+/* Tarjeta de opción de modalidad */
+.pv-modality-card {
+  flex: 1;
+  max-width: 180px;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  border: 1px solid var(--primary-100);
+  background-color: var(--primary-50);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4B5FD' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  z-index: 5;
+}
+
+.pv-modality-card--active {
+  background-color: var(--primary-100);
+  border-color: var(--primary-400);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%239F74FF' stroke-width='1' stroke-dasharray='8%2c4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+}
+
+.pv-modality-card:hover:not(.pv-modality-card--active) {
+  background-color: var(--color-violeta-100);
+}
+
+.pv-modality-label {
+  font-weight: 400;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--primary-default);
+}
+
+/* ── Panel de materias (cuadrícula ocupa toda la zona) ────── */
+.pv-subjects-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* El grid va desde el borde superior absoluto hasta el inferior */
+  background-image:
+    linear-gradient(to right,  var(--primary-100) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--primary-100) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: var(--neutral-blanco);
+}
+
+/* ── Botón único de Guardar (100% adentro y flotando) ─────── */
+.pv-actions {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30; /* Por encima del catálogo */
+}
+
+/* ── Intercambiado: estilo de tipografía del botón de guardar ── */
+.pv-actions .gs-submit-btn {
+  font-weight: 700; /* Igualado con la píldora */
+  font-size: 16px;  /* Igualado con la píldora */
+  line-height: 22px;
+  height: auto;
+  padding: 10px 32px;
+  border-radius: 8px;
+  text-transform: none;
+}
+
+/* ── Responsive < 480px ─────────────────────────────────── */
+@media (max-width: 499px) {
+  .pv-tab-bar {
+    top: 12px;
+  }
+
+  .pv-tab-btn {
+    padding: 7px 20px;
+    font-size: 14px;
+  }
+
+  .pv-modality-panel {
+    padding: 80px 20px 80px;
+    gap: 16px;
+  }
+
+  .pv-modality-card {
+    max-width: 140px;
+  }
+
+  .pv-modality-card img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .pv-modality-label {
+    font-size: 12px;
+    line-height: 16px;
+    margin-top: 4px;
+  }
+
+  .pv-main {
+    min-height: 400px;
+  }
 }

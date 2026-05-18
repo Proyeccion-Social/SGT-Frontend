@@ -81,6 +81,7 @@ export const PATCH: APIRoute = async ({ request }) => {
         const dto: UpdateTutorProfileDto = {};
         if (typeof body.phone === "string") dto.phone = body.phone;
         if (typeof body.max_weekly_hours === "number") dto.max_weekly_hours = body.max_weekly_hours;
+        if (Array.isArray(body.subjectIds)) dto.subject_ids = body.subjectIds;
 
         await updateTutorProfile(dto, token);
         return new Response(null, { status: 204 });

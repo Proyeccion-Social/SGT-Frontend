@@ -71,7 +71,7 @@ export function TutorProfileDialog({
           }
         })
         .catch(() => { setPhone(null); setTutorSubjectIds([]); });
-    }
+    });
   }, [open, initialView]);
 
   async function handleToggleActive() {

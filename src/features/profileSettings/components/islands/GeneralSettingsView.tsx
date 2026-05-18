@@ -108,6 +108,11 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
     setPwErrors(errors);
     if (Object.values(errors).some(Boolean)) return;
 
+    const sessionCheck = await fetch("/api/auth/check-session");
+    if (!sessionCheck.ok) {
+      window.location.href = "/?session_expired=true";
+      return;
+    }
     setSavingPw(true);
     await sileo
       .promise(

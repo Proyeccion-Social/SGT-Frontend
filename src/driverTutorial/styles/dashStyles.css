@@ -1,0 +1,352 @@
+/* Main Popover Container */
+.driver-popover {
+  min-width: 300px;
+  background-color: var(--neutral-blanco) !important;
+  border-radius: 16px !important;
+  padding: 20px !important;
+  border: 1px solid var(--neutral-200) !important;
+  box-shadow: 0 10px 30px rgba(81, 49, 153, 0.15) !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+  letter-spacing: -0.02em !important;
+  z-index: 100006 !important; /* Popover por encima del overlay (100005) */
+  margin-top: 40px !important; /* Margen vertical de seguridad para desktop */
+  margin-bottom: 40px !important;
+}
+
+/* Overlay Styling */
+.driver-overlay,
+.driver-overlay * {
+  z-index: 100005 !important; /* Por encima del modal de Radix (100000) */
+}
+
+/* Title Styling */
+.driver-popover-title {
+  color: var(--primary-default) !important;
+  font-size: 24px !important;
+  line-height: var(--lineheight-heading-h5) !important;
+  font-weight: 700 !important;
+  margin-bottom: 8 px !important;
+  letter-spacing: -0.02em !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+}
+
+/* Description Styling */
+.driver-popover-description {
+  color: var(--text-body) !important;
+  font-size: 14px !important;
+  line-height: 18px !important;
+  font-weight: 400 !important;
+  text-align: start !important;
+  letter-spacing: -0.02em !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+}
+
+/* Close Button */
+.driver-popover-close-btn {
+  color: var(--primary-700) !important;
+  transition: all 0.2s ease !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+.driver-popover-close-btn:hover {
+  color: var(--primary-default) !important;
+}
+
+/* Footer & Progress Text */
+.driver-popover-footer {
+  margin-top: 20px !important;
+}
+
+.driver-popover-progress-text {
+  color: var(--primary-400) !important;
+  font-size: 14px !important;
+  line-height: var(--lineheight-body-sm) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+}
+
+/* Buttons Styling */
+.driver-popover-next-btn,
+.driver-popover-prev-btn {
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 16px !important;
+  line-height: var(--lineheight-body-md) !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+  transition: background-color 0.3s ease !important;
+  border: none !important;
+  letter-spacing: -0.02em !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+}
+
+/* Next Button */
+.driver-popover-next-btn {
+  background-color: var(--primary-400) !important;
+  color: var(--neutral-blanco) !important;
+}
+
+.driver-popover-next-btn:hover {
+  background-color: var(--primary-default) !important;
+}
+
+/* Previous Button - Using Soft Purple */
+.driver-popover-prev-btn {
+  background-color: var(--primary-100) !important;
+  color: var(--primary-700) !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background-color: var(--primary-200) !important;
+  color: var(--primary-700) !important;
+}
+
+/* Arrow Styling */
+.driver-popover-arrow {
+  border-color: var(--neutral-200) !important;
+}
+
+.driver-popover-navigation-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: -16px;
+  left: 0px;
+  right: 0px;
+}
+
+.driver-popover-arrow-side-top {
+  border-top-color: var(--neutral-blanco) !important;
+}
+.driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--neutral-blanco) !important;
+}
+.driver-popover-arrow-side-left {
+  border-left-color: var(--neutral-blanco) !important;
+}
+.driver-popover-arrow-side-right {
+  border-right-color: var(--neutral-blanco) !important;
+}
+
+/* WELCOME POPOVER SPECIAL STYLES */
+.driver-popover.welcome-popover {
+  width: 500px !important;
+  max-width: 90vw !important;
+  text-align: center;
+  padding: 40px 40px 32px 40px !important;
+  border-width: 1px !important;
+  border-color: var(--neutral-200) !important;
+}
+
+.driver-popover.welcome-popover .driver-popover-title {
+  font-size: 32px !important;
+  line-height: var(--lineheight-heading-h4) !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+  color: var(--primary-default) !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+.driver-popover.welcome-popover .driver-popover-description {
+  font-size: 16px !important;
+  line-height: var(--lineheight-body-md) !important;
+  color: var(--neutral-body) !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+  letter-spacing: -0.02em !important;
+  text-align: center !important;
+  text-wrap: balance;
+}
+
+/* FINAL POPOVER */
+.driver-popover.final-popover {
+  width: 700px !important;
+  max-width: 90vw !important;
+  text-align: center;
+  padding: 40px !important;
+  border-width: 1px !important;
+  border-color: var(--neutral-200) !important;
+}
+
+.driver-popover.final-popover .driver-popover-title {
+  font-size: 32px !important;
+  line-height: var(--lineheight-heading-h4) !important;
+  font-weight: 700 !important;
+  margin-bottom: 20px !important;
+  color: var(--primary-default) !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+  letter-spacing: -0.02em !important;
+}
+
+.driver-popover.final-popover .driver-popover-description {
+  font-size: 16px !important;
+  line-height: var(--lineheight-body-md) !important;
+  color: var(--text-body) !important;
+  font-family: var(--type-font-family-primary), sans-serif !important;
+  letter-spacing: -0.02em !important;
+  text-align: center !important;
+}
+
+.driver-popover.final-popover .driver-popover-next-btn {
+  width: auto !important;
+  min-width: 100px !important;
+  height: 40px !important;
+  font-size: 16px !important;
+  padding: 0 20px !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* Arrow hidden */
+.driver-popover-arrow,
+.driver-popover-arrow * {
+  display: none !important;
+}
+
+/* CELEBRATION POPOVER (GIF FINAL) */
+.driver-popover.celebration-popover {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  padding: 0 !important;
+  min-width: unset !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.driver-popover.celebration-popover .driver-popover-title,
+.driver-popover.celebration-popover .driver-popover-footer {
+  display: none !important;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────────── */
+
+/* Tablet (≤ 768px) */
+@media (max-width: 768px) {
+  .driver-popover {
+    min-width: unset !important;
+    width: calc(100vw - 64px) !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    left: 32px !important; /* Mantiene el popover perfectamente centrado con 32px de margen lateral */
+    margin-top: 40px !important; /* Margen vertical amplio para tablet */
+    margin-bottom: 40px !important;
+  }
+
+  .driver-popover-title {
+    font-size: 24px !important;
+    line-height: var(--lineheight-heading-h5) !important;
+  }
+
+  .driver-popover.welcome-popover,
+  .driver-popover.final-popover {
+    padding: 28px !important;
+  }
+
+  .driver-popover.welcome-popover .driver-popover-title,
+  .driver-popover.final-popover .driver-popover-title {
+    font-size: 28px !important;
+    line-height: var(--lineheight-heading-h5) !important;
+    margin-bottom: 12px !important;
+  }
+
+  .driver-popover.welcome-popover .driver-popover-description {
+    font-size: 16px !important;
+    line-height: var(--lineheight-body-md) !important;
+  }
+
+  .driver-popover.final-popover .driver-popover-description {
+    font-size: 16px !important;
+    line-height: var(--lineheight-body-md) !important;
+  }
+}
+
+/* Mobile (≤ 480px) */
+@media (max-width: 480px) {
+  .driver-popover {
+    width: calc(100vw - 40px) !important;
+    padding: 14px !important;
+    border-radius: 12px !important;
+    left: 20px !important; /* Mantiene el popover perfectamente centrado con 20px de margen lateral */
+    margin-top: 16px !important; /* Margen vertical de 16px para evitar que toque los bordes superior/inferior de la pantalla */
+    margin-bottom: 16px !important;
+  }
+
+  .driver-popover-title {
+    font-size: 20px !important;
+    line-height: var(--lineheight-heading-h6) !important;
+  }
+
+  .driver-popover-description {
+    font-size: 14px !important;
+    line-height: 18px !important;
+  }
+
+  .driver-popover-progress-text {
+    font-size: 12px !important;
+    line-height: var(--lineheight-body-sm) !important;
+  }
+
+  .driver-popover-next-btn,
+  .driver-popover-prev-btn {
+    padding: 6px 12px !important;
+    font-size: 14px !important;
+  }
+
+  .driver-popover.welcome-popover,
+  .driver-popover.final-popover {
+    padding: 20px !important;
+  }
+
+  .driver-popover.welcome-popover .driver-popover-title,
+  .driver-popover.final-popover .driver-popover-title {
+    font-size: 24px !important;
+    line-height: var(--lineheight-heading-h5) !important;
+    margin-bottom: 8px !important;
+  }
+
+  .driver-popover.welcome-popover .driver-popover-description {
+    font-size: 14px !important;
+    line-height: 18px !important;
+  }
+
+  .driver-popover.final-popover .driver-popover-description {
+    font-size: 16px !important;
+    line-height: var(--lineheight-body-md) !important;
+  }
+
+  .driver-popover.final-popover .driver-popover-next-btn {
+    width: auto !important;
+    min-width: 90px !important;
+    height: 36px !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
+/* Popover anclado al fondo de pantalla en móvil (ej: "Planea y Filtra") */
+@media (max-width: 768px) {
+  .driver-popover.bottom-popover {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 16px !important;
+    left: 20px !important;
+    right: 20px !important;
+    width: auto !important;
+    transform: none !important;
+  }
+}

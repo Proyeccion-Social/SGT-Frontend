@@ -364,6 +364,122 @@ export async function getOwnTutorProfile(token?: string): Promise<TutorProfile> 
     return handleResponse<TutorProfile>(response);
 }
 
+export interface TutorProfileInfo {
+  name: string;
+  photo: string | null;
+  subjects: { id: string; name: string }[];
+}
+
+/**
+ * GET /api/v1/availability/tutors/detailed
+ * Obtiene tutores con perfil público + disponibilidad en una sola llamada.
+ * Reemplaza el patrón N+1 de getAllTutorSlotsSSR.
+ * Rol requerido: STUDENT, TUTOR, ADMIN
+ */
+export async function getTutorSlotsDetailedSSR(
+  query?: {
+    subjectIds?: string[];
+    onlyAvailable?: boolean;
+    modality?: Modality;
+    weekStart?: string;
+    page?: number;
+    limit?: number;
+  },
+  token?: string
+): Promise<{ slots: Slot[]; tutorProfiles: Record<string, TutorProfileInfo> }> {
+  const params = new URLSearchParams();
+  if (query?.subjectIds?.length) {
+    query.subjectIds.forEach((id) => params.append('subjectIds', id));
+  }
+  if (query?.onlyAvailable !== undefined)
+    params.append('onlyAvailable', query.onlyAvailable.toString());
+  if (query?.modality) params.append('modality', query.modality);
+  if (query?.weekStart) params.append('weekStart', query.weekStart);
+  if (query?.page !== undefined) params.append('page', query.page.toString());
+  if (query?.limit !== undefined) params.append('limit', query.limit.toString());
+
+  const queryString = params.toString() ? `?${params.toString()}` : '';
+  const url = `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/detailed${queryString}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: buildAuthHeaders(token),
+  });
+
+  console.log(url + ' - Status:', token);
+
+  const result = await handleResponse<{
+    success: boolean;
+    weekReference: string;
+    data: Array<{
+      tutorId: string;
+      tutorName: string;
+      photo: string | null;
+      subjects: { id: string; name: string }[];
+      groupedByDay: Record<
+        string,
+        Array<{
+          slotId: string;
+          dayOfWeek: string;
+          startTime: string;
+          endTime: string;
+          modality: string;
+          isAvailable: boolean;
+        }>
+      >;
+    }>;
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  }>(response);
+
+  const dayMap: Record<string, DayOfWeek> = {
+    MONDAY: 'LUNES',
+    TUESDAY: 'MARTES',
+    WEDNESDAY: 'MIERCOLES',
+    THURSDAY: 'JUEVES',
+    FRIDAY: 'VIERNES',
+    SATURDAY: 'SABADO',
+  };
+
+  const tutorProfiles: Record<string, TutorProfileInfo> = {};
+  const allSlots: Slot[] = [];
+
+  for (const tutor of result.data) {
+    tutorProfiles[tutor.tutorId] = {
+      name: tutor.tutorName,
+      photo: tutor.photo,
+      subjects: tutor.subjects,
+    };
+
+    for (const rawSlots of Object.values(tutor.groupedByDay)) {
+      for (const s of rawSlots) {
+        for (const subject of tutor.subjects) {
+          allSlots.push({
+            id: s.slotId,
+            dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] ?? (s.dayOfWeek as DayOfWeek),
+            startTime: s.startTime?.substring(0, 5),
+            endTime: s.endTime?.substring(0, 5),
+            modality: (s.modality as Modality) ?? null,
+            isBooked: s.isAvailable === false,
+            tutorIds: [tutor.tutorId],
+            subject: subject.name,
+            subjectId: subject.id,
+            weekReference: result.weekReference,
+          });
+        }
+      }
+    }
+  }
+
+  return { slots: allSlots, tutorProfiles };
+}
+
 export async function getAllTutorsSSR(token: string): Promise<{ tutorId: string; tutorName: string; modalities: Modality[] }[]> {
   const response = await fetch(
     `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/slots`,

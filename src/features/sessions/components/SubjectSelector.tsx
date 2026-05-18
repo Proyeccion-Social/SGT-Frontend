@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { BookOpenIcon, ChevronDownIcon } from "lucide-react"
+import { BookOpenIcon } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -68,12 +68,12 @@ export function SubjectSelector({ initialSubjects = [], initialSelectedId = null
           <button
             type="button"
             style={{ 
-              minWidth: "180px", 
-              height: "42px",
               ...(selectedId ? { borderColor: "var(--secondary-500)", color: "var(--secondary-500)" } : {})
             }}
             className={`
-              flex items-center justify-between gap-2 px-4 py-2 rounded-full border transition-all duration-200
+              flex items-center justify-center md:justify-between gap-2 px-4 md:px-4 py-2
+              h-[42px] md:w-auto md:min-w-[180px]
+              rounded-full border transition-all duration-200
               ${
                 selectedId
                   ? "bg-(--secondary-100)"
@@ -81,15 +81,12 @@ export function SubjectSelector({ initialSubjects = [], initialSelectedId = null
               }
             `}
           >
-            <div className="flex items-center gap-2 overflow-hidden">
+            <div className="flex items-center gap-2">
               <BookOpenIcon className="w-4 h-4 shrink-0" />
-              <span className="text-sm font-medium truncate">
+              <span className="md:inline text-sm font-medium truncate overflow-hidden">
                 {currentSubject ? currentSubject.name : "Todas las materias"}
               </span>
             </div>
-            <ChevronDownIcon
-              className={`w-4 h-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-            />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-64 max-h-80 overflow-y-auto shadow-xl border-(--neutral-100) rounded-2xl p-2">

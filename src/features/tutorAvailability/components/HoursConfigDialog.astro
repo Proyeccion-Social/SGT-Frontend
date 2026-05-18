@@ -174,8 +174,11 @@
             const errorData = await response.json().catch(() => ({}));
             throw new Error(errorData.message || "Error al actualizar horas");
           }
-
+          
           window.dispatchEvent(new CustomEvent("refresh-slots"));
+          setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('tutorial:start'));
+          }, 500); 
           dialog.close();
         },
         {

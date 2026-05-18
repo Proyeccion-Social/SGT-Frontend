@@ -26,6 +26,7 @@ const currentPath = Astro.url.pathname;
     <a
       href='/dashboard'
       class={`dock-item ${currentPath === "/dashboard" ? "active" : ""}`}
+      id="goDashboardMobileTUTORIAL"
     >
       <div class='icon-highlight'>
         <Image src={DashboardIcon} alt='Dashboard' class='icon' />
@@ -41,12 +42,13 @@ const currentPath = Astro.url.pathname;
             class={`dock-item calendar-item ${currentPath === "/sessions" ? "active" : ""}`}
           >
             <div class='icon-highlight'>
-              <Image src={CalendarIcon} alt='Calendario' class='icon' />
+              <Image src={CalendarIcon} alt='Calendario' class='icon' id="goAgendamientoMobileTUTORIAL" />
             </div>
           </a>
           <a
             href='/history'
             class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+            id="goHistorialStudentMobileTUTORIAL"
           >
             <div class='icon-highlight'>
               <Image src={HistoryIcon} alt='Historial' class='icon' />
@@ -57,7 +59,7 @@ const currentPath = Astro.url.pathname;
             class={`dock-item ${currentPath.startsWith("/search") ? "active" : ""}`}
           >
             <div class='icon-highlight'>
-              <Image src={SearchIcon} alt='Buscar' class='icon' />
+              <Image src={SearchIcon} alt='Buscar' class='icon' id="goSearchStudentMobileTUTORIAL" />
             </div>
           </a>
           <a href='#' class='dock-item'>
@@ -99,6 +101,7 @@ const currentPath = Astro.url.pathname;
           <a
             href='/availability/tutor/slots'
             class={`dock-item ${currentPath.startsWith("/availability/tutor") ? "active" : ""}`}
+            id="goDisponibilidadTutorMobileTUTORIAL"
           >
             <div class='icon-highlight'>
               <Image src={WindowIcon} alt='Disponibilidad' class='icon' />
@@ -107,6 +110,7 @@ const currentPath = Astro.url.pathname;
           <a
             href='/history'
             class={`dock-item ${currentPath.startsWith("/history") ? "active" : ""}`}
+            id="goHistorialTutorMobileTUTORIAL"
           >
             <div class='icon-highlight'>
               <Image src={HistoryIcon} alt='Historial' class='icon' />
@@ -119,7 +123,7 @@ const currentPath = Astro.url.pathname;
 </nav>
 
 {/* Floating Notifications for Mobile */}
-<a href='#' class='notification-floating'>
+<a href='#' class='notification-floating' id="goNotificationsMobileTUTORIAL">
   <div class='icon-highlight'>
     <Image src={NotificationIcon} alt='Notificaciones' class='icon' />
   </div>
@@ -133,14 +137,18 @@ const currentPath = Astro.url.pathname;
     left: 50%;
     transform: translateX(-50%);
     width: auto;
-    max-width: 95%;
-    height: 56px;
-    background: #f6f1ff;
+    height: 64px;
     z-index: 100;
     border-radius: 50px;
     padding: 0 12px;
     overflow: visible;
     filter: drop-shadow(0 -4px 12px rgba(0, 0, 0, 0.08));
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    border: 1px solid rgba(255, 255, 255, 0.01);
   }
 
   @media (max-width: 768px) {
@@ -153,7 +161,7 @@ const currentPath = Astro.url.pathname;
       transform: translateX(-50%);
       margin: 0;
       box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-      width: 85%;
+      /* width: 85%; */
       justify-content: center;
     }
 
@@ -192,7 +200,7 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     width: 42px;
     height: 42px;
-    border-radius: 50%;
+    border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     text-decoration: none;
@@ -229,26 +237,30 @@ const currentPath = Astro.url.pathname;
     background: #e7dcff;
     z-index: 1001;
   }
-
-  .dock-item.active::before,
-  .dock-item.active::after {
-    content: "";
-    position: absolute;
-    bottom: -18px; /* Match the protrusion depth */
-    width: 18px;
-    height: 18px;
-    background: transparent;
-  }
-
-  .dock-item.active::before {
-    left: -18px;
-    border-radius: 0 0 18px 0;
-    box-shadow: 6px 0 0 0 #f6f1ff;
-  }
-
-  .dock-item.active::after {
-    right: -18px;
-    border-radius: 0 0 0 18px;
-    box-shadow: -6px 0 0 0 #f6f1ff;
-  }
 </style>
+
+<script>
+  function updateDockActive() {
+    const path = window.location.pathname;
+    const dock = document.getElementById("mobile-dock");
+    if (!dock) return;
+
+    // Clear all active classes
+    dock
+      .querySelectorAll(".dock-item.active")
+      .forEach((el) => el.classList.remove("active"));
+
+    // Re-apply based on current path
+    dock.querySelectorAll("a.dock-item[href]").forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href || href === "#") return;
+
+      const matched =
+        href === path || (href !== "/dashboard" && path.startsWith(href));
+
+      if (matched) link.classList.add("active");
+    });
+  }
+
+  document.addEventListener("astro:page-load", updateDockActive);
+</script>

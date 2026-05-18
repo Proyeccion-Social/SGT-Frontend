@@ -73,6 +73,11 @@ export default function ChangePasswordForm() {
         e.preventDefault();
         if (!canSubmit) return;
 
+        const sessionCheck = await fetch("/api/auth/check-session");
+        if (!sessionCheck.ok) {
+            window.location.href = "/?session_expired=true";
+            return;
+        }
         setSubmitting(true);
 
         try {

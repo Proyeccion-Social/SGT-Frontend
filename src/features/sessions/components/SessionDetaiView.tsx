@@ -77,9 +77,7 @@ const modalityIcon = (modality: string) => {
   const iconAsset = (mo.includes('virt') || !mo.includes('pres')) ? compu : ubicacion;
   const src = typeof iconAsset === 'string' ? iconAsset : iconAsset.src;
   return (
-    <a href={src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
-      <img src={src} alt="Icono de modalidad" style={{ width: '40px', height: '40px' }} />
-    </a>
+    <img src={src} alt="Icono de modalidad" style={{ width: '40px', height: '40px' }} />
   );
 };
  
@@ -113,7 +111,7 @@ const FallbackAvatar = ({ name }: { name: string }) => (
 
 const toProposeAvailabilitySlots = (
   slots: AvailabilitySlot[]
-): { id: string; label: string }[] =>
+): { id: string; label: string; modality?: string }[] =>
   slots.map((slot) => {
     const slotData = slot as unknown as Record<string, unknown>;
 
@@ -141,6 +139,11 @@ const toProposeAvailabilitySlots = (
           ? slotData.end
           : '';
 
+    const modality =
+      typeof slotData.modality === 'string' ? slotData.modality : undefined;
+
+    const modalityTag = modality === 'VIRT' ? ' · Virtual' : modality === 'PRES' ? ' · Presencial' : '';
+
     const generatedLabel = [day, start && end ? `${start} - ${end}` : start || end]
       .filter(Boolean)
       .join(' ')
@@ -148,7 +151,8 @@ const toProposeAvailabilitySlots = (
 
     return {
       id,
-      label: label || generatedLabel || id,
+      label: (label || generatedLabel || id) + modalityTag,
+      modality,
     };
   });
  
@@ -388,18 +392,14 @@ export const SessionDetailView = ({
             </div>
  
             <div className="sdv-card">
-              <a href={time.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
-                <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
-              </a>
+              <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
               <span className="sdv-card__label">
                 {formatDuration(session.startTime, session.endTime)}
               </span>
             </div>
  
             <div className="sdv-card">
-              <a href={calendar.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
-                <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
-              </a>
+              <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
               <span className="sdv-card__label">
                 {dateStr}
                 <br/>
@@ -408,9 +408,7 @@ export const SessionDetailView = ({
             </div>
  
             <div className="sdv-card">
-              <a href={pin.src} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
-                <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
-              </a>
+              <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
               <span className="sdv-card__label">{statusLabel(String(session.status))}</span>
             </div>
  

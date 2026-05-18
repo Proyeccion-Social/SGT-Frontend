@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import './styles/SessionDetailModal.css';
 import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { UserRole } from '@/constants/roles';
@@ -52,7 +53,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
   const participant = session?.participants?.find((p: any) => p.id === user?.id);
   const canEvaluate = session?.status === 'COMPLETED' && String(role).toLowerCase() === UserRole.STUDENT && participant?.status !== 'ABSENT';
  
-  return (
+  return createPortal(
     <div
       className="modal-overlay"
       onClick={handleBackdropClick}
@@ -60,7 +61,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
       aria-modal="true"
       aria-label="Session detail"
     >
-      <div>
+      <div className="modal-card__container">
  
         {isLoading && (
           <div className="modal-card__loading" aria-live="polite">
@@ -128,7 +129,8 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
           )
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
  

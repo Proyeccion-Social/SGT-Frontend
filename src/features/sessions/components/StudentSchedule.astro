@@ -4,7 +4,7 @@ import SchedulingWizard from "@/features/sessions/components/SchedulingWizard";
 import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
 import { SubjectSelector } from "@/features/sessions/components/SubjectSelector";
 import { getAllSubjects } from "@/features/search/services/getAllSubjects";
-import { getAllTutorSlotsSSR } from "@/features/availability/services/availabilityService";
+import { getTutorSlotsDetailedSSR } from "@/features/availability/services/availabilityService";
 import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
 import { Image } from "astro:assets";
 
@@ -30,19 +30,30 @@ const weekReference = [
 const subjectsData = await getAllSubjects(token).catch(() => ({ data: [] }));
 const initialSubjects = subjectsData.data ?? subjectsData ?? [];
 
-// 2. Traer slots
-let slots = await getAllTutorSlotsSSR(
-  {
-    onlyAvailable: true,
-    weekStart: weekReference,
-  },
-  token,
-).catch((err) => {
-  console.error("[StudentSchedule] ERROR en getAllTutorSlotsSSR:", err);
-  return [];
-});
+// 2. Traer slots y perfiles de tutores en una sola llamada
+let slots: import("@/features/availability/services/availabilityService").Slot[] =
+  [];
+let tutorProfiles: Record<
+  string,
+  import("@/features/availability/services/availabilityService").TutorProfileInfo
+> = {};
 
-// Filtrar por materia si viene en la URL
+try {
+  const result = await getTutorSlotsDetailedSSR(
+    {
+      onlyAvailable: true,
+      weekStart: weekReference,
+      ...(subjectIdParam ? { subjectIds: [subjectIdParam] } : {}),
+    },
+    token,
+  );
+  slots = result.slots;
+  tutorProfiles = result.tutorProfiles;
+} catch (err) {
+  console.error("[StudentSchedule] ERROR en getTutorSlotsDetailedSSR:", err);
+}
+
+// Filtrar por materia si viene en la URL (el endpoint ya filtra, pero como salvaguarda)
 if (subjectIdParam) {
   slots = slots.filter((s) => s.subjectId === subjectIdParam);
 }
@@ -52,7 +63,7 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
 
 <div class='schedule-container'>
   <div class='schedule-header'>
-    <div class='header-left'>
+    <div class='header-left' id="weekfilterStudentTUTORIAL">
       <div class='header-title'>
         <h1>Tu Semana</h1>
       </div>
@@ -60,57 +71,66 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
       <div class='nav-actions'>
         <div class='week-nav'>
           <span class='date-range'>{weekRangeStr}</span>
-          {
-            weekOffset > 0 ? (
-              <a
-                href={`?offset=${prevOffset}${subjectQuery}`}
-                class='week-nav__arrow'
-                aria-label='Semana anterior'
-              >
-                <Image src={previousWeekIcon} alt='Previous Week' />
-              </a>
-            ) : (
-              <span class='week-nav__arrow week-nav__arrow--disabled'>
-                <Image src={previousWeekIcon} alt='Previous Week' />
-              </span>
-            )
-          }
-          {
-            weekOffset < 1 ? (
-              <a
-                href={`?offset=${nextOffset}${subjectQuery}`}
-                class='week-nav__arrow week-nav__arrow-1'
-                aria-label='Semana siguiente'
-              >
-                <Image src={nextWeekIcon} alt='Next Week' />
-              </a>
-            ) : (
-              <span class='week-nav__arrow week-nav__arrow-1 week-nav__arrow--disabled'>
-                <Image src={nextWeekIcon} alt='Next Week' />
-              </span>
-            )
-          }
+          <div class="nav-actions-specific">
+            <div class="week-nav-side-week">
+              {
+                weekOffset > 0 ? (
+                  <a
+                    href={`?offset=${prevOffset}${subjectQuery}`}
+                    class='week-nav__arrow'
+                    aria-label='Semana anterior'
+                  >
+                    <Image src={previousWeekIcon} alt='Previous Week' />
+                  </a>
+                ) : (
+                  <span class='week-nav__arrow week-nav__arrow--disabled'>
+                    <Image src={previousWeekIcon} alt='Previous Week' />
+                  </span>
+                )
+              }
+              {
+                weekOffset < 1 ? (
+                  <a
+                    href={`?offset=${nextOffset}${subjectQuery}`}
+                    class='week-nav__arrow week-nav__arrow-1'
+                    aria-label='Semana siguiente'
+                  >
+                    <Image src={nextWeekIcon} alt='Next Week' />
+                  </a>
+                ) : (
+                  <span class='week-nav__arrow week-nav__arrow-1 week-nav__arrow--disabled'>
+                    <Image src={nextWeekIcon} alt='Next Week' />
+                  </span>
+                )
+              }
+            </div>
+            <article class='container-subjects-filter'>
+              <SubjectSelector
+                client:load
+                initialSubjects={initialSubjects}
+                initialSelectedId={subjectIdParam}
+              />
+            </article>
+          </div>
+  
         </div>
-        <article class='container-subjects-filter'>
-          <SubjectSelector
-            client:load
-            initialSubjects={initialSubjects}
-            initialSelectedId={subjectIdParam}
-          />
-        </article>
       </div>
     </div>
     <div class='legend'>
-      <p>Franjas horarias disponibles de tu semana</p>
+      <p>Tutorías disponibles esta semana</p>
     </div>
   </div>
 
-  <div class='calendar-scroll-area'>
+  <div class='calendar-scroll-area' id="calendarStudentTUTORIAL">
     <!-- Pasar monday como baseDate para que el calendario muestre la semana correcta -->
     <WeeklyCalendar slots={slots} mode='student' baseDate={monday} />
   </div>
 
-  <SchedulingWizard client:only='react' slots={slots} />
+  <SchedulingWizard
+    client:only='react'
+    slots={slots}
+    tutorProfiles={tutorProfiles}
+  />
 </div>
 
 <style>
@@ -154,9 +174,6 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
     font-size: 16px;
     font-weight: 600;
     transition: background 0.15s ease;
-    position: relative;
-    bottom: 2px;
-    margin-left: 12px;
   }
 
   .week-nav__arrow-1 {
@@ -238,7 +255,7 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
     align-items: center;
   }
 
-  .nav-actions {
+  .nav-actions, .nav-actions-specific {
     display: flex;
     align-items: center;
     gap: 24px;
@@ -266,8 +283,13 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
     font-size: 16px;
     line-height: 20px;
     color: var(--neutral-default);
-    position: relative;
-    bottom: 2px;
+  }
+
+  .week-nav-side-week {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 12px;
   }
 
   .badge {
@@ -312,34 +334,34 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
     border-radius: 10px;
   }
 
-  .container-subjects-filter {
-    position: relative;
-    top: 2px;
-  }
 
   @media (max-width: 768px) {
     .schedule-header {
       padding: 24px 20px 16px;
       gap: 10px;
     }
+    .schedule-container {
+      border-radius: 0;
+    }
 
     .header-left {
       flex-direction: column;
       align-items: flex-start;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .nav-actions {
+    .nav-actions-specific {
       flex-wrap: wrap;
       gap: 10px;
     }
 
     .header-title h1 {
-      font-size: 24px;
-      line-height: 28px;
+      font-size: 32px;
+      line-height: 36px;
     }
 
     .date-range {
+      /* display: none; */
       font-size: 14px;
       bottom: 0;
     }
@@ -350,6 +372,17 @@ const subjectQuery = subjectIdParam ? `&subjectId=${subjectIdParam}` : "";
 
     .week-nav {
       top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .week-nav-side-week {
+      margin-left: 0;
+    }
+
+    .nav-actions-specific{
+      margin-top: 20px;
     }
   }
 </style>

@@ -371,7 +371,7 @@ export interface TutorProfileInfo {
 }
 
 /**
- * GET /api/v1/availability/tutors/subjects/detailed
+ * GET /api/v1/availability/tutors/detailed
  * Obtiene tutores con perfil público + disponibilidad en una sola llamada.
  * Reemplaza el patrón N+1 de getAllTutorSlotsSSR.
  * Rol requerido: STUDENT, TUTOR, ADMIN
@@ -399,7 +399,7 @@ export async function getTutorSlotsDetailedSSR(
   if (query?.limit !== undefined) params.append('limit', query.limit.toString());
 
   const queryString = params.toString() ? `?${params.toString()}` : '';
-  const url = `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/subjects/detailed${queryString}`;
+  const url = `${import.meta.env.API_URL}${AVAILABILITY_PATH}/tutors/detailed${queryString}`;
 
   const response = await fetch(url, {
     method: 'GET',

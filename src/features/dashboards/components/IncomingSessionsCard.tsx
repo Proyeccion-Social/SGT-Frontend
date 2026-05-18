@@ -5,10 +5,14 @@
 import { useMemo, useState } from 'react';
 import '../styles/IncomingSessionsCard.css';
 import type { Session } from '../../sessions/types/session.types';
+import calendarIcon from '../assets/calendar.svg';
+import clockIcon from '../assets/clock.svg';
+import virtualIcon from '../assets/virtual.svg';
+import presencialIcon from '../assets/presencial.svg';
 import AttendancePostSession from '@features/sessions/components/AttendancePostSession';
 import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
-import { sessionPhase, getTimeLeft, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
+import { sessionPhase, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { useSubjectStore } from '@/store/subjectStore';
 
 interface Props {
@@ -27,6 +31,17 @@ const openDetail = (sessionId: string) => {
     new CustomEvent('open-detail', { detail: { sessionId } })
   );
 };
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const getInitials = (name: string) =>
+  name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]?.toUpperCase() ?? '').join('');
+
+const formatDuration = (hours: number) =>
+  hours < 1 ? `${Math.round(hours * 60)}min` : `${hours}h`;
+
+const formatModality = (modality: string) =>
+  modality === 'VIRT' ? 'Virtual' : modality === 'PRES' ? 'Presencial' : '';
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -80,11 +95,11 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
         )}
 
         {!isLoading && error && (
-          <p style={{ color: 'white', fontSize: 14 }}>{error}</p>
+          <p style={{ color: '#8a2b2b', fontSize: 14 }}>{error}</p>
         )}
 
         {!isLoading && !error && displaySessions.length === 0 && (
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 14 }}>
+          <p style={{ color: 'rgba(100, 80, 160, 0.7)', fontSize: 14 }}>
             No tienes sesiones próximas agendadas.
           </p>
         )}
@@ -92,100 +107,112 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
         {!isLoading && !error && displaySessions.map((session) => {
           const subjectName = typeof session.subject === 'string' ? session.subject : session.subject?.name;
           const colors = colorMap[subjectName] || { color: 'transparent', borderColor: 'transparent' };
-          const phase = getSessionTimePhase(
-            session.scheduledDate,
-            session.startTime,
-            session.endTime
-          );
+          const phase = getSessionTimePhase(session.scheduledDate, session.startTime, session.endTime);
           const isTutor = viewerRole === UserRole.TUTOR;
 
+          const personName = isTutor
+            ? (session.participants.find(p => p.role.toUpperCase() !== 'TUTOR')?.name ?? 'Estudiante')
+            : session.tutor.name;
+          const initials = getInitials(personName);
+          const personPhoto = !isTutor ? session.tutor.photo : undefined;
+
+          const avatarBg = 'var(--primary-100)';
+          const avatarColor = 'var(--primary-600)';
+
+          const handleCardClick = () => {
+            if (phase === 'in_progress' && isTutor) setFinishingSession(session);
+            else if (phase === 'ended' && isTutor) handleAttendanceOpen(session);
+            else openDetail(session.id);
+          };
+
           return (
-            <div key={session.id} className="session-card">
-              <div className="card-content">
-                <div className="card-header">
-                  <span>{session.title}</span>
-                  <span className="badge-time">
-                    {getTimeLeft(session.scheduledDate, session.startTime, session.endTime)}
-                  </span>
+            <div
+              key={session.id}
+              className="session-card"
+              onClick={handleCardClick}
+              role="button"
+              tabIndex={0}
+              aria-label={`Sesión: ${session.title}`}
+            >
+              <div className="card-avatar" style={{ background: avatarBg, color: avatarColor }}>
+                {initials}
+                {personPhoto && (
+                  <img
+                    src={personPhoto}
+                    alt={personName}
+                    className="card-avatar-img"
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+              </div>
+              <div className="card-body">
+                <div className="card-top">
+                  <span className="card-title">{session.title}</span>
+                  <span className={`tag-status ${phase}`}>{sessionPhase[phase]}</span>
                 </div>
-
-                <p className="description">{session.description}</p>
-
-                <div className="card-footer">
-                  <div className="tags">
-                    <span
-                      className="tag-subject"
-                      style={{
-                        backgroundColor: colors.color,
-                        borderColor: colors.borderColor,
-                        color: '#1a1a1a',
-                      }}
-                    >
-                      {subjectName}
-                    </span>
-                    <span className={`tag-status ${phase}`}>
-                      {sessionPhase[phase]}
+                <p className="card-person">{personName}</p>
+                <div className="card-meta">
+                  <div className="meta-item">
+                    <img src={calendarIcon.src} className="meta-icon" alt="" />
+                    <span>
+                      {formatDate(session.scheduledDate)}, { }
+                      {formatTime(session.startTime)}
                     </span>
                   </div>
-                  <span className="time-label">
-                    {formatDate(session.scheduledDate)} · {formatTime(session.startTime)}
-                  </span>
+                  {session.duration > 0 && (
+                    <div className="meta-item">
+                      <img src={clockIcon.src} className="meta-icon meta-icon--dark" alt="" />
+                      <span>
+                        {formatDuration(session.duration)}
+                      </span>
+                    </div>
+                  )}
+                  {session.modality && (
+                    <div className="meta-item">
+                      <img
+                        src={session.modality === 'VIRT' ? virtualIcon.src : presencialIcon.src}
+                        className="meta-icon"
+                        alt=""
+                      />
+                      <span>
+                        {formatModality(session.modality)}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              <div className="actions">
-                {phase === 'upcoming' && (
-                  <button
-                    type="button"
-                    className="btn-details"
-                    onClick={() => openDetail(session.id)}
-                    aria-label={`Ver detalles de ${session.title}`}
-                  >
-                    Detalles
-                  </button>
-                )}
-
-                {phase === 'in_progress' && isTutor && (
-                  <button
-                    type="button"
-                    className="btn-terminar"
-                    aria-label={`Terminar sesión ${session.title}`}
-                    onClick={() => setFinishingSession(session)}
-                  >
-                    Terminar
-                  </button>
-                )}
-
-                {phase === 'in_progress' && !isTutor && (
-                  <button
-                    type="button"
-                    className="btn-details-disabled"
-                    onClick={() => openDetail(session.id)}
-                    aria-label={`Ver detalles de ${session.title}`}
-                  >
-                    Detalles
-                  </button>
-                )}
-
-                {phase === 'ended' && isTutor && (
-                  <button
-                    type="button"
-                    className="btn-asistencia"
-                    aria-label={`Asistencia de ${session.title}`}
-                    onClick={() => handleAttendanceOpen(session)}
-                  >
-                    Asistencia
-                  </button>
-                )}
-
-                {phase === 'ended' && !isTutor && (
-                  <button
-                    type="button"
-                    className="btn-calificar"
-                    aria-label={`Calificar sesión ${session.title}`}
-                  >
-                    Calificar
-                  </button>
+                {((phase === 'in_progress' && isTutor) || phase === 'ended') && (
+                  <div className="card-action">
+                    {phase === 'in_progress' && isTutor && (
+                      <button
+                        type="button"
+                        className="btn-terminar"
+                        aria-label={`Terminar sesión ${session.title}`}
+                        onClick={e => { e.stopPropagation(); setFinishingSession(session); }}
+                      >
+                        Terminar
+                      </button>
+                    )}
+                    {phase === 'ended' && isTutor && (
+                      <button
+                        type="button"
+                        className="btn-asistencia"
+                        aria-label={`Asistencia de ${session.title}`}
+                        onClick={e => { e.stopPropagation(); handleAttendanceOpen(session); }}
+                      >
+                        Asistencia
+                      </button>
+                    )}
+                    {phase === 'ended' && !isTutor && (
+                      <button
+                        type="button"
+                        className="btn-calificar"
+                        aria-label={`Calificar sesión ${session.title}`}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        Calificar
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

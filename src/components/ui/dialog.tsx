@@ -65,6 +65,17 @@ function DialogContent({
           className
         )}
         {...props}
+        /* deteccion de tutorial para que no se cierre el dialog con click*/
+        onPointerDownOutside={(e) => {
+            if (document.querySelector('.driver-overlay')) {
+              e.preventDefault();
+            }
+          }}
+          onEscapeKeyDown={(e) => {
+            if (document.querySelector('.driver-overlay')) {
+              e.preventDefault();
+            }
+          }}
       >
         {children}
         {showCloseButton && (

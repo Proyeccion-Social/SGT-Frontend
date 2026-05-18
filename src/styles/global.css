@@ -4,6 +4,8 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/figtree";
 @import "./variables.css";
+@import "driver.js/dist/driver.css";
+@import "../driverTutorial/styles/dashStyles.css";
 @custom-variant dark (&:is(.dark *));
 
 /* Fonts */
@@ -65,7 +67,8 @@
 
 @font-face {
   font-family: "Open Sauce Two";
-  src: url("../assets/fonts/sans/OpenSauceSans-ExtraBold.ttf") format("truetype");
+  src: url("../assets/fonts/sans/OpenSauceSans-ExtraBold.ttf")
+    format("truetype");
   font-weight: 800;
   font-style: normal;
   font-display: swap;

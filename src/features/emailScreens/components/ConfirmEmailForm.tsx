@@ -13,7 +13,7 @@ export default function ConfirmEmailForm() {
     const { setUser, setRequiresProfileCompletion } = useAuthStore();
 
     const handleRedirect = () => {
-        window.location.href = "/dashboard?setup=preferences";
+        window.location.href = "/dashboard";
     };
 
     useEffect(() => {

@@ -22,19 +22,7 @@ if (role === UserRole.ADMIN) {
 ---
 
 <div class="badge-container">
-  <div class="floating-tag">
-    {roleName ===  'Admin' || roleName === 'Tutor' ? (
-        <>
-          <span class="tag-text">Estás en modo <b>{roleName}</b></span>
-          <Image src={HandWrittenArrow} alt="Arrow" class="hand-drawn-arrow"/>
-        </>
-    ) : null}
-  </div>
-
   <span class="highlight-name">
     {name}
-    {roleName === 'Estudiante' && (
-      <Image src={HandWrittenLine} alt="Line" class="hand-drawn-line"/>
-    )}
   </span>
 </div>

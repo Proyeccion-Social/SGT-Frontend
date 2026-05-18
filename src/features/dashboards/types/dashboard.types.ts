@@ -1,11 +1,13 @@
-import type { SessionStatus, Modality, SessionType } from '@/features/sessions/types/session.types';
+import type { SessionStatus, Modality } from '@/features/sessions/types/session.types';
+
+export type SessionType = 'INDIVIDUAL' | 'GROUP';
 
 export interface DashboardSessionSummary {
   id: string;
   title: string;
   description: string;
   otherPersonName: string;
-  otherPersonImage: string;
+  otherPersonImage: string | null;
   subjectName: string;
   sessionType: SessionType;
   modality: Modality;

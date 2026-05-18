@@ -33,12 +33,6 @@ import schedule from "@/features/search/assets/schedule.svg"
       <!-- <p class="informativeText">
         Racha de 15 semanas dando al menos una tutoría
       </p> -->
-      <a href="/sessions">
-        <button class="scheduleBtn">
-          <Image src={schedule} alt="Agendar tutoría" />
-          Agendar una tutoría
-        </button>
-      </a>
       <h2 class="tutorName" id="tutor-name"></h2>
       <div class="containerTutorSubjects" id="tutor-subjects"></div>
       <div class="tutorRating">
@@ -50,6 +44,12 @@ import schedule from "@/features/search/assets/schedule.svg"
           <p class="labelTotalRatings" id="tutor-total-ratings"></p>
         </div>
       </div>
+      <a href="/sessions">
+        <button class="scheduleBtn">
+          <Image src={schedule} alt="Agendar tutoría" />
+          Agendar una tutoría
+        </button>
+      </a>
     </div>
   </section>
   <section class="downSectionDetail">
@@ -264,6 +264,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     object-fit: cover;
     border-radius: 22.4px;
     z-index: 1;
+    object-position: top;
   }
 
   .badgeActive {
@@ -426,10 +427,9 @@ import schedule from "@/features/search/assets/schedule.svg"
     }
 
     .scheduleBtn {
-      font-size: 12px;
-      padding: 6px 10px;
-      top: 16px;
-      right: 16px;
+      font-size: 16px;
+      padding: 12px;
+      /* display: none; */
     }
 
     .scheduleBtn img {
@@ -446,7 +446,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .upSectionDetail {
       flex-direction: column;
-      padding: 20px;
+      padding: 24px;
       gap: 14px;
       border-radius: 16px;
     }
@@ -461,6 +461,11 @@ import schedule from "@/features/search/assets/schedule.svg"
       border-radius: 14px;
     }
 
+    .profileImgShadow {
+      display: none;
+    }
+
+
     .badgeActive p {
       font-size: 12px;
       line-height: 16px;
@@ -472,15 +477,16 @@ import schedule from "@/features/search/assets/schedule.svg"
     }
 
     .rightSideDetail {
-      padding: 16px;
+      padding: 0px;
+      border: 0;
       border-radius: 14px;
       justify-content: flex-start;
       gap: 8px;
     }
 
     .tutorName {
-      font-size: 24px;
-      line-height: 28px;
+      font-size: 32px;
+      line-height: 40px;
     }
 
     .containerTutorSubjects {
@@ -488,12 +494,18 @@ import schedule from "@/features/search/assets/schedule.svg"
       margin-bottom: 6px;
     }
 
+    .closeDialogBtn {
+      top: 8px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
+    }
+
     .scheduleBtn {
-      font-size: 12px;
-      padding: 6px 10px;
-      bottom: 16px;
-      right: 16px;
-      top: auto;
+      position: static;
+      width: 100%;
+      display: flex;
+      justify-content: center;
     }
   }
 
@@ -504,37 +516,14 @@ import schedule from "@/features/search/assets/schedule.svg"
     }
 
     .upSectionDetail {
-      padding: 14px;
       gap: 10px;
       border-radius: 12px;
     }
 
     .leftSideDetail {
-      height: 130px;
+      height: 220px;
     }
 
-    .tutorName {
-      font-size: 20px;
-      line-height: 24px;
-    }
-
-    .rightSideDetail {
-      padding: 12px;
-      gap: 6px;
-      border-radius: 10px;
-    }
-
-    .scheduleBtn {
-      font-size: 11px;
-      padding: 5px 8px;
-      bottom: 12px;
-      right: 12px;
-    }
-
-    .scheduleBtn img {
-      width: 14px;
-      height: 14px;
-    }
   }
 </style>
 
@@ -610,6 +599,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     .stars {
       padding: 8px 14px;
       gap: 3px;
+      display: none;
     }
 
     .totalRatings {

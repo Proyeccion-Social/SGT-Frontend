@@ -48,7 +48,7 @@ const StudentAdditionalData = forwardRef<StepHandle, StudentAdditionalDataProps>
 
                 <div className="student-form-container">
                     <div className="form-group">
-                        <label className="form-label">Modalidad de preferencia</label>
+                        <label className="form-label">Modalidad de <span className="form-span-preferences">Preferencia</span></label>
                         <div className="modality-options">
                             <button
                                 type="button"
@@ -70,7 +70,7 @@ const StudentAdditionalData = forwardRef<StepHandle, StudentAdditionalDataProps>
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label" htmlFor="career-select">Tu Carrera</label>
+                        <label className="form-label" htmlFor="career-select">Tu <span className='form-span-preferences'>Carrera</span></label>
                         <select
                             id="career-select"
                             className="career-select"

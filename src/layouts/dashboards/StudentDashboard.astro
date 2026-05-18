@@ -16,24 +16,22 @@ const userRole = UserRole.STUDENT;
 <main class='content-wrapper'>
   <DashboardLoader role={userRole} client:only='react' />
   <div class='dashboard-content'>
-
     <div class='welcome-banner-slot'>
       <WelcomeBanner client:only='react' />
     </div>
 
     <div class='cards-container'>
       <div class='left-side'>
-        <div class='incoming-sessions-container'>
+        <div class='incoming-sessions-container' id="DashboardManagerTUTORIAL">
           <DashboardSessionManager role={userRole} client:only='react' />
         </div>
 
-        <div class='stats-container'>
-          <StatCard type='student' client:only='react' />
+        <div class='green-photo-space'>
+          <Image src={ImageIcon} alt='Image' />
         </div>
       </div>
-
-      <div class='green-photo-space'>
-        <Image src={ImageIcon} alt='Image' />
+      <div class='stats-container'>
+        <StatCard type='student' client:only='react' />
       </div>
     </div>
   </div>
@@ -47,6 +45,10 @@ const userRole = UserRole.STUDENT;
     background-color: #f3edff;
     box-sizing: border-box;
     overflow-y: hidden;
+  }
+
+  .stats-container {
+    width: 100%;
   }
 
   .content-wrapper {
@@ -85,12 +87,12 @@ const userRole = UserRole.STUDENT;
     width: 100%;
     gap: 1.5rem;
     box-sizing: border-box;
-    padding-top: 72px;
+    padding-top: 96px;
   }
 
   @media (max-width: 768px) {
     .dashboard-content {
-      padding-top: 8rem; /* Extra space for fixed header on mobile */
+      padding: 8rem 8px; /* Extra space for fixed header on mobile */
       margin-top: 0;
     }
   }
@@ -158,13 +160,13 @@ const userRole = UserRole.STUDENT;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 280px;
-    width: 100%;
+    width: min(100%, 300px);
+    aspect-ratio: 4 / 5;
   }
 
   @media (max-width: 768px) {
     .green-photo-space {
-      height: 200px;
+      width: 100%;
     }
   }
 </style>

@@ -91,13 +91,13 @@ import TutorCalendarGrid from "@/features/tutorAvailability/components/TutorCale
 <script>
     import { sileo } from "sileo";
 
-    const dialog = document.getElementById("tutor-calendar-dialog");
-
     window.addEventListener("open-tutor-calendar-dialog", () => {
+        const dialog = document.getElementById("tutor-calendar-dialog");
         dialog?.classList.remove("hidden");
     });
 
     window.addEventListener("close-tutor-calendar-dialog", () => {
+        const dialog = document.getElementById("tutor-calendar-dialog");
         dialog?.classList.add("hidden");
     });
 

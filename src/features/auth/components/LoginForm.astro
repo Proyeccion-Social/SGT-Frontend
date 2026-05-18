@@ -291,7 +291,6 @@
     color: #ffffff;
     font-family: "Open Sauce Two", system-ui, sans-serif;
     font-size: 20px;
-    font-style: bold;
     font-weight: 700;
     line-height: 100%;
     cursor: pointer;
@@ -299,6 +298,12 @@
 
   .login-form button:hover {
     background-color: #6c41cc;
+  }
+
+  @media (width <= 768px) {
+    .login-form {
+      gap: 6px;
+    }
   }
 
   #email:focus,

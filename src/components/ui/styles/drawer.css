@@ -404,6 +404,7 @@
     margin-top: 0;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
+    z-index: 100001;
   }
 
   .drawer-main {

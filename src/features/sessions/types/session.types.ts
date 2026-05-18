@@ -7,7 +7,7 @@ export type SessionStatus =
   | 'SCHEDULED'
   | 'CANCELLED';
 
-export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
 
 export interface SessionTutor {
@@ -257,6 +257,7 @@ export interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   available: boolean;
+  modality?: Modality;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────

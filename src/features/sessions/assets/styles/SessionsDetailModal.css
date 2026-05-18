@@ -30,7 +30,9 @@
   scrollbar-width: none;
 }
 
-.modal-card::-webkit-scrollbar { display: none; }
+.modal-card::-webkit-scrollbar {
+  display: none;
+}
 
 .modal-card__close {
   position: absolute;
@@ -44,7 +46,9 @@
   line-height: 1;
   padding: 4px 8px;
   border-radius: 6px;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
 }
 
 .modal-card__close:hover {
@@ -139,7 +143,6 @@
   font-weight: 500;
 }
 
-
 .sdv-tag--tutor {
   background: rgba(160, 120, 255, 0.12);
   color: #6b3fc4;
@@ -167,7 +170,9 @@
   flex-shrink: 0;
 }
 
-.sdv-tag__dot--purple { background: #9b7aff; }
+.sdv-tag__dot--purple {
+  background: #9b7aff;
+}
 
 /* 4 Info cards */
 

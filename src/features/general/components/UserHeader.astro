@@ -18,7 +18,9 @@ const { userRole } = Astro.props;
       </button>
     )
   }
-  <UserMenuDropdown client:load transition:persist />
+  <div id="profileIconTUTORIAL">
+    <UserMenuDropdown client:load transition:persist />
+  </div>
 </div>
 
 <style>

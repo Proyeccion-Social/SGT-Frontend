@@ -5,9 +5,28 @@ import AuthDialogsContainer from "@/layouts/auth/AuthDialogsContainer.astro";
 import LoginDialog from "@/features/auth/components/LoginDialog.astro";
 import ForgotPasswordDialog from "@/features/auth/components/ForgotPasswordDialog.astro";
 import RegistryDialog from "@/features/auth/components/RegistryDialog.astro";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "Atlas — Tutorías Universitarias",
+  "url": Astro.url.origin,
+  "description": "Plataforma de tutorías académicas para estudiantes universitarios en Colombia",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Bogotá",
+    "addressRegion": "Cundinamarca",
+    "addressCountry": "CO",
+  },
+};
 ---
 
-<Layout title='Home' noToaster>
+<Layout
+  title="Atlas — Tutorías Universitarias en Bogotá"
+  description="Encuentra tutores universitarios en Bogotá. Agenda sesiones de apoyo en Cálculo, Programación, Álgebra y más en la Universidad Distrital y otras universidades colombianas."
+  schema={schema}
+  noToaster
+>
   <PrincipalContent />
   <RegistryDialog />
 

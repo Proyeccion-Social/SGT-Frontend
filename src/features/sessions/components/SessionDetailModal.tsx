@@ -61,7 +61,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
       aria-modal="true"
       aria-label="Session detail"
     >
-      <div>
+      <div className="modal-card__container">
  
         {isLoading && (
           <div className="modal-card__loading" aria-live="polite">

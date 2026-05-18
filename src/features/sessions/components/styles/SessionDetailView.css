@@ -113,9 +113,22 @@
 
 @media (max-width: 640px) {
   .sdv__top {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     text-align: center;
+    padding: 10px;
+  }
+  .sdv-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  .sdv__title {
+    font-size: 13px;
+    line-height: 13px;
+  }
+  .sdv__description {
+    font-size: 10px;
+    line-height: 12px;
   }
 }
 
@@ -314,13 +327,22 @@
 
 @media (max-width: 640px) {
   .sdv-card {
-    aspect-ratio: auto; /* Remove square constraint on mobile */
-    min-height: 80px;
-    padding: 12px;
-    flex-direction: row; /* Horizontal layout for cards on mobile */
-    justify-content: flex-start;
-    text-align: left;
-    gap: 12px;
+    aspect-ratio: auto;
+    padding: 8px;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+  }
+  .sdv-card__icon {
+    width: 28px;
+    height: 28px;
+  }
+  .sdv-card__label {
+    font-size: 12px;
+  }
+  .sdv-card__sublabel {
+    font-size: 11px;
   }
 }
 
@@ -382,8 +404,10 @@
 
 @media (max-width: 640px) {
   .sdv__footer {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: stretch;
+    gap: 8px;
   }
 }
 
@@ -409,7 +433,10 @@
 @media (max-width: 640px) {
   .sdv-btn {
     max-width: none;
-    width: 100%;
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
+    min-width: 0;
   }
 }
 
@@ -758,13 +785,14 @@
    ══════════════════════════════ */
 @media (max-width: 640px) {
   .sdv {
-    padding: 20px 16px 40px 16px; /* Increased bottom padding */
+    padding: 16px;
     border-radius: 18px;
     width: 100%;
     margin: 0 auto;
+    gap: 10px;
   }
   .sdv__cards {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 }

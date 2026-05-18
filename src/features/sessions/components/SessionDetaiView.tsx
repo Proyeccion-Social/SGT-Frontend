@@ -111,7 +111,7 @@ const FallbackAvatar = ({ name }: { name: string }) => (
 
 const toProposeAvailabilitySlots = (
   slots: AvailabilitySlot[]
-): { id: string; label: string }[] =>
+): { id: string; label: string; modality?: string }[] =>
   slots.map((slot) => {
     const slotData = slot as unknown as Record<string, unknown>;
 
@@ -139,6 +139,11 @@ const toProposeAvailabilitySlots = (
           ? slotData.end
           : '';
 
+    const modality =
+      typeof slotData.modality === 'string' ? slotData.modality : undefined;
+
+    const modalityTag = modality === 'VIRT' ? ' · Virtual' : modality === 'PRES' ? ' · Presencial' : '';
+
     const generatedLabel = [day, start && end ? `${start} - ${end}` : start || end]
       .filter(Boolean)
       .join(' ')
@@ -146,7 +151,8 @@ const toProposeAvailabilitySlots = (
 
     return {
       id,
-      label: label || generatedLabel || id,
+      label: (label || generatedLabel || id) + modalityTag,
+      modality,
     };
   });
  

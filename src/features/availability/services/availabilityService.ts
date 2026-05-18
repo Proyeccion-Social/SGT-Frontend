@@ -406,9 +406,12 @@ export async function getTutorSlotsDetailedSSR(
     headers: buildAuthHeaders(token),
   });
 
+  console.log(url + ' - Status:', token);
+
   const result = await handleResponse<{
+    success: boolean;
     weekReference: string;
-    tutors: Array<{
+    data: Array<{
       tutorId: string;
       tutorName: string;
       photo: string | null;
@@ -425,6 +428,14 @@ export async function getTutorSlotsDetailedSSR(
         }>
       >;
     }>;
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
   }>(response);
 
   const dayMap: Record<string, DayOfWeek> = {
@@ -439,7 +450,7 @@ export async function getTutorSlotsDetailedSSR(
   const tutorProfiles: Record<string, TutorProfileInfo> = {};
   const allSlots: Slot[] = [];
 
-  for (const tutor of result.tutors) {
+  for (const tutor of result.data) {
     tutorProfiles[tutor.tutorId] = {
       name: tutor.tutorName,
       photo: tutor.photo,

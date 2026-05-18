@@ -11,7 +11,6 @@ import Finish from '@/features/tutorProfile/components/Finish';
 import { Button } from '@/components/ui/button';
 
 import { useAuthStore } from '@/store/authStore';
-import type { CompleteTutorProfileDto } from '@/features/tutorProfile/services/tutorService';
 
 import './styles/drawer.css';
 import checkedIcon from "./images/checked-icon.svg"
@@ -47,7 +46,6 @@ export default function VaulDrawer() {
     const [isOpen, setIsOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-
     const isStudent = user?.role === 'STUDENT';
     const activeSteps = isStudent ? STUDENT_STEPS : TUTOR_STEPS;
     const finishStepId = isStudent ? 3 : 4;
@@ -65,29 +63,14 @@ export default function VaulDrawer() {
     useEffect(() => {
         if (requiresProfileCompletion) {
             setIsOpen(true);
-        } else if (isStudent && !user?.preferredModality) {
-            setIsOpen(true);
         }
-    }, [requiresProfileCompletion, user, isStudent]);
+    }, [requiresProfileCompletion]);
 
-    useEffect(() => {
-        const handlePageTransition = () => {
-            if (isOpen) {
-            }
-        };
-
-        document.addEventListener('astro:after-swap', handlePageTransition);
-        return () => document.removeEventListener('astro:after-swap', handlePageTransition);
-    }, [isOpen]);
 
     const nextStep = (newData?: Partial<DrawerFormData>) => {
         const merged = newData ? { ...formData, ...newData } : formData;
         if (newData) {
             setFormData(merged);
-        }
-
-        if (newData?.subjectIds) {
-            console.log("Materias seleccionadas (IDs):", newData.subjectIds);
         }
 
         setCanContinue(false);
@@ -104,28 +87,23 @@ export default function VaulDrawer() {
             let payload: any;
             let endpoint: string;
 
-            // Limpieza de IDs común
-            const cleanIds = (submitData.subjectIds || [])
-                .filter(id => typeof id === 'string' && id.trim() !== '')
-                .map(id => id.trim());
-
             if (isStudent) {
                 endpoint = '/api/student/complete-profile';
                 payload = {
-                    subjectIds: cleanIds,
                     preferredModality: submitData.preferredModality,
-                    career: submitData.career
+                    career: submitData.career,
                 };
             } else {
+                const cleanIds = (submitData.subjectIds || [])
+                    .filter(id => typeof id === 'string' && id.trim() !== '')
+                    .map(id => id.trim());
                 endpoint = '/api/tutor/complete-profile';
                 payload = {
-                    subject_ids: cleanIds, // Tutor espera snake_case
+                    subject_ids: cleanIds,
                     phone: submitData.phone,
                     max_weekly_hours: Math.round(Number(submitData.max_weekly_hours) || 8),
                 };
             }
-            
-            console.log('[drawer] endpoint:', endpoint, '| payload:', JSON.stringify(payload, null, 2));
 
             const res = await fetch(endpoint, {
                 method: 'POST',
@@ -135,21 +113,27 @@ export default function VaulDrawer() {
 
             if (!res.ok) {
                 const err = await res.json().catch(() => null);
-                console.error('[drawer] error response:', res.status, JSON.stringify(err, null, 2));
                 throw new Error(err?.message ?? 'Profile completion failed');
             }
             
             sileo.success({ title: '¡Perfil completado con éxito!', fill: '#58d68d' });
             
             // Update local store state
-            if (isStudent && user) {
+            if (user) {
+                const updatedUser = { ...user };
+                
+                if (isStudent) {
+                    updatedUser.preferredModality = payload.preferredModality || user.preferredModality || '';
+                    updatedUser.career = payload.career || user.career || '';
+                } else {
+                    updatedUser.phone = payload.phone || user.phone || '';
+                    updatedUser.max_weekly_hours = payload.max_weekly_hours || user.max_weekly_hours || 8;
+                    updatedUser.subjects = payload.subject_ids?.map((id: string) => ({ id })) || user.subjects || [];
+                }
+
                 useAuthStore.setState({ 
-                    user: { 
-                        ...user, 
-                        preferredModality: payload.preferredModality || user.preferredModality || '', 
-                        career: payload.career || user.career || '',
-                        subjects: payload.subjectIds?.map((id: string) => ({ id })) || user.subjects || []
-                    } 
+                    user: updatedUser,
+                    requiresProfileCompletion: false 
                 });
             } else {
                 useAuthStore.setState({ requiresProfileCompletion: false });
@@ -330,6 +314,10 @@ export default function VaulDrawer() {
                                                 setTimeout(() => {
                                                     window.dispatchEvent(new CustomEvent('open-initial-config-dialog'));
                                                 }, 20);
+                                            } else {
+                                                setTimeout(() => {
+                                                    window.dispatchEvent(new CustomEvent('tutorial:start'));
+                                                }, 500); // Give it a slight delay so the drawer completely closes before starting the tutorial overlay
                                             }
                                         }} />
                                     )}

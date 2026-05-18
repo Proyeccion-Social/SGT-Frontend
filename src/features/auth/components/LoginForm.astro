@@ -18,7 +18,9 @@
   </div>
 
   <button type='submit'>Continuar</button>
-  <a id="register-btn" class="register-cta" hidden>¿Aún no tienes una cuenta? <span>Regístrate aquí</span></a>
+  <a id='register-btn' class='register-cta'
+    >¿Aún no tienes una cuenta? <span>Regístrate aquí</span></a
+  >
 </form>
 
 <script>
@@ -41,17 +43,21 @@
       ".login-card",
     ) as HTMLElement | null;
     const arrowText = document.querySelector(".arrowText");
-    const registerBtn = document.getElementById("register-btn") as HTMLAnchorElement | null;
+    const registerBtn = document.getElementById(
+      "register-btn",
+    ) as HTMLAnchorElement | null;
 
     let passwordVisible = false;
 
     document.addEventListener("reset-login-form", () => {
       passwordVisible = false;
-      if (registerBtn) registerBtn.hidden = true;
+      if (registerBtn) registerBtn.classList.remove("is-visible");
     });
 
     registerBtn?.addEventListener("click", () => {
-      const loginDialog = document.getElementById("loginDialog") as HTMLDialogElement | null;
+      const loginDialog = document.getElementById(
+        "loginDialog",
+      ) as HTMLDialogElement | null;
       loginDialog?.close();
       document.querySelector<HTMLElement>("[data-open-registry]")?.click();
     });
@@ -89,7 +95,7 @@
                 passwordInput?.focus();
                 passwordVisible = true;
               } else {
-                if (registerBtn) registerBtn.hidden = false;
+                if (registerBtn) registerBtn.classList.add("is-visible");
                 throw new Error("Email no válido");
               }
             },
@@ -309,13 +315,29 @@
     color: #1a1a1a;
     cursor: pointer;
     text-align: center;
+    display: none;
+    pointer-events: none;
   }
 
   .register-cta span {
     text-decoration: underline;
   }
 
-  .register-cta[hidden] {
-    display: none;
+  .register-cta.is-visible {
+    display: block;
+    opacity: 1;
+    translate: 0px 0px;
+    transition:
+      opacity 0.35s ease,
+      translate 0.35s ease,
+      display 0.35s allow-discrete;
+    pointer-events: auto;
+  }
+
+  @starting-style {
+    .register-cta.is-visible {
+      opacity: 0;
+      translate: 0px 5px;
+    }
   }
 </style>

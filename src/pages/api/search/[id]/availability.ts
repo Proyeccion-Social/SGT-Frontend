@@ -3,13 +3,12 @@ import { getTutorAvailability } from "@/features/search/services/getTutorAvailab
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, cookies }) => {
+export const GET: APIRoute = async ({ params }) => {
 
     try {
         const tutorId = params.id;
-        const accessToken = cookies.get("access_token")?.value;
 
-        const availability = await getTutorAvailability(tutorId!, accessToken);
+        const availability = await getTutorAvailability(tutorId!);
 
         return new Response(JSON.stringify(availability), {
             status: 200,

@@ -4,7 +4,7 @@ import { getTutorDashboard } from '@/features/dashboards/services/dashboardServi
 export const GET: APIRoute = async ({ cookies }) => {
   try {
     const token = cookies.get('access_token')?.value;
-
+    console.log('Token obtenido de cookies:', token);
     if (!token) {
       return new Response(
         JSON.stringify({ message: 'No autenticado' }),
@@ -13,7 +13,7 @@ export const GET: APIRoute = async ({ cookies }) => {
     }
 
     const data = await getTutorDashboard(token);
-
+    console.log('Datos del dashboard del tutor:', data);
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

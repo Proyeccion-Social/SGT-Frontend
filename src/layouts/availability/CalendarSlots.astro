@@ -11,12 +11,13 @@ import RightCalendarMenu from "@/features/availability/components/RightCalendarM
 import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";
 
 const tutorId = getUserIdFromCookie(Astro.cookies);
+const token = Astro.cookies.get("access_token")?.value;
 
 let Slots: Slot[] = [];
 
 if (tutorId) {
   try {
-    Slots = await getTutorSlots(tutorId);
+    Slots = await getTutorSlots(tutorId, undefined, token);
   } catch (e: any) {}
 }
 

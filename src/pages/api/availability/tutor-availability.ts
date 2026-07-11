@@ -17,7 +17,7 @@ export const prerender = false;
  * - onlyFuture    (opcional) true/false — solo franjas futuras
  * - modality      (opcional) PRES | VIR
  */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, cookies }) => {
   try {
     const tutorId = url.searchParams.get("tutorId");
 
@@ -30,6 +30,9 @@ export const GET: APIRoute = async ({ url }) => {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    // Obtener token de las cookies (opcional para este endpoint público)
+    const token = cookies.get("access_token")?.value;
 
     // Construir query params
     const query: GetAvailabilityQueryDto = {};
@@ -49,7 +52,7 @@ export const GET: APIRoute = async ({ url }) => {
       query.modality = modality as Modality;
     }
 
-    const slots = await getTutorSlots(tutorId, query);
+    const slots = await getTutorSlots(tutorId, query, token);
 
     return new Response(
       JSON.stringify({ slots }),

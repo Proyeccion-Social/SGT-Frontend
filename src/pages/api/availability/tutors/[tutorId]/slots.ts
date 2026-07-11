@@ -4,7 +4,7 @@ import type { GetAvailabilityQueryDto, Modality } from "@/features/availability/
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, url }) => {
+export const GET: APIRoute = async ({ params, url, cookies }) => {
   try {
     const { tutorId } = params;
 
@@ -17,6 +17,9 @@ export const GET: APIRoute = async ({ params, url }) => {
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
+
+    // Obtener token de las cookies
+    const token = cookies.get("access_token")?.value;
 
     // Construir query params
     const query: GetAvailabilityQueryDto = {};
@@ -36,7 +39,7 @@ export const GET: APIRoute = async ({ params, url }) => {
       query.modality = modality as Modality;
     }
 
-    const slots = await getTutorSlots(tutorId, query);
+    const slots = await getTutorSlots(tutorId, query, token);
 
     return new Response(
       JSON.stringify({ slots }),

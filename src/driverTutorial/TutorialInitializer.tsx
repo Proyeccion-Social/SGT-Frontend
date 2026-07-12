@@ -9,6 +9,42 @@ import { startDisponibilidadTutorTutorial } from "./tutorials/Tutor/disponibilid
 
 export default function TutorialInitializer() {
   const { user } = useAuthStore();
+
+  const getTutorialKeys = () => {
+    if (!user?.id || !user?.role) return null;
+
+    return {
+      seenKey: `page-tutorial-seen:${user.id}:${user.role}`,
+      flowKey: `profile-completion-flow:${user.id}:${user.role}`,
+    };
+  };
+
+  const canStartPageTutorial = () => {
+    const keys = getTutorialKeys();
+    if (!keys) return false;
+
+    const { seenKey, flowKey } = keys;
+    return localStorage.getItem(seenKey) !== '1' && localStorage.getItem(flowKey) === '1';
+  };
+
+  const markPageTutorialSeen = () => {
+    const keys = getTutorialKeys();
+    if (!keys) return;
+
+    const { seenKey, flowKey } = keys;
+    localStorage.setItem(seenKey, '1');
+    localStorage.removeItem(flowKey);
+  };
+
+  const startPageTutorial = (startTutorial: () => void) => {
+    if (!canStartPageTutorial()) return;
+
+    markPageTutorialSeen();
+    setTimeout(() => {
+      startTutorial();
+    }, 500);
+  };
+
   useEffect(() => {
     const path = window.location.pathname;
     if(user?.role === 'STUDENT'){
@@ -16,7 +52,10 @@ export default function TutorialInitializer() {
         const currentTour = localStorage.getItem("current-tour");
         if (currentTour === "final") {
           const timer = setTimeout(() => {
-            startFinalTutorial();
+            if (canStartPageTutorial()) {
+              markPageTutorialSeen();
+              startFinalTutorial();
+            }
           }, 500);
           return () => clearTimeout(timer);
         }
@@ -47,7 +86,10 @@ export default function TutorialInitializer() {
         const currentTour = localStorage.getItem("current-tour");
         if (currentTour === "final") {
           const timer = setTimeout(() => {
-            startFinalTutorial();
+            if (canStartPageTutorial()) {
+              markPageTutorialSeen();
+              startFinalTutorial();
+            }
           }, 500);
           return () => clearTimeout(timer);
         }
@@ -69,13 +111,13 @@ export default function TutorialInitializer() {
       if(user?.role === 'STUDENT'){
       const currentTour = localStorage.getItem("current-tour");
       if (window.location.pathname === "/dashboard" && currentTour !== "final") {
-        setTimeout(() => startDashboardStudentTutorial(), 500);
+        startPageTutorial(startDashboardStudentTutorial);
       }
     }
     else if(user?.role === 'TUTOR'){
       const currentTour = localStorage.getItem("current-tour");
       if (window.location.pathname === "/dashboard" && currentTour !== "final") {
-        setTimeout(() => startDashboardTutorTutorial(), 500);
+        startPageTutorial(startDashboardTutorTutorial);
       }
     }
     };

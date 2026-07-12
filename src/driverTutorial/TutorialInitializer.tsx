@@ -14,7 +14,6 @@ export default function TutorialInitializer() {
     if (!user?.id || !user?.role) return null;
 
     return {
-      seenKey: `page-tutorial-seen:${user.id}:${user.role}`,
       flowKey: `profile-completion-flow:${user.id}:${user.role}`,
     };
   };
@@ -23,23 +22,20 @@ export default function TutorialInitializer() {
     const keys = getTutorialKeys();
     if (!keys) return false;
 
-    const { seenKey, flowKey } = keys;
-    return localStorage.getItem(seenKey) !== '1' && localStorage.getItem(flowKey) === '1';
+    return localStorage.getItem(keys.flowKey) === '1';
   };
 
-  const markPageTutorialSeen = () => {
+  const clearCompletionFlow = () => {
     const keys = getTutorialKeys();
     if (!keys) return;
 
-    const { seenKey, flowKey } = keys;
-    localStorage.setItem(seenKey, '1');
-    localStorage.removeItem(flowKey);
+    localStorage.removeItem(keys.flowKey);
   };
 
   const startPageTutorial = (startTutorial: () => void) => {
     if (!canStartPageTutorial()) return;
 
-    markPageTutorialSeen();
+    clearCompletionFlow();
     setTimeout(() => {
       startTutorial();
     }, 500);
@@ -52,10 +48,7 @@ export default function TutorialInitializer() {
         const currentTour = localStorage.getItem("current-tour");
         if (currentTour === "final") {
           const timer = setTimeout(() => {
-            if (canStartPageTutorial()) {
-              markPageTutorialSeen();
-              startFinalTutorial();
-            }
+            startFinalTutorial();
           }, 500);
           return () => clearTimeout(timer);
         }
@@ -86,10 +79,7 @@ export default function TutorialInitializer() {
         const currentTour = localStorage.getItem("current-tour");
         if (currentTour === "final") {
           const timer = setTimeout(() => {
-            if (canStartPageTutorial()) {
-              markPageTutorialSeen();
-              startFinalTutorial();
-            }
+            startFinalTutorial();
           }, 500);
           return () => clearTimeout(timer);
         }

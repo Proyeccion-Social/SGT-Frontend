@@ -13,7 +13,7 @@ import { useSubjectStore } from '@/store/subjectStore';
 import { useAuthStore } from '@/store/authStore';
 
 
-import type { Session, SessionStatus, ModifySessionBody, EditSessionBody, AvailabilitySlot, ModificationRequest } from '../types/session.types';
+import type { Session, SessionStatus, ModifySessionBody, EditSessionBody, AvailabilitySlot } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import { EditSessionForm } from './EditSessionView';
 import { PendingModificationView } from './PendingModificationView';

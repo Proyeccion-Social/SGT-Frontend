@@ -4,7 +4,7 @@ import './styles/SessionDetailModal.css';
 import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { UserRole } from '@/constants/roles';
 import { useSessionDetail } from '../hooks/useSessionDetail';
-import { SessionDetailView } from './SessionDetaiView';
+import { SessionDetailView } from './SessionDetailView';
 import { useTutorSlots } from '../hooks/useAvailability';
 import MultiStepDialog from '@/features/history/components/MultiStepRating';
 import { useAuthStore } from '@/store/authStore';

@@ -45,6 +45,7 @@
 }
 
 .session-card {
+  position: relative;
   background: rgba(232, 232, 232, 0.5);
   border-radius: 16px;
   border: 1px solid var(--neutral-200);
@@ -118,6 +119,62 @@
   letter-spacing: -0.02em;
   font-weight: 400;
   font-style: italic;
+}
+
+/* ── Fila badges (izq.) + timestamp ambiental (der.) ── */
+.card-tags-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.card-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--border-radius-lg); /* 16px */
+  font-family: "Cabinet Grotesk Variable";
+  font-size: var(--fontsize-body-sm);     /* 12px */
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* Materia — color de fondo/borde inyectado por subjectStore (colorMap) */
+.card-badge--subject {
+  border: 1px solid transparent;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--text-body);
+}
+
+/* Individual ("Cerrada") / grupal ("Abierta") */
+.card-badge--type {
+  background: var(--neutral-200);
+  color: var(--neutral-default); /* color/negro-ps/500 */
+}
+
+/* Timestamp ambiental (esquina inferior derecha), ej. "Hoy 3:00 PM" */
+.card-timestamp {
+  flex-shrink: 0;
+  font-family: "Cabinet Grotesk Variable";
+  font-size: var(--fontsize-body-sm);     /* 12px */
+  font-weight: 300;
+  color: var(--neutral-300);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .card-meta {
@@ -206,8 +263,10 @@
 .tag-status {
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: var(--fontsize-body-sm); /* 12px — tiempo restante */
   font-weight: 600;
+  margin-left: auto;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   text-transform: capitalize;

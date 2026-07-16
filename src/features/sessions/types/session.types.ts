@@ -11,6 +11,9 @@ export type SessionStatus =
   | 'COMPLETED'
   | 'EXPIRED_UNCONFIRMED';
 
+// Individual ("Cerrada") vs. grupal ("Abierta"). Fuente: DashboardSessionSummary.sessionType.
+export type SessionType = 'INDIVIDUAL' | 'GROUP';
+
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
 
@@ -56,6 +59,7 @@ export interface Session {
   duration: number;
   modality: Modality;
   status: SessionStatus;
+  sessionType?: SessionType;      // INDIVIDUAL ("Cerrada") | GROUP ("Abierta")
   title: string;
   description: string;
   participants: SessionParticipant[];

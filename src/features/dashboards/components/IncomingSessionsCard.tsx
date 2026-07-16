@@ -5,14 +5,10 @@
 import { useMemo, useState } from 'react';
 import '../styles/IncomingSessionsCard.css';
 import type { Session } from '../../sessions/types/session.types';
-import calendarIcon from '../assets/calendar.svg';
-import clockIcon from '../assets/clock.svg';
-import virtualIcon from '../assets/virtual.svg';
-import presencialIcon from '../assets/presencial.svg';
 import AttendancePostSession from '@features/sessions/components/AttendancePostSession';
 import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
-import { sessionPhase, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
+import { sessionPhase, getSessionTimePhase, formatDate, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { useSubjectStore } from '@/store/subjectStore';
 
 interface Props {
@@ -37,11 +33,39 @@ const openDetail = (sessionId: string) => {
 const getInitials = (name: string) =>
   name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]?.toUpperCase() ?? '').join('');
 
-const formatDuration = (hours: number) =>
-  hours < 1 ? `${Math.round(hours * 60)}min` : `${hours}h`;
+/** Tiempo restante hasta el inicio, con la unidad más grande aplicable (días → horas → minutos). */
+const formatTimeRemaining = (scheduledDate: string, startTime: string): string => {
+  const start = new Date(`${scheduledDate}T${startTime}`);
+  const diffMs = start.getTime() - Date.now();
+  if (diffMs <= 0) return 'Ahora';
+  const minutes = Math.floor(diffMs / 60000);
+  const days = Math.floor(minutes / (60 * 24));
+  if (days >= 1) return `En ${days}d`;
+  const hours = Math.floor(minutes / 60);
+  if (hours >= 1) return `En ${hours}h`;
+  return `En ${minutes}min`;
+};
 
-const formatModality = (modality: string) =>
-  modality === 'VIRT' ? 'Virtual' : modality === 'PRES' ? 'Presencial' : '';
+/** Timestamp ambiental (esquina inferior derecha), ej. "Hoy 3:00 PM". */
+const formatAmbientTimestamp = (scheduledDate: string, startTime: string): string => {
+  const [h, m] = startTime.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  const timeLabel = `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [y, mo, d] = scheduledDate.split('-').map(Number);
+  const target = new Date(y, mo - 1, d);
+  const diffDays = Math.round((target.getTime() - today.getTime()) / 86400000);
+
+  const dayLabel = diffDays === 0 ? 'Hoy' : diffDays === 1 ? 'Mañana' : formatDate(scheduledDate);
+  return `${dayLabel} ${timeLabel}`;
+};
+
+/** Individual → "Cerrada", grupal → "Abierta" (ver session.types SessionType). */
+const sessionTypeLabel = (type?: 'INDIVIDUAL' | 'GROUP'): string | null =>
+  type === 'INDIVIDUAL' ? 'Cerrada' : type === 'GROUP' ? 'Abierta' : null;
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -115,6 +139,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
             : session.tutor.name;
           const initials = getInitials(personName);
           const personPhoto = !isTutor ? session.tutor.photo : undefined;
+          const typeLabel = sessionTypeLabel(session.sessionType);
 
           const avatarBg = 'var(--primary-100)';
           const avatarColor = 'var(--primary-600)';
@@ -148,37 +173,34 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
               <div className="card-body">
                 <div className="card-top">
                   <span className="card-title">{session.title}</span>
-                  <span className={`tag-status ${phase}`}>{sessionPhase[phase]}</span>
+                  <span className={`tag-status ${phase}`}>
+                    {phase === 'upcoming'
+                      ? formatTimeRemaining(session.scheduledDate, session.startTime)
+                      : sessionPhase[phase]}
+                  </span>
                 </div>
                 <p className="card-person">{personName}</p>
-                <div className="card-meta">
-                  <div className="meta-item">
-                    <img src={calendarIcon.src} className="meta-icon" alt="" />
-                    <span>
-                      {formatDate(session.scheduledDate)}, { }
-                      {formatTime(session.startTime)}
-                    </span>
+                <div className="card-tags-row">
+                  <div className="card-tags">
+                    {subjectName && (
+                      <span
+                        className="card-badge card-badge--subject"
+                        style={
+                          colors.color !== 'transparent'
+                            ? { backgroundColor: colors.color, borderColor: colors.borderColor }
+                            : undefined
+                        }
+                      >
+                        {subjectName}
+                      </span>
+                    )}
+                    {typeLabel && (
+                      <span className="card-badge card-badge--type">{typeLabel}</span>
+                    )}
                   </div>
-                  {session.duration > 0 && (
-                    <div className="meta-item">
-                      <img src={clockIcon.src} className="meta-icon meta-icon--dark" alt="" />
-                      <span>
-                        {formatDuration(session.duration)}
-                      </span>
-                    </div>
-                  )}
-                  {session.modality && (
-                    <div className="meta-item">
-                      <img
-                        src={session.modality === 'VIRT' ? virtualIcon.src : presencialIcon.src}
-                        className="meta-icon"
-                        alt=""
-                      />
-                      <span>
-                        {formatModality(session.modality)}
-                      </span>
-                    </div>
-                  )}
+                  <span className="card-timestamp">
+                    {formatAmbientTimestamp(session.scheduledDate, session.startTime)}
+                  </span>
                 </div>
                 {((phase === 'in_progress' && isTutor) || phase === 'ended') && (
                   <div className="card-action">

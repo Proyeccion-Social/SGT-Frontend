@@ -287,6 +287,27 @@ export const SessionDetailView = ({
             {tutorName}
           </span>
           <span className="sdv-tag sdv-tag--status">{statusLabel(session.status)}</span>
+          {session.virtualLink?.trim() && (
+            <a
+              className="sdv-tag sdv-tag--link"
+              href={session.virtualLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={session.virtualLink}
+              style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {session.virtualLink}
+            </a>
+          )}
+          {session.location?.trim() && (
+            <span
+              className="sdv-tag sdv-tag--link"
+              title={session.location}
+              style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {session.location}
+            </span>
+          )}
         </div>
  
         {/* ── Section title ── */}

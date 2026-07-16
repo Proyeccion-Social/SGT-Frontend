@@ -2,10 +2,14 @@ export type Modality = 'VIRT' | 'PRES' | "";
 
 export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
-  | 'CONFIRMED'
-  | 'COMPLETED'
   | 'SCHEDULED'
-  | 'CANCELLED';
+  | 'PENDING_MODIFICATION'
+  | 'REJECTED_BY_TUTOR'
+  | 'CANCELLED_BY_STUDENT'
+  | 'CANCELLED_BY_TUTOR'
+  | 'CANCELLED_BY_ADMIN'
+  | 'COMPLETED'
+  | 'EXPIRED_UNCONFIRMED';
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 

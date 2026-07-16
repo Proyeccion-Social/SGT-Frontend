@@ -13,7 +13,7 @@ import { useSubjectStore } from '@/store/subjectStore';
 import { useAuthStore } from '@/store/authStore';
 
 
-import type { Session, ModifySessionBody, EditSessionBody, AvailabilitySlot, ModificationRequest } from '../types/session.types';
+import type { Session, SessionStatus, ModifySessionBody, EditSessionBody, AvailabilitySlot, ModificationRequest } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import { EditSessionForm } from './EditSessionView';
 import { PendingModificationView } from './PendingModificationView';
@@ -81,16 +81,18 @@ const modalityIcon = (modality: string) => {
   );
 };
  
-const statusLabel = (status: string): string => {
-  const map: Record<string, string> = {
+const statusLabel = (status: SessionStatus): string => {
+  // Record<SessionStatus, …> obliga a cubrir los 9 estados del backend (chequeo en compilación).
+  const map: Record<SessionStatus, string> = {
     PENDING_TUTOR_CONFIRMATION: 'Pendiente de confirmación',
     SCHEDULED:                  'Programada',
     PENDING_MODIFICATION:       'Modificación pendiente',
-    REJECTED_BY_TUTOR:          'Rechazada por tutor',
-    CANCELLED_BY_STUDENT:       'Cancelada por estudiante',
-    CANCELLED_BY_TUTOR:         'Cancelada por tutor',
-    CANCELLED_BY_ADMIN:         'Cancelada por administrador',
+    REJECTED_BY_TUTOR:          'Rechazada por el tutor',
+    CANCELLED_BY_STUDENT:       'Cancelada por el estudiante',
+    CANCELLED_BY_TUTOR:         'Cancelada por el tutor',
+    CANCELLED_BY_ADMIN:         'Cancelada por administración',
     COMPLETED:                  'Completada',
+    EXPIRED_UNCONFIRMED:        'Expirada sin confirmar',
   };
   return map[status] ?? status;
 };
@@ -246,9 +248,9 @@ export const SessionDetailView = ({
   };
 
   const isAltView = isProposing || isEditing || isRejecting;
-  const isPendingConfirmation = String(session.status) === 'PENDING_TUTOR_CONFIRMATION';
-  const isPendingModification = String(session.status) === 'PENDING_MODIFICATION';
-  const isTerminalState = ['COMPLETED', 'REJECTED_BY_TUTOR', 'CANCELLED_BY_STUDENT', 'CANCELLED_BY_TUTOR', 'CANCELLED_BY_ADMIN'].includes(String(session.status));
+  const isPendingConfirmation = session.status === 'PENDING_TUTOR_CONFIRMATION';
+  const isPendingModification = session.status === 'PENDING_MODIFICATION';
+  const isTerminalState = (['COMPLETED', 'REJECTED_BY_TUTOR', 'CANCELLED_BY_STUDENT', 'CANCELLED_BY_TUTOR', 'CANCELLED_BY_ADMIN', 'EXPIRED_UNCONFIRMED'] as SessionStatus[]).includes(session.status);
   const showConfirmRejectButtons = isPendingConfirmation && role === UserRole.TUTOR && !isAltView;
   const showModificationView    = isPendingModification && !isAltView;
   // Solo quien NO propuso puede aceptar/rechazar
@@ -284,7 +286,7 @@ export const SessionDetailView = ({
             <span className="sdv-tag__dot sdv-tag__dot--purple" />
             {tutorName}
           </span>
-          <span className="sdv-tag sdv-tag--status">{statusLabel(String(session.status))}</span>
+          <span className="sdv-tag sdv-tag--status">{statusLabel(session.status)}</span>
         </div>
  
         {/* ── Section title ── */}
@@ -409,7 +411,7 @@ export const SessionDetailView = ({
  
             <div className="sdv-card">
               <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">{statusLabel(String(session.status))}</span>
+              <span className="sdv-card__label">{statusLabel(session.status)}</span>
             </div>
  
           </div>
@@ -491,7 +493,7 @@ export const SessionDetailView = ({
                 <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
                   Proponer modificación
                 </button>
-                {role === UserRole.TUTOR && String(session.status) === 'SCHEDULED' && (
+                {role === UserRole.TUTOR && session.status === 'SCHEDULED' && (
                   <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
                     Editar
                   </button>

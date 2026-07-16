@@ -96,7 +96,7 @@ export const mockHistory = {
       location: "Google Meet",
       title: "Cinemática",
       description: "Movimiento rectilíneo",
-      status: "CANCELLED",
+      status: "CANCELLED_BY_TUTOR",
       timeUntilSession: "Cancelada"
     },
 

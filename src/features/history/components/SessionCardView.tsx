@@ -11,22 +11,20 @@ export default function SessionCardView({ session, userId, onClose, onEvaluate }
 
   // --- Helpers para estado ---
   function getStatusText() {
+    if (session.status === "CANCELLED") return "Cancelada";
     if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
     if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
-    if (session.status === "CANCELLED_BY_ADMIN") return "Cancelada por administración";
     if (participantStatus === "ABSENT") return "No asistió";
     if (session.status === "COMPLETED") return "Completada";
     if (session.status === "SCHEDULED") return "Programada";
     if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente de confirmación por el tutor";
-    if (session.status === "PENDING_MODIFICATION") return "Modificación pendiente";
-    if (session.status === "REJECTED_BY_TUTOR") return "Rechazada por el tutor";
-    if (session.status === "EXPIRED_UNCONFIRMED") return "Expirada sin confirmar";
+    if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente de confirmación por el estudiante";
     return session.status;
   }
 
   function getStatusClass() {
     if (participantStatus === "ABSENT") return "status-no_show";
-    if (["CANCELLED_BY_STUDENT", "CANCELLED_BY_TUTOR", "CANCELLED_BY_ADMIN"].includes(session.status)) return "status-cancelled";
+    if (["CANCELLED", "CANCELLED_BY_STUDENT", "CANCELLED_BY_TUTOR"].includes(session.status)) return "status-cancelled";
     if (session.status === "COMPLETED") return "status-completed";
     if (session.status === "SCHEDULED") return "status-scheduled";
     return "";

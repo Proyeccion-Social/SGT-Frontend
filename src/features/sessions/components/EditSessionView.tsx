@@ -25,8 +25,8 @@ export const EditSessionForm = ({
 }: Props) => {
   const [title,       setTitle]       = useState(session.title);
   const [description, setDescription] = useState(session.description);
-  const [location,    setLocation]    = useState('');
-  const [virtualLink, setVirtualLink] = useState('');
+  const [location,    setLocation]    = useState(session.location || '');
+  const [virtualLink, setVirtualLink] = useState(session.virtualLink || '');
  
   const handleConfirm = async () => {
     onSubmittingChange?.(true);

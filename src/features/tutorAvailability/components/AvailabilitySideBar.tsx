@@ -50,6 +50,14 @@
               "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"
           ];
 
+          // Normaliza modality a array ordenado (soporta string legacy y arrays del backend)
+          function normalizeModalityLocal(modality: any): string[] {
+              if (!modality) return [];
+              if (Array.isArray(modality)) return [...modality].sort();
+              if (modality === 'BOTH') return ['PRES', 'VIRT'];
+              return [modality];
+          }
+
           // 1. Iterate through each day and merge contiguous slots
           daysOrder.forEach((day) => {
               if (!groupedByDay[day]) return;
@@ -61,7 +69,7 @@
                   const lastEnd = currentMerged ? currentMerged.endTime.substring(0, 5) : "";
 
                   if (currentMerged && 
-                      currentMerged.modality === slot.modality && 
+                      JSON.stringify(normalizeModalityLocal(currentMerged.modality)) === JSON.stringify(normalizeModalityLocal(slot.modality)) &&
                       lastEnd === currentStart
                   ) {
                       currentMerged.endTime = slot.endTime;

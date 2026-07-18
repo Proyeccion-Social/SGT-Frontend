@@ -43,7 +43,7 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - [components/StudentSchedule.astro](../components/StudentSchedule.astro): vista del calendario de slots disponibles (SSR).
 - [components/SessionDetailModal.tsx](../components/SessionDetailModal.tsx): modal con detalles completos de una sesión.
 - [components/SessionDetaiView.tsx](../components/SessionDetaiView.tsx): vista detallada dentro del modal.
-- [components/EditSessionView.tsx](../components/EditSessionView.tsx): edición de detalles básicos (título, descripción, enlace, ubicación).
+- [components/EditSessionView.tsx](../components/EditSessionView.tsx): edición de detalles básicos (título, descripción) con validación y renderizado condicional de enlace o ubicación según la modalidad de la sesión.
 - [components/ProposeModificationView.tsx](../components/ProposeModificationView.tsx): proponer cambios de modalidad, duración o fecha.
 - [components/PendingModificationView.tsx](../components/PendingModificationView.tsx): visualizar modificaciones pendientes.
 - [components/CancelSessionModal.tsx](../components/CancelSessionModal.tsx): cancelar sesión.

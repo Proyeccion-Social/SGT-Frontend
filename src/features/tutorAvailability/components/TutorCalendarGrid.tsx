@@ -15,6 +15,7 @@
         getWeekDates,
     } from '../utils/calendarUtils';
     import type { Slot, DayOfWeek } from '../utils/calendarUtils';
+    import { normalizeModality } from '../utils/calendarUtils';
     import styles from '../css/TutorCalendarGrid.module.css';
     import { sileo } from 'sileo';
 
@@ -222,7 +223,7 @@
                             dayOfWeek: dayEn,
                             startTime,
                             endTime,
-                            modality: 'PRES',
+                            modality: ['PRES'],
                         }),
                     })
                     .then((res) => {
@@ -305,8 +306,14 @@
                     const top = ((startMin - HOUR_START * 60) / 60) * HOUR_HEIGHT;
                     const height = ((endMin - startMin) / 60) * HOUR_HEIGHT;
                     const isHalfHour = 30 >= endMin - startMin;
-                    const isVirtual = slot.modality?.toString().toUpperCase() === 'VIRT';
-                    const modalityLabel = isVirtual ? 'Virtual' : 'Presencial';
+                    const modalities = normalizeModality(slot.modality);
+                    const hasPres = modalities.includes('PRES');
+                    const hasVirt = modalities.includes('VIRT');
+                    const modalityLabel = hasPres && hasVirt
+                        ? 'Presencial + Virtual'
+                        : hasVirt
+                        ? 'Virtual'
+                        : 'Presencial';
                     const duration = formatDuration(slot.startTime, slot.endTime);
 
                     return (

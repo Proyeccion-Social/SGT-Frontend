@@ -42,7 +42,7 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 
 - [components/StudentSchedule.astro](../components/StudentSchedule.astro): vista del calendario de slots disponibles (SSR).
 - [components/SessionDetailModal.tsx](../components/SessionDetailModal.tsx): modal con detalles completos de una sesión.
-- [components/SessionDetaiView.tsx](../components/SessionDetaiView.tsx): vista detallada dentro del modal.
+- [components/SessionDetailView.tsx](../components/SessionDetailView.tsx): vista detallada dentro del modal. Renderiza el estado (vía el helper compartido `statusLabel`), la ubicación/enlace de encuentro y las acciones de footer según rol y estado.
 - [components/EditSessionView.tsx](../components/EditSessionView.tsx): edición de detalles básicos (título, descripción, enlace, ubicación).
 - [components/ProposeModificationView.tsx](../components/ProposeModificationView.tsx): proponer cambios de modalidad, duración o fecha.
 - [components/PendingModificationView.tsx](../components/PendingModificationView.tsx): visualizar modificaciones pendientes.
@@ -93,8 +93,9 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 ### [types/session.types.ts](../types/session.types.ts)
 
 - `Session`: entidad principal de sesión.
-- `Modality = 'VIRT' | 'PRES'`: modalidad.
-- `SessionStatus`: estados (`PENDING_TUTOR_CONFIRMATION`, `SCHEDULED`, `COMPLETED`, `CANCELLED`, etc.).
+- `Modality = 'VIRT' | 'PRES' | ''`: modalidad.
+- `SessionStatus`: los 9 estados reales del backend (`PENDING_TUTOR_CONFIRMATION`, `SCHEDULED`, `PENDING_MODIFICATION`, `REJECTED_BY_TUTOR`, `CANCELLED_BY_STUDENT`, `CANCELLED_BY_TUTOR`, `CANCELLED_BY_ADMIN`, `COMPLETED`, `EXPIRED_UNCONFIRMED`).
+- `SessionType = 'INDIVIDUAL' | 'GROUP'`: sesión cerrada (individual) o abierta (grupal); la consume la tarjeta del dashboard.
 - `ParticipantStatus`: estados de participantes (`CONFIRMED`, `PENDING`, `CANCELLED`, `ATTENDED`, `ABSENT`, `LATE`, `NO_SHOW`).
 - `SessionTutor`, `SessionSubject`, `SessionParticipant`: entidades relacionadas.
 - `CreateSessionDTO`: payload de creación.
@@ -102,6 +103,17 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - `EditSessionBody`: payload de edición de detalles.
 - `RegisterAttendanceDTO`: payload de asistencia.
 - `CompleteSessionBody`: payload de completar sesión.
+
+## Utilidades
+
+### [utils/statusLabel.ts](../utils/statusLabel.ts)
+
+- `statusLabel(status: SessionStatus, variant?: 'long' | 'short')`: **fuente única** de las etiquetas de estado.
+  Tipada con `Record<SessionStatus, string>`, de modo que agregar un estado al backend sin traducirlo **rompe el
+  typecheck**. La variante `'short'` se usa en las tarjetas mobile del historial (espacio reducido).
+- El override por asistencia (`ABSENT` → "No asistió") **no** vive acá: deriva de `session.participants`, no del
+  status, y se queda en cada componente.
+- Consumido por `SessionDetailView` y, desde `history`, por `SessionCardView` y `SessionsBlock`.
 
 ## Store global
 
@@ -149,7 +161,7 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 1. Participante abre `CancelSessionModal`.
 2. Indica motivo.
 3. `cancelSession()` DELETE.
-4. Sesión pasa a `CANCELLED`.
+4. Sesión pasa a `CANCELLED_BY_STUDENT` o `CANCELLED_BY_TUTOR` según quién cancela.
 
 ### Completar sesión y registrar asistencia
 

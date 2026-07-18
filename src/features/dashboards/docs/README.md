@@ -26,7 +26,7 @@ Después de iniciar sesión, el usuario necesita una vista unificada donde pueda
 
 - [components/DashboardLoader.tsx](../components/DashboardLoader.tsx): orquestador de la carga de datos del dashboard. Decide qué endpoint llamar según el rol del usuario.
 - [components/DashboardSessionManager.tsx](../components/DashboardSessionManager.tsx): gestiona el estado y las interacciones de las sesiones mostradas en el dashboard.
-- [components/IncomingSessionsCard.tsx](../components/IncomingSessionsCard.tsx): tarjeta que lista las próximas sesiones.
+- [components/IncomingSessionsCard.tsx](../components/IncomingSessionsCard.tsx): lista las próximas sesiones. Muestra un badge de **estado** con color por estado (Programada/Completada/Pendiente) y **filtra** qué sesiones aparecen según estado y rol (`COMPLETED` solo para tutores; canceladas, rechazada y expirada no se muestran). Añade el badge Cerrada/Abierta (`sessionType`) y el badge de materia coloreado desde `subjectStore.colorMap`.
 - [components/WelcomeBanner.tsx](../components/WelcomeBanner.tsx): banner de bienvenida personalizado con el nombre del usuario.
 - [components/TutorAvailabilityManager.tsx](../components/TutorAvailabilityManager.tsx): componente para que el tutor gestione su disponibilidad directamente desde el dashboard.
 - [components/TutorAvailabilityBar.tsx](../components/TutorAvailabilityBar.tsx): barra visual que muestra horas usadas vs. límite semanal.
@@ -71,8 +71,9 @@ Después de iniciar sesión, el usuario necesita una vista unificada donde pueda
 
 ### [utils/dashboardMapper.ts](../utils/dashboardMapper.ts)
 
-- `mapDashboardSessionToSession(dashboardSession)`
+- `mapDashboardSessionToSession(summary, userRole)`
   - Convierte un `DashboardSessionSummary` en una `Session` completa para reutilizar componentes de `sessions`.
+    Propaga `sessionType` (INDIVIDUAL/GROUP) y arma tutor/participantes según el rol.
 - `mapDashboardSessions(sessions)`
   - Mapea colecciones enteras.
 
@@ -84,6 +85,7 @@ Después de iniciar sesión, el usuario necesita una vista unificada donde pueda
 
 - [src/store/availabilityStore.ts](../../../store/availabilityStore.ts): métricas de horas y disponibilidad del tutor.
 - [src/store/sessionStore.ts](../../../store/sessionStore.ts): lista de sesiones mostradas en el dashboard.
+- [src/store/subjectStore.ts](../../../store/subjectStore.ts): `colorMap` de materias (color de fondo/borde del badge de materia en `IncomingSessionsCard`).
 
 ## Flujos de usuario
 

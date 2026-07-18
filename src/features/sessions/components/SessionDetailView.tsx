@@ -17,6 +17,7 @@ import type { Session, SessionStatus, ModifySessionBody, EditSessionBody, Availa
 import { ProposeModificationForm } from './ProposeModificationView';
 import { EditSessionForm } from './EditSessionView';
 import { PendingModificationView } from './PendingModificationView';
+import { statusLabel } from '../utils/statusLabel';
 
 interface TutorInfo {
   id: string;
@@ -81,21 +82,6 @@ const modalityIcon = (modality: string) => {
   );
 };
  
-const statusLabel = (status: SessionStatus): string => {
-  // Record<SessionStatus, …> obliga a cubrir los 9 estados del backend (chequeo en compilación).
-  const map: Record<SessionStatus, string> = {
-    PENDING_TUTOR_CONFIRMATION: 'Pendiente de confirmación',
-    SCHEDULED:                  'Programada',
-    PENDING_MODIFICATION:       'Modificación pendiente',
-    REJECTED_BY_TUTOR:          'Rechazada por el tutor',
-    CANCELLED_BY_STUDENT:       'Cancelada por el estudiante',
-    CANCELLED_BY_TUTOR:         'Cancelada por el tutor',
-    CANCELLED_BY_ADMIN:         'Cancelada por administración',
-    COMPLETED:                  'Completada',
-    EXPIRED_UNCONFIRMED:        'Expirada sin confirmar',
-  };
-  return map[status] ?? status;
-};
 
 const modalityLabel = (modality: string): string => {
   const map: Record<string, string> = {

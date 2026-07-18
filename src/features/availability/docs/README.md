@@ -34,7 +34,7 @@ Los estudiantes necesitan saber:
 - `getMyAvailability(token)` → `GET /availability/tutors/me`
   - Retorna la disponibilidad del tutor autenticado, usualmente agrupada por día.
   - Tipos: `RawSlot[]`, `TutorAvailabilityResponse`.
-- `getTutorSlots(query: GetAvailabilityQueryDto, token)` → `GET /availability/tutors/{tutorId}/slots`
+- `getTutorSlots(tutorId, query?: GetAvailabilityQueryDto, token?)` → `GET /availability/tutors/{tutorId}/slots`
   - Slots de un tutor específico en un rango de fechas.
 - `getTutorSlotsDetailedSSR(query, token)` → obtiene slots + información de tutor.
   - Usado principalmente en `StudentSchedule` para cargar todo en SSR.

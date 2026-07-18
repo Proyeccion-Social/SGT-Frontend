@@ -48,8 +48,8 @@ Un estudiante necesita encontrar rápidamente un tutor que:
 
 ### [services/getTutorAvailability.ts](../services/getTutorAvailability.ts)
 
-- `getTutorAvailability(tutorId, query, token)` → `GET /availability/tutors/{tutorId}/slots`
-  - Slots específicos de un tutor en un rango de fechas.
+- `getTutorAvailability(tutorId)` → `GET /availability/tutors/{tutorId}/slots`
+  - Slots específicos de un tutor. No recibe token ni query en la firma actual.
 
 ## Tipos
 

@@ -26,3 +26,6 @@ pnpm-debug.log*
 
 
 .vercel/
+
+# local memory notes (kept on disk, not tracked in repo)
+memory/

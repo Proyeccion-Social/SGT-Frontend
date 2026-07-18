@@ -196,7 +196,7 @@
   line-height: 16px;
   letter-spacing: -0.02em;
   flex-shrink: 0;
-  color: var(--neutral-500);
+  color: var(--neutral-default);
 }
 
 .meta-item span {
@@ -263,32 +263,37 @@
 .tag-status {
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: var(--fontsize-body-sm); /* 12px — tiempo restante */
+  font-size: var(--fontsize-body-sm); /* 12px */
   font-weight: 600;
   margin-left: auto;
   white-space: nowrap;
   display: flex;
   align-items: center;
-  text-transform: capitalize;
   letter-spacing: -0.02em;
   background: var(--neutral-100);
   border: 1px solid var(--neutral-200);
-  color: var(--neutral-500);
+  color: var(--neutral-default);
   height: auto;
   font-family: "Cabinet Grotesk variable";
 }
 
-.tag-status.in_progress,
-.tag-status.upcoming {
+/* Color por estado de la sesión (D1) — ya no por fase temporal. */
+.tag-status.scheduled {
+  background: var(--primary-100);
+  color: var(--primary-default);
+  border: 1px solid var(--primary-100);
+}
+
+.tag-status.completed {
   background: var(--secondary-100);
   color: var(--secondary-600);
   border: 1px solid var(--secondary-200);
 }
 
-.tag-status.ended {
-  background: var(--error-100);
-  color: var(--error-700);
-  border: 1px solid var(--error-200);
+.tag-status.pending {
+  background: var(--warning-200);
+  color: var(--warning-700);
+  border: 1px solid var(--warning-100);
 }
 
 .time-label {

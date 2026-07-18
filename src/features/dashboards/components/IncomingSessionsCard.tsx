@@ -4,11 +4,11 @@
 
 import { useMemo, useState } from 'react';
 import '../styles/IncomingSessionsCard.css';
-import type { Session } from '../../sessions/types/session.types';
+import type { Session, SessionStatus } from '../../sessions/types/session.types';
 import AttendancePostSession from '@features/sessions/components/AttendancePostSession';
 import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
-import { sessionPhase, getSessionTimePhase, formatDate, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
+import { getSessionTimePhase, formatDate, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { useSubjectStore } from '@/store/subjectStore';
 
 interface Props {
@@ -33,18 +33,21 @@ const openDetail = (sessionId: string) => {
 const getInitials = (name: string) =>
   name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]?.toUpperCase() ?? '').join('');
 
-/** Tiempo restante hasta el inicio, con la unidad más grande aplicable (días → horas → minutos). */
-const formatTimeRemaining = (scheduledDate: string, startTime: string): string => {
-  const start = new Date(`${scheduledDate}T${startTime}`);
-  const diffMs = start.getTime() - Date.now();
-  if (diffMs <= 0) return 'Ahora';
-  const minutes = Math.floor(diffMs / 60000);
-  const days = Math.floor(minutes / (60 * 24));
-  if (days >= 1) return `En ${days}d`;
-  const hours = Math.floor(minutes / 60);
-  if (hours >= 1) return `En ${hours}h`;
-  return `En ${minutes}min`;
+/**
+ * Estados que se muestran en la tarjeta de próximas sesiones, con su etiqueta y clase de color (D1/D2).
+ * El tag pasó de mostrar el tiempo restante a mostrar el estado de la sesión.
+ * Un estado ausente de este mapa no se renderiza (y su sesión se filtra vía `isVisibleInCard`).
+ */
+const STATUS_TAG: Partial<Record<SessionStatus, { label: string; cls: string }>> = {
+  SCHEDULED:                  { label: 'Programada',                cls: 'scheduled' },
+  COMPLETED:                  { label: 'Completada',                cls: 'completed' },
+  PENDING_TUTOR_CONFIRMATION: { label: 'Pendiente de confirmación', cls: 'pending'   },
+  PENDING_MODIFICATION:       { label: 'Modificación pendiente',    cls: 'pending'   },
 };
+
+/** ¿La sesión aparece en la tarjeta? Solo los estados de `STATUS_TAG`; COMPLETED únicamente para tutores. */
+const isVisibleInCard = (status: SessionStatus, isTutor: boolean): boolean =>
+  status === 'COMPLETED' ? isTutor : status in STATUS_TAG;
 
 /** Timestamp ambiental (esquina inferior derecha), ej. "Hoy 3:00 PM". */
 const formatAmbientTimestamp = (scheduledDate: string, startTime: string): string => {
@@ -85,10 +88,14 @@ const SkeletonCard = () => (
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, onRefetch }: Props) => {
+  const isTutor = viewerRole === UserRole.TUTOR;
+
   const displaySessions = useMemo(() => {
-    // Show all sessions without status filtering as requested
-    return sortSessionsForDisplay(sessions || []);
-  }, [sessions]);
+    // D2: solo se muestran SCHEDULED / PENDING_* (todos los roles) y COMPLETED (solo tutor).
+    // Canceladas, rechazada y expirada quedan fuera de la tarjeta de próximas sesiones.
+    const visible = (sessions || []).filter((s) => isVisibleInCard(s.status, isTutor));
+    return sortSessionsForDisplay(visible);
+  }, [sessions, isTutor]);
 
   const [attendanceSession, setAttendanceSession] = useState<Session | null>(null);
   const [finishingSession, setFinishingSession] = useState<Session | null>(null);
@@ -132,7 +139,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
           const subjectName = typeof session.subject === 'string' ? session.subject : session.subject?.name;
           const colors = colorMap[subjectName] || { color: 'transparent', borderColor: 'transparent' };
           const phase = getSessionTimePhase(session.scheduledDate, session.startTime, session.endTime);
-          const isTutor = viewerRole === UserRole.TUTOR;
+          const statusTag = STATUS_TAG[session.status];
 
           const personName = isTutor
             ? (session.participants.find(p => p.role.toUpperCase() !== 'TUTOR')?.name ?? 'Estudiante')
@@ -173,11 +180,9 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
               <div className="card-body">
                 <div className="card-top">
                   <span className="card-title">{session.title}</span>
-                  <span className={`tag-status ${phase}`}>
-                    {phase === 'upcoming'
-                      ? formatTimeRemaining(session.scheduledDate, session.startTime)
-                      : sessionPhase[phase]}
-                  </span>
+                  {statusTag && (
+                    <span className={`tag-status ${statusTag.cls}`}>{statusTag.label}</span>
+                  )}
                 </div>
                 <p className="card-person">{personName}</p>
                 <div className="card-tags-row">

@@ -107,6 +107,15 @@
   border-color: var(--neutral-200) !important;
 }
 
+.driver-popover-navigation-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  bottom: -16px;
+  left: 0px;
+  right: 0px;
+}
 
 .driver-popover-arrow-side-top {
   border-top-color: var(--neutral-blanco) !important;

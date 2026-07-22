@@ -11,7 +11,7 @@ function getStrength(pw: string): 0 | 1 | 2 | 3 {
     let score = 0;
     if (pw.length >= MIN_LENGTH) score++;
     if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+    if (/\d/.test(pw) && /[@$!%*?&#]/.test(pw)) score++;
     return score as 0 | 1 | 2 | 3;
 }
 
@@ -52,14 +52,20 @@ const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone
 
     const strength = getStrength(password);
 
-    const tooShort = password.length > 0 && password.length < MIN_LENGTH;
+    const hasMinLength = password.length >= MIN_LENGTH;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSpecial = /[@$!%*?&#]/.test(password);
+
+    const tooShort = password.length > 0 && !hasMinLength;
     const tooLong  = password.length > MAX_LENGTH;
-    const lengthOk = password.length >= MIN_LENGTH && password.length <= MAX_LENGTH;
+    const lengthOk = hasMinLength && password.length <= MAX_LENGTH;
     const mismatch = confirm.length > 0 && password !== confirm;
     const matchOk  = confirm.length > 0 && password === confirm && lengthOk;
     const phoneOk  = phone.trim().length >= 10;
 
-    const canContinue = phoneOk && (password.length === 0 || (lengthOk && matchOk));
+    const canContinue = phoneOk && (password.length === 0 || (lengthOk && strength === 3 && matchOk));
 
     useImperativeHandle(ref, () => ({
         triggerContinue: () => onNext(password, phone),
@@ -167,11 +173,24 @@ const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone
                                 </div>
                             )}
 
-                            {touched.password && tooShort && (
-                                <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
-                            )}
-                            {touched.password && tooLong && (
-                                <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
+                            {touched.password && password.length > 0 && (
+                                <div className="password-errors-list" style={{ marginTop: "4px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                                    {!hasMinLength && (
+                                        <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
+                                    )}
+                                    {tooLong && (
+                                        <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
+                                    )}
+                                    {(!hasUppercase || !hasLowercase) && (
+                                        <p className="password-error">Incluye al menos una mayúscula y una minúscula</p>
+                                    )}
+                                    {!hasDigit && (
+                                        <p className="password-error">Incluye al menos un número</p>
+                                    )}
+                                    {!hasSpecial && (
+                                        <p className="password-error">Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?</p>
+                                    )}
+                                </div>
                             )}
                         </div>
 

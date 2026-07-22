@@ -64,7 +64,7 @@
     const errors = validateRegisterPassword(pw);
     if (errors.length > 0) {
       passwordErrors.style.display = "flex";
-      passwordErrors.innerHTML = errors.map(err => `<p class="password-error-item">⚠ ${err}</p>`).join("");
+      passwordErrors.innerHTML = `<p class="password-error-item">⚠ ${errors[0]}</p>`;
     } else {
       passwordErrors.style.display = "none";
       passwordErrors.innerHTML = "";

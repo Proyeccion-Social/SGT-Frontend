@@ -1,6 +1,9 @@
 /* Main Popover Container */
 .driver-popover {
   min-width: 300px;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
   background-color: var(--neutral-blanco) !important;
   border-radius: 16px !important;
   padding: 20px !important;

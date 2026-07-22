@@ -44,9 +44,10 @@ export function createTour(config) {
   return driver({
     animate: true,
     smoothScroll: true,
-    allowClose: false,
+    allowClose: true,
+    showCloseButton: true,
     overlayClickAction: 'none',
-    disableActiveInteraction: true,
+    disableActiveInteraction: false,
     overlayColor: "#000000",
     overlayOpacity: 0.5,
     nextBtnText: 'Siguiente',

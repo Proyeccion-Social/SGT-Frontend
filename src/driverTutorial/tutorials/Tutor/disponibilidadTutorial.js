@@ -2,6 +2,12 @@ import { createTour, getInteractiveElement } from "../../createTour";
 
 export function startDisponibilidadTutorTutorial(){
     const tour = createTour({
+        onDestroyStarted: () => {
+            if (localStorage.getItem("current-tour") === "disponibilidad") {
+                localStorage.removeItem("current-tour");
+            }
+            tour.destroy();
+        },
         steps: [
             {
                 element: "#calendarTutorTUTORIAL",

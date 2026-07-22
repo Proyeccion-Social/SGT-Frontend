@@ -44,16 +44,16 @@ export function createTour(config) {
   return driver({
     animate: true,
     smoothScroll: true,
-    allowClose: true,
-    showCloseButton: true,
+    allowClose: false,
     overlayClickAction: 'none',
-    disableActiveInteraction: false,
+    disableActiveInteraction: true,
     overlayColor: "#000000",
     overlayOpacity: 0.5,
     nextBtnText: 'Siguiente',
     prevBtnText: 'Anterior',
     doneBtnText: 'Terminar',
-    popoverOffset: 24, // Genera un espacio consistente de 24px entre el popover y el elemento para dar holgura con los márgenes de pantalla
+    popoverOffset: 10,
+    stagePadding: 5,
     
     ...config
   });

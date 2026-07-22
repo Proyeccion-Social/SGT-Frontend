@@ -13,7 +13,8 @@ export function startDisponibilidadTutorTutorial(){
                 element: "#calendarTutorTUTORIAL",
                 popover: {
                     title: "Tus franjas como tutor",
-                    description:"Aquí podrás ver tu calendario semanal de franjas disponibles/libres."
+                    description:"Aquí podrás ver tu calendario semanal de franjas disponibles/libres.",
+                    popoverClass: "corner-popover"
                 }
             },
             {
@@ -56,22 +57,8 @@ export function startDisponibilidadTutorTutorial(){
 
      if (btn) {
          btn.addEventListener("click", () => {
-
-            /*
-              Guardar progreso
-            */
-
-            localStorage.setItem(
-                "current-tour",
-                "final"
-            );
-
-            /*
-              Ir a otra pagina
-            */
-
-            window.location.href =
-                "/dashboard";
+            localStorage.setItem("current-tour", "final");
+            window.location.href = "/dashboard";
         });
     }
 

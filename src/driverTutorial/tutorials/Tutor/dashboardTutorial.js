@@ -25,6 +25,7 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     title: "Dashboard - Pantalla Inicial",
                     description: "Aquí podrás ver y gestionar de manera rápida y fácil tus tutorías.",
+                    popoverClass: "corner-popover"
                 }
             },
             {

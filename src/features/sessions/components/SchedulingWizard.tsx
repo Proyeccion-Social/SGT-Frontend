@@ -262,12 +262,25 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         (((endH * 60 + endM) - (startH * 60 + startM)) / 60) * 2
       ) / 2;
 
+    // SCHEDULING-05: la modalidad debe salir del slot del tutor; nunca se adivina.
+    // El slot ofrece exactamente una modalidad, así que esa es la única válida.
+    const resolvedModality = currentData.modality ?? currentData.slot?.modality;
+    if (!resolvedModality) {
+      sileo.action({
+        title: "Modalidad no disponible",
+        description: "No se pudo determinar la modalidad del espacio seleccionado.",
+        fill: "#f35761",
+        styles: { badge: "#ffffff" },
+      });
+      return;
+    }
+
     const sessionData = {
       tutorId: currentData.tutorId,
       subjectId: currentData.subjectId,
       availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
-      modality: currentData.modality ?? currentData.slot?.modality ?? "PRES",
+      modality: resolvedModality,
       title: currentData.title,
       durationHours,
       description: currentData.description,
@@ -336,10 +349,19 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
   ];
 
-  const slotContextModality = slotContext?.modality;
-  const isSlotContextAmbiguousModality =
-    !slotContextModality || slotContextModality === "null";
-  const needsModality = isSlotContextAmbiguousModality || data.slot?.modality == null;
+  // Modalidad por tutor tomada de su propio slot en la franja: es la fuente de
+  // verdad para la tarjeta. Cada slot ofrece exactamente una modalidad (PRES o VIRT).
+  const modalityByTutor: Record<string, string> = {};
+  for (const s of availableSlots) {
+    for (const t of s.tutorIds ?? []) {
+      if (s.modality && !modalityByTutor[t]) modalityByTutor[t] = s.modality;
+    }
+  }
+
+  // La modalidad de la sesión la determina el slot del tutor elegido. El paso de
+  // selección de modalidad solo tendría sentido si el slot no trajera modalidad
+  // (no ocurre bajo el modelo actual); se conserva como salvaguarda defensiva.
+  const needsModality = data.slot?.modality == null;
   const totalSteps = needsModality ? 4 : 3;
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
@@ -406,6 +428,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     subject={data.subject}
                     subjectColor={colorMap[data.subject]}
                     tutorProfiles={tutorProfiles}
+                    modalityByTutor={modalityByTutor}
                     onSelect={(tutorId) => {
                       const selectedSlot =
                         availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
@@ -414,6 +437,8 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                         tutorId,
                         slot: selectedSlot,
                         tutorName: tutorProfiles[tutorId]?.name ?? prev.tutorName,
+                        // La modalidad queda determinada por el slot del tutor elegido.
+                        modality: (selectedSlot?.modality as "VIRT" | "PRES") ?? prev.modality,
                       }));
                       setStep(2);
                     }}

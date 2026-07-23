@@ -17,10 +17,12 @@ interface Props {
   subject: string;
   subjectColor?: { color: string; borderColor: string };
   tutorProfiles?: Record<string, TutorProfileInfo>;
+  /** Modalidad real del slot de cada tutor en la franja seleccionada (PRES | VIRT). */
+  modalityByTutor?: Record<string, string>;
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, subject, subjectColor, tutorProfiles = {}, onSelect }: Props) {
+export default function AvailabilityStep({ tutorIds, subject, subjectColor, tutorProfiles = {}, modalityByTutor = {}, onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
   // Pre-populate from SSR profiles; only fetch what's missing
@@ -132,12 +134,16 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
                 {/* ── Información del tutor ── */}
                 <div className="tutor-card__info">
                   <p className="tutor-card__info-text">
-                    <strong>Modalidades disponibles:</strong>{" "}
-                    {info?.modality === "PRES"
-                      ? "Presencial"
-                      : info?.modality === "VIRT"
-                      ? "Virtual"
-                      : "Presencial o virtual"}
+                    <strong>Modalidad:</strong>{" "}
+                    {(() => {
+                      // Fuente de verdad: la modalidad del slot del tutor en esta franja.
+                      const modality = modalityByTutor[tutorId] || info?.modality;
+                      return modality === "PRES"
+                        ? "Presencial"
+                        : modality === "VIRT"
+                        ? "Virtual"
+                        : "Presencial o virtual";
+                    })()}
                   </p>
                 </div>
               </button>

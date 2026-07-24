@@ -39,6 +39,99 @@ interface Props {
   tutorProfiles?: Record<string, TutorProfileInfo>;
 }
 
+interface CoveringTutor {
+  tutorId: string;
+  entrySlot: Slot;
+}
+
+function wizardTimeToMin(t?: string): number {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// SCHEDULING-07: ¿los slots de un tutor (una materia y día) forman una cadena
+// continua, sin huecos, sin tramos ocupados y de una única modalidad, que cubre
+// por completo [selStart, selEnd]? Devuelve el slot de entrada (el que contiene el
+// inicio de la franja) si la cubre; null en caso contrario.
+function coverageEntrySlot(tutorSlots: Slot[], selStart: number, selEnd: number): Slot | null {
+  if (selEnd <= selStart) return null;
+
+  // Cada modalidad se evalúa por separado: la cobertura exige una sola modalidad continua.
+  const byModality: Record<string, Slot[]> = {};
+  for (const s of tutorSlots) {
+    if (s.isBooked) continue; // un tramo ocupado rompe la cadena
+    const key = s.modality ?? "__NULL__";
+    if (!byModality[key]) byModality[key] = [];
+    byModality[key].push(s);
+  }
+
+  for (const key of Object.keys(byModality)) {
+    const chain = byModality[key]
+      .slice()
+      .sort((a, b) => wizardTimeToMin(a.startTime) - wizardTimeToMin(b.startTime));
+
+    let cursor = selStart;
+    let entrySlot: Slot | null = null;
+    for (const s of chain) {
+      const sStart = wizardTimeToMin(s.startTime);
+      const sEnd = wizardTimeToMin(s.endTime);
+      if (sStart > cursor) break; // hueco antes del cursor: la cadena no cubre
+      if (sEnd > cursor) {
+        if (entrySlot === null) entrySlot = s; // primer slot que contiene el inicio de la franja
+        cursor = sEnd;
+      }
+      if (cursor >= selEnd && entrySlot) return entrySlot;
+    }
+  }
+  return null;
+}
+
+// Tutores cuya disponibilidad continua cubre toda la franja para una materia dada.
+function getCoveringTutors(
+  allSlots: Slot[],
+  dayOfWeek: string,
+  subject: string,
+  selStart: number,
+  selEnd: number
+): CoveringTutor[] {
+  const byTutor: Record<string, Slot[]> = {};
+  for (const s of allSlots) {
+    if (s.dayOfWeek !== dayOfWeek || s.subject !== subject) continue;
+    const t = s.tutorIds?.[0];
+    if (!t) continue;
+    if (!byTutor[t]) byTutor[t] = [];
+    byTutor[t].push(s);
+  }
+
+  const result: CoveringTutor[] = [];
+  for (const tutorId of Object.keys(byTutor)) {
+    const entrySlot = coverageEntrySlot(byTutor[tutorId], selStart, selEnd);
+    if (entrySlot) result.push({ tutorId, entrySlot });
+  }
+  return result;
+}
+
+// Materias con al menos un tutor que cubre por completo la franja seleccionada.
+function getCoveringSubjects(
+  allSlots: Slot[],
+  dayOfWeek: string,
+  selStart: number,
+  selEnd: number
+): string[] {
+  const subjects = [
+    ...new Set(
+      allSlots
+        .filter((s) => s.dayOfWeek === dayOfWeek)
+        .map((s) => s.subject)
+        .filter(Boolean) as string[]
+    ),
+  ];
+  return subjects.filter(
+    (subj) => getCoveringTutors(allSlots, dayOfWeek, subj, selStart, selEnd).length > 0
+  );
+}
+
 export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = {} }: Props) {
   const [slots, setSlots] = useState<Slot[]>(initialSlots);
   const [open, setOpen] = useState(false);
@@ -62,32 +155,40 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
+      const detail = custom.detail;
+      const slotBlockId = detail.slotBlockId as string;
 
-      const matchingSlots = slots.filter(
-        (s) =>
-          s.dayOfWeek === custom.detail.dayOfWeek &&
-          s.startTime >= custom.detail.startTime &&
-          (s.endTime ?? "23:59") <= custom.detail.endTime
-      );
+      const selStart = wizardTimeToMin(detail.startTime);
+      const selEnd = wizardTimeToMin(detail.endTime);
 
-      if (matchingSlots.length === 0) return;
+      // SCHEDULING-07: solo se ofrecen materias cuyos tutores cubren TODA la franja
+      // con disponibilidad continua. Si la selección abarca horarios de varios
+      // tutores sin que ninguno la cubra por completo, no hay materias que ofrecer.
+      const subjects = getCoveringSubjects(slots, detail.dayOfWeek, selStart, selEnd);
 
-      const subjects = [
-        ...new Set(matchingSlots.map((s) => s.subject).filter(Boolean)),
-      ] as string[];
-
-      if (subjects.length === 0) return;
-
-      const slotBlockId = custom.detail.slotBlockId as string;
+      if (subjects.length === 0) {
+        sileo.action({
+          title: "Franja sin cobertura",
+          description: (
+            <span className="wizard-sileo-description">
+              Ningún tutor cubre por completo esta franja horaria.
+            </span>
+          ),
+          fill: "#f5a623",
+          styles: { badge: "#ffffff" },
+        });
+        setPopover({ subjects: [], slotBlockId, slotData: detail });
+        return;
+      }
 
       sileo.action({
         title: "Franja seleccionada",
         description: (
           <span className="wizard-sileo-description">
-            {`${custom.detail.startTime} → ${custom.detail.endTime} · ${
-              !custom.detail.modality || custom.detail.modality === "null"
+            {`${detail.startTime} → ${detail.endTime} · ${
+              !detail.modality || detail.modality === "null"
                 ? "Presencial o Virtual"
-                : custom.detail.modality.toUpperCase() === "VIRT"
+                : detail.modality.toUpperCase() === "VIRT"
                 ? "Virtual"
                 : "Presencial"
             }`}
@@ -101,7 +202,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         setPopover({
           subjects,
           slotBlockId,
-          slotData: custom.detail,
+          slotData: detail,
         });
       }, 8);
     };
@@ -160,20 +261,20 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const handleSubjectSelect = (subject: string) => {
     const currentSlotData = popover!.slotData;
 
-    const rangeSlots = slots.filter(
-      (s) =>
-        s.dayOfWeek === currentSlotData.dayOfWeek &&
-        s.subject === subject &&
-        s.startTime >= currentSlotData.startTime &&
-        (s.endTime ?? "23:59") <= currentSlotData.endTime
+    // Solo se ofrecen materias con cobertura, así que aquí hay ≥1 tutor que cubre.
+    // El slot base es el de entrada del primer tutor que cubre; se reemplaza por el
+    // del tutor concreto al elegirlo en el paso 1.
+    const covering = getCoveringTutors(
+      slots,
+      currentSlotData.dayOfWeek,
+      subject,
+      wizardTimeToMin(currentSlotData.startTime),
+      wizardTimeToMin(currentSlotData.endTime)
     );
 
-    const baseSlot = rangeSlots[0] ?? null;
+    const baseSlot = covering[0]?.entrySlot ?? null;
 
-    setSlotContext({
-      ...currentSlotData,
-      rangeSlots,
-    });
+    setSlotContext({ ...currentSlotData });
 
     setData((prev) => ({
       ...prev,
@@ -321,20 +422,20 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   }
 };
 
-  const availableSlots =
+  // Tutores que cubren por completo la franja seleccionada para la materia elegida
+  // (SCHEDULING-07). Reemplaza la antigua unión "tutor con algún slot en el rango".
+  const coveringTutors =
     slotContext && data.subject
-      ? slots.filter(
-          (s) =>
-            s.dayOfWeek === slotContext.dayOfWeek &&
-            s.subject === data.subject &&
-            s.startTime >= slotContext.startTime &&
-            (s.endTime ?? "23:59") <= slotContext.endTime
+      ? getCoveringTutors(
+          slots,
+          slotContext.dayOfWeek,
+          data.subject,
+          wizardTimeToMin(slotContext.startTime),
+          wizardTimeToMin(slotContext.endTime)
         )
       : [];
 
-  const tutorIds = [
-    ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
-  ];
+  const tutorIds = coveringTutors.map((c) => c.tutorId);
 
   const slotContextModality = slotContext?.modality;
   const isSlotContextAmbiguousModality =
@@ -407,8 +508,10 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     subjectColor={colorMap[data.subject]}
                     tutorProfiles={tutorProfiles}
                     onSelect={(tutorId) => {
-                      const selectedSlot =
-                        availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
+                      // El slot de entrada del tutor elegido es el que se reserva
+                      // (availabilityId + duración lo resuelve el backend por cadena continua).
+                      const covering = coveringTutors.find((c) => c.tutorId === tutorId);
+                      const selectedSlot = covering?.entrySlot ?? data.slot;
                       setData((prev) => ({
                         ...prev,
                         tutorId,

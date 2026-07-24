@@ -9,6 +9,38 @@ import { startDisponibilidadTutorTutorial } from "./tutorials/Tutor/disponibilid
 
 export default function TutorialInitializer() {
   const { user } = useAuthStore();
+
+  const getTutorialKeys = () => {
+    if (!user?.id || !user?.role) return null;
+
+    return {
+      flowKey: `profile-completion-flow:${user.id}:${user.role}`,
+    };
+  };
+
+  const canStartPageTutorial = () => {
+    const keys = getTutorialKeys();
+    if (!keys) return false;
+
+    return localStorage.getItem(keys.flowKey) === '1';
+  };
+
+  const clearCompletionFlow = () => {
+    const keys = getTutorialKeys();
+    if (!keys) return;
+
+    localStorage.removeItem(keys.flowKey);
+  };
+
+  const startPageTutorial = (startTutorial: () => void) => {
+    if (!canStartPageTutorial()) return;
+
+    clearCompletionFlow();
+    setTimeout(() => {
+      startTutorial();
+    }, 500);
+  };
+
   useEffect(() => {
     const path = window.location.pathname;
     if(user?.role === 'STUDENT'){
@@ -69,13 +101,13 @@ export default function TutorialInitializer() {
       if(user?.role === 'STUDENT'){
       const currentTour = localStorage.getItem("current-tour");
       if (window.location.pathname === "/dashboard" && currentTour !== "final") {
-        setTimeout(() => startDashboardStudentTutorial(), 500);
+        startPageTutorial(startDashboardStudentTutorial);
       }
     }
     else if(user?.role === 'TUTOR'){
       const currentTour = localStorage.getItem("current-tour");
       if (window.location.pathname === "/dashboard" && currentTour !== "final") {
-        setTimeout(() => startDashboardTutorTutorial(), 500);
+        startPageTutorial(startDashboardTutorTutorial);
       }
     }
     };

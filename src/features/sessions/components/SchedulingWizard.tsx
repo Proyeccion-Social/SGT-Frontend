@@ -6,6 +6,7 @@ import DetailsStep from "./scheduling/Details";
 import SessionTypeStep from "./scheduling/SessionType";
 import ModalityStep from "./scheduling/Modality";
 import SlotPopover from "./scheduling/SlotPopover";
+import SchedulingFinish from "./scheduling/SchedulingFinish";
 import type { Slot, TutorProfileInfo } from "@features/availability/services/availabilityService";
 import { sileo } from "sileo";
 
@@ -44,6 +45,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
   const [slotContext, setSlotContext] = useState<any>(null);
   const { colorMap } = useSubjectStore();
@@ -190,6 +192,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const handleClose = () => {
     setOpen(false);
     setStep(1);
+    setSubmitted(false);
     setSlotContext(null);
     setData({
       slot: null,
@@ -300,14 +303,9 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
       );
     }
 
-    sileo.action({
-      title: "Tutoría agendada",
-      description: "Tu espacio ha sido reservado exitosamente.",
-      fill: "#58d68d",
-      styles: { badge: "#ffffff" },
-    });
-
-    handleClose();
+    // Éxito: en lugar de cerrar de inmediato, se muestra la pantalla de confirmación.
+    // La sesión queda a la espera de la confirmación del tutor (PENDING_TUTOR_CONFIRMATION).
+    setSubmitted(true);
   } catch (error) {
     const msg = error instanceof Error ? error.message : "No se pudo reservar el espacio.";
     sileo.action({
@@ -363,7 +361,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         />
       )}
 
-      <Drawer.Root open={open} onOpenChange={setOpen}>
+      <Drawer.Root open={open} onOpenChange={(o) => (o ? setOpen(true) : handleClose())}>
         <Drawer.Portal>
 
           {/* ── Overlay ── */}
@@ -378,6 +376,10 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
             {/* ── Área de contenido scrolleable ── */}
 
+            {submitted ? (
+              <SchedulingFinish onNext={handleClose} />
+            ) : (
+            <>
             <article className="wizard-step-header">
               <div className="wizard-header-text">
                 <h2 className="wizard-step-title">
@@ -456,7 +458,9 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                   />
                 )}
               </div>
-            </div>           
+            </div>
+            </>
+            )}
 
           </Drawer.Content>
         </Drawer.Portal>

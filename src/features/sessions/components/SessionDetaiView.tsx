@@ -1,5 +1,5 @@
 // SessionDetailView.tsx — styled to match design
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { sileo } from 'sileo';
 
 import './styles/SessionDetailView.css'
@@ -35,7 +35,6 @@ interface Props {
   role: UserRole;
   isProposing?: boolean;
   isEditing?: boolean;
-  isRejecting?: boolean;
   availabilitySlots?: AvailabilitySlot[];
   /** true mientras se carga la disponibilidad del tutor (vista de proponer). */
   slotsLoading?: boolean;
@@ -48,7 +47,6 @@ interface Props {
   onEditSuccess: () => void;
   onConfirm: () => Promise<void>;
   onRequestReject: () => void;
-  onRejectSubmit: (reason: string) => Promise<void>;
   onAcceptModification: () => Promise<void>;
   onRejectModification: () => Promise<void>;
   onEvaluate?: () => void;
@@ -110,7 +108,6 @@ export const SessionDetailView = ({
   role,
   isProposing = false,
   isEditing   = false,
-  isRejecting = false,
   availabilitySlots = [],
   slotsLoading = false,
   onClose,
@@ -122,7 +119,6 @@ export const SessionDetailView = ({
   onEditSuccess,
   onConfirm,
   onRequestReject,
-  onRejectSubmit,
   onAcceptModification,
   onRejectModification,
   onEvaluate,
@@ -138,15 +134,10 @@ export const SessionDetailView = ({
   const submitRef      = useRef<(() => Promise<void>) | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirming, setIsConfirming]         = useState(false);
-  const [rejectReason, setRejectReason]         = useState('');
   const [showCurrentState, setShowCurrentState] = useState(false);
   const [isModificationAction, setIsModificationAction] = useState(false);
   // SCHEDULING-42 — el formulario de propuesta reporta si hay al menos un cambio.
   const [isProposeValid, setIsProposeValid]     = useState(false);
-
-  useEffect(() => {
-    if (!isRejecting) setRejectReason('');
-  }, [isRejecting]);
 
   const handleConfirm = async () => {
     setIsConfirming(true);
@@ -154,15 +145,6 @@ export const SessionDetailView = ({
       await onConfirm();
     } finally {
       setIsConfirming(false);
-    }
-  };
-
-  const handleRejectSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      await onRejectSubmit(rejectReason);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -194,7 +176,7 @@ export const SessionDetailView = ({
     ).finally(() => setIsModificationAction(false));
   };
 
-  const isAltView = isProposing || isEditing || isRejecting;
+  const isAltView = isProposing || isEditing;
   const isPendingConfirmation = String(session.status) === 'PENDING_TUTOR_CONFIRMATION';
   const isPendingModification = String(session.status) === 'PENDING_MODIFICATION';
   const displayStatus = getSessionDisplayStatus(session);
@@ -225,7 +207,6 @@ export const SessionDetailView = ({
   // PENDING_MODIFICATION y sesiones en curso/terminadas.
   const showActionButtons = proposeAvailability.visible || cancelAvailability.visible || showEditButton;
   const showFooter =
-    isRejecting ||
     isAltView ||
     (showModificationView && canRespondToModification) ||
     showConfirmRejectButtons ||
@@ -273,9 +254,7 @@ export const SessionDetailView = ({
                 ? 'Proponer modificación'
                 : isEditing
                   ? 'Editando...'
-                  : isRejecting
-                    ? 'Motivo de rechazo'
-                    : 'Propuesta de modificación'}
+                  : 'Propuesta de modificación'}
             </p>
             {showModificationView && (
               <button
@@ -331,32 +310,6 @@ export const SessionDetailView = ({
             session={session}
             modification={session.pendingModification ?? null}
           />
-        ) : isRejecting ? (
-          <div style={{ padding: '0 4px' }}>
-            <textarea
-              style={{
-                width: '100%',
-                minHeight: 96,
-                borderRadius: 10,
-                border: '1.5px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.07)',
-                color: 'white',
-                padding: '10px 12px',
-                fontSize: 14,
-                resize: 'vertical',
-                outline: 'none',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
-              placeholder="Escribe el motivo del rechazo (mín. 10 caracteres)…"
-              value={rejectReason}
-              onChange={e => setRejectReason(e.target.value)}
-              maxLength={500}
-            />
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 4, textAlign: 'right' }}>
-              {rejectReason.length}/500
-            </p>
-          </div>
         ) : (
           <div className="sdv__cards">
  
@@ -396,24 +349,7 @@ export const SessionDetailView = ({
         {/* ── Footer ── */}
         {showFooter && (
           <div className="sdv__footer">
-            {isRejecting ? (
-              <>
-                <button
-                  className="sdv-btn sdv-btn--propose"
-                  onClick={onBack}
-                  disabled={isSubmitting}
-                >
-                  Volver
-                </button>
-                <button
-                  className="sdv-btn sdv-btn--cancel"
-                  onClick={handleRejectSubmit}
-                  disabled={isSubmitting || rejectReason.trim().length < 10}
-                >
-                  {isSubmitting ? 'Rechazando…' : 'Confirmar rechazo'}
-                </button>
-              </>
-            ) : isAltView ? (
+            {isAltView ? (
               <>
                 <button
                   className="sdv-btn sdv-btn--propose"

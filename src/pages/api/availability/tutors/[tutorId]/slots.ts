@@ -4,8 +4,19 @@ import type { GetAvailabilityQueryDto, Modality } from "@/features/availability/
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ params, url }) => {
+export const GET: APIRoute = async ({ params, url, cookies }) => {
   try {
+    const token = cookies.get("access_token")?.value;
+    if (!token) {
+      return new Response(
+        JSON.stringify({
+          code: "AUTH_05",
+          message: "No hay token de sesión",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const { tutorId } = params;
 
     if (!tutorId) {
@@ -36,7 +47,7 @@ export const GET: APIRoute = async ({ params, url }) => {
       query.modality = modality as Modality;
     }
 
-    const slots = await getTutorSlots(tutorId, query);
+    const slots = await getTutorSlots(tutorId, query, token);
 
     return new Response(
       JSON.stringify({ slots }),

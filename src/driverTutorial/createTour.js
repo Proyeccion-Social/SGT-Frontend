@@ -52,7 +52,8 @@ export function createTour(config) {
     nextBtnText: 'Siguiente',
     prevBtnText: 'Anterior',
     doneBtnText: 'Terminar',
-    popoverOffset: 24, // Genera un espacio consistente de 24px entre el popover y el elemento para dar holgura con los márgenes de pantalla
+    popoverOffset: 10,
+    stagePadding: 5,
     
     ...config
   });

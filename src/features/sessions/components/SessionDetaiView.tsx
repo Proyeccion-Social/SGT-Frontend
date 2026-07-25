@@ -1,5 +1,5 @@
 // SessionDetailView.tsx — styled to match design
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { sileo } from 'sileo';
 
 import './styles/SessionDetailView.css'
@@ -13,10 +13,16 @@ import { useSubjectStore } from '@/store/subjectStore';
 import { useAuthStore } from '@/store/authStore';
 
 
-import type { Session, ModifySessionBody, EditSessionBody, AvailabilitySlot, ModificationRequest } from '../types/session.types';
+import type { Session, ModifySessionBody, EditSessionBody, AvailabilitySlot } from '../types/session.types';
 import { ProposeModificationForm } from './ProposeModificationView';
 import { EditSessionForm } from './EditSessionView';
 import { PendingModificationView } from './PendingModificationView';
+import {
+  canProposeModification,
+  canCancelSession,
+  getSessionDisplayStatus,
+} from '../utils/sessionStatus';
+import { CloudinaryImage } from '@/components/CloudinaryImage';
 
 interface TutorInfo {
   id: string;
@@ -30,8 +36,9 @@ interface Props {
   role: UserRole;
   isProposing?: boolean;
   isEditing?: boolean;
-  isRejecting?: boolean;
   availabilitySlots?: AvailabilitySlot[];
+  /** true mientras se carga la disponibilidad del tutor (vista de proponer). */
+  slotsLoading?: boolean;
   onClose: () => void;
   onProposeModification: () => void;
   onBack: () => void;
@@ -41,7 +48,6 @@ interface Props {
   onEditSuccess: () => void;
   onConfirm: () => Promise<void>;
   onRequestReject: () => void;
-  onRejectSubmit: (reason: string) => Promise<void>;
   onAcceptModification: () => Promise<void>;
   onRejectModification: () => Promise<void>;
   onEvaluate?: () => void;
@@ -81,20 +87,6 @@ const modalityIcon = (modality: string) => {
   );
 };
  
-const statusLabel = (status: string): string => {
-  const map: Record<string, string> = {
-    PENDING_TUTOR_CONFIRMATION: 'Pendiente de confirmación',
-    SCHEDULED:                  'Programada',
-    PENDING_MODIFICATION:       'Modificación pendiente',
-    REJECTED_BY_TUTOR:          'Rechazada por tutor',
-    CANCELLED_BY_STUDENT:       'Cancelada por estudiante',
-    CANCELLED_BY_TUTOR:         'Cancelada por tutor',
-    CANCELLED_BY_ADMIN:         'Cancelada por administrador',
-    COMPLETED:                  'Completada',
-  };
-  return map[status] ?? status;
-};
-
 const modalityLabel = (modality: string): string => {
   const map: Record<string, string> = {
     VIRT: 'Virtual',
@@ -109,53 +101,6 @@ const FallbackAvatar = ({ name }: { name: string }) => (
   </div>
 );
 
-const toProposeAvailabilitySlots = (
-  slots: AvailabilitySlot[]
-): { id: string; label: string; modality?: string }[] =>
-  slots.map((slot) => {
-    const slotData = slot as unknown as Record<string, unknown>;
-
-    const id = String(slotData.id ?? slotData.slotId ?? '');
-    const label = typeof slotData.label === 'string' ? slotData.label.trim() : '';
-
-    const day =
-      typeof slotData.day === 'string'
-        ? slotData.day
-        : typeof slotData.dayOfWeek === 'string'
-          ? slotData.dayOfWeek
-          : '';
-
-    const start =
-      typeof slotData.startTime === 'string'
-        ? slotData.startTime
-        : typeof slotData.start === 'string'
-          ? slotData.start
-          : '';
-
-    const end =
-      typeof slotData.endTime === 'string'
-        ? slotData.endTime
-        : typeof slotData.end === 'string'
-          ? slotData.end
-          : '';
-
-    const modality =
-      typeof slotData.modality === 'string' ? slotData.modality : undefined;
-
-    const modalityTag = modality === 'VIRT' ? ' · Virtual' : modality === 'PRES' ? ' · Presencial' : '';
-
-    const generatedLabel = [day, start && end ? `${start} - ${end}` : start || end]
-      .filter(Boolean)
-      .join(' ')
-      .trim();
-
-    return {
-      id,
-      label: (label || generatedLabel || id) + modalityTag,
-      modality,
-    };
-  });
- 
 // ─── Component ────────────────────────────────────────────────────────────────
  
 export const SessionDetailView = ({
@@ -164,8 +109,8 @@ export const SessionDetailView = ({
   role,
   isProposing = false,
   isEditing   = false,
-  isRejecting = false,
   availabilitySlots = [],
+  slotsLoading = false,
   onClose,
   onProposeModification,
   onBack,
@@ -175,7 +120,6 @@ export const SessionDetailView = ({
   onEditSuccess,
   onConfirm,
   onRequestReject,
-  onRejectSubmit,
   onAcceptModification,
   onRejectModification,
   onEvaluate,
@@ -191,13 +135,10 @@ export const SessionDetailView = ({
   const submitRef      = useRef<(() => Promise<void>) | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirming, setIsConfirming]         = useState(false);
-  const [rejectReason, setRejectReason]         = useState('');
   const [showCurrentState, setShowCurrentState] = useState(false);
   const [isModificationAction, setIsModificationAction] = useState(false);
-
-  useEffect(() => {
-    if (!isRejecting) setRejectReason('');
-  }, [isRejecting]);
+  // SCHEDULING-42 — el formulario de propuesta reporta si hay al menos un cambio.
+  const [isProposeValid, setIsProposeValid]     = useState(false);
 
   const handleConfirm = async () => {
     setIsConfirming(true);
@@ -205,15 +146,6 @@ export const SessionDetailView = ({
       await onConfirm();
     } finally {
       setIsConfirming(false);
-    }
-  };
-
-  const handleRejectSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      await onRejectSubmit(rejectReason);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -245,16 +177,42 @@ export const SessionDetailView = ({
     ).finally(() => setIsModificationAction(false));
   };
 
-  const isAltView = isProposing || isEditing || isRejecting;
+  const isAltView = isProposing || isEditing;
   const isPendingConfirmation = String(session.status) === 'PENDING_TUTOR_CONFIRMATION';
   const isPendingModification = String(session.status) === 'PENDING_MODIFICATION';
-  const isTerminalState = ['COMPLETED', 'REJECTED_BY_TUTOR', 'CANCELLED_BY_STUDENT', 'CANCELLED_BY_TUTOR', 'CANCELLED_BY_ADMIN'].includes(String(session.status));
+  const displayStatus = getSessionDisplayStatus(session);
+  const proposeAvailability = canProposeModification(session);
+  const cancelAvailability  = canCancelSession(session);
   const showConfirmRejectButtons = isPendingConfirmation && role === UserRole.TUTOR && !isAltView;
   const showModificationView    = isPendingModification && !isAltView;
-  // Solo quien NO propuso puede aceptar/rechazar
-  const canRespondToModification = showModificationView &&
-    session.pendingModification?.proposedBy !== currentUser?.id;
-  const showFooter = isRejecting || isAltView || showModificationView || showConfirmRejectButtons || !isTerminalState || !!onEvaluate;
+  // SCHEDULING-49: el solicitante no puede responder su propia propuesta.
+  // proposedBy puede venir como string, number u objeto { id }.
+  const proposedByRaw = session.pendingModification?.proposedBy as unknown;
+  const proposedById =
+    proposedByRaw == null
+      ? ''
+      : typeof proposedByRaw === 'object'
+        ? String((proposedByRaw as { id?: string }).id ?? '')
+        : String(proposedByRaw);
+  const currentUserId = String(currentUser?.id ?? '');
+  const isProposer =
+    !!proposedById && !!currentUserId && proposedById === currentUserId;
+  // Si el backend no manda proposedBy, no ofrecer aceptar/rechazar al estudiante
+  // (caso más común: el estudiante propuso). El tutor sí puede responder.
+  const canRespondToModification =
+    showModificationView &&
+    !isProposer &&
+    (proposedById ? true : role === UserRole.TUTOR);
+  const showEditButton = !isAltView && !showModificationView && role === UserRole.TUTOR && String(session.status) === 'SCHEDULED';
+  // Las reglas de negocio (canPropose/canCancel) ya excluyen estados terminales,
+  // PENDING_MODIFICATION y sesiones en curso/terminadas.
+  const showActionButtons = proposeAvailability.visible || cancelAvailability.visible || showEditButton;
+  const showFooter =
+    isAltView ||
+    (showModificationView && canRespondToModification) ||
+    showConfirmRejectButtons ||
+    showActionButtons ||
+    !!onEvaluate;
  
   return (
     <>
@@ -264,7 +222,13 @@ export const SessionDetailView = ({
         {/* ── Top: photo + title + description ── */}
         <div className="sdv__top">
           {tutorInfo?.photo ? (
-            <img src={tutorInfo.photo} alt={tutorName} className="sdv-avatar" />
+            <CloudinaryImage
+              src={tutorInfo.photo}
+              size="avatarMd"
+              alt={tutorName}
+              className="sdv-avatar"
+              lazy={false}
+            />
           ) : (
             <FallbackAvatar name={tutorName} />
           )}
@@ -284,7 +248,7 @@ export const SessionDetailView = ({
             <span className="sdv-tag__dot sdv-tag__dot--purple" />
             {tutorName}
           </span>
-          <span className="sdv-tag sdv-tag--status">{statusLabel(String(session.status))}</span>
+          <span className="sdv-tag sdv-tag--status">{displayStatus}</span>
         </div>
  
         {/* ── Section title ── */}
@@ -297,9 +261,7 @@ export const SessionDetailView = ({
                 ? 'Proponer modificación'
                 : isEditing
                   ? 'Editando...'
-                  : isRejecting
-                    ? 'Motivo de rechazo'
-                    : 'Propuesta de modificación'}
+                  : 'Propuesta de modificación'}
             </p>
             {showModificationView && (
               <button
@@ -334,9 +296,11 @@ export const SessionDetailView = ({
         {isProposing ? (
           <ProposeModificationForm
             session={session}
-            availabilitySlots={toProposeAvailabilitySlots(availabilitySlots)}
+            availabilitySlots={availabilitySlots}
+            slotsLoading={slotsLoading}
             onSuccess={onProposeSuccess}
             onSubmittingChange={setIsSubmitting}
+            onValidityChange={setIsProposeValid}
             triggerSubmitRef={submitRef}
             modificar={modificar}
           />
@@ -353,32 +317,6 @@ export const SessionDetailView = ({
             session={session}
             modification={session.pendingModification ?? null}
           />
-        ) : isRejecting ? (
-          <div style={{ padding: '0 4px' }}>
-            <textarea
-              style={{
-                width: '100%',
-                minHeight: 96,
-                borderRadius: 10,
-                border: '1.5px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.07)',
-                color: 'white',
-                padding: '10px 12px',
-                fontSize: 14,
-                resize: 'vertical',
-                outline: 'none',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
-              placeholder="Escribe el motivo del rechazo (mín. 10 caracteres)…"
-              value={rejectReason}
-              onChange={e => setRejectReason(e.target.value)}
-              maxLength={500}
-            />
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, marginTop: 4, textAlign: 'right' }}>
-              {rejectReason.length}/500
-            </p>
-          </div>
         ) : (
           <div className="sdv__cards">
  
@@ -409,7 +347,7 @@ export const SessionDetailView = ({
  
             <div className="sdv-card">
               <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">{statusLabel(String(session.status))}</span>
+              <span className="sdv-card__label">{displayStatus}</span>
             </div>
  
           </div>
@@ -418,24 +356,7 @@ export const SessionDetailView = ({
         {/* ── Footer ── */}
         {showFooter && (
           <div className="sdv__footer">
-            {isRejecting ? (
-              <>
-                <button
-                  className="sdv-btn sdv-btn--propose"
-                  onClick={onBack}
-                  disabled={isSubmitting}
-                >
-                  Volver
-                </button>
-                <button
-                  className="sdv-btn sdv-btn--cancel"
-                  onClick={handleRejectSubmit}
-                  disabled={isSubmitting || rejectReason.trim().length < 10}
-                >
-                  {isSubmitting ? 'Rechazando…' : 'Confirmar rechazo'}
-                </button>
-              </>
-            ) : isAltView ? (
+            {isAltView ? (
               <>
                 <button
                   className="sdv-btn sdv-btn--propose"
@@ -447,12 +368,12 @@ export const SessionDetailView = ({
                 <button
                   className="sdv-btn sdv-btn--edit"
                   onClick={() => submitRef.current?.()}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || (isProposing && !isProposeValid)}
                 >
                   {isSubmitting ? 'Guardando…' : 'Confirmar'}
                 </button>
               </>
-            ) : showModificationView ? (
+            ) : showModificationView && canRespondToModification ? (
               <>
                 <button
                   className="sdv-btn sdv-btn--edit"
@@ -486,19 +407,41 @@ export const SessionDetailView = ({
                   Rechazar tutoría
                 </button>
               </>
-            ) : !isTerminalState ? (
+            ) : showActionButtons ? (
               <>
-                <button className="sdv-btn sdv-btn--propose" onClick={onProposeModification}>
-                  Proponer modificación
-                </button>
-                {role === UserRole.TUTOR && String(session.status) === 'SCHEDULED' && (
+                {proposeAvailability.visible && (
+                  <span
+                    className="sdv-btn-tooltip"
+                    data-tooltip={proposeAvailability.disabled ? proposeAvailability.reason : undefined}
+                  >
+                    <button
+                      className="sdv-btn sdv-btn--propose"
+                      onClick={onProposeModification}
+                      disabled={proposeAvailability.disabled}
+                    >
+                      Proponer modificación
+                    </button>
+                  </span>
+                )}
+                {showEditButton && (
                   <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
                     Editar
                   </button>
                 )}
-                <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
-                  Cancelar tutoría
-                </button>
+                {cancelAvailability.visible && (
+                  <span
+                    className="sdv-btn-tooltip"
+                    data-tooltip={cancelAvailability.disabled ? cancelAvailability.reason : undefined}
+                  >
+                    <button
+                      className="sdv-btn sdv-btn--cancel"
+                      onClick={onCancel}
+                      disabled={cancelAvailability.disabled}
+                    >
+                      Cancelar tutoría
+                    </button>
+                  </span>
+                )}
               </>
             ) : onEvaluate ? (
               <button className="sdv-btn sdv-btn--edit" onClick={onEvaluate}>

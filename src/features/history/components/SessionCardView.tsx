@@ -1,3 +1,5 @@
+import { CloudinaryImage } from "@/components/CloudinaryImage";
+
 interface SessionCardViewProps {
   session: any;
   userId: string;
@@ -93,11 +95,11 @@ export default function SessionCardView({ session, userId, onClose, onEvaluate }
 
         {/* Columna derecha - Tutor */}
         <div className="sc-col-tutor">
-          <img
-            src={session.tutor?.photo ?? "/default-avatar.png"}
-            alt="Tutor"
+          <CloudinaryImage
+            src={session.tutor?.photo}
+            size="avatarXl"
+            alt={session.tutor?.name ? `Tutor: ${session.tutor.name}` : "Tutor"}
             className="sc-avatar"
-            loading="lazy"
           />
           <p><strong>Tutor:</strong> {session.tutor?.name}</p>
         </div>

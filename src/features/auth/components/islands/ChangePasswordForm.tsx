@@ -15,7 +15,7 @@ function getStrength(pw: string): 0 | 1 | 2 | 3 {
     let score = 0;
     if (pw.length >= MIN_LENGTH) score++;
     if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+    if (/\d/.test(pw) && /[@$!%*?&#]/.test(pw)) score++;
     return score as 0 | 1 | 2 | 3;
 }
 
@@ -55,10 +55,16 @@ export default function ChangePasswordForm() {
 
     const strength = getStrength(newPassword);
 
+    const hasMinLength = newPassword.length >= MIN_LENGTH;
+    const hasUppercase = /[A-Z]/.test(newPassword);
+    const hasLowercase = /[a-z]/.test(newPassword);
+    const hasDigit = /\d/.test(newPassword);
+    const hasSpecial = /[@$!%*?&#]/.test(newPassword);
+
     const currentEmpty = touched.current && currentPassword.length === 0;
-    const tooShort = newPassword.length > 0 && newPassword.length < MIN_LENGTH;
+    const tooShort = newPassword.length > 0 && !hasMinLength;
     const tooLong = newPassword.length > MAX_LENGTH;
-    const lengthOk = newPassword.length >= MIN_LENGTH && newPassword.length <= MAX_LENGTH;
+    const lengthOk = hasMinLength && newPassword.length <= MAX_LENGTH;
     const mismatch = confirm.length > 0 && newPassword !== confirm;
     const matchOk = confirm.length > 0 && newPassword === confirm && lengthOk;
 
@@ -216,11 +222,24 @@ export default function ChangePasswordForm() {
                             </div>
                         )}
 
-                        {touched.newPw && tooShort && (
-                            <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
-                        )}
-                        {touched.newPw && tooLong && (
-                            <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
+                        {touched.newPw && newPassword.length > 0 && (
+                            <div className="password-errors-list" style={{ marginTop: "4px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                                {!hasMinLength && (
+                                    <p className="password-error">Mínimo {MIN_LENGTH} caracteres</p>
+                                )}
+                                {tooLong && (
+                                    <p className="password-error">Máximo {MAX_LENGTH} caracteres</p>
+                                )}
+                                {(!hasUppercase || !hasLowercase) && (
+                                    <p className="password-error">Incluye al menos una mayúscula y una minúscula</p>
+                                )}
+                                {!hasDigit && (
+                                    <p className="password-error">Incluye al menos un número</p>
+                                )}
+                                {!hasSpecial && (
+                                    <p className="password-error">Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?</p>
+                                )}
+                            </div>
                         )}
                     </div>
 

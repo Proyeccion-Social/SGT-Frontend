@@ -57,7 +57,7 @@ export default function HoursCard({ slot}: HoursCardProps) {
             <div className={styles.LeftColor} style={{ backgroundColor: color }}></div>
             <div className={styles.InfoContainer}>
                 <div className={styles.DayAndHoursContainer}>
-                    <p className={styles.day}>{slot.day} →</p>
+                    <p className={styles.day}>{slot.day.charAt(0).toUpperCase() + slot.day.slice(1).toLowerCase()}: </p>
                     <p className={styles.hours}>{slot.hours}</p>
                 </div>
                 <div className={styles.ModalityContainer}>

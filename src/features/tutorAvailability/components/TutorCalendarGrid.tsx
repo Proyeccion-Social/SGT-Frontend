@@ -88,9 +88,19 @@
                     (daySlots as any[]).forEach((s) => {
                         allSlots.push({
                             ...s,
+                            id: s.slotId || s.id,
                             dayOfWeek: dayEs as DayOfWeek,
                             startTime: s.startTime?.substring(0, 5),
                             endTime: s.endTime?.substring(0, 5),
+                            modality: Array.isArray(s.modality)
+                                ? s.modality.map((m: string) => m.toUpperCase())
+                                : s.modality
+                                    ? String(s.modality).toUpperCase()
+                                    : s.modality,
+                            isBooked:
+                                s.isAvailable === false
+                                    ? true
+                                    : Boolean(s.isBooked),
                         });
                     });
                 });
@@ -223,7 +233,7 @@
                             dayOfWeek: dayEn,
                             startTime,
                             endTime,
-                            modality: ['PRES'],
+                            modality: ['PRES', 'VIRT'],
                         }),
                     })
                     .then((res) => {

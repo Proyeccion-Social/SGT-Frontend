@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSubjectStore } from "@/store/subjectStore";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
@@ -39,6 +39,66 @@ interface Props {
   tutorProfiles?: Record<string, TutorProfileInfo>;
 }
 
+function normalizeDay(day: unknown): string {
+  return String(day ?? "")
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** True si el slot crudo solapa el rango seleccionado [selStart, selEnd). */
+function slotOverlapsRange(
+  slot: Slot,
+  selStart: string,
+  selEnd: string,
+): boolean {
+  const end = slot.endTime ?? "23:59";
+  return slot.startTime < selEnd && end > selStart;
+}
+
+/**
+ * Slots del wizard que cubren la selección del calendario.
+ * El calendario fusiona franjas contiguas en un bloque visual; la selección
+ * del usuario (clic = 30 min) puede ser más corta que un slot crudo largo.
+ * Por eso se usa solapamiento (no contención) + match por IDs del bloque.
+ */
+function findSlotsForSelection(
+  allSlots: Slot[],
+  detail: {
+    dayOfWeek?: string;
+    startTime?: string;
+    endTime?: string;
+    slotBlockId?: string;
+    slotIds?: string[];
+  },
+  opts?: { subject?: string; onlyFree?: boolean },
+): Slot[] {
+  const selStart = detail.startTime ?? "00:00";
+  const selEnd = detail.endTime ?? "23:59";
+  const day = normalizeDay(detail.dayOfWeek);
+  const idSet = new Set(
+    (detail.slotIds?.length
+      ? detail.slotIds
+      : detail.slotBlockId
+        ? [detail.slotBlockId]
+        : []
+    )
+      .filter(Boolean)
+      .map(String),
+  );
+
+  return allSlots.filter((s) => {
+    if (normalizeDay(s.dayOfWeek) !== day) return false;
+    if (opts?.subject && s.subject !== opts.subject) return false;
+    if (opts?.onlyFree && s.isBooked) return false;
+    if (!slotOverlapsRange(s, selStart, selEnd)) return false;
+    // Si el bloque reportó IDs, priorizar esos (evita falsos positivos de otros bloques).
+    // Comparar como string: data-* del DOM siempre es string; s.id puede ser number.
+    if (idSet.size > 0 && !idSet.has(String(s.id))) return false;
+    return true;
+  });
+}
+
 export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = {} }: Props) {
   const [slots, setSlots] = useState<Slot[]>(initialSlots);
   const [open, setOpen] = useState(false);
@@ -46,6 +106,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
   const [slotContext, setSlotContext] = useState<any>(null);
+  const ignoreCloseUntil = useRef(0);
   const { colorMap } = useSubjectStore();
   const [data, setData] = useState<WizardData>({
     slot: null,
@@ -60,15 +121,15 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   });
 
   useEffect(() => {
+    setSlots(initialSlots);
+  }, [initialSlots]);
+
+  useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
+      const detail = custom.detail ?? {};
 
-      const matchingSlots = slots.filter(
-        (s) =>
-          s.dayOfWeek === custom.detail.dayOfWeek &&
-          s.startTime >= custom.detail.startTime &&
-          (s.endTime ?? "23:59") <= custom.detail.endTime
-      );
+      const matchingSlots = findSlotsForSelection(slots, detail);
 
       if (matchingSlots.length === 0) return;
 
@@ -78,39 +139,40 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
       if (subjects.length === 0) return;
 
-      const slotBlockId = custom.detail.slotBlockId as string;
+      const slotBlockId = (detail.slotBlockId as string) || matchingSlots[0]?.id || "";
 
-      sileo.action({
-        title: "Franja seleccionada",
-        description: (
-          <span className="wizard-sileo-description">
-            {`${custom.detail.startTime} → ${custom.detail.endTime} · ${
-              !custom.detail.modality || custom.detail.modality === "null"
-                ? "Presencial o Virtual"
-                : custom.detail.modality.toUpperCase() === "VIRT"
-                ? "Virtual"
-                : "Presencial"
-            }`}
-          </span>
-        ),
-        fill: "#8751ff",
-        styles: { badge: "#ffffff" },
-      });
+      const modalityLabel =
+        !detail.modality || detail.modality === "null"
+          ? "Presencial o Virtual"
+          : String(detail.modality).toUpperCase() === "VIRT"
+            ? "Virtual"
+            : "Presencial";
 
-      setTimeout(() => {
-        setPopover({
-          subjects,
-          slotBlockId,
-          slotData: custom.detail,
+      try {
+        sileo.action({
+          title: "Franja seleccionada",
+          description: `${detail.startTime} → ${detail.endTime} · ${modalityLabel}`,
+          fill: "#8751ff",
+          styles: { badge: "#ffffff" },
         });
-      }, 8);
+      } catch {
+        // El toast no debe bloquear la apertura del popover
+      }
+
+      // Evitar que el click residual cierre el popover al abrirlo
+      ignoreCloseUntil.current = Date.now() + 150;
+      setPopover({
+        subjects,
+        slotBlockId,
+        slotData: detail,
+      });
     };
 
     const closePopover = (e: MouseEvent) => {
+      if (Date.now() < ignoreCloseUntil.current) return;
       const target = e.target as HTMLElement;
-      if (!target.closest(".slot-popover") && !target.closest(".slot-block")) {
-        setPopover(null);
-      }
+      if (target.closest(".slot-popover") || target.closest(".slot-block")) return;
+      setPopover(null);
     };
 
     document.addEventListener("slot:clicked", handler);
@@ -160,15 +222,20 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const handleSubjectSelect = (subject: string) => {
     const currentSlotData = popover!.slotData;
 
-    const rangeSlots = slots.filter(
-      (s) =>
-        s.dayOfWeek === currentSlotData.dayOfWeek &&
-        s.subject === subject &&
-        s.startTime >= currentSlotData.startTime &&
-        (s.endTime ?? "23:59") <= currentSlotData.endTime
-    );
+    const rangeSlots = findSlotsForSelection(slots, currentSlotData, {
+      subject,
+      onlyFree: true,
+    });
 
-    const baseSlot = rangeSlots[0] ?? null;
+    // Preferir el slot que cubre el inicio de la selección (availabilityId + duration)
+    const selStart = currentSlotData.startTime ?? "00:00";
+    const baseSlot =
+      rangeSlots.find(
+        (s) =>
+          s.startTime <= selStart && (s.endTime ?? "23:59") > selStart,
+      ) ??
+      rangeSlots[0] ??
+      null;
 
     setSlotContext({
       ...currentSlotData,
@@ -328,23 +395,17 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   }
 };
 
-  // Solo las entradas libres (isBooked === false): el paso 1 nunca debe ofrecer
-  // un tutor con sesión activa en esta franja, aunque comparta el slotId.
+  // Solo entradas libres que solapan la selección (misma regla que el popover).
+  // NOTA: un tutor libre en al menos una sub-franja se ofrece; exigir libre en
+  // TODAS las sub-franjas del rango queda como follow-up.
   const availableSlots =
     slotContext && data.subject
-      ? slots.filter(
-          (s) =>
-            s.dayOfWeek === slotContext.dayOfWeek &&
-            s.subject === data.subject &&
-            s.startTime >= slotContext.startTime &&
-            (s.endTime ?? "23:59") <= slotContext.endTime &&
-            !s.isBooked
-        )
+      ? findSlotsForSelection(slots, slotContext, {
+          subject: data.subject,
+          onlyFree: true,
+        })
       : [];
 
-  // NOTA (pendiente): para un rango que abarca varias sub-franjas, esto ofrece a
-  // cualquier tutor libre en al menos una. Exigir que esté libre en TODAS requiere
-  // validar por sub-franja; queda como follow-up (ver PLAN, Fase 3).
   const tutorIds = [
     ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
   ];

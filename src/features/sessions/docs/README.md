@@ -28,12 +28,13 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 ### Wizard de agendamiento
 
 - [components/SchedulingWizard.tsx](../components/SchedulingWizard.tsx): wizard de agendamiento.
-  - Paso 1: Disponibilidad (selecciona tutor). La modalidad de la sesión queda determinada por el slot del tutor elegido (cada slot ofrece una sola modalidad, `PRES` o `VIRT`).
+  - Paso 1: Disponibilidad (selecciona tutor). Cada slot del tutor ofrece una o ambas modalidades (`PRES`, `VIRT`). Si ofrece una sola, la modalidad de la sesión queda fijada por ella; si ofrece ambas, aparece el paso de selección de modalidad.
   - Paso 2: Detalles (título, descripción).
   - Paso 3: Tipo de espacio y revisión/envío.
+  - Paso 4 (condicional): Modalidad — solo cuando el slot del tutor ofrece ambas.
 - [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): selección de slot.
 - [components/scheduling/SessionType.tsx](../components/scheduling/SessionType.tsx): tipo de sesión.
-- [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): selección de modalidad (salvaguarda; no se muestra en el flujo normal porque el slot del tutor ya define la modalidad).
+- [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): selección de modalidad. Solo aparece cuando el slot del tutor ofrece ambas modalidades; si ofrece una sola, queda fijada y este paso se omite.
 - [components/scheduling/Details.tsx](../components/scheduling/Details.tsx): formulario de detalles.
 - [components/scheduling/SlotPopover.tsx](../components/scheduling/SlotPopover.tsx): popover de slot.
 
@@ -119,9 +120,9 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 2. Hace clic en "Agendar" → navega a `/sessions?subjectId=...`.
 3. `StudentSchedule` carga slots disponibles en SSR vía `getTutorSlotsDetailedSSR()`.
 4. Estudiante selecciona slot → se abre `SchedulingWizard`.
-5. Paso 1: elige tutor. La tarjeta muestra la modalidad real del slot de ese tutor (Presencial o Virtual) y con ella queda fijada la modalidad de la sesión.
+5. Paso 1: elige tutor. La tarjeta muestra las modalidades del slot de ese tutor (Presencial, Virtual o ambas). Si es una sola, queda fijada; si son ambas, el estudiante la elige en el paso de modalidad.
 6. Paso 2: ingresa título y descripción.
-7. Paso 3: selecciona tipo de espacio, revisa y envía → `createSession()` POST (se valida que la modalidad provenga del slot).
+7. Paso 3: selecciona tipo de espacio; si el slot ofrece ambas modalidades, elige la modalidad (paso 4); revisa y envía → `createSession()` POST (la modalidad proviene del slot o de la elección del estudiante, nunca se adivina).
 8. Sesión queda en estado `PENDING_TUTOR_CONFIRMATION`.
 9. Tutor recibe notificación/email.
 

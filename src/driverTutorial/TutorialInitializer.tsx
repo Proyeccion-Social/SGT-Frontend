@@ -87,10 +87,16 @@ export default function TutorialInitializer() {
       if(path === "/availability/tutor/slots"){
         const currentTour = localStorage.getItem("current-tour");
         if (currentTour === "disponibilidad") {
-          const timer = setTimeout(() => {
-            startDisponibilidadTutorTutorial();
-          }, 500);
-          return () => clearTimeout(timer);
+          // Wait for the calendar container to mount before starting the tour
+          const checkExist = setInterval(() => {
+             if (document.querySelector('#calendarTutorTUTORIAL')) {
+                clearInterval(checkExist);
+                startDisponibilidadTutorTutorial();
+             }
+          }, 200);
+          
+          // Clear interval on unmount
+          return () => clearInterval(checkExist);
         }
       }
     }

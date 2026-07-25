@@ -104,13 +104,6 @@ export function startDashboardTutorTutorial() {
                 }
             },
             {
-                element: "#disponibilidadTutorTUTORIAL",
-                popover: {
-                    title: "Actualiza tus horarios",
-                    description: "Aquí puedes modificar tus franjas de disponibilidad semanales.",
-                }
-            },
-            {
                 element: "#horasDispTutorTUTORIAL",
                 popover: {
                     title: "Ponle un límite a tu carga semanal",

@@ -1,14 +1,10 @@
 ---
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils";
-import { Image } from "astro:assets";
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
 import type { Slot } from "@/features/availability/services/availabilityService";
 
 import Calendar from "@/features/availability/components/Calendar.astro";
-import RightCalendarMenu from "@/features/availability/components/RightCalendarMenu.astro";
-
-import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";
 
 const tutorId = getUserIdFromCookie(Astro.cookies);
 const token = Astro.cookies.get("access_token")?.value;
@@ -24,39 +20,29 @@ if (tutorId) {
 const offsetParam = Astro.url.searchParams.get("offset");
 const weekOffset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
-const { today, prevOffset, nextOffset, weekRangeStr } =
-  getWeekRangeFromOffset(weekOffset);
-
-const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
+const { today, weekRangeStr } = getWeekRangeFromOffset(weekOffset);
 ---
 
-<main class={`content-wrapper ${isMenuOpen ? "no-scroll" : ""}`}>
-  <div class={`overlay ${isMenuOpen ? "active" : ""}`} id='menu-overlay'></div>
-  <div class='calendar-header' id="weekMonthTutorTUTORIAL">
-    <div class='week-selector' >
+<main class="content-wrapper">
+  <div class="calendar-header" id="weekMonthTutorTUTORIAL">
+    <div class="week-selector">
       <h3>Tu Semana</h3>
       <p>{weekRangeStr}</p>
-      <button class='mes-btn' id='right-menu-toggle'
-        >Mes <Image src={ArrowUpIcon} alt='Arrow Up' /></button
+      <button
+        type="button"
+        class="actualizar-btn"
+        id="actualizarDisponibilidadTutorTUTORIAL"
       >
+        Actualizar
+      </button>
     </div>
-    <div class='legend'>
+    <div class="legend">
       <p>Franjas horarias disponibles de tu semana</p>
     </div>
   </div>
 
-  <div class='calendar-container' id="calendarTutorTUTORIAL">
+  <div class="calendar-container" id="calendarTutorTUTORIAL">
     <Calendar slots={Slots} baseDate={today} />
-  </div>
-
-  <div id='right-menu' class={isMenuOpen ? "active" : ""}>
-    <RightCalendarMenu
-      slots={Slots}
-      baseDate={today}
-      offset={weekOffset}
-      prevOffset={prevOffset}
-      nextOffset={nextOffset}
-    />
   </div>
 </main>
 
@@ -65,17 +51,13 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: #fff;
+    background-color: var(--neutral-blanco, #fff);
     position: relative;
     justify-content: flex-start;
     overflow: hidden;
     border-radius: 32px 0px 0px 32px;
     border: 1px solid var(--neutral-200);
     height: 100%;
-  }
-
-  .content-wrapper.no-scroll {
-    overflow-y: hidden;
   }
 
   .calendar-container {
@@ -98,13 +80,13 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 16px;
+    gap: var(--spacing-xs);
   }
 
   .week-selector h3 {
     font-size: 32px;
     font-weight: bold;
-    color: #9f74ff;
+    color: var(--text-action, #9f74ff);
   }
 
   .week-selector p {
@@ -113,18 +95,6 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     font-style: normal;
     color: #5f5f5f;
     margin-top: 5px;
-  }
-
-  .week-selector .nav-button {
-    height: 1.5rem;
-    width: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    color: inherit;
   }
 
   .legend {
@@ -153,12 +123,6 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     font-family: "Cabinet Grotesk Variable", sans-serif;
   }
 
-  .calendar-body {
-    padding: 20px;
-    height: 100%;
-    width: 100%;
-  }
-
   .calendar-container::-webkit-scrollbar {
     width: 6px;
     height: 100px;
@@ -169,102 +133,53 @@ const isMenuOpen = Astro.url.searchParams.get("openMenu") === "true";
     border-radius: 10px;
   }
 
-  /* Menu contextual */
-  #right-menu {
-    position: absolute;
-    top: 0;
-    right: -312px;
-    width: 310px;
-    height: 100%;
-    background-color: #fff;
-    border-radius: 0 16px 16px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-    z-index: 1000;
-    transition: right 0.3s ease-in-out;
-  }
-
-  #right-menu.active {
-    right: 0;
-  }
-
-  .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    border-radius: 16px;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 15;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  .overlay.active {
-    display: block;
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .mes-btn {
-    background-color: #daffaa;
-    color: #4d662e;
+  .actualizar-btn {
+    background-color: var(--secondary-default, #daffaa);
+    color: var(--secondary-700, #4d662e);
     border: none;
-    border-radius: 8px;
-    padding: 0px 4px 0px 8px;
+    border-radius: var(--border-radius-md);
+    padding: 6px 14px;
     font-size: 16px;
-    font-weight: 400;
+    font-weight: 500;
     font-style: normal;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 4px;
-    transition: all 0.3s ease;
-    overflow: hidden;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .actualizar-btn:hover {
+    background-color: var(--secondary-500, #c5f08a);
+  }
+
+  .actualizar-btn:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+
+  .actualizar-btn:active {
+    opacity: 0.9;
   }
 </style>
 
 <script>
-  const setupMenu = () => {
-    const toggleButton = document.getElementById("right-menu-toggle");
-    const rightMenu = document.getElementById("right-menu");
-    const overlay = document.getElementById("menu-overlay");
-    const contentWrapper = document.querySelector(".content-wrapper");
+  const setupActualizarBtn = () => {
+    const btn = document.getElementById("actualizarDisponibilidadTutorTUTORIAL");
+    if (!btn || btn.dataset.bound === "true") return;
+    btn.dataset.bound = "true";
 
-    const openMenu = () => {
-      rightMenu?.classList.add("active");
-      overlay?.classList.add("active");
-      toggleButton?.classList.add("active");
-      contentWrapper?.classList.add("no-scroll");
-      window.dispatchEvent(new CustomEvent("force-sidebar-expand"));
-    };
-
-    const closeMenu = () => {
-      rightMenu?.classList.remove("active");
-      overlay?.classList.remove("active");
-      toggleButton?.classList.remove("active");
-      contentWrapper?.classList.remove("no-scroll");
-      window.dispatchEvent(new CustomEvent("force-sidebar-collapse"));
-    };
-
-    if (rightMenu && overlay) {
-      // 1. Click en botón Mes
-      toggleButton?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openMenu();
-      });
-
-      // 2. Click en overlay (única forma de cerrar)
-      overlay.addEventListener("click", () => {
-        closeMenu();
-      });
-    }
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.dispatchEvent(
+        new CustomEvent("open-tutor-calendar-dialog", {
+          detail: { mode: "edit" },
+        }),
+      );
+    });
   };
 
-  // Ejecutar en carga inicial y en navegaciones de Astro
-  document.addEventListener("DOMContentLoaded", setupMenu);
-  document.addEventListener("astro:page-load", setupMenu);
+  document.addEventListener("DOMContentLoaded", setupActualizarBtn);
+  document.addEventListener("astro:page-load", setupActualizarBtn);
 </script>

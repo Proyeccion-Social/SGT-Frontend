@@ -26,7 +26,7 @@
 
   <template id='accordion-panel-template'>
     <div class='accordion-panel' data-tutor-id='' tabindex='0'>
-      <img class='panel-photo' src='' alt='' />
+      <img class='panel-photo' src='' alt='' width='400' height='500' loading='lazy' decoding='async' />
       <div class='panel-overlay'></div>
       <div class='panel-content'>
         <h1 class='panel-tutor-name'></h1>
@@ -319,87 +319,81 @@
   }
 </style>
 
-<script is:inline>
+<script>
+  import { cloudinaryImage, getCloudinaryFallback } from "@/lib/cloudinary";
+
   (function () {
-    var currentTutors = [];
-    var MAX_PANELS = 9;
+    const MAX_PANELS = 9;
+    const FALLBACK = getCloudinaryFallback();
 
-    if (window.__tutorsCleanup) window.__tutorsCleanup();
+    if ((window as any).__tutorsCleanup) (window as any).__tutorsCleanup();
 
-    function createAccordionPanel(tutor, isActive) {
-      console.log("Creating panel for tutor:", tutor);
-      var template = document.getElementById("accordion-panel-template");
+    function createAccordionPanel(tutor: any, isActive: boolean) {
+      const template = document.getElementById("accordion-panel-template") as HTMLTemplateElement | null;
       if (!template) return null;
 
-      var clone = template.content.cloneNode(true);
-      var panel = clone.querySelector(".accordion-panel");
+      const clone = template.content.cloneNode(true) as DocumentFragment;
+      const panel = clone.querySelector(".accordion-panel") as HTMLElement;
       panel.dataset.tutorId = tutor.tutorId || tutor.id;
 
       if (isActive) panel.classList.add("active");
 
-      var img = panel.querySelector(".panel-photo");
-      img.src = tutor.photo;
+      const img = panel.querySelector(".panel-photo") as HTMLImageElement;
+      img.src = cloudinaryImage(tutor.photo, "list");
       img.alt = tutor.tutorName || tutor.name || "Tutor";
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = FALLBACK;
+      };
 
-      panel.querySelector(".panel-tutor-name").textContent =
+      panel.querySelector(".panel-tutor-name")!.textContent =
         tutor.tutorName || tutor.name || tutor.fullName || "Tutor";
 
       return clone;
     }
 
-    function setActivePanel(container, targetPanel) {
-      var panels = container.querySelectorAll(".accordion-panel");
-      panels.forEach(function (p) {
+    function setActivePanel(container: HTMLElement, targetPanel: Element) {
+      container.querySelectorAll(".accordion-panel").forEach((p) => {
         p.classList.remove("active");
       });
       targetPanel.classList.add("active");
     }
 
-    function renderAccordion(tutors) {
-      var container = document.getElementById("accordion-container");
+    function renderAccordion(tutors: any[]) {
+      const container = document.getElementById("accordion-container");
       if (!container) return;
       container.innerHTML = "";
 
-      var displayed = tutors.slice(0, MAX_PANELS);
-
-      displayed.forEach(function (tutor, index) {
-        var panel = createAccordionPanel(tutor, index === 0);
+      tutors.slice(0, MAX_PANELS).forEach((tutor, index) => {
+        const panel = createAccordionPanel(tutor, index === 0);
         if (panel) container.appendChild(panel);
       });
 
-      // Click / hover handlers
-      container.querySelectorAll(".accordion-panel").forEach(function (panel) {
-        panel.addEventListener("click", function () {
-          setActivePanel(container, panel);
-        });
-        panel.addEventListener("mouseenter", function () {
-          setActivePanel(container, panel);
-        });
+      container.querySelectorAll(".accordion-panel").forEach((panel) => {
+        panel.addEventListener("click", () => setActivePanel(container, panel));
+        panel.addEventListener("mouseenter", () => setActivePanel(container, panel));
       });
 
-      // CTA button → loadTutor
-      container.querySelectorAll(".panel-cta").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
+      container.querySelectorAll(".panel-cta").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
           e.stopPropagation();
-          var panel = btn.closest(".accordion-panel");
-          if (panel && panel.dataset.tutorId) {
-            loadTutor(panel.dataset.tutorId);
+          const panel = (btn as HTMLElement).closest(".accordion-panel") as HTMLElement | null;
+          const tutorId = panel?.dataset.tutorId;
+          if (tutorId && typeof (window as any).loadTutor === "function") {
+            (window as any).loadTutor(tutorId);
           }
         });
       });
     }
 
-    // ── Evento: tutors-updated ──
-    function onTutorsUpdated(e) {
-      var payload = e.detail;
-      var tutors = Array.isArray(payload) ? payload : payload.tutors || [];
-      currentTutors = tutors;
+    function onTutorsUpdated(e: Event) {
+      const payload = (e as CustomEvent).detail;
+      const tutors = Array.isArray(payload) ? payload : payload?.tutors || [];
 
-      var section = document.getElementById("tutor-list-section");
-      var container = document.getElementById("accordion-container");
-      var emptyState = document.getElementById("tutor-empty-state");
+      const section = document.getElementById("tutor-list-section");
+      const container = document.getElementById("accordion-container");
+      const emptyState = document.getElementById("tutor-empty-state");
 
-      // Always show the section once loaded
       if (section) section.hidden = false;
 
       if (tutors.length === 0) {
@@ -414,8 +408,7 @@
 
     document.addEventListener("tutors-updated", onTutorsUpdated);
 
-    // Cleanup para View Transitions
-    window.__tutorsCleanup = function () {
+    (window as any).__tutorsCleanup = () => {
       document.removeEventListener("tutors-updated", onTutorsUpdated);
     };
   })();

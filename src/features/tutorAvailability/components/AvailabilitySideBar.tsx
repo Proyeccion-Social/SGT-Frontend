@@ -13,6 +13,7 @@
 
       const [open, setOpen] = useState(false);
       const [slots, setSlots] = useState<any[]>(Array.isArray(initialSlots) ? initialSlots : []);
+      const [mode, setMode] = useState<'onboarding' | 'edit'>('onboarding');
       const isSpaceInfoDialogOpenRef = useRef(false);
 
       const fetchSlots = useCallback(async () => {
@@ -100,19 +101,35 @@
             isSpaceInfoDialogOpenRef.current = false;
           };
 
+          const handleModeChanged = (e: Event) => {
+            const detail = (e as CustomEvent).detail;
+            setMode(detail?.mode === 'edit' ? 'edit' : 'onboarding');
+          };
+
+          const syncModeFromDialog = () => {
+            const dialog = document.getElementById('tutor-calendar-dialog');
+            const dataMode = dialog?.dataset.mode;
+            setMode(dataMode === 'edit' ? 'edit' : 'onboarding');
+          };
+
           // Cargar slots al montar para asegurar frescura
           fetchSlots();
+          syncModeFromDialog();
 
           // Escuchar evento de refresco
           window.addEventListener("refresh-slots", fetchSlots);
           window.addEventListener("close-availability-sidebar", handleCloseAvailabilitySidebar);
           window.addEventListener("space-info-dialog-open", handleSpaceInfoDialogOpen);
           window.addEventListener("space-info-dialog-close", handleSpaceInfoDialogClose);
+          window.addEventListener("tutor-availability-mode-changed", handleModeChanged);
+          window.addEventListener("open-tutor-calendar-dialog", handleModeChanged);
           return () => {
               window.removeEventListener("refresh-slots", fetchSlots);
             window.removeEventListener("close-availability-sidebar", handleCloseAvailabilitySidebar);
             window.removeEventListener("space-info-dialog-open", handleSpaceInfoDialogOpen);
             window.removeEventListener("space-info-dialog-close", handleSpaceInfoDialogClose);
+            window.removeEventListener("tutor-availability-mode-changed", handleModeChanged);
+            window.removeEventListener("open-tutor-calendar-dialog", handleModeChanged);
           };
       }, [fetchSlots]);
 
@@ -130,7 +147,7 @@
           };
 
 
-        const openHoursConfigDialog = (e: React.MouseEvent) => {
+        const handleSaveAvailability = (e: React.MouseEvent) => {
           e.stopPropagation();
           const totalHours = slots.reduce((acc, slot) => {
             return acc + getDurationInHours(slot.startTime, slot.endTime);
@@ -147,15 +164,20 @@
           }
 
           sileo.success({
-            title: "Disponibilidad validada",
+            title: mode === 'edit' ? "Disponibilidad actualizada" : "Disponibilidad validada",
             fill: "#58d68d",
             duration: 3000
           });
 
-          // Cierra el drawer localmente antes de abrir el dialog.
           setOpen(false);
-          
-          // Abre el dialog en el siguiente tick cuando el drawer ya terminó de cerrar.
+
+          // En modo edición: cerrar sin dialog de límite ni tutorial.
+          if (mode === 'edit') {
+            window.dispatchEvent(new CustomEvent('close-tutor-calendar-dialog'));
+            window.dispatchEvent(new CustomEvent('refresh-slots'));
+            return;
+          }
+
           window.dispatchEvent(new CustomEvent('open-hours-config-dialog', { detail: totalHours }));
       };
 
@@ -214,8 +236,8 @@
               </div>
               <hr className={styles.Separator}/>
               <div className={styles.CloseButtonContainer}>
-                <button type="button" className={styles.CloseButton} onClick={openHoursConfigDialog}>
-                  Guardar disponibilidad
+                <button type="button" className={styles.CloseButton} onClick={handleSaveAvailability}>
+                  {mode === 'edit' ? 'Listo' : 'Guardar disponibilidad'}
                 </button>
               </div>
             </div>

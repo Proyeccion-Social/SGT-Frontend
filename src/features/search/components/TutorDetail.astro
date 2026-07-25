@@ -22,8 +22,8 @@ import schedule from "@/features/search/assets/schedule.svg"
   </button>
   <section class="upSectionDetail">
     <div class="leftSideDetail">
-      <img id="tutor-photo-shadow" src="" alt="" class="profileImgShadow" />
-      <img id="tutor-photo" src="" alt="" class="profileImg" />
+      <img id="tutor-photo-shadow" src="" alt="" class="profileImgShadow" width="400" height="400" decoding="async" />
+      <img id="tutor-photo" src="" alt="" class="profileImg" width="400" height="400" decoding="async" />
       <div class="badgeActive">
         <Image src={active} alt="" class="activeIcon" />
         <p>Activo</p>
@@ -62,6 +62,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
 <script>
   import { useSubjectStore } from "@/store/subjectStore";
+  import { cloudinaryImage, getCloudinaryFallback } from "@/lib/cloudinary";
 
   const el = (id: string) => document.getElementById(id);
 
@@ -107,8 +108,24 @@ import schedule from "@/features/search/assets/schedule.svg"
           )
           .join("");
 
-        (el("tutor-photo") as HTMLImageElement)!.src = tutor.photo ?? "";
-        (el("tutor-photo-shadow") as HTMLImageElement)!.src = tutor.photo ?? "";
+        const photoUrl = cloudinaryImage(tutor.photo, "profile");
+        const photoEl = el("tutor-photo") as HTMLImageElement;
+        const shadowEl = el("tutor-photo-shadow") as HTMLImageElement;
+        photoEl.src = photoUrl;
+        photoEl.width = 400;
+        photoEl.height = 400;
+        photoEl.loading = "eager";
+        photoEl.onerror = () => {
+          photoEl.src = getCloudinaryFallback();
+          shadowEl.src = getCloudinaryFallback();
+        };
+        shadowEl.src = photoUrl;
+        shadowEl.width = 400;
+        shadowEl.height = 400;
+        shadowEl.loading = "eager";
+        shadowEl.onerror = () => {
+          shadowEl.src = getCloudinaryFallback();
+        };
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
         el("tutor-total-ratings")!.textContent = `${tutor.totalRatings} valoraciones`;

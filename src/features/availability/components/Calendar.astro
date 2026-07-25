@@ -129,13 +129,14 @@ const systemToday = new Date();
                   data-end={slot.endTime}
                   data-modality={slot.modality}
                   data-is-booked={slot.isBooked}
+                  data-available-tutors={slot.availableTutorIds?.join(",") ?? ""}
                 >
                   {mode === "student" ? (
                     isHalfHour ? (
                       // Slot de media hora en modo estudiante — layout horizontal compacto
                       <div class='slot-student-half'>
                         <span class='slot-student-half__count'>
-                          {`${slot.tutorCount} disponible${slot.tutorCount !== 1 ? "s" : ""}`}
+                          {`${slot.availableTutorCount} disponible${slot.availableTutorCount !== 1 ? "s" : ""}`}
                         </span>
                         <span class='slot-student-half__time'>
                           {slot.startTime} → {slot.endTime}
@@ -145,7 +146,7 @@ const systemToday = new Date();
                       // Slot normal en modo estudiante — layout actual
                       <div class='slot-student-info'>
                         <span class='slot-tutor-count'>
-                          Tutorías disponibles: {slot.tutorCount}
+                          Tutorías disponibles: {slot.availableTutorCount}
                         </span>
                         <span class='slot-time-range'>
                           {slot.startTime} → {slot.endTime}
@@ -829,13 +830,45 @@ const systemToday = new Date();
     setupMobileDaySelector();
   });
 
-  // Actualizar visualmente el slot reservado sin recargar la página
+  // Actualizar visualmente el slot reservado sin recargar la página.
+  // La reserva ocupa a UN tutor: el bloque solo se marca reservado si se agotó
+  // el último tutor libre. Si aún quedan libres, se decrementa el contador.
   document.addEventListener("slot:booked", (e) => {
-    const bookedId = String((e as CustomEvent).detail?.slotId ?? "");
+    const detail = (e as CustomEvent).detail ?? {};
+    const bookedId = String(detail.slotId ?? "");
+    const bookedTutorId = String(detail.tutorId ?? "");
     if (!bookedId) return;
+
     document.querySelectorAll(".slot-block").forEach((block) => {
       const ids = (block.getAttribute("data-slot-ids") || "").split(",");
-      if (ids.includes(bookedId)) {
+      if (!ids.includes(bookedId)) return;
+
+      // Sin tutorId no se puede filtrar por tutor: se conserva el comportamiento previo.
+      if (!bookedTutorId) {
+        block.classList.add("slot-booked");
+        block.setAttribute("data-is-booked", "true");
+        return;
+      }
+
+      const available = (block.getAttribute("data-available-tutors") || "")
+        .split(",")
+        .filter(Boolean)
+        .filter((id) => id !== bookedTutorId);
+
+      block.setAttribute("data-available-tutors", available.join(","));
+
+      // Refrescar el contador visible (plantilla normal y compacta)
+      const normalCount = block.querySelector(".slot-tutor-count");
+      if (normalCount) {
+        normalCount.textContent = `Tutorías disponibles: ${available.length}`;
+      }
+      const halfCount = block.querySelector(".slot-student-half__count");
+      if (halfCount) {
+        halfCount.textContent = `${available.length} disponible${available.length !== 1 ? "s" : ""}`;
+      }
+
+      // Solo se bloquea el bloque cuando no queda ningún tutor libre
+      if (available.length === 0) {
         block.classList.add("slot-booked");
         block.setAttribute("data-is-booked", "true");
       }

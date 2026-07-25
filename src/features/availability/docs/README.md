@@ -75,6 +75,11 @@ Interfaces y enums principales (distribuidos en archivos de tipos de la feature)
 ### [utils/calendarUtils.ts](../utils/calendarUtils.ts)
 
 - Utilidades para posicionamiento visual de slots, cálculo de duraciones, y manipulación de horarios.
+- `getSlotsByDay(slots, dayKey)`: agrupa y fusiona slots contiguos para la **vista del tutor** (`mode="tutor"`), donde cada slot pertenece a un único tutor.
+- `getSlotsByDayStudent(slots, dayKey)`: agrupa los slots para la **vista del estudiante** (`mode="student"`). Como un mismo `slotId` es compartido por varios tutores (ver Notas técnicas), fusiona en un solo bloque las entradas de la misma franja y expone:
+  - `availableTutorIds` / `availableTutorCount`: tutores **libres** en la franja (`isBooked === false`).
+  - `tutorIds`: todos los tutores asociados (libres y ocupados).
+  - `isBooked`: `true` solo si **ningún** tutor está libre (`availableTutorCount === 0`).
 
 ### [utils/calendarConstants.ts](../utils/calendarConstants.ts)
 
@@ -128,3 +133,11 @@ Consume [src/store/availabilityStore.ts](../../../store/availabilityStore.ts):
 - La feature usa una combinación de SSR (para carga inicial de slots) y cliente (para mutaciones y filtros).
 - Los slots se agrupan por día de semana para facilitar la renderización de calendarios verticales.
 - `getTutorSlotsDetailedSSR` es clave para reducir el número de requests en el flujo de agendamiento.
+
+### Ocupación de franjas compartidas (vista del estudiante)
+
+El registro base de `Availability` (día + hora) es **compartido** entre tutores: un mismo `slotId` puede pertenecer a varios tutores. Por eso `getTutorSlotsDetailedSSR` emite una entrada `Slot` por cada combinación (tutor × materia), todas con el mismo `id` pero con su propio `isBooked` según la disponibilidad de ese tutor. El backend marca `isAvailable` por tutor: un slot está ocupado para un tutor solo si tiene una sesión activa (`SCHEDULED`, `PENDING_MODIFICATION` o `PENDING_TUTOR_CONFIRMATION`).
+
+Regla clave que aplica `getSlotsByDayStudent`: **una franja está ocupada solo si TODOS sus tutores lo están.** Si al menos un tutor está libre, el bloque se muestra disponible y ofrece únicamente a los tutores libres. El contador «Tutorías disponibles: N» usa `availableTutorCount`.
+
+`Calendar.astro` expone `data-available-tutors` en cada `.slot-block`. Al reservar, el evento `slot:booked` (emitido por `SchedulingWizard`) viaja con `{ slotId, tutorId }`: el listener remueve solo a ese tutor de la lista, decrementa el contador y marca la franja como reservada **únicamente** cuando se agota el último tutor libre.

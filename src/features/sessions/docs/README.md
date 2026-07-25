@@ -120,7 +120,7 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 2. Hace clic en "Agendar" → navega a `/sessions?subjectId=...`.
 3. `StudentSchedule` carga slots disponibles en SSR vía `getTutorSlotsDetailedSSR()`.
 4. Estudiante selecciona slot → se abre `SchedulingWizard`.
-5. Paso 1: confirma slot.
+5. Paso 1: elige tutor. Si la franja es compartida, solo se listan los tutores **libres** (las entradas con `isBooked` quedan excluidas de `availableSlots`).
 6. Paso 2: elige modalidad.
 7. Paso 3: ingresa título y descripción.
 8. Paso 4: revisa y envía → `createSession()` POST.
@@ -179,3 +179,4 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 - El wizard maneja estado complejo con `useSchedulingWizard`.
 - La máquina de estados de sesión es central: cada operación transita la sesión por estados bien definidos.
 - Los DTOs de modificación y edición están separados porque afectan distintos aspectos del backend.
+- **Franjas compartidas entre tutores:** el paso 1 del wizard solo ofrece tutores libres en la franja. Al reservar, la actualización optimista marca como ocupada únicamente la entrada del tutor reservado (`(slotId, tutorId)`, no todo el `slotId` compartido) y emite `slot:booked` con `tutorId` para que `Calendar.astro` refresque el bloque sin recargar. La lógica de ocupación por tutor vive en `getSlotsByDayStudent` de la feature `availability` (ver su README).

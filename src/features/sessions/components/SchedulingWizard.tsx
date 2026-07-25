@@ -286,15 +286,22 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
     await res.json();
 
-    // Marcar el slot como reservado en el estado local (evita reload)
+    // Marcar como reservado solo la entrada del tutor reservado (evita reload).
+    // El slotId es compartido entre tutores: marcar por id ocuparía también a
+    // los tutores que siguen libres. Se filtra por (slotId, tutorId).
     const bookedSlotId = currentData.slot?.id;
+    const bookedTutorId = currentData.tutorId;
     if (bookedSlotId) {
       setSlots((prev) =>
-        prev.map((s) => (s.id === bookedSlotId ? { ...s, isBooked: true } : s))
+        prev.map((s) =>
+          s.id === bookedSlotId && s.tutorIds?.includes(bookedTutorId)
+            ? { ...s, isBooked: true }
+            : s
+        )
       );
       document.dispatchEvent(
         new CustomEvent("slot:booked", {
-          detail: { slotId: bookedSlotId },
+          detail: { slotId: bookedSlotId, tutorId: bookedTutorId },
           bubbles: true,
         })
       );
@@ -321,6 +328,8 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   }
 };
 
+  // Solo las entradas libres (isBooked === false): el paso 1 nunca debe ofrecer
+  // un tutor con sesión activa en esta franja, aunque comparta el slotId.
   const availableSlots =
     slotContext && data.subject
       ? slots.filter(
@@ -328,10 +337,14 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
             s.dayOfWeek === slotContext.dayOfWeek &&
             s.subject === data.subject &&
             s.startTime >= slotContext.startTime &&
-            (s.endTime ?? "23:59") <= slotContext.endTime
+            (s.endTime ?? "23:59") <= slotContext.endTime &&
+            !s.isBooked
         )
       : [];
 
+  // NOTA (pendiente): para un rango que abarca varias sub-franjas, esto ofrece a
+  // cualquier tutor libre en al menos una. Exigir que esté libre en TODAS requiere
+  // validar por sub-franja; queda como follow-up (ver PLAN, Fase 3).
   const tutorIds = [
     ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
   ];

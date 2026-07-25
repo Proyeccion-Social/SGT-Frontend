@@ -85,17 +85,31 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
     timeGroups[key].push(slot);
   });
 
-  // Convertir grupos a bloques unificados
+  // Convertir grupos a bloques unificados.
+  // La ocupación es propiedad de la relación (slot, tutor): cada entrada del grupo
+  // es un tutor con su propio `isBooked`. Un bloque solo está ocupado si TODOS sus
+  // tutores lo están; los tutores libres son los que ofrece la franja.
   const parallelMerged = Object.values(timeGroups).map((group) => {
     const allTutorIds = [...new Set(group.flatMap((s) => (s as any).tutorIds || []))];
+    const availableTutorIds = [
+      ...new Set(
+        group
+          .filter((s) => !(s as any).isBooked)
+          .flatMap((s) => (s as any).tutorIds || [])
+      ),
+    ];
     const allIds = group.map((s) => s.id);
+    const isBooked = availableTutorIds.length === 0;
 
     return {
       ...group[0],
       groupedIds: allIds,
       originalSlots: group,
       tutorIds: allTutorIds,
-      tutorCount: allTutorIds.length,
+      availableTutorIds,
+      availableTutorCount: availableTutorIds.length,
+      // Se sobrescribe explícitamente tras el spread: no heredar el isBooked de group[0]
+      isBooked,
     };
   });
 
@@ -123,7 +137,10 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
       current.groupedIds = [...current.groupedIds, ...next.groupedIds];
       current.originalSlots = [...current.originalSlots, ...next.originalSlots];
       current.tutorIds = [...new Set([...current.tutorIds, ...next.tutorIds])];
-      current.tutorCount = current.tutorIds.length;
+      current.availableTutorIds = [
+        ...new Set([...current.availableTutorIds, ...next.availableTutorIds]),
+      ];
+      current.availableTutorCount = current.availableTutorIds.length;
     } else {
       grouped.push(current);
       current = { ...next };

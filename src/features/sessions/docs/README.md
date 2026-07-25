@@ -28,15 +28,15 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 ### Wizard de agendamiento
 
 - [components/SchedulingWizard.tsx](../components/SchedulingWizard.tsx): wizard de 4 pasos para agendar una sesión.
-  - Paso 1: Disponibilidad (selecciona franja).
-  - Paso 2: Modalidad (`PRES`/`VIRT`).
-  - Paso 3: Detalles (título, descripción).
-  - Paso 4: Revisión y envío.
-- [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): selección de slot.
-- [components/scheduling/SessionType.tsx](../components/scheduling/SessionType.tsx): tipo de sesión.
-- [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): selección de modalidad.
-- [components/scheduling/Details.tsx](../components/scheduling/Details.tsx): formulario de detalles.
-- [components/scheduling/SlotPopover.tsx](../components/scheduling/SlotPopover.tsx): popover de slot.
+  - Paso 1: Selección de tutor (entre los disponibles en la franja).
+  - Paso 2: Detalles (título, descripción).
+  - Paso 3: Tipo de sesión (Individual / Grupal).
+  - Paso 4: Modalidad (`PRES`/`VIRT`) — siempre se muestra, filtra opciones según la franja.
+- [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): paso 1, selección de tutor.
+- [components/scheduling/Details.tsx](../components/scheduling/Details.tsx): paso 2, formulario de detalles.
+- [components/scheduling/SessionType.tsx](../components/scheduling/SessionType.tsx): paso 3, tipo de sesión.
+- [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): paso 4, selección de modalidad (acepta `availableModalities` para filtrar opciones).
+- [components/scheduling/SlotPopover.tsx](../components/scheduling/SlotPopover.tsx): popover que aparece al seleccionar una franja en el calendario.
 
 ### Calendario y vistas de sesiones
 

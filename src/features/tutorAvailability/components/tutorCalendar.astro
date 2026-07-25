@@ -170,18 +170,25 @@ import closeIcon from "@/features/tutorAvailability/assets/closeHelpDialog.svg";
     );
   };
 
+  let hasChanges = false;
+
+  window.addEventListener("refresh-slots", () => {
+    hasChanges = true;
+  });
+
   const closeDialog = () => {
     const dialog = getDialog();
     const wasEdit = getMode() === "edit";
     dialog?.classList.add("hidden");
     window.dispatchEvent(new CustomEvent("close-availability-sidebar"));
-    // CalendarSlots es SSR: recargar para reflejar franjas ya persistidas.
     if (
       wasEdit &&
+      hasChanges &&
       window.location.pathname.includes("/availability/tutor/slots")
     ) {
       setTimeout(() => window.location.reload(), 350);
     }
+    hasChanges = false;
   };
 
   window.addEventListener("open-tutor-calendar-dialog", ((e: CustomEvent) => {
@@ -205,6 +212,13 @@ import closeIcon from "@/features/tutorAvailability/assets/closeHelpDialog.svg";
     closeDialog();
   });
 
+  const onOverlayClick = (e: MouseEvent) => {
+    if (e.target !== getDialog()) return;
+    if (getMode() === "edit") {
+      closeDialog();
+    }
+  };
+
   const onCloseClick = (e: MouseEvent) => {
     e.stopPropagation();
     if (getMode() === "edit") {
@@ -219,8 +233,19 @@ import closeIcon from "@/features/tutorAvailability/assets/closeHelpDialog.svg";
     btn.addEventListener("click", onCloseClick);
   };
 
+  const bindOverlayClick = () => {
+    const dialog = getDialog();
+    if (!dialog || dialog.dataset.overlayBound === "true") return;
+    dialog.dataset.overlayBound = "true";
+    dialog.addEventListener("click", onOverlayClick);
+  };
+
   bindCloseBtn();
-  document.addEventListener("astro:page-load", bindCloseBtn);
+  bindOverlayClick();
+  document.addEventListener("astro:page-load", () => {
+    bindCloseBtn();
+    bindOverlayClick();
+  });
 
   window.addEventListener("delete-slot", async (e: Event) => {
     const event = e as CustomEvent;

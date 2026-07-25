@@ -43,7 +43,7 @@ const getSlotsForDay = (dayKey: string) =>
 const systemToday = new Date();
 ---
 
-<div class='calendar-outer'>
+<div class='calendar-outer' data-mode={mode}>
   <div class='calendar-wrapper'>
     <div class='mobile-day-selector'>
       {
@@ -119,7 +119,7 @@ const systemToday = new Date();
 
               return (
                 <div
-                  class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
+                  class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${mode !== "tutor" && isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
                   id={`slot-block-${slot.groupedIds[0]}`}
                   style={getSlotStyle(slot)}
                   data-slot-ids={slot.groupedIds.join(",")}
@@ -383,6 +383,16 @@ const systemToday = new Date();
   .slot-block:hover {
     filter: brightness(0.96);
     transform: scale(0.985);
+  }
+
+  .calendar-outer[data-mode="tutor"] .slot-block {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .calendar-outer[data-mode="tutor"] .slot-block:hover {
+    filter: none;
+    transform: none;
   }
 
   .slot-past {
@@ -750,6 +760,9 @@ const systemToday = new Date();
   }
 
   function setupDrag() {
+    const calendar = document.querySelector(".calendar-outer");
+    if (calendar?.dataset.mode === "tutor") return;
+
     document
       .querySelectorAll(".slot-block:not(.slot-booked):not(.slot-past)")
       .forEach((slotBlock) => {

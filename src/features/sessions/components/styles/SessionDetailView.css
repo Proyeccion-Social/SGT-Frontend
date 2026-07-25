@@ -478,6 +478,62 @@
   filter: brightness(1.04);
 }
 
+/* Disabled — el botón no emite hover; el tooltip vive en el wrapper .sdv-btn-tooltip */
+.sdv-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* ── Wrapper para tooltip de botones disabled (patrón data-tooltip del Sidebar) ── */
+.sdv-btn-tooltip {
+  position: relative;
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+}
+
+.sdv-btn-tooltip .sdv-btn {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .sdv-btn-tooltip {
+    min-width: 0;
+  }
+}
+
+.sdv-btn-tooltip[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary-400);
+  color: var(--neutral-blanco);
+  padding: 6px 10px;
+  border-radius: var(--border-radius-md);
+  font-size: var(--fontsize-body-sm);
+  line-height: var(--lineheight-body-sm);
+  font-weight: 500;
+  text-align: center;
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 200;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.sdv-btn-tooltip[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
 /* ══════════════════════════════════════════════════════
    Propose Modification Form + Edit Session Form (.pmf)
    ══════════════════════════════════════════════════════ */

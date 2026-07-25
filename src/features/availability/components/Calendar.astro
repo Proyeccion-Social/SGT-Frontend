@@ -354,6 +354,9 @@ const systemToday = new Date();
 
   .slot-half-hour-block {
     justify-content: center;
+    /* Un bloque de 30min mide 32px de alto: el padding base (16px×2) dejaba
+       el contenido en 0px y overflow:hidden lo recortaba por completo. */
+    padding: 4px 8px;
   }
 
   .slot-booked {
@@ -684,7 +687,8 @@ const systemToday = new Date();
       Math.ceil(deltaMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
     const rawEndMinutes =
       dragStartMinutes + Math.max(SLOT_INTERVAL, roundedDelta);
-    const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin);
+    const twoHoursLimit = dragStartMinutes + 120;
+    const clampedEndMinutes = Math.min(rawEndMinutes, slotEndMin, twoHoursLimit);
 
     const startPxInSlot =
       ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
@@ -700,9 +704,10 @@ const systemToday = new Date();
     const { overlay, dragStartMinutes, slotBlock, modality } = activeDrag;
     if (!overlay) return;
 
-    const endMinutes =
+    const rawEnd =
       parseInt(overlay.dataset.endMinutes || "") ||
       dragStartMinutes + SLOT_INTERVAL;
+    const endMinutes = Math.min(rawEnd, dragStartMinutes + 120);
     const overlayRect = overlay.getBoundingClientRect();
 
     slotBlock.releasePointerCapture(e.pointerId);
@@ -713,10 +718,16 @@ const systemToday = new Date();
     const startTime = minutesToTime(dragStartMinutes);
     const endTime = minutesToTime(endMinutes);
 
+    const slotIds = (slotBlock.dataset.slotIds || "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+
     document.dispatchEvent(
       new CustomEvent("slot:clicked", {
         detail: {
-          slotBlockId: slotBlock.dataset.slotIds?.split(",")[0] || "",
+          slotBlockId: slotIds[0] || "",
+          slotIds,
           overlayRect: {
             top: overlayRect.top,
             bottom: overlayRect.bottom,

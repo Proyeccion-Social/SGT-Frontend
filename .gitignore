@@ -29,3 +29,5 @@ pnpm-debug.log*
 
 # local memory notes (kept on disk, not tracked in repo)
 memory/
+
+.agents/

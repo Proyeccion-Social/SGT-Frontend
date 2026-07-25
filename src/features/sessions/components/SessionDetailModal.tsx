@@ -27,7 +27,7 @@ interface Props {
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar, confirmar, rechazar, aceptarModificacion, rechazarModificacion }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
-  const { slots: availabilitySlots } = useTutorSlots(view === 'propose' ? (session?.tutor?.id ?? null) : null);
+  const { slots: availabilitySlots, loading: slotsLoading } = useTutorSlots(view === 'propose' ? (session?.tutor?.id ?? null) : null);
   const user = useAuthStore((s) => s.user);
  
   const handleKeyDown = useCallback(
@@ -96,6 +96,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
               isEditing={view === 'edit'}
               isRejecting={view === 'reject'}
               availabilitySlots={availabilitySlots}
+              slotsLoading={slotsLoading}
               onClose={onClose}
               onProposeModification={() => setView('propose')}
               onBack={() => setView('detail')}

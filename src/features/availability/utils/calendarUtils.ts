@@ -1,6 +1,16 @@
 import type { Slot } from "@/features/availability/services/availabilityService";
 import { HOUR_START, HOUR_HEIGHT } from "./calendarConstants";
 
+/**
+ * Compara dos listas de modalidad. El backend las entrega normalizadas
+ * (deduplicadas y ordenadas), así que basta comparar elemento a elemento.
+ */
+function sameModality(a?: string[] | null, b?: string[] | null): boolean {
+  const x = a ?? [];
+  const y = b ?? [];
+  return x.length === y.length && x.every((v, i) => v === y[i]);
+}
+
 export function getWeekDates(base: Date): Record<string, Date> {
   const keys = ["LUNES", "MARTES", "MIERCOLES", "JUEVES", "VIERNES", "SABADO"];
 
@@ -163,7 +173,7 @@ export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
             : nextStart + 60;
 
         const isContiguous = currentEnd === nextStart;
-        const isSameModality = currentBlock.modality === nextSlot.modality;
+        const isSameModality = sameModality(currentBlock.modality, nextSlot.modality);
         const isSameStatus = currentBlock.isBooked === nextSlot.isBooked;
 
         if (isContiguous && isSameModality && isSameStatus) {

@@ -80,17 +80,24 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
       const slotBlockId = custom.detail.slotBlockId as string;
 
+      // `detail.modality` llega como cadena separada por comas ("PRES", "VIRT" o
+      // "PRES,VIRT"); si ofrece ambas o ninguna, se muestra la etiqueta genérica.
+      const detailModalities = String(custom.detail.modality ?? "")
+        .split(",")
+        .map((x: string) => x.trim().toUpperCase())
+        .filter(Boolean);
+      const modalityLabel =
+        detailModalities.length !== 1
+          ? "Presencial o Virtual"
+          : detailModalities[0] === "VIRT"
+          ? "Virtual"
+          : "Presencial";
+
       sileo.action({
         title: "Franja seleccionada",
         description: (
           <span className="wizard-sileo-description">
-            {`${custom.detail.startTime} → ${custom.detail.endTime} · ${
-              !custom.detail.modality || custom.detail.modality === "null"
-                ? "Presencial o Virtual"
-                : custom.detail.modality.toUpperCase() === "VIRT"
-                ? "Virtual"
-                : "Presencial"
-            }`}
+            {`${custom.detail.startTime} → ${custom.detail.endTime} · ${modalityLabel}`}
           </span>
         ),
         fill: "#8751ff",
@@ -262,9 +269,12 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         (((endH * 60 + endM) - (startH * 60 + startM)) / 60) * 2
       ) / 2;
 
-    // SCHEDULING-05: la modalidad debe salir del slot del tutor; nunca se adivina.
-    // El slot ofrece exactamente una modalidad, así que esa es la única válida.
-    const resolvedModality = currentData.modality ?? currentData.slot?.modality;
+    // SCHEDULING-05: la modalidad nunca se adivina. Sale de la elección del
+    // estudiante (paso de modalidad) o, si el slot ofrece una sola, de esa.
+    const slotModalities = currentData.slot?.modality ?? [];
+    const resolvedModality =
+      currentData.modality ??
+      (slotModalities.length === 1 ? slotModalities[0] : undefined);
     if (!resolvedModality) {
       sileo.action({
         title: "Modalidad no disponible",
@@ -349,19 +359,22 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
   ];
 
-  // Modalidad por tutor tomada de su propio slot en la franja: es la fuente de
-  // verdad para la tarjeta. Cada slot ofrece exactamente una modalidad (PRES o VIRT).
-  const modalityByTutor: Record<string, string> = {};
+  // Modalidades que ofrece cada tutor en la franja: es la fuente de verdad para
+  // la tarjeta. Un slot puede ofrecer una o ambas (['PRES'], ['VIRT'] o ambas);
+  // se unen las de todos sus slots dentro del rango.
+  const modalityByTutor: Record<string, string[]> = {};
   for (const s of availableSlots) {
     for (const t of s.tutorIds ?? []) {
-      if (s.modality && !modalityByTutor[t]) modalityByTutor[t] = s.modality;
+      modalityByTutor[t] = [
+        ...new Set([...(modalityByTutor[t] ?? []), ...(s.modality ?? [])]),
+      ];
     }
   }
 
-  // La modalidad de la sesión la determina el slot del tutor elegido. El paso de
-  // selección de modalidad solo tendría sentido si el slot no trajera modalidad
-  // (no ocurre bajo el modelo actual); se conserva como salvaguarda defensiva.
-  const needsModality = data.slot?.modality == null;
+  // Si el slot del tutor elegido ofrece exactamente una modalidad, se fija sola.
+  // Si ofrece ambas (o ninguna), se muestra el paso de selección de modalidad
+  // para que el estudiante elija con cuál agenda.
+  const needsModality = (data.slot?.modality?.length ?? 0) !== 1;
   const totalSteps = needsModality ? 4 : 3;
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
@@ -432,13 +445,19 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     onSelect={(tutorId) => {
                       const selectedSlot =
                         availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
+                      // Si el slot ofrece una sola modalidad, se fija; si ofrece
+                      // ambas, se deja en null para que el paso de modalidad decida.
+                      const slotModalities = selectedSlot?.modality ?? [];
+                      const singleModality =
+                        slotModalities.length === 1
+                          ? (slotModalities[0] as "VIRT" | "PRES")
+                          : null;
                       setData((prev) => ({
                         ...prev,
                         tutorId,
                         slot: selectedSlot,
                         tutorName: tutorProfiles[tutorId]?.name ?? prev.tutorName,
-                        // La modalidad queda determinada por el slot del tutor elegido.
-                        modality: (selectedSlot?.modality as "VIRT" | "PRES") ?? prev.modality,
+                        modality: singleModality,
                       }));
                       setStep(2);
                     }}

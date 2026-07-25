@@ -17,8 +17,8 @@ interface Props {
   subject: string;
   subjectColor?: { color: string; borderColor: string };
   tutorProfiles?: Record<string, TutorProfileInfo>;
-  /** Modalidad real del slot de cada tutor en la franja seleccionada (PRES | VIRT). */
-  modalityByTutor?: Record<string, string>;
+  /** Modalidades del slot de cada tutor en la franja (una o ambas: PRES / VIRT). */
+  modalityByTutor?: Record<string, string[]>;
   onSelect: (tutorId: string) => void;
 }
 
@@ -136,8 +136,11 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
                   <p className="tutor-card__info-text">
                     <strong>Modalidad:</strong>{" "}
                     {(() => {
-                      // Fuente de verdad: la modalidad del slot del tutor en esta franja.
-                      const modality = modalityByTutor[tutorId] || info?.modality;
+                      // Fuente de verdad: las modalidades del slot del tutor en esta
+                      // franja. Puede ofrecer una o ambas.
+                      const mods = modalityByTutor[tutorId] ?? [];
+                      if (mods.length > 1) return "Presencial y virtual";
+                      const modality = mods[0] ?? info?.modality;
                       return modality === "PRES"
                         ? "Presencial"
                         : modality === "VIRT"

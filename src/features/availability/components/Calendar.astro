@@ -40,6 +40,21 @@ const getSlotsForDay = (dayKey: string) =>
     ? getSlotsByDayStudent(slots, dayKey)
     : getSlotsByDay(slots, dayKey);
 
+// La modalidad del slot llega como arreglo (['PRES'], ['VIRT'] o ['PRES','VIRT']).
+const asModalityList = (m: unknown): string[] =>
+  (Array.isArray(m) ? m : m != null && m !== "" ? [m] : []).map((x) =>
+    String(x).toUpperCase(),
+  );
+const isVirtualOnly = (m: unknown): boolean => {
+  const list = asModalityList(m);
+  return list.length === 1 && list[0] === "VIRT";
+};
+const modalityText = (m: unknown): string => {
+  const list = asModalityList(m);
+  if (list.length > 1) return "Ambas";
+  return list[0] === "VIRT" ? "Virtual" : "Presencial";
+};
+
 const systemToday = new Date();
 ---
 
@@ -119,7 +134,7 @@ const systemToday = new Date();
 
               return (
                 <div
-                  class={`slot-block ${slot.modality?.toString().toUpperCase() === "VIRT" ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
+                  class={`slot-block ${isVirtualOnly(slot.modality) ? "slot-virtual" : "slot-presencial"} ${slot.isBooked ? "slot-booked" : ""} ${isSlotInPast(slot, weekDates) ? "slot-past" : ""} ${isHalfHour ? "slot-half-hour-block" : ""}`}
                   id={`slot-block-${slot.groupedIds[0]}`}
                   style={getSlotStyle(slot)}
                   data-slot-ids={slot.groupedIds.join(",")}
@@ -156,9 +171,7 @@ const systemToday = new Date();
                     // Slot de media hora en modo tutor — layout actual, sin cambio
                     <div class='slot-half-hour-content'>
                       <span class='slot-modality-text'>
-                        {slot.modality?.toString().toUpperCase() === "VIRT"
-                          ? "Virtual"
-                          : "Presencial"}
+                        {modalityText(slot.modality)}
                       </span>
                       <span class='slot-duration-text-inline'>
                         {formatDuration(slot.startTime, slot.endTime)}
@@ -172,9 +185,7 @@ const systemToday = new Date();
                       </div>
                       <div class='slot-info'>
                         <span class='slot-modality-text'>
-                          {slot.modality?.toString().toUpperCase() === "VIRT"
-                            ? "Virtual"
-                            : "Presencial"}
+                          {modalityText(slot.modality)}
                         </span>
                         <span class='slot-badge-status'>
                           {slot.isBooked ? (

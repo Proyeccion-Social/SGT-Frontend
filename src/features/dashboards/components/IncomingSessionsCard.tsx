@@ -14,6 +14,7 @@ import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
 import { sessionPhase, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { useSubjectStore } from '@/store/subjectStore';
+import { CloudinaryImage } from '@/components/CloudinaryImage';
 
 interface Props {
   sessions: Session[];
@@ -137,8 +138,9 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
               <div className="card-avatar" style={{ background: avatarBg, color: avatarColor }}>
                 {initials}
                 {personPhoto && (
-                  <img
+                  <CloudinaryImage
                     src={personPhoto}
+                    size="avatarSm"
                     alt={personName}
                     className="card-avatar-img"
                     onError={e => { e.currentTarget.style.display = 'none'; }}

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import '../styles/EvaluationDialog.css'; 
 import MultiStepDialog from './MultiStepDialog';
 import { Monitor, Clock, Calendar, CheckCircle } from 'lucide-react';
+import { CloudinaryImage } from '@/components/CloudinaryImage';
 
 interface Props {
   sessionId: string;
@@ -101,7 +102,13 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
           {/* Header section */}
           <div className="es-header">
             {data.tutor?.photo ? (
-              <img src={data.tutor.photo} alt={data.tutor.name} className="es-avatar" />
+              <CloudinaryImage
+                src={data.tutor.photo}
+                size="avatarLg"
+                alt={data.tutor.name}
+                className="es-avatar"
+                lazy={false}
+              />
             ) : (
               <div className="es-avatar es-avatar--placeholder">
                 {data.tutor?.name?.charAt(0) ?? 'T'}

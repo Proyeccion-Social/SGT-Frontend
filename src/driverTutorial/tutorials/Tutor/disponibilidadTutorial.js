@@ -21,7 +21,14 @@ export function startDisponibilidadTutorTutorial(){
                 element: "#weekMonthTutorTUTORIAL",
                 popover: {
                     title: "Organizado y Eficaz",
-                    description: "Puedes ver tus franjas tanto por semana como por mes.",
+                    description: "Revisa tu semana y usa Actualizar para modificar tus franjas de disponibilidad.",
+                }
+            },
+            {
+                element: "#actualizarDisponibilidadTutorTUTORIAL",
+                popover: {
+                    title: "Actualiza tus horarios",
+                    description: "Desde aquí abres el calendario para crear, editar o eliminar franjas.",
                 }
             },
             {

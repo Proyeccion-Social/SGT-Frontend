@@ -22,6 +22,7 @@ import {
   canCancelSession,
   getSessionDisplayStatus,
 } from '../utils/sessionStatus';
+import { CloudinaryImage } from '@/components/CloudinaryImage';
 
 interface TutorInfo {
   id: string;
@@ -221,7 +222,13 @@ export const SessionDetailView = ({
         {/* ── Top: photo + title + description ── */}
         <div className="sdv__top">
           {tutorInfo?.photo ? (
-            <img src={tutorInfo.photo} alt={tutorName} className="sdv-avatar" />
+            <CloudinaryImage
+              src={tutorInfo.photo}
+              size="avatarMd"
+              alt={tutorName}
+              className="sdv-avatar"
+              lazy={false}
+            />
           ) : (
             <FallbackAvatar name={tutorName} />
           )}

@@ -267,7 +267,11 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
       subjectId: currentData.subjectId,
       availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
-      modality: currentData.modality ?? currentData.slot?.modality ?? "PRES",
+      modality: currentData.modality
+        ?? (Array.isArray(currentData.slot?.modality)
+          ? currentData.slot!.modality[0]
+          : currentData.slot?.modality)
+        ?? "PRES",
       title: currentData.title,
       durationHours,
       description: currentData.description,
@@ -337,10 +341,16 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   ];
 
   const slotContextModality = slotContext?.modality;
-  const isSlotContextAmbiguousModality =
-    !slotContextModality || slotContextModality === "null";
-  const needsModality = isSlotContextAmbiguousModality || data.slot?.modality == null;
-  const totalSteps = needsModality ? 4 : 3;
+
+  // Calcular las modalidades disponibles de la franja para el paso de selección
+  const slotModalities: ("VIRT" | "PRES")[] = (() => {
+    const raw = data.slot?.modality ?? slotContextModality;
+    if (!raw || raw === "null") return ["VIRT", "PRES"];
+    if (Array.isArray(raw)) return raw.filter((m): m is "VIRT" | "PRES" => m === "VIRT" || m === "PRES");
+    if (raw === "BOTH") return ["VIRT", "PRES"];
+    if (raw === "VIRT" || raw === "PRES") return [raw];
+    return ["VIRT", "PRES"];
+  })();
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
   const stepTitleByStep: Record<number, { highlight: string; rest: string }> = {
@@ -390,7 +400,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                 Paso
                 <img
                   src={stepImages[step - 1]}
-                  alt={`Paso ${step} de ${totalSteps}`}
+                  alt={`Paso ${step} de 4`}
                   className="wizard-drawer__step-image"
                 />
               </div>
@@ -436,16 +446,16 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     onNext={(sessionType) => {
                       const updatedData = { ...data, sessionType };
                       setData(updatedData);
-                      if (needsModality) setStep(4);
-                      else handleSubmit(updatedData);
+                      setStep(4);
                     }}
                     onBack={() => setStep(2)}
                     isSubmitting={isSubmitting}
                   />
                 )}
-                {step === 4 && needsModality && (
+                {step === 4 && (
                   <ModalityStep
                     initialModality={data.modality}
+                    availableModalities={slotModalities}
                     onNext={(modality) => {
                       const updatedData = { ...data, modality };
                       setData(updatedData);

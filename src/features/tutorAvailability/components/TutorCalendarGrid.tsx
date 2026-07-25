@@ -310,7 +310,7 @@
                     const hasPres = modalities.includes('PRES');
                     const hasVirt = modalities.includes('VIRT');
                     const modalityLabel = hasPres && hasVirt
-                        ? 'Presencial + Virtual'
+                        ? (isHalfHour ? 'Pres + Virt' : 'Presencial + Virtual')
                         : hasVirt
                         ? 'Virtual'
                         : 'Presencial';

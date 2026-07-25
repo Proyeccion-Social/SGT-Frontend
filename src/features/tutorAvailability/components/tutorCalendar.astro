@@ -10,22 +10,26 @@ import closeIcon from "@/features/tutorAvailability/assets/closeHelpDialog.svg";
   class="tutor-calendar-dialog hidden"
   data-mode="onboarding"
 >
-  <button
-    type="button"
-    id="tutor-calendar-close-btn"
-    class="tutor-calendar-close-btn"
-    aria-label="Cerrar calendario"
-    hidden
-  >
-    <img src={closeIcon.src} alt="" aria-hidden="true" />
-  </button>
   <div class="tutor-calendar-outer">
     <div class="tutor-calendar-scroll">
       <TutorCalendarGrid client:only="react" />
     </div>
   </div>
   <AvailabilitySideBar client:only="react" slots={[]} />
-  <HelpSideBar client:load />
+  <div id="tutor-calendar-left-actions">
+    <div id="help-sidebar-container">
+      <HelpSideBar client:load />
+    </div>
+    <button
+      type="button"
+      id="tutor-calendar-close-btn"
+      class="tutor-calendar-close-btn"
+      aria-label="Cerrar calendario"
+      hidden
+    >
+      <img src={closeIcon.src} alt="" aria-hidden="true" />
+    </button>
+  </div>
 </div>
 
 <style>
@@ -39,18 +43,25 @@ import closeIcon from "@/features/tutorAvailability/assets/closeHelpDialog.svg";
     z-index: 1000;
   }
 
-  .tutor-calendar-close-btn {
+  #tutor-calendar-left-actions {
     position: absolute;
     top: var(--spacing-sm);
-    right: var(--spacing-sm);
+    left: var(--spacing-sm);
     z-index: 1001;
+  }
+
+  #tutor-calendar-dialog[data-mode="edit"] #help-sidebar-container {
+    display: none;
+  }
+
+  .tutor-calendar-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
     border: none;
-    border-radius: var(--border-radius-md);
+    border-radius: 9999px;
     background: var(--surface-action);
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -78,6 +89,7 @@ import closeIcon from "@/features/tutorAvailability/assets/closeHelpDialog.svg";
     background: var(--neutral-blanco, #ffffff);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     border: 1px solid var(--neutral-200, #c6c6c6);
+    position: relative;
   }
 
   .tutor-calendar-scroll {

@@ -4,6 +4,8 @@ import { getWeekRangeFromOffset } from "@/features/availability/utils/dateUtils"
 import { getTutorSlots } from "@/features/availability/services/availabilityService";
 import type { Slot } from "@/features/availability/services/availabilityService";
 
+import ArrowUpIcon from "@/features/availability/components/assets/imgs/ArrowUpIcon.svg";
+
 import Calendar from "@/features/availability/components/Calendar.astro";
 
 const tutorId = getUserIdFromCookie(Astro.cookies);
@@ -33,7 +35,8 @@ const { today, weekRangeStr } = getWeekRangeFromOffset(weekOffset);
         class="actualizar-btn"
         id="actualizarDisponibilidadTutorTUTORIAL"
       >
-        Actualizar
+        <span>Actualizar</span>
+        <img src={ArrowUpIcon.src} alt="" aria-hidden="true" />
       </button>
     </div>
     <div class="legend">
@@ -138,15 +141,16 @@ const { today, weekRangeStr } = getWeekRangeFromOffset(weekOffset);
     color: var(--secondary-700, #4d662e);
     border: none;
     border-radius: var(--border-radius-md);
-    padding: 6px 14px;
-    font-size: 16px;
-    font-weight: 500;
+    padding: 0px 4px 0px 12px;
+    font-size: 14px;
+    font-weight: 400;
     font-style: normal;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 4px;
+    /* gap: 4px; */
     transition: background-color 0.2s ease, opacity 0.2s ease;
+    margin-top: 5px;
   }
 
   .actualizar-btn:hover {

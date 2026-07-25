@@ -10,10 +10,10 @@ const UPLOAD_SEGMENT = "/image/upload/";
 
 /** Display sizes (CSS px). With dpr_auto Cloudinary serves retina when needed. */
 export const CLOUDINARY_SIZE = {
-  /** Dashboard incoming-session cards (~48px) */
-  avatarSm: { width: 48, height: 48 },
-  /** Session detail header (~62px) */
-  avatarMd: { width: 64, height: 64 },
+  /** Dashboard incoming-session cards (~48px CSS; 2× for sharpness) */
+  avatarSm: { width: 96, height: 96 },
+  /** Session detail header (~62px CSS; 2× for sharpness) */
+  avatarMd: { width: 128, height: 128 },
   /** Email / evaluation dialogs (~92px) */
   avatarLg: { width: 96, height: 96 },
   /** History session card (~160px) */

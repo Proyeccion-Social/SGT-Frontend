@@ -152,9 +152,20 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
 }
 
 export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
-    const daySlots = slots.filter(
-        (s) => s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
-    );
+    const daySlots = slots
+        .filter(
+            (s) =>
+                s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
+        )
+        .map((s) => ({
+            ...s,
+            startTime: s.startTime?.substring(0, 5) || s.startTime,
+            endTime: s.endTime?.substring(0, 5) || s.endTime,
+            modality: s.modality
+                ? (String(s.modality).toUpperCase() as Slot["modality"])
+                : s.modality,
+            isBooked: Boolean(s.isBooked),
+        }));
 
     if (daySlots.length === 0) return [];
 
@@ -180,8 +191,11 @@ export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
             : nextStart + 60;
 
         const isContiguous = currentEnd === nextStart;
-        const isSameModality = currentBlock.modality === nextSlot.modality;
-        const isSameStatus = currentBlock.isBooked === nextSlot.isBooked;
+        const isSameModality =
+            String(currentBlock.modality || "").toUpperCase() ===
+            String(nextSlot.modality || "").toUpperCase();
+        const isSameStatus =
+            Boolean(currentBlock.isBooked) === Boolean(nextSlot.isBooked);
 
         if (isContiguous && isSameModality && isSameStatus) {
             currentEnd = nextEnd;

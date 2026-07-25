@@ -87,9 +87,17 @@
                     (daySlots as any[]).forEach((s) => {
                         allSlots.push({
                             ...s,
+                            id: s.slotId || s.id,
                             dayOfWeek: dayEs as DayOfWeek,
                             startTime: s.startTime?.substring(0, 5),
                             endTime: s.endTime?.substring(0, 5),
+                            modality: s.modality
+                                ? String(s.modality).toUpperCase()
+                                : s.modality,
+                            isBooked:
+                                s.isAvailable === false
+                                    ? true
+                                    : Boolean(s.isBooked),
                         });
                     });
                 });

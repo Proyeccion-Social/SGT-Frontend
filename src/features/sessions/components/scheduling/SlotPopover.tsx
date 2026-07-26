@@ -181,31 +181,39 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
         style={floatingStyles}
       >
         <div className="slot-popover__header">
-          <div className="slot-popover__dot" />
-          <span className="slot-popover__title">Materias disponibles</span>
+          <div className={`slot-popover__dot${subjects.length === 0 ? " slot-popover__dot--empty" : ""}`} />
+          <span className="slot-popover__title">
+            {subjects.length === 0 ? "Sin disponibilidad" : "Materias disponibles"}
+          </span>
         </div>
 
         <p className="slot-popover__date">
           {dateLabel}
         </p>
 
-        <div className="slot-popover__subjects">
-          {subjects.map((subject, i) => {
-            const mapped = colorMap[subject];
-            const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
-            const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
-            return (
-              <button
-                key={subject}
-                onClick={() => onSelect(subject)}
-                className="slot-popover__subject-btn"
-                style={{ background: bg, color: text }}
-              >
-                {subject}
-              </button>
-            );
-          })}
-        </div>
+        {subjects.length === 0 ? (
+          <p className="slot-popover__empty">
+            No hay tutores disponibles para esta franja horaria.
+          </p>
+        ) : (
+          <div className="slot-popover__subjects">
+            {subjects.map((subject, i) => {
+              const mapped = colorMap[subject];
+              const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
+              const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
+              return (
+                <button
+                  key={subject}
+                  onClick={() => onSelect(subject)}
+                  className="slot-popover__subject-btn"
+                  style={{ background: bg, color: text }}
+                >
+                  {subject}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
     </>
   );

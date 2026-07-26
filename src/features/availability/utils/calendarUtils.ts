@@ -95,17 +95,31 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
     timeGroups[key].push(slot);
   });
 
-  // Convertir grupos a bloques unificados
+  // Convertir grupos a bloques unificados.
+  // La ocupación es propiedad de la relación (slot, tutor): cada entrada del grupo
+  // es un tutor con su propio `isBooked`. Un bloque solo está ocupado si TODOS sus
+  // tutores lo están; los tutores libres son los que ofrece la franja.
   const parallelMerged = Object.values(timeGroups).map((group) => {
     const allTutorIds = [...new Set(group.flatMap((s) => (s as any).tutorIds || []))];
+    const availableTutorIds = [
+      ...new Set(
+        group
+          .filter((s) => !(s as any).isBooked)
+          .flatMap((s) => (s as any).tutorIds || [])
+      ),
+    ];
     const allIds = group.map((s) => s.id);
+    const isBooked = availableTutorIds.length === 0;
 
     return {
       ...group[0],
       groupedIds: allIds,
       originalSlots: group,
       tutorIds: allTutorIds,
-      tutorCount: allTutorIds.length,
+      availableTutorIds,
+      availableTutorCount: availableTutorIds.length,
+      // Se sobrescribe explícitamente tras el spread: no heredar el isBooked de group[0]
+      isBooked,
     };
   });
 
@@ -133,7 +147,10 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
       current.groupedIds = [...current.groupedIds, ...next.groupedIds];
       current.originalSlots = [...current.originalSlots, ...next.originalSlots];
       current.tutorIds = [...new Set([...current.tutorIds, ...next.tutorIds])];
-      current.tutorCount = current.tutorIds.length;
+      current.availableTutorIds = [
+        ...new Set([...current.availableTutorIds, ...next.availableTutorIds]),
+      ];
+      current.availableTutorCount = current.availableTutorIds.length;
     } else {
       grouped.push(current);
       current = { ...next };
@@ -145,9 +162,20 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
 }
 
 export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
-    const daySlots = slots.filter(
-        (s) => s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
-    );
+    const daySlots = slots
+        .filter(
+            (s) =>
+                s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
+        )
+        .map((s) => ({
+            ...s,
+            startTime: s.startTime?.substring(0, 5) || s.startTime,
+            endTime: s.endTime?.substring(0, 5) || s.endTime,
+            modality: s.modality
+                ? (String(s.modality).toUpperCase() as Slot["modality"])
+                : s.modality,
+            isBooked: Boolean(s.isBooked),
+        }));
 
     if (daySlots.length === 0) return [];
 
@@ -173,8 +201,11 @@ export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
             : nextStart + 60;
 
         const isContiguous = currentEnd === nextStart;
-        const isSameModality = sameModality(currentBlock.modality, nextSlot.modality);
-        const isSameStatus = currentBlock.isBooked === nextSlot.isBooked;
+        const isSameModality =
+            String(currentBlock.modality || "").toUpperCase() ===
+            String(nextSlot.modality || "").toUpperCase();
+        const isSameStatus =
+            Boolean(currentBlock.isBooked) === Boolean(nextSlot.isBooked);
 
         if (isContiguous && isSameModality && isSameStatus) {
             currentEnd = nextEnd;

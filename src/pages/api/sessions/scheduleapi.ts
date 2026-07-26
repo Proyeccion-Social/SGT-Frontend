@@ -50,6 +50,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         { status: 400 }
       );
     }
+
+    // Validar que availabilityId sea un número válido
+    if (data.availabilityId == null || isNaN(Number(data.availabilityId))) {
+      return new Response(
+        JSON.stringify({ message: 'availabilityId inválido o ausente' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const token = cookies.get('access_token')?.value;
 
     if (!token) {
@@ -67,11 +76,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
   } catch (error: any) {
+    const status = error?.status ?? 500;
     return new Response(
       JSON.stringify({
         message: error.message || 'Error interno del servidor',
       }),
-      { status: 500 }
+      { status, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };

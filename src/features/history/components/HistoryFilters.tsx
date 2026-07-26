@@ -22,7 +22,11 @@ const STATUS_OPTIONS = [
   { value: "all", label: "Todas" },
   { value: "SCHEDULED", label: "Próximas" },
   { value: "COMPLETED", label: "Completadas" },
-  { value: "CANCELLED", label: "Canceladas" },
+  // D3: no se agrupan las canceladas — cada tipo del backend es su propia opción.
+  // El valor antiguo "CANCELLED" no existe en el enum y no devolvía nada.
+  { value: "CANCELLED_BY_STUDENT", label: "Canceladas por estudiante" },
+  { value: "CANCELLED_BY_TUTOR", label: "Canceladas por tutor" },
+  { value: "CANCELLED_BY_ADMIN", label: "Canceladas por administración" },
   { value: "NO_SHOW", label: "No asistió" },
 ]
 

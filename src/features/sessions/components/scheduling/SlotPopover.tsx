@@ -74,6 +74,7 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
 
   const { refs, floatingStyles, update } = useFloating({
     placement: "right-start",
+    strategy: "fixed",
     elements: { reference: anchorEl },
     middleware: [
       offset(10),

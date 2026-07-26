@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
 import type { Slot, TutorProfileInfo } from "@features/availability/services/availabilityService";
+import { CloudinaryImage } from "@/components/CloudinaryImage";
 import "../../assets/styles/Availability.css";
 
 interface TutorInfo {
@@ -116,8 +117,9 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
                 {/* ── Foto del tutor ── */}
                 <div className="tutor-card__photo-wrapper">
                   {info?.photo ? (
-                    <img
+                    <CloudinaryImage
                       src={info.photo}
+                      size="cover"
                       alt={info.name}
                       className="tutor-card__photo"
                     />

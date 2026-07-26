@@ -1,5 +1,5 @@
-/* ── Overlay (reutiliza la misma lógica que sdv-overlay) ── */
-.modal-overlay {
+/* Overlay dedicado a cancel/reject — no pisa .modal-overlay del detail */
+.modal-overlay--reason {
   position: fixed;
   inset: 0;
   background: rgba(15, 10, 35, 0.45);
@@ -7,34 +7,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1100;
-  padding: 24px;
+  /* Encima del SessionDetailModal (z-index 99999) */
+  z-index: 100000;
+  padding: var(--spacing-sm);
   animation: cancel-fade-in 0.22s ease;
 }
 
-/* ── Card base ── */
-.modal-card {
-  background: #ffffff;
-  border-radius: 24px;
+/* Card de motivo (cancel / reject) */
+.modal-card--reason,
+.modal-card--cancel {
+  background: var(--neutral-blanco);
+  border-radius: var(--border-radius-xl);
   box-shadow:
     0 8px 40px 0 rgba(124, 58, 237, 0.13),
     0 2px 8px 0 rgba(0, 0, 0, 0.06);
-
   width: 100%;
-  max-width: 600px; /* Un poco más ancho para dar aire */
-  min-height: 300px; /* Aseguramos una altura mínima base */
-
-  padding: 64px;
+  max-width: 600px;
+  min-height: 300px;
+  padding: var(--spacing-xl);
+  padding-bottom: calc(var(--spacing-xl) + var(--spacing-xs));
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: visible;
-  position: relative;
   animation: cancel-slide-up 0.28s cubic-bezier(0.22, 0.68, 0, 1.2);
 }
 
-/* ── Botón cerrar ── */
-.modal-card__close {
+/* ── Botón cerrar (solo en reason modals) ── */
+.modal-card__close--reason {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -49,30 +49,33 @@
     color 0.15s,
     background 0.15s;
   z-index: 10;
-
   position: absolute;
   top: -12px;
   right: -12px;
   background: var(--neutral-blanco);
   border: 1.5px solid var(--neutral-100);
+  padding: 0;
 }
-.modal-card__close:hover {
+.modal-card__close--reason:hover {
   color: var(--neutral-default);
   background: var(--neutral-100);
+}
+.modal-card__close--reason:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ── Título ── */
 .cancel-modal__title {
-  font-family: "Open Sauce Two";
+  font-family: var(--type-font-family-primary);
   font-style: normal;
-  font-weight: 600;
-  font-size: 28px;
-  line-height: 32px;
-  /* or 114% */
+  font-weight: var(--type-font-weight-semibold);
+  font-size: var(--fontsize-heading-h5);
+  line-height: var(--lineheight-heading-h5);
   text-align: center;
   letter-spacing: -0.02em;
-  color: #3c3c3c;
-  margin-bottom: 20px;
+  color: var(--text-headings, var(--neutral-600));
+  margin: 0 0 var(--spacing-xs);
 }
 
 /* ── Nombre de la sesión ── */
@@ -83,8 +86,8 @@
   background: var(--loading-100);
   color: var(--primary-600);
   border-radius: 999px;
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: var(--fontsize-body-sm);
+  font-weight: var(--type-font-weight-semibold);
 }
 
 /* ── Textarea ── */
@@ -92,23 +95,24 @@
   width: 100%;
   box-sizing: border-box;
   display: block;
-  margin-top: 8px;
-  margin-bottom: 12px;
-  padding: 14px 16px;
-  border-radius: 8px;
+  margin-top: var(--spacing-2xs);
+  margin-bottom: var(--spacing-2xs);
+  padding: 14px var(--spacing-xs);
+  border-radius: var(--border-radius-md);
   border: 1px dashed var(--neutral-200);
   background: rgba(243, 237, 255, 0.5);
   backdrop-filter: blur(34.3px);
   -webkit-backdrop-filter: blur(34.3px);
-  font-family: "Open Sauce Two";
+  font-family: var(--type-font-family-primary);
   font-style: normal;
-  font-weight: 400;
-  font-size: 16px;
+  font-weight: var(--type-font-weight-regular);
+  font-size: var(--fontsize-body-md);
   line-height: 1.5;
   letter-spacing: -0.02em;
-  color: var(--neutral-default);
+  color: var(--text-body, var(--neutral-default));
   resize: vertical;
   min-height: 110px;
+  max-height: 240px;
   outline: none;
   transition:
     border-color 0.18s,
@@ -117,17 +121,25 @@
 }
 .cancel-modal__textarea::placeholder {
   color: var(--neutral-300);
-  font-weight: 400;
-}
-.cancel-modal__textarea:hover {
-  /* border-color: var(--loading-default);
-  background: rgba(243, 237, 255, 0.85); */
+  font-weight: var(--type-font-weight-regular);
 }
 .cancel-modal__textarea:focus {
-  /* border-color: var(--primary-300); */
   border-style: solid;
+  border-color: var(--border-focus, var(--primary-300));
   box-shadow: 0 0 0 3px rgba(135, 81, 255, 0.12);
-  /* background: var(--primary-50); */
+}
+.cancel-modal__textarea:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: var(--surface-disabled, var(--neutral-100));
+}
+
+.cancel-modal__counter {
+  margin: 0 0 var(--spacing-2xs);
+  text-align: right;
+  font-size: var(--fontsize-body-sm);
+  line-height: var(--lineheight-body-sm);
+  color: var(--neutral-300);
 }
 
 /* ── Warning ── */
@@ -141,7 +153,7 @@
   background: var(--warning-100);
   color: var(--warning-700);
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: var(--type-font-weight-medium);
   border-left: 3px solid var(--warning-default);
 }
 
@@ -154,27 +166,34 @@
   padding: 8px 12px;
   border-radius: 10px;
   background: var(--error-100);
-  color: var(--error-default);
+  color: var(--text-error, var(--error-default));
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: var(--type-font-weight-medium);
   border-left: 3px solid var(--error-300);
 }
 
+/* Footer: botones sobresalen de la card en desktop (Figma) */
 .cancel-modal__footer {
   position: absolute;
-  bottom: -20px; /* Mitad de la altura del botón hacia afuera */
+  bottom: -20px;
   left: 50%;
-  transform: translateX(-50%); /* Truco para centrado horizontal absoluto */
+  transform: translateX(-50%);
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-xxs);
   justify-content: center;
-  width: 100%; /* Que se ajuste al tamaño de los botones */
+  align-items: center;
+  width: max-content;
+  max-width: calc(100% - var(--spacing-md));
   z-index: 100;
 }
 
-/* ── Los botones reutilizan sdv-btn del SDV ── */
-/* (ya definidos en SessionDetailView.css)      */
-/* Solo se sobreescribe el estado disabled       */
+.cancel-modal__footer .sdv-btn {
+  flex: 0 0 auto;
+  min-width: unset;
+  width: auto;
+  white-space: nowrap;
+}
+
 .sdv-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -203,14 +222,33 @@
   }
 }
 
-/* ── Responsive ── */
-@media (max-width: 520px) {
-  .modal-card {
-    padding: 22px 18px 80px 18px;
+/* ── Responsive: botones dentro de la card ── */
+@media (max-width: 768px) {
+  .modal-card--reason,
+  .modal-card--cancel {
+    padding: var(--spacing-sm) var(--spacing-xs);
     border-radius: 18px;
+    min-height: unset;
   }
+
+  .cancel-modal__title {
+    font-size: var(--fontsize-heading-h6);
+    line-height: var(--lineheight-heading-h6);
+  }
+
   .cancel-modal__footer {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: none;
     flex-direction: column;
-    width: calc(100% - 36px);
+    margin-top: var(--spacing-xs);
+  }
+
+  .cancel-modal__footer .sdv-btn {
+    width: 100%;
+    min-width: 0;
   }
 }

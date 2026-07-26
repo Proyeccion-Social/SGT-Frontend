@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSubjectStore } from "@/store/subjectStore";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
@@ -39,6 +39,66 @@ interface Props {
   tutorProfiles?: Record<string, TutorProfileInfo>;
 }
 
+function normalizeDay(day: unknown): string {
+  return String(day ?? "")
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** True si el slot crudo solapa el rango seleccionado [selStart, selEnd). */
+function slotOverlapsRange(
+  slot: Slot,
+  selStart: string,
+  selEnd: string,
+): boolean {
+  const end = slot.endTime ?? "23:59";
+  return slot.startTime < selEnd && end > selStart;
+}
+
+/**
+ * Slots del wizard que cubren la selección del calendario.
+ * El calendario fusiona franjas contiguas en un bloque visual; la selección
+ * del usuario (clic = 30 min) puede ser más corta que un slot crudo largo.
+ * Por eso se usa solapamiento (no contención) + match por IDs del bloque.
+ */
+function findSlotsForSelection(
+  allSlots: Slot[],
+  detail: {
+    dayOfWeek?: string;
+    startTime?: string;
+    endTime?: string;
+    slotBlockId?: string;
+    slotIds?: string[];
+  },
+  opts?: { subject?: string; onlyFree?: boolean },
+): Slot[] {
+  const selStart = detail.startTime ?? "00:00";
+  const selEnd = detail.endTime ?? "23:59";
+  const day = normalizeDay(detail.dayOfWeek);
+  const idSet = new Set(
+    (detail.slotIds?.length
+      ? detail.slotIds
+      : detail.slotBlockId
+        ? [detail.slotBlockId]
+        : []
+    )
+      .filter(Boolean)
+      .map(String),
+  );
+
+  return allSlots.filter((s) => {
+    if (normalizeDay(s.dayOfWeek) !== day) return false;
+    if (opts?.subject && s.subject !== opts.subject) return false;
+    if (opts?.onlyFree && s.isBooked) return false;
+    if (!slotOverlapsRange(s, selStart, selEnd)) return false;
+    // Si el bloque reportó IDs, priorizar esos (evita falsos positivos de otros bloques).
+    // Comparar como string: data-* del DOM siempre es string; s.id puede ser number.
+    if (idSet.size > 0 && !idSet.has(String(s.id))) return false;
+    return true;
+  });
+}
+
 export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = {} }: Props) {
   const [slots, setSlots] = useState<Slot[]>(initialSlots);
   const [open, setOpen] = useState(false);
@@ -46,6 +106,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
   const [slotContext, setSlotContext] = useState<any>(null);
+  const ignoreCloseUntil = useRef(0);
   const { colorMap } = useSubjectStore();
   const [data, setData] = useState<WizardData>({
     slot: null,
@@ -60,15 +121,15 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   });
 
   useEffect(() => {
+    setSlots(initialSlots);
+  }, [initialSlots]);
+
+  useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
+      const detail = custom.detail ?? {};
 
-      const matchingSlots = slots.filter(
-        (s) =>
-          s.dayOfWeek === custom.detail.dayOfWeek &&
-          s.startTime >= custom.detail.startTime &&
-          (s.endTime ?? "23:59") <= custom.detail.endTime
-      );
+      const matchingSlots = findSlotsForSelection(slots, detail);
 
       if (matchingSlots.length === 0) return;
 
@@ -78,7 +139,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
       if (subjects.length === 0) return;
 
-      const slotBlockId = custom.detail.slotBlockId as string;
+      const slotBlockId = (detail.slotBlockId as string) || matchingSlots[0]?.id || "";
 
       // `detail.modality` llega como cadena separada por comas ("PRES", "VIRT" o
       // "PRES,VIRT"); si ofrece ambas o ninguna, se muestra la etiqueta genérica.
@@ -104,20 +165,20 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         styles: { badge: "#ffffff" },
       });
 
-      setTimeout(() => {
-        setPopover({
-          subjects,
-          slotBlockId,
-          slotData: custom.detail,
-        });
-      }, 8);
+      // Evitar que el click residual cierre el popover al abrirlo
+      ignoreCloseUntil.current = Date.now() + 150;
+      setPopover({
+        subjects,
+        slotBlockId,
+        slotData: detail,
+      });
     };
 
     const closePopover = (e: MouseEvent) => {
+      if (Date.now() < ignoreCloseUntil.current) return;
       const target = e.target as HTMLElement;
-      if (!target.closest(".slot-popover") && !target.closest(".slot-block")) {
-        setPopover(null);
-      }
+      if (target.closest(".slot-popover") || target.closest(".slot-block")) return;
+      setPopover(null);
     };
 
     document.addEventListener("slot:clicked", handler);
@@ -167,15 +228,20 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const handleSubjectSelect = (subject: string) => {
     const currentSlotData = popover!.slotData;
 
-    const rangeSlots = slots.filter(
-      (s) =>
-        s.dayOfWeek === currentSlotData.dayOfWeek &&
-        s.subject === subject &&
-        s.startTime >= currentSlotData.startTime &&
-        (s.endTime ?? "23:59") <= currentSlotData.endTime
-    );
+    const rangeSlots = findSlotsForSelection(slots, currentSlotData, {
+      subject,
+      onlyFree: true,
+    });
 
-    const baseSlot = rangeSlots[0] ?? null;
+    // Preferir el slot que cubre el inicio de la selección (availabilityId + duration)
+    const selStart = currentSlotData.startTime ?? "00:00";
+    const baseSlot =
+      rangeSlots.find(
+        (s) =>
+          s.startTime <= selStart && (s.endTime ?? "23:59") > selStart,
+      ) ??
+      rangeSlots[0] ??
+      null;
 
     setSlotContext({
       ...currentSlotData,
@@ -309,15 +375,22 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
     await res.json();
 
-    // Marcar el slot como reservado en el estado local (evita reload)
+    // Marcar como reservado solo la entrada del tutor reservado (evita reload).
+    // El slotId es compartido entre tutores: marcar por id ocuparía también a
+    // los tutores que siguen libres. Se filtra por (slotId, tutorId).
     const bookedSlotId = currentData.slot?.id;
+    const bookedTutorId = currentData.tutorId;
     if (bookedSlotId) {
       setSlots((prev) =>
-        prev.map((s) => (s.id === bookedSlotId ? { ...s, isBooked: true } : s))
+        prev.map((s) =>
+          s.id === bookedSlotId && s.tutorIds?.includes(bookedTutorId)
+            ? { ...s, isBooked: true }
+            : s
+        )
       );
       document.dispatchEvent(
         new CustomEvent("slot:booked", {
-          detail: { slotId: bookedSlotId },
+          detail: { slotId: bookedSlotId, tutorId: bookedTutorId },
           bubbles: true,
         })
       );
@@ -344,15 +417,15 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   }
 };
 
+  // Solo entradas libres que solapan la selección (misma regla que el popover).
+  // NOTA: un tutor libre en al menos una sub-franja se ofrece; exigir libre en
+  // TODAS las sub-franjas del rango queda como follow-up.
   const availableSlots =
     slotContext && data.subject
-      ? slots.filter(
-          (s) =>
-            s.dayOfWeek === slotContext.dayOfWeek &&
-            s.subject === data.subject &&
-            s.startTime >= slotContext.startTime &&
-            (s.endTime ?? "23:59") <= slotContext.endTime
-        )
+      ? findSlotsForSelection(slots, slotContext, {
+          subject: data.subject,
+          onlyFree: true,
+        })
       : [];
 
   const tutorIds = [
@@ -371,11 +444,13 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     }
   }
 
-  // Si el slot del tutor elegido ofrece exactamente una modalidad, se fija sola.
-  // Si ofrece ambas (o ninguna), se muestra el paso de selección de modalidad
-  // para que el estudiante elija con cuál agenda.
-  const needsModality = (data.slot?.modality?.length ?? 0) !== 1;
-  const totalSteps = needsModality ? 4 : 3;
+  // Siempre se muestra el paso de modalidad (paso 4), aunque solo haya una
+  // opción disponible. Preferir las del tutor elegido; si no, las del slot.
+  const slotModalities = (
+    (data.tutorId ? modalityByTutor[data.tutorId] : null) ??
+    data.slot?.modality ??
+    []
+  ) as ("VIRT" | "PRES")[];
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
   const stepTitleByStep: Record<number, { highlight: string; rest: string }> = {
@@ -425,7 +500,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                 Paso
                 <img
                   src={stepImages[step - 1]}
-                  alt={`Paso ${step} de ${totalSteps}`}
+                  alt={`Paso ${step} de 4`}
                   className="wizard-drawer__step-image"
                 />
               </div>
@@ -445,12 +520,12 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     onSelect={(tutorId) => {
                       const selectedSlot =
                         availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
-                      // Si el slot ofrece una sola modalidad, se fija; si ofrece
-                      // ambas, se deja en null para que el paso de modalidad decida.
-                      const slotModalities = selectedSlot?.modality ?? [];
+                      // Preselección si el tutor solo ofrece una modalidad; el
+                      // paso 4 siempre se muestra para confirmar/elegir.
+                      const tutorModalities = modalityByTutor[tutorId] ?? selectedSlot?.modality ?? [];
                       const singleModality =
-                        slotModalities.length === 1
-                          ? (slotModalities[0] as "VIRT" | "PRES")
+                        tutorModalities.length === 1
+                          ? (tutorModalities[0] as "VIRT" | "PRES")
                           : null;
                       setData((prev) => ({
                         ...prev,
@@ -478,18 +553,17 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                   <SessionTypeStep
                     initialType={data.sessionType}
                     onNext={(sessionType) => {
-                      const updatedData = { ...data, sessionType };
-                      setData(updatedData);
-                      if (needsModality) setStep(4);
-                      else handleSubmit(updatedData);
+                      setData((prev) => ({ ...prev, sessionType }));
+                      setStep(4);
                     }}
                     onBack={() => setStep(2)}
                     isSubmitting={isSubmitting}
                   />
                 )}
-                {step === 4 && needsModality && (
+                {step === 4 && (
                   <ModalityStep
                     initialModality={data.modality}
+                    availableModalities={slotModalities}
                     onNext={(modality) => {
                       const updatedData = { ...data, modality };
                       setData(updatedData);

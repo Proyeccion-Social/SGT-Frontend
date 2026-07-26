@@ -47,14 +47,14 @@ export const GET: APIRoute = async ({ cookies }) => {
     cookies.set('access_token', data.accessToken, {
       httpOnly: true,
       secure: import.meta.env.PROD,
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60,
     });
     cookies.set('refresh_token', data.refreshToken, {
       httpOnly: true,
       secure: import.meta.env.PROD,
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 30,
     });

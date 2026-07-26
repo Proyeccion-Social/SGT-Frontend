@@ -7,11 +7,12 @@ import VaulDrawer from "@/components/ui/drawer";
 import EmailActionController from "@/features/emailScreens/components/EmailActionController";
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 
+import GlobalSessionDetail from "@/features/dashboards/components/GlobalSessionDetail";
 import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
 import { UserRole } from "@/constants/roles";
 import UserHeader from "@/features/general/components/UserHeader.astro";
 import NotificationsRoot from "@/components/notifications/NotificationsRoot";
-import GlobalSessionDetail from "@/features/dashboards/components/GlobalSessionDetail";
+
 import TutorialInitializer from "@/driverTutorial/TutorialInitializer";
 
 interface Props {

@@ -1,0 +1,22 @@
+---
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import CancelSessionOpener from "@/features/sessions/components/CancelSessionOpener";
+import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
+import { UserRole } from "@/constants/roles";
+
+const { id } = Astro.params;
+
+const token = Astro.cookies.get("access_token")?.value;
+if (!token || !id) {
+  return Astro.redirect("/?session=expired");
+}
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as UserRole;
+---
+
+<DashboardLayout title="Cancelar sesión | Atlas" rol={userRole}>
+  <article>
+    <CancelSessionOpener sessionId={id} client:only='react' />
+  </article>
+</DashboardLayout>

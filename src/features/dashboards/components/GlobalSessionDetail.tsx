@@ -5,6 +5,10 @@ import { CancelSessionModal } from '@/features/sessions/components/CancelSession
 import type { Session, ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { UserRole } from '@/constants/roles';
 
+function dispatchRefetch() {
+  document.dispatchEvent(new CustomEvent('dashboard-refetch'));
+}
+
 export default function GlobalSessionDetail() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [sessionToCancel, setSessionToCancel] = useState<Session | null>(null);
@@ -29,6 +33,7 @@ export default function GlobalSessionDetail() {
         body: JSON.stringify({ sessionId: id, reason }),
       });
       if (!res.ok) throw new Error();
+      dispatchRefetch();
       return true;
     } catch {
       return false;
@@ -43,6 +48,7 @@ export default function GlobalSessionDetail() {
         body: JSON.stringify({ sessionId, ...data }),
       });
       if (!res.ok) throw new Error();
+      dispatchRefetch();
       return true;
     } catch {
       return false;
@@ -71,6 +77,7 @@ export default function GlobalSessionDetail() {
         body: JSON.stringify({ sessionId }),
       });
       if (!res.ok) throw new Error();
+      dispatchRefetch();
       return true;
     } catch {
       return false;
@@ -85,6 +92,7 @@ export default function GlobalSessionDetail() {
         body: JSON.stringify({ sessionId, reason }),
       });
       if (!res.ok) throw new Error();
+      dispatchRefetch();
       return true;
     } catch {
       return false;
@@ -99,6 +107,7 @@ export default function GlobalSessionDetail() {
         body: JSON.stringify({ sessionId, requestId }),
       });
       if (!res.ok) throw new Error();
+      dispatchRefetch();
       return true;
     } catch {
       return false;
@@ -113,6 +122,7 @@ export default function GlobalSessionDetail() {
         body: JSON.stringify({ sessionId, requestId }),
       });
       if (!res.ok) throw new Error();
+      dispatchRefetch();
       return true;
     } catch {
       return false;

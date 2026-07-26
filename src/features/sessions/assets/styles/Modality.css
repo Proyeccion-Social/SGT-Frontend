@@ -36,7 +36,15 @@
   border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 32px;
-  background: #fafafa;
+  background: #fafafa !important;
+  width: 100%;
+  box-sizing: border-box;
+  transition: none;
+  cursor: default !important;
+}
+
+.modality-card:hover {
+  background: #fafafa !important;
 }
 
 /* ── Encabezado interno de la sección ── */
@@ -69,7 +77,7 @@
   height: 140px;
   border: none;
   border-radius: 14px;
-  background: #f3f4f6;
+  background: #f3f4f6 !important;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -79,10 +87,25 @@
   font-size: 14px;
   color: #8751ff;
   font-weight: 500;
+  transition: none;
+  outline: none;
 }
 
-.modality-option--selected {
-  background: #ede9fe;
+.modality-option:hover,
+.modality-option:focus,
+.modality-option:focus-visible,
+.modality-option:active {
+  background: #f3f4f6 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.modality-option--selected,
+.modality-option--selected:hover,
+.modality-option--selected:focus,
+.modality-option--selected:focus-visible,
+.modality-option--selected:active {
+  background: #ede9fe !important;
 }
 
 /* ── Indicador de selección (check) ── */
@@ -113,6 +136,7 @@
   justify-content: space-between;
   align-items: center;
   margin-top: 24px;
+  width: 100%;
 }
 
 .modality-footer__back-btn {
@@ -146,7 +170,7 @@
 }
 
 .modality-footer__continue-btn--active {
-  background: #8751ff;
+  background: var(--primary-400);
   cursor: pointer;
 }
 
@@ -168,13 +192,17 @@
 
   .modality-options {
     gap: 12px;
+    flex-direction: column;
+    align-items: center;
   }
 
   .modality-option {
     flex: 1;
-    width: auto;
+    width: 100%;
+    max-width: 200px;
     height: 110px;
     font-size: 13px;
+    gap: 4px;
   }
 
   .modality-option__icon {

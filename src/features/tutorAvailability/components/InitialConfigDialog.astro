@@ -140,7 +140,11 @@ document.addEventListener("astro:page-load", () => {
 
     empezarBtn?.addEventListener("click", () => {
         dialog?.close();
-        window.dispatchEvent(new Event("open-tutor-calendar-dialog"));
+        window.dispatchEvent(
+            new CustomEvent("open-tutor-calendar-dialog", {
+                detail: { mode: "onboarding" },
+            }),
+        );
     });
 });
 

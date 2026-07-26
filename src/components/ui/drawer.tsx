@@ -62,6 +62,9 @@ export default function VaulDrawer() {
     // Open drawer when profile completion is required
     useEffect(() => {
         if (requiresProfileCompletion) {
+            if (user?.id && user?.role) {
+                localStorage.setItem(`profile-completion-flow:${user.id}:${user.role}`, '1');
+            }
             setIsOpen(true);
         }
     }, [requiresProfileCompletion]);

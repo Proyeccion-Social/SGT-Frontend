@@ -1,4 +1,3 @@
-// CancelSessionModal.tsx
 import './styles/SessionDetailView.css';
 import './styles/CancelSessionModal.css';
 
@@ -11,64 +10,53 @@ const REASON_MAX = 500;
 
 interface Props {
   session: Session;
-  session_id: string;
   onClose: () => void;
   onSuccess: () => void;
-  canCancel: (session: Session) => boolean;
-  cancelar: (sessionId: string, reason: string) => Promise<boolean>;
-  isLoading: boolean;
-  error: string | null;
+  rechazar: (sessionId: string, reason: string) => Promise<boolean>;
 }
 
-export const CancelSessionModal = ({
+export const RejectSessionModal = ({
   session,
   onClose,
   onSuccess,
-  canCancel,
-  cancelar,
+  rechazar,
 }: Props) => {
   const [reason, setReason] = useState('');
-  const [windowWarning, setWindowWarning] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isCancelling, setIsCancelling] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
 
-  const handleCancel = async () => {
+  const handleReject = async () => {
     const trimmed = reason.trim();
     if (!trimmed) {
-      setValidationError('El motivo de cancelación es obligatorio.');
+      setValidationError('El motivo de rechazo es obligatorio.');
       return;
     }
-    if (!canCancel(session)) {
-      setWindowWarning(true);
-      return;
-    }
-    setWindowWarning(false);
     setValidationError(null);
     setSubmitError(null);
-    setIsCancelling(true);
+    setIsRejecting(true);
     await sileo
       .promise(
         async () => {
-          const ok = await cancelar(session.id, trimmed);
-          if (!ok) throw new Error('No se pudo cancelar la sesión.');
+          const ok = await rechazar(session.id, trimmed);
+          if (!ok) throw new Error('No se pudo rechazar la sesión.');
           onSuccess();
         },
         {
-          loading: { title: 'Cancelando sesión...' },
+          loading: { title: 'Rechazando tutoría…' },
           success: {
-            title: 'Sesión cancelada',
-            description: 'La tutoría ha sido cancelada exitosamente.',
+            title: 'Tutoría rechazada',
+            description: 'La propuesta ha sido rechazada exitosamente.',
             fill: '#2ecc71',
           },
-          error: { title: 'Error al cancelar', fill: '#f35761' },
+          error: { title: 'Error al rechazar', fill: '#f35761' },
         }
       )
       .catch(() => {
-        setSubmitError('No se pudo cancelar la tutoría. Intenta de nuevo.');
+        setSubmitError('No se pudo rechazar la tutoría. Intenta de nuevo.');
       })
       .finally(() => {
-        setIsCancelling(false);
+        setIsRejecting(false);
       });
   };
 
@@ -77,54 +65,47 @@ export const CancelSessionModal = ({
       className="modal-overlay modal-overlay--reason"
       role="dialog"
       aria-modal="true"
-      aria-label="Cancelar tutoría"
+      aria-label="Rechazar tutoría"
       onClick={(e) => {
-        if (e.target === e.currentTarget && !isCancelling) onClose();
+        if (e.target === e.currentTarget && !isRejecting) onClose();
       }}
     >
       <Toaster position="top-center" />
-      <div className="modal-card modal-card--cancel">
+      <div className="modal-card modal-card--reason">
         <button
           type="button"
           className="modal-card__close--reason"
           onClick={onClose}
-          disabled={isCancelling}
+          disabled={isRejecting}
           aria-label="Cerrar"
         >
           ✕
         </button>
 
         <h2 className="cancel-modal__title">
-          Antes de irte, explica por qué quieres cancelar esta tutoría
+          Antes de irte, explica por qué quieres rechazar esta tutoría
         </h2>
 
         <textarea
           className="cancel-modal__textarea"
-          placeholder="Escribe tu justificación aquí…"
+          placeholder="Escribe el motivo del rechazo…"
           value={reason}
           onChange={(e) => {
             setReason(e.target.value.slice(0, REASON_MAX));
-            setWindowWarning(false);
             setValidationError(null);
             setSubmitError(null);
           }}
           rows={5}
           maxLength={REASON_MAX}
-          aria-label="Justificación de cancelación"
+          aria-label="Motivo de rechazo"
           aria-required="true"
           aria-invalid={!!validationError}
-          disabled={isCancelling}
+          disabled={isRejecting}
         />
 
         <p className="cancel-modal__counter" aria-live="polite">
           {reason.length}/{REASON_MAX}
         </p>
-
-        {windowWarning && (
-          <p className="cancel-modal__warning" role="alert">
-            La ventana de cancelación para esta sesión ya expiró.
-          </p>
-        )}
 
         {validationError && (
           <p className="cancel-modal__error" role="alert">
@@ -143,17 +124,17 @@ export const CancelSessionModal = ({
             type="button"
             className="sdv-btn sdv-btn--propose"
             onClick={onClose}
-            disabled={isCancelling}
+            disabled={isRejecting}
           >
             Volver
           </button>
           <button
             type="button"
             className="sdv-btn sdv-btn--cancel"
-            onClick={handleCancel}
-            disabled={isCancelling}
+            onClick={handleReject}
+            disabled={isRejecting}
           >
-            {isCancelling ? 'Cancelando…' : 'Cancelar tutoría'}
+            {isRejecting ? 'Rechazando…' : 'Rechazar tutoría'}
           </button>
         </div>
       </div>
@@ -162,4 +143,4 @@ export const CancelSessionModal = ({
   );
 };
 
-export default CancelSessionModal;
+export default RejectSessionModal;

@@ -98,11 +98,11 @@
   --type-font-family-primary: "Open Sauce Two";
   --type-font-family-secondary: "Cabinet Grotesk Variable";
 
-  --type-font-weigth-light: "light";
-  --type-font-weigth-regular: "regular";
-  --type-font-weigth-medium: "medium";
-  --type-font-weigth-semibold: "semibold";
-  --type-font-weigth-bold: "bold";
+  --type-font-weight-light: 300;
+  --type-font-weight-regular: 400;
+  --type-font-weight-medium: 500;
+  --type-font-weight-semibold: 600;
+  --type-font-weight-bold: 700;
 
   --primary-50: var(--color-moradops-50);
   --primary-100: var(--color-moradops-100);

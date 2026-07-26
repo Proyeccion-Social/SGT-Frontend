@@ -4,7 +4,8 @@ import './styles/SessionDetailModal.css';
 import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { UserRole } from '@/constants/roles';
 import { useSessionDetail } from '../hooks/useSessionDetail';
-import { SessionDetailView } from './SessionDetaiView';
+import { SessionDetailView } from './SessionDetailView';
+import { RejectSessionModal } from './RejectSessionModal';
 import { useTutorSlots } from '../hooks/useAvailability';
 import MultiStepDialog from '@/features/history/components/MultiStepRating';
 import { useAuthStore } from '@/store/authStore';
@@ -27,12 +28,19 @@ interface Props {
 export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, modificar, editar, confirmar, rechazar, aceptarModificacion, rechazarModificacion }: Props) => {
   const [view, setView] = useState<ModalView>('detail');
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
-  const { slots: availabilitySlots } = useTutorSlots(view === 'propose' ? (session?.tutor?.id ?? null) : null);
+  const { slots: availabilitySlots, loading: slotsLoading } = useTutorSlots(view === 'propose' ? (session?.tutor?.id ?? null) : null);
   const user = useAuthStore((s) => s.user);
  
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
-    [onClose]
+    (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (view === 'reject') {
+        setView('detail');
+        return;
+      }
+      onClose();
+    },
+    [onClose, view]
   );
  
   useEffect(() => {
@@ -54,82 +62,89 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
   const canEvaluate = session?.status === 'COMPLETED' && String(role).toLowerCase() === UserRole.STUDENT && participant?.status !== 'ABSENT';
  
   return createPortal(
-    <div
-      className="modal-overlay"
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Session detail"
-    >
-      <div className="modal-card__container">
+    <>
+      <div
+        className="modal-overlay"
+        onClick={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Session detail"
+      >
+        <div className="modal-card__container">
  
-        {isLoading && (
-          <div className="modal-card__loading" aria-live="polite">
-            <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
-            <p>Cargando sesión…</p>
-          </div>
-        )}
+          {isLoading && (
+            <div className="modal-card__loading" aria-live="polite">
+              <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
+              <p>Cargando sesión…</p>
+            </div>
+          )}
  
-        {!isLoading && error && (
-          <div className="modal-card__error" role="alert">
-            <p>Error al cargar la sesión</p>
-            <button className="sdv-btn sdv-btn--propose" onClick={onClose}>Cerrar</button>
-          </div>
-        )}
+          {!isLoading && error && (
+            <div className="modal-card__error" role="alert">
+              <p>Error al cargar la sesión</p>
+              <button className="sdv-btn sdv-btn--propose" onClick={onClose}>Cerrar</button>
+            </div>
+          )}
  
-        {!isLoading && !error && session && (
-          view === 'evaluate' ? (
-            <MultiStepDialog
-              session={session}
-              userId={user?.id}
-              onClose={() => {
-                setView('detail');
-                onClose(); // Automatically close the whole modal when evaluation completes
-              }}
-            />
-          ) : (
-            <SessionDetailView
-              session={session}
-              tutorInfo={tutorInfo}
-              role={role}
-              isProposing={view === 'propose'}
-              isEditing={view === 'edit'}
-              isRejecting={view === 'reject'}
-              availabilitySlots={availabilitySlots}
-              onClose={onClose}
-              onProposeModification={() => setView('propose')}
-              onBack={() => setView('detail')}
-              onEdit={() => setView('edit')}
-              onCancel={() => onRequestCancel(session)}
-              onProposeSuccess={onClose}
-              onEditSuccess={onClose}
-              onConfirm={async () => {
-                const ok = await confirmar(session.id);
-                if (ok) onClose();
-              }}
-              onRequestReject={() => setView('reject')}
-              onRejectSubmit={async (reason) => {
-                const ok = await rechazar(session.id, reason);
-                if (ok) onClose();
-              }}
-              onAcceptModification={async () => {
-                const ok = await aceptarModificacion(session.id);
-                if (!ok) throw new Error('No se pudo aceptar la modificación.');
-                onClose();
-              }}
-              onRejectModification={async () => {
-                const ok = await rechazarModificacion(session.id);
-                if (!ok) throw new Error('No se pudo rechazar la modificación.');
-                onClose();
-              }}
-              onEvaluate={canEvaluate ? () => setView('evaluate') : undefined}
-              modificar={modificar}
-              editar={editar}
-            />
-          )
-        )}
+          {!isLoading && !error && session && (
+            view === 'evaluate' ? (
+              <MultiStepDialog
+                session={session}
+                userId={user?.id}
+                onClose={() => {
+                  setView('detail');
+                  onClose();
+                }}
+              />
+            ) : (
+              <SessionDetailView
+                session={session}
+                tutorInfo={tutorInfo}
+                role={role}
+                isProposing={view === 'propose'}
+                isEditing={view === 'edit'}
+                availabilitySlots={availabilitySlots}
+                slotsLoading={slotsLoading}
+                onClose={onClose}
+                onProposeModification={() => setView('propose')}
+                onBack={() => setView('detail')}
+                onEdit={() => setView('edit')}
+                onCancel={() => onRequestCancel(session)}
+                onProposeSuccess={onClose}
+                onEditSuccess={onClose}
+                onConfirm={async () => {
+                  const ok = await confirmar(session.id);
+                  if (ok) onClose();
+                }}
+                onRequestReject={() => setView('reject')}
+                onAcceptModification={async () => {
+                  const ok = await aceptarModificacion(session.id);
+                  if (!ok) throw new Error('No se pudo aceptar la modificación.');
+                  onClose();
+                }}
+                onRejectModification={async () => {
+                  const ok = await rechazarModificacion(session.id);
+                  if (!ok) throw new Error('No se pudo rechazar la modificación.');
+                  onClose();
+                }}
+                onEvaluate={canEvaluate ? () => setView('evaluate') : undefined}
+                modificar={modificar}
+                editar={editar}
+              />
+            )
+          )}
+        </div>
       </div>
-    </div>,
+
+      {view === 'reject' && session && (
+        <RejectSessionModal
+          session={session}
+          onClose={() => setView('detail')}
+          onSuccess={onClose}
+          rechazar={rechazar}
+        />
+      )}
+    </>,
     document.body
   );
 };

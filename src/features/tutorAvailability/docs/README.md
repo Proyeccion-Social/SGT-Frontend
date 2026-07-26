@@ -60,12 +60,22 @@ Un tutor necesita:
 
 ### [utils/calendarUtils.ts](../utils/calendarUtils.ts)
 
+**Tipos de modalidad:**
+- `ModalityValue`: unión de valores válidos (`'PRES' | 'VIRT'`).
+- `Modality`: tipo amplio que acepta `ModalityValue[]`, string legacy o `null` — para retrocompatibilidad con datos del backend que puedan llegar como string.
+
+**Helpers de modalidad:**
+- `normalizeModality(modality)`: convierte cualquier formato de modalidad (`string`, `"BOTH"`, `null`, array) a `ModalityValue[]`. Usado en todos los componentes para comparar y renderizar.
+- `isSameModality(a, b)`: compara dos valores de modalidad por contenido (no por referencia), soportando arrays. Usado en `getSlotsByDay` para decidir si fusionar bloques contiguos.
+
+**Funciones de calendario:**
 - `getWeekDates(base)`: calcula fechas de lunes a sábado a partir de una fecha base.
 - `isSlotInPast(slot, weekDates)`: determina si un slot ya pasó.
 - `timeToMinutes(time)`: convierte `"HH:mm"` a minutos.
 - `formatDuration(startTime, endTime)`: formatea duración (ej. "1 hora 30 mins").
 - `getSlotStyle(slot)`: genera estilos CSS para posicionar un slot en el calendario.
-- `getSlotsByDayStudent(slots, dayKey)`: filtra slots por día.
+- `getSlotsByDay(slots, dayKey)`: filtra y fusiona slots contiguos del mismo día y misma modalidad. Usa `isSameModality()` para comparar arrays correctamente.
+- `getSlotsByDayStudent(slots, dayKey)`: variante para la vista del estudiante.
 
 ### [utils/calendarConstants.ts](../utils/calendarConstants.ts)
 

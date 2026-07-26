@@ -43,6 +43,38 @@ function maybeStartTour(tourId, startFn) {
 export default function TutorialInitializer() {
   const { user, requiresProfileCompletion } = useAuthStore();
 
+  const getTutorialKeys = () => {
+    if (!user?.id || !user?.role) return null;
+
+    return {
+      flowKey: `profile-completion-flow:${user.id}:${user.role}`,
+    };
+  };
+
+  const canStartPageTutorial = () => {
+    const keys = getTutorialKeys();
+    if (!keys) return false;
+
+    return localStorage.getItem(keys.flowKey) === '1';
+  };
+
+  const clearCompletionFlow = () => {
+    const keys = getTutorialKeys();
+    if (!keys) return;
+
+    localStorage.removeItem(keys.flowKey);
+  };
+
+  const startPageTutorial = (startTutorial: () => void) => {
+    if (!canStartPageTutorial()) return;
+
+    clearCompletionFlow();
+    setTimeout(() => {
+      startTutorial();
+    }, 500);
+  };
+
+
   // Reanudar el tour correspondiente segun el path actual.
   useEffect(() => {
     if (typeof window === "undefined") return;

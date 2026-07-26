@@ -5,7 +5,16 @@ import ojoOcultoSrc from "../../assets/ojo-oculto.svg?url";
 import "../../styles/formGeneral.css";
 
 const PHONE_REGEX = /^\d{10}$/;
-const PW_REGEX    = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+const PW_REGEX    = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
+
+function getPasswordError(pw: string): string {
+  if (pw.length < 8)                        return "Debe tener al menos 8 caracteres.";
+  if (!/[A-Z]/.test(pw))                    return "Debe incluir al menos una letra mayúscula.";
+  if (!/[a-z]/.test(pw))                    return "Debe incluir al menos una letra minúscula.";
+  if (!/\d/.test(pw))                       return "Debe incluir al menos un número.";
+  if (!/[@$!%*?&#]/.test(pw))              return "Debe incluir al menos un carácter especial (@$!%*?&#).";
+  return "";
+}
 
 interface FormGeneralProps {
   user: { name: string; email: string } | null;
@@ -112,8 +121,7 @@ export function FormGeneral({ user, initialMode = "info", initialPhone }: FormGe
 
   async function handleSavePassword() {
     const errors = { current: "", newPw: "", confirm: "" };
-    if (!PW_REGEX.test(pwForm.newPw))
-      errors.newPw = "Debe tener mayúscula, minúscula, número y carácter especial (@$!%*?&).";
+    errors.newPw = getPasswordError(pwForm.newPw);
     if (pwForm.newPw !== pwForm.confirm)
       errors.confirm = "Las contraseñas no coinciden.";
     setPwErrors(errors);

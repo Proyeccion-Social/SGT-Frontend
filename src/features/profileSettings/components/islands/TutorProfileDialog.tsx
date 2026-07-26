@@ -16,7 +16,6 @@ import { sileo } from "sileo";
 import salirIconSrc      from "../../assets/salir.svg?url";
 import settingsIconSrc   from "../../assets/settings.svg?url";
 import horasIconSrc      from "../../assets/horas.svg?url";
-import calendarioIconSrc from "../../assets/calendario.svg?url";
 import activacionIconSrc from "../../assets/activacion.svg?url";
 import materiasIconSrc   from "../../assets/materias.svg?url";
 import { TutorSubjectsView } from "./TutorSubjectsView";
@@ -153,19 +152,6 @@ export function TutorProfileDialog({
 
         <nav className="tp-bottom" aria-label="Navegación del perfil de tutor">
           <div className="tp-bottom-inner">
-            <button
-              id="disponibilidadTutorTUTORIAL"
-              type="button"
-              className="tp-nav-icon-btn tp-nav-icon-btn--calendar"
-              aria-label="Gestionar disponibilidad"
-              onClick={() => {
-                onOpenChange(false);
-                window.dispatchEvent(new Event("open-tutor-calendar-dialog"));
-              }}
-            >
-              <img src={calendarioIconSrc} alt="" aria-hidden="true" />
-            </button>
-
             <button
               type="button"
               className={`tp-nav-raw${activeView === "general" ? " tp-nav-active" : ""}`}

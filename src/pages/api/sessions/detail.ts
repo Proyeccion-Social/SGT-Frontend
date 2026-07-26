@@ -32,10 +32,22 @@ export const GET: APIRoute = async ({ request, cookies }) => {
           : (mods as any)?.modifications ?? (mods as any)?.data ?? [];
         const pending = modsArray.find((m: any) => m.status === 'PENDING') ?? modsArray[0];
         if (pending) {
+          const rawProposer =
+            pending.proposedBy ??
+            pending.requestedBy ??
+            pending.proposerId ??
+            pending.createdBy ??
+            pending.userId ??
+            pending.proposedByUserId ??
+            pending.requesterId;
+          const proposedBy =
+            rawProposer != null && typeof rawProposer === 'object'
+              ? (rawProposer.id ?? rawProposer.userId ?? undefined)
+              : rawProposer;
           (data as any).pendingModification = {
             ...pending,
             id: pending.id ?? pending.idRequest,
-            proposedBy: pending.proposedBy ?? pending.requestedBy,
+            proposedBy: proposedBy != null ? String(proposedBy) : undefined,
           };
         }
       } catch (modErr: any) {

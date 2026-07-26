@@ -1,25 +1,23 @@
 .Title {
-font-weight: 600;
-font-size: 20px;
-line-height: 100%;
-letter-spacing: -2%;
-color: #1A1A1A;
-margin: 10px 0;
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 40px;
+    letter-spacing: -0.02em;
+    color: #1A1A1A;
 }
 
 .Description {
-font-weight: 400;
-font-size: 12px;
-line-height: 100%;
-letter-spacing: -2%;
-color: #1e293b;
-
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: #1A1A1A;
 }
 
-.Separator {
-    border: 1px solid #C6C6C6;
-    width: 100%;
-}
 
 .CloseButton {
     width: 320px;
@@ -51,7 +49,8 @@ color: #1e293b;
     align-items: center;
     background-color: #E6FFC766;
     height: 104px;
-    border-radius: 0 0 16px 16px ;
+    border-radius: 0 0 16px 16px;
+    padding: 12px 0px;
 }
 
 .SlotsContainer {
@@ -62,7 +61,8 @@ color: #1e293b;
     gap: 10px;
     padding: 1.25rem;
     width: 100%;
-    max-height: 600px;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     border-radius: 8px;
 }

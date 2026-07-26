@@ -23,6 +23,7 @@ import {
   getSessionDisplayStatus,
 } from '../utils/sessionStatus';
 import { CloudinaryImage } from '@/components/CloudinaryImage';
+import { statusLabel } from '../utils/statusLabel';
 
 interface TutorInfo {
   id: string;
@@ -86,6 +87,8 @@ const modalityIcon = (modality: string) => {
     <img src={src} alt="Icono de modalidad" style={{ width: '40px', height: '40px' }} />
   );
 };
+ 
+
  
 const modalityLabel = (modality: string): string => {
   const map: Record<string, string> = {
@@ -248,7 +251,28 @@ export const SessionDetailView = ({
             <span className="sdv-tag__dot sdv-tag__dot--purple" />
             {tutorName}
           </span>
-          <span className="sdv-tag sdv-tag--status">{displayStatus}</span>
+          <span className="sdv-tag sdv-tag--status">{statusLabel(session.status)}</span>
+          {session.virtualLink?.trim() && (
+            <a
+              className="sdv-tag sdv-tag--link"
+              href={session.virtualLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={session.virtualLink}
+              style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {session.virtualLink}
+            </a>
+          )}
+          {session.location?.trim() && (
+            <span
+              className="sdv-tag sdv-tag--link"
+              title={session.location}
+              style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis' }}
+            >
+              {session.location}
+            </span>
+          )}
         </div>
  
         {/* ── Section title ── */}
@@ -347,7 +371,7 @@ export const SessionDetailView = ({
  
             <div className="sdv-card">
               <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">{displayStatus}</span>
+              <span className="sdv-card__label">{statusLabel(session.status)}</span>
             </div>
  
           </div>

@@ -58,6 +58,7 @@ export interface Session {
   duration: number;
   modality: Modality;
   status: SessionStatus;
+  sessionType?: SessionType;      // INDIVIDUAL ("Cerrada") | GROUP ("Abierta")
   title: string;
   description: string;
   participants: SessionParticipant[];

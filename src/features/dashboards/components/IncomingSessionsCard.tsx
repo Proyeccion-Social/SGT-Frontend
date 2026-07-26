@@ -4,7 +4,7 @@
 
 import { useMemo, useState } from 'react';
 import '../styles/IncomingSessionsCard.css';
-import type { Session } from '../../sessions/types/session.types';
+import type { Session, SessionStatus } from '../../sessions/types/session.types';
 import calendarIcon from '../assets/calendar.svg';
 import clockIcon from '../assets/clock.svg';
 import virtualIcon from '../assets/virtual.svg';
@@ -12,8 +12,7 @@ import presencialIcon from '../assets/presencial.svg';
 import AttendancePostSession from '@features/sessions/components/AttendancePostSession';
 import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
-import { sessionPhase, getSessionTimePhase, formatTime, formatDate, type SessionTimePhase, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
-import { useSubjectStore } from '@/store/subjectStore';
+import { getSessionTimePhase, formatTime, formatDate, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { CloudinaryImage } from '@/components/CloudinaryImage';
 
 interface Props {
@@ -37,6 +36,22 @@ const openDetail = (sessionId: string) => {
 
 const getInitials = (name: string) =>
   name.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]?.toUpperCase() ?? '').join('');
+
+/**
+ * Estados que se muestran en la tarjeta de próximas sesiones, con su etiqueta y clase de color (D1/D2).
+ * El tag pasó de mostrar el tiempo restante a mostrar el estado de la sesión.
+ * Un estado ausente de este mapa no se renderiza (y su sesión se filtra vía `isVisibleInCard`).
+ */
+const STATUS_TAG: Partial<Record<SessionStatus, { label: string; cls: string }>> = {
+  SCHEDULED:                  { label: 'Programada',                cls: 'scheduled' },
+  COMPLETED:                  { label: 'Completada',                cls: 'completed' },
+  PENDING_TUTOR_CONFIRMATION: { label: 'Pendiente de confirmación', cls: 'pending'   },
+  PENDING_MODIFICATION:       { label: 'Modificación pendiente',    cls: 'pending'   },
+};
+
+/** ¿La sesión aparece en la tarjeta? Solo los estados de `STATUS_TAG`; COMPLETED únicamente para tutores. */
+const isVisibleInCard = (status: SessionStatus, isTutor: boolean): boolean =>
+  status === 'COMPLETED' ? isTutor : status in STATUS_TAG;
 
 const formatDuration = (hours: number) =>
   hours < 1 ? `${Math.round(hours * 60)}min` : `${hours}h`;
@@ -62,10 +77,14 @@ const SkeletonCard = () => (
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, onRefetch }: Props) => {
+  const isTutor = viewerRole === UserRole.TUTOR;
+
   const displaySessions = useMemo(() => {
-    // Show all sessions without status filtering as requested
-    return sortSessionsForDisplay(sessions || []);
-  }, [sessions]);
+    // D2: solo se muestran SCHEDULED / PENDING_* (todos los roles) y COMPLETED (solo tutor).
+    // Canceladas, rechazada y expirada quedan fuera de la tarjeta de próximas sesiones.
+    const visible = (sessions || []).filter((s) => isVisibleInCard(s.status, isTutor));
+    return sortSessionsForDisplay(visible);
+  }, [sessions, isTutor]);
 
   const [attendanceSession, setAttendanceSession] = useState<Session | null>(null);
   const [finishingSession, setFinishingSession] = useState<Session | null>(null);
@@ -77,8 +96,6 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
   const handleAttendanceClose = () => {
     setAttendanceSession(null);
   };
-
-  const { colorMap } = useSubjectStore();
 
   return (
     <div className="session-container">
@@ -106,10 +123,8 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
         )}
  
         {!isLoading && !error && displaySessions.map((session) => {
-          const subjectName = typeof session.subject === 'string' ? session.subject : session.subject?.name;
-          const colors = colorMap[subjectName] || { color: 'transparent', borderColor: 'transparent' };
           const phase = getSessionTimePhase(session.scheduledDate, session.startTime, session.endTime);
-          const isTutor = viewerRole === UserRole.TUTOR;
+          const statusTag = STATUS_TAG[session.status];
 
           const personName = isTutor
             ? (session.participants.find(p => p.role.toUpperCase() !== 'TUTOR')?.name ?? 'Estudiante')
@@ -150,23 +165,22 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
               <div className="card-body">
                 <div className="card-top">
                   <span className="card-title">{session.title}</span>
-                  <span className={`tag-status ${phase}`}>{sessionPhase[phase]}</span>
+                  {statusTag && (
+                    <span className={`tag-status ${statusTag.cls}`}>{statusTag.label}</span>
+                  )}
                 </div>
                 <p className="card-person">{personName}</p>
                 <div className="card-meta">
                   <div className="meta-item">
                     <img src={calendarIcon.src} className="meta-icon" alt="" />
                     <span>
-                      {formatDate(session.scheduledDate)}, { }
-                      {formatTime(session.startTime)}
+                      {formatDate(session.scheduledDate)}, {formatTime(session.startTime)}
                     </span>
                   </div>
                   {session.duration > 0 && (
                     <div className="meta-item">
                       <img src={clockIcon.src} className="meta-icon meta-icon--dark" alt="" />
-                      <span>
-                        {formatDuration(session.duration)}
-                      </span>
+                      <span>{formatDuration(session.duration)}</span>
                     </div>
                   )}
                   {session.modality && (
@@ -176,9 +190,7 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
                         className="meta-icon"
                         alt=""
                       />
-                      <span>
-                        {formatModality(session.modality)}
-                      </span>
+                      <span>{formatModality(session.modality)}</span>
                     </div>
                   )}
                 </div>

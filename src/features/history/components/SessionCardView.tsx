@@ -1,5 +1,7 @@
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 
+import { statusLabel } from '@/features/sessions/utils/statusLabel';
+
 interface SessionCardViewProps {
   session: any;
   userId: string;
@@ -12,23 +14,19 @@ export default function SessionCardView({ session, userId, onClose, onEvaluate }
   const participantStatus = participant?.status;
 
   // --- Helpers para estado ---
+  // El texto del enum lo da el helper compartido tipado; el override por ABSENT deriva de
+  // participants (no del status) y se queda acá (reporte §4.3).
   function getStatusText() {
-    if (session.status === "CANCELLED") return "Cancelada";
-    if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
-    if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
     if (participantStatus === "ABSENT") return "No asistió";
-    if (session.status === "COMPLETED") return "Completada";
-    if (session.status === "SCHEDULED") return "Programada";
-    if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente de confirmación por el tutor";
-    if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente de confirmación por el estudiante";
-    return session.status;
+    return statusLabel(session.status);
   }
 
   function getStatusClass() {
+    const s = session.status;
     if (participantStatus === "ABSENT") return "status-no_show";
-    if (["CANCELLED", "CANCELLED_BY_STUDENT", "CANCELLED_BY_TUTOR"].includes(session.status)) return "status-cancelled";
-    if (session.status === "COMPLETED") return "status-completed";
-    if (session.status === "SCHEDULED") return "status-scheduled";
+    if (s === "CANCELLED_BY_STUDENT" || s === "CANCELLED_BY_TUTOR" || s === "CANCELLED_BY_ADMIN") return "status-cancelled";
+    if (s === "COMPLETED") return "status-completed";
+    if (s === "SCHEDULED") return "status-scheduled";
     return "";
   }
 

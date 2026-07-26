@@ -2,7 +2,7 @@
 // T014: 4 controlled inputs pre-populated with current session values
 // T015: Connected to editSession service
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { sileo } from 'sileo';
 import type { Session, EditSessionBody } from '../types/session.types';
 import './styles/EditField.css';
@@ -25,10 +25,10 @@ export const EditSessionForm = ({
 }: Props) => {
   const [title,       setTitle]       = useState(session.title);
   const [description, setDescription] = useState(session.description);
-  const [location,    setLocation]    = useState('');
-  const [virtualLink, setVirtualLink] = useState('');
+  const [location,    setLocation]    = useState(session.location ?? '');
+  const [virtualLink, setVirtualLink] = useState(session.virtualLink ?? '');
  
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     onSubmittingChange?.(true);
 
     const body: EditSessionBody = {
@@ -52,12 +52,14 @@ export const EditSessionForm = ({
     ).finally(() => {
       onSubmittingChange?.(false);
     });
-  };
- 
-  if (triggerSubmitRef) {
-    triggerSubmitRef.current = handleConfirm;
-  }
- 
+  }, [title, description, virtualLink, location, editar, session.id, onSuccess, onSubmittingChange]);
+
+  useEffect(() => {
+    if (triggerSubmitRef) {
+      triggerSubmitRef.current = handleConfirm;
+    }
+  }, [handleConfirm, triggerSubmitRef]);
+
   return (
     <div className="pmf">
 

@@ -194,10 +194,12 @@
   font-weight: 500;
   font-size: 20px;
   line-height: 24px;
-  display: flex;
-  align-items: center;
   letter-spacing: -0.02em;
   color: var(--neutral-600);
+  /* Contención de overflow para títulos largos sin espacios */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .sdv__description {
@@ -206,10 +208,16 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 20px;
-  display: flex;
-  align-items: center;
   letter-spacing: -0.02em;
   color: var(--neutral-600);
+  /* Contención de overflow: la descripción completa se conserva; si es muy larga,
+     hace wrap (incluso strings sin espacios) y scrollea internamente sin romper el modal. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-height: 6.5em;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 /* ══════════════════════════════

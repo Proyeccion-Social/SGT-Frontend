@@ -67,8 +67,8 @@ export const useSubjectStore = create<SubjectState>()(
                     const colorMap: Record<string, { color: string; borderColor: string }> = {};
                     subjects.forEach((s: Subject) => {
                         colorMap[s.name] = {
-                            color: s.color,
-                            borderColor: s.borderColor,
+                            color: s.color || 'transparent',
+                            borderColor: s.borderColor || 'transparent',
                         };
                     });
 

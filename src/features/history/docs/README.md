@@ -11,7 +11,11 @@ La feature `history` permite a usuarios revisar sus sesiones pasadas. Su objetiv
 
 ## Problema que resuelve
 
+<<<<<<< HEAD
 Una vez que las sesiones se completan (`COMPLETED`) o se cancelan (`CANCELLED_BY_*`), los usuarios necesitan:
+=======
+Una vez que las sesiones pasan al estado `COMPLETED` o `CANCELLED`, los usuarios necesitan:
+>>>>>>> develop
 
 1. Consultar detalles de sesiones anteriores.
 2. Filtrar por estado o fecha.
@@ -33,10 +37,16 @@ Una vez que las sesiones se completan (`COMPLETED`) o se cancelan (`CANCELLED_BY
 
 ### [services/getHistory.ts](../services/getHistory.ts)
 
+<<<<<<< HEAD
 - `getHistory({ token, role, page, limit, status })` → `GET ${API_URL}/scheduling/sessions/my-sessions/{tutor|student}`
   - Retorna `{ sessions: Session[], pagination: { total, page, limit, totalPages } }`.
   - Soporta filtrado por `status`. Las canceladas **no se agrupan**: se filtra por cada estado real por separado
     (`CANCELLED_BY_STUDENT` / `CANCELLED_BY_TUTOR` / `CANCELLED_BY_ADMIN`).
+=======
+- `getHistory({ token, role, page, limit, status })` → `GET /history`
+  - Retorna `{ sessions: Session[], pagination: { total, page, limit, totalPages } }`.
+  - Soporta filtrado por `status` (`COMPLETED`, `CANCELLED`, etc.).
+>>>>>>> develop
   - Si `USE_MOCK=true`, utiliza mocks locales para desarrollo.
 
 ### [services/sendSessionEvaluation.ts](../services/sendSessionEvaluation.ts)
@@ -97,6 +107,9 @@ Reutiliza los tipos de `sessions` (`Session`, `SessionStatus`, etc.) y define ex
 - La carga inicial es SSR para mejorar SEO y tiempo de primera pintura.
 - La paginación puede manejarse tanto en servidor como en cliente según la implementación.
 - Los mocks permiten desarrollar la UI sin depender de un backend con datos históricos.
+<<<<<<< HEAD
 - Las etiquetas de estado de `SessionCardView` y `SessionsBlock` provienen del helper compartido
   `sessions/utils/statusLabel.ts` (variante larga en la tabla desktop, corta en las tarjetas mobile). El
   override por ausencia (`ABSENT` → "No asistió" / "Completada - No asistió") es local a cada componente.
+=======
+>>>>>>> develop

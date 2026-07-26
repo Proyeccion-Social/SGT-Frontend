@@ -25,6 +25,7 @@ export function startDashboardStudentTutorial() {
                 popover: {
                     title: "Dashboard - Pantalla Inicial",
                     description: "Aquí podrás ver y gestionar de manera rápida y fácil tus sesiones.",
+                    popoverClass: "corner-popover"
                 }
             },
             {

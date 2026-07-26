@@ -29,6 +29,13 @@ export default function HoursCard({ slot}: HoursCardProps) {
         }, 0);
     };
 
+    const normalizeModality = (modality: any): string[] => {
+        if (!modality) return [];
+        if (Array.isArray(modality)) return modality;
+        if (modality === 'BOTH') return ['PRES', 'VIRT'];
+        return [modality];
+    };
+
     const deleteSlot = (e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -36,7 +43,7 @@ export default function HoursCard({ slot}: HoursCardProps) {
             dayOfWeek: slot.dayOfWeek || dayMap[slot.day] || slot.day,
             startTime: slot.startTime?.substring(0, 5) || "",
             endTime: slot.endTime?.substring(0, 5) || "",
-            modality: slot.modality || "NONE",
+            modality: normalizeModality(slot.modality),
         };
 
         window.dispatchEvent(new CustomEvent('delete-slot', { detail: body }));
@@ -50,15 +57,15 @@ export default function HoursCard({ slot}: HoursCardProps) {
             <div className={styles.LeftColor} style={{ backgroundColor: color }}></div>
             <div className={styles.InfoContainer}>
                 <div className={styles.DayAndHoursContainer}>
-                    <p className={styles.day}>{slot.day} →</p>
+                    <p className={styles.day}>{slot.day.charAt(0).toUpperCase() + slot.day.slice(1).toLowerCase()}: </p>
                     <p className={styles.hours}>{slot.hours}</p>
                 </div>
                 <div className={styles.ModalityContainer}>
                     <div className={styles.modality}>
-                        {(slot.modality === "PRES") && (
+                        {normalizeModality(slot.modality).includes("PRES") && (
                             <div className={styles.presencial}>Presencial</div>
                         )}
-                        {(slot.modality === "VIRT") && (
+                        {normalizeModality(slot.modality).includes("VIRT") && (
                             <div className={styles.virtual}>Virtual</div>
                         )}
                     </div>

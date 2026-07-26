@@ -2,19 +2,33 @@ import { createTour, getInteractiveElement } from "../../createTour";
 
 export function startDisponibilidadTutorTutorial(){
     const tour = createTour({
+        onDestroyStarted: () => {
+            if (localStorage.getItem("current-tour") === "disponibilidad") {
+                localStorage.removeItem("current-tour");
+            }
+            tour.destroy();
+        },
         steps: [
             {
                 element: "#calendarTutorTUTORIAL",
                 popover: {
                     title: "Tus franjas como tutor",
-                    description:"Aquí podrás ver tu calendario semanal de franjas disponibles/libres."
+                    description:"Aquí podrás ver tu calendario semanal de franjas disponibles/libres.",
+                    popoverClass: "corner-popover"
                 }
             },
             {
                 element: "#weekMonthTutorTUTORIAL",
                 popover: {
                     title: "Organizado y Eficaz",
-                    description: "Puedes ver tus franjas tanto por semana como por mes.",
+                    description: "Revisa tu semana y usa Actualizar para modificar tus franjas de disponibilidad.",
+                }
+            },
+            {
+                element: "#actualizarDisponibilidadTutorTUTORIAL",
+                popover: {
+                    title: "Actualiza tus horarios",
+                    description: "Desde aquí abres el calendario para crear, editar o eliminar franjas.",
                 }
             },
             {
@@ -50,22 +64,8 @@ export function startDisponibilidadTutorTutorial(){
 
      if (btn) {
          btn.addEventListener("click", () => {
-
-            /*
-              Guardar progreso
-            */
-
-            localStorage.setItem(
-                "current-tour",
-                "final"
-            );
-
-            /*
-              Ir a otra pagina
-            */
-
-            window.location.href =
-                "/dashboard";
+            localStorage.setItem("current-tour", "final");
+            window.location.href = "/dashboard";
         });
     }
 

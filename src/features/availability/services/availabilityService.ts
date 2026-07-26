@@ -168,16 +168,19 @@ async function handleResponse<T>(response: Response): Promise<T> {
 /**
  * RF-16 | GET /api/v1/availability/tutors/{tutorId}/slots
  * Obtiene la disponibilidad de un tutor.
- * Endpoint publico.
+ * Requiere autenticación.
  * El tutorId debe ser un UUID valido.
- * 
+ *
  * Posibles errores:
  * - VALIDATION_01 (400): tutorId invalido.
  * - RESOURCE_02 (404): Tutor no encontrado.
+ * - AUTH_01 (401): Token inválido o expirado.
+ * - AUTH_05 (401): No hay token de sesión.
  */
 export async function getTutorSlots(
     tutorId: string,
     query?: GetAvailabilityQueryDto,
+    token?: string
 ): Promise<Slot[]> {
     const params = new URLSearchParams();
 
@@ -195,11 +198,19 @@ export async function getTutorSlots(
 
     const url = `${API_URL}${AVAILABILITY_PATH}/tutors/${tutorId}/slots${queryString}`;
 
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+
+    if (token) {
+        Object.assign(headers, {
+            'Authorization': `Bearer ${token}`
+        });
+    }
+
     const response = await fetch(url, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers,
     });
 
     const result = await handleResponse<any>(response);

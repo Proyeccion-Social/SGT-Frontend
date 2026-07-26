@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import '../styles/ConfirmSessionDialog.css';
 import type { Session } from '@features/emailScreens/types/session.types';
 import { Monitor, Clock, Calendar, MapPin, X } from 'lucide-react';
+import { CloudinaryImage } from '@/components/CloudinaryImage';
 
 interface Props {
   sessionId: string;
@@ -137,7 +138,13 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
             {/* Header section */}
             <div className="es-header">
               {session.tutor?.photo ? (
-                <img src={session.tutor.photo} alt={session.tutor.name} className="es-avatar" />
+                <CloudinaryImage
+                  src={session.tutor.photo}
+                  size="avatarLg"
+                  alt={session.tutor.name}
+                  className="es-avatar"
+                  lazy={false}
+                />
               ) : (
                 <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
                   {session.tutor?.name?.charAt(0) ?? 'T'}

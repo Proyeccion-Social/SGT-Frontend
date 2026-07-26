@@ -28,23 +28,23 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 ### Wizard de agendamiento
 
 - [components/SchedulingWizard.tsx](../components/SchedulingWizard.tsx): wizard de 4 pasos para agendar una sesión.
-  - Paso 1: Disponibilidad (selecciona franja).
-  - Paso 2: Modalidad (`PRES`/`VIRT`).
-  - Paso 3: Detalles (título, descripción).
-  - Paso 4: Revisión y envío.
-- [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): selección de slot.
-- [components/scheduling/SessionType.tsx](../components/scheduling/SessionType.tsx): tipo de sesión.
-- [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): selección de modalidad.
-- [components/scheduling/Details.tsx](../components/scheduling/Details.tsx): formulario de detalles.
-- [components/scheduling/SlotPopover.tsx](../components/scheduling/SlotPopover.tsx): popover de slot.
+  - Paso 1: Selección de tutor (entre los disponibles en la franja).
+  - Paso 2: Detalles (título, descripción).
+  - Paso 3: Tipo de sesión (Individual / Grupal).
+  - Paso 4: Modalidad (`PRES`/`VIRT`) — siempre se muestra, filtra opciones según la franja.
+- [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): paso 1, selección de tutor.
+- [components/scheduling/Details.tsx](../components/scheduling/Details.tsx): paso 2, formulario de detalles.
+- [components/scheduling/SessionType.tsx](../components/scheduling/SessionType.tsx): paso 3, tipo de sesión.
+- [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): paso 4, selección de modalidad (acepta `availableModalities` para filtrar opciones).
+- [components/scheduling/SlotPopover.tsx](../components/scheduling/SlotPopover.tsx): popover que aparece al seleccionar una franja en el calendario.
 
 ### Calendario y vistas de sesiones
 
 - [components/StudentSchedule.astro](../components/StudentSchedule.astro): vista del calendario de slots disponibles (SSR).
 - [components/SessionDetailModal.tsx](../components/SessionDetailModal.tsx): modal con detalles completos de una sesión.
-- [components/SessionDetailView.tsx](../components/SessionDetailView.tsx): vista detallada dentro del modal. Renderiza el estado (vía el helper compartido `statusLabel`), la ubicación/enlace de encuentro y las acciones de footer según rol y estado.
+- [components/SessionDetaiView.tsx](../components/SessionDetaiView.tsx): vista detallada dentro del modal.
 - [components/EditSessionView.tsx](../components/EditSessionView.tsx): edición de detalles básicos (título, descripción, enlace, ubicación).
-- [components/ProposeModificationView.tsx](../components/ProposeModificationView.tsx): proponer cambios de modalidad, duración o fecha.
+- [components/ProposeModificationView.tsx](../components/ProposeModificationView.tsx): proponer cambios de modalidad, duración o fecha. Valida contra la disponibilidad real del tutor: la modalidad solo es editable si el slot soporta ambas (`BOTH`/ambigua), la duración solo ofrece valores que caben en la disponibilidad contigua, y el selector de horario solo lista franjas libres. Exige al menos un cambio para poder confirmar (SCHEDULING-42).
 - [components/PendingModificationView.tsx](../components/PendingModificationView.tsx): visualizar modificaciones pendientes.
 - [components/CancelSessionModal.tsx](../components/CancelSessionModal.tsx): cancelar sesión.
 - [components/FinishSession.tsx](../components/FinishSession.tsx): marcar sesión como completada.
@@ -93,10 +93,10 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 ### [types/session.types.ts](../types/session.types.ts)
 
 - `Session`: entidad principal de sesión.
-- `Modality = 'VIRT' | 'PRES' | ''`: modalidad.
-- `SessionStatus`: los 9 estados reales del backend (`PENDING_TUTOR_CONFIRMATION`, `SCHEDULED`, `PENDING_MODIFICATION`, `REJECTED_BY_TUTOR`, `CANCELLED_BY_STUDENT`, `CANCELLED_BY_TUTOR`, `CANCELLED_BY_ADMIN`, `COMPLETED`, `EXPIRED_UNCONFIRMED`).
-- `SessionType = 'INDIVIDUAL' | 'GROUP'`: sesión cerrada (individual) o abierta (grupal); la consume la tarjeta del dashboard.
+- `Modality = 'VIRT' | 'PRES'`: modalidad.
+- `SessionStatus`: todos los estados del ciclo de vida (`PENDING_TUTOR_CONFIRMATION`, `SCHEDULED`, `PENDING_MODIFICATION`, `REJECTED_BY_TUTOR`, `CANCELLED_BY_STUDENT/TUTOR/ADMIN`, `EXPIRED_UNCONFIRMED`, `COMPLETED`, etc.).
 - `ParticipantStatus`: estados de participantes (`CONFIRMED`, `PENDING`, `CANCELLED`, `ATTENDED`, `ABSENT`, `LATE`, `NO_SHOW`).
+- `AvailabilitySlot`: slot de disponibilidad del tutor; su `modality` puede ser `'VIRT' | 'PRES' | 'BOTH' | null` (`BOTH`/`null` = soporta ambas).
 - `SessionTutor`, `SessionSubject`, `SessionParticipant`: entidades relacionadas.
 - `CreateSessionDTO`: payload de creación.
 - `ModifySessionBody`: payload de modificación.
@@ -106,14 +106,15 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 
 ## Utilidades
 
-### [utils/statusLabel.ts](../utils/statusLabel.ts)
+### [utils/sessionStatus.ts](../utils/sessionStatus.ts)
 
-- `statusLabel(status: SessionStatus, variant?: 'long' | 'short')`: **fuente única** de las etiquetas de estado.
-  Tipada con `Record<SessionStatus, string>`, de modo que agregar un estado al backend sin traducirlo **rompe el
-  typecheck**. La variante `'short'` se usa en las tarjetas mobile del historial (espacio reducido).
-- El override por asistencia (`ABSENT` → "No asistió") **no** vive acá: deriva de `session.participants`, no del
-  status, y se queda en cada componente.
-- Consumido por `SessionDetailView` y, desde `history`, por `SessionCardView` y `SessionsBlock`.
+Derivaciones de estado y reglas de negocio de la card de información:
+
+- `getSessionTimePhase()`: fase temporal de la sesión (`upcoming` / `in_progress` / `ended`) según fecha y horas programadas.
+- `getSessionDisplayStatus()`: label visible del estado. Una sesión `SCHEDULED` muestra **"En curso"** mientras está en su franja horaria y **"Esperando a que el tutor marque asistencia"** una vez terminada.
+- `canProposeModification()`: visibilidad/habilitación del botón "Proponer modificación" — solo visible en `SCHEDULED` futura (SCHEDULING-40); deshabilitado con tooltip si quedan 3 días o menos (SCHEDULING-41).
+- `canCancelSession()`: visibilidad/habilitación del botón "Cancelar tutoría" — visible en `PENDING_TUTOR_CONFIRMATION` y `SCHEDULED` futura; deshabilitado con tooltip si quedan menos de 24 horas; oculto si la sesión está en curso o terminada.
+- `isTerminalStatus()`, `SESSION_STATUS_LABELS`: estados terminales (incl. `EXPIRED_UNCONFIRMED`) y mapa de etiquetas.
 
 ## Store global
 
@@ -132,7 +133,7 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 2. Hace clic en "Agendar" → navega a `/sessions?subjectId=...`.
 3. `StudentSchedule` carga slots disponibles en SSR vía `getTutorSlotsDetailedSSR()`.
 4. Estudiante selecciona slot → se abre `SchedulingWizard`.
-5. Paso 1: confirma slot.
+5. Paso 1: elige tutor. Si la franja es compartida, solo se listan los tutores **libres** (las entradas con `isBooked` quedan excluidas de `availableSlots`).
 6. Paso 2: elige modalidad.
 7. Paso 3: ingresa título y descripción.
 8. Paso 4: revisa y envía → `createSession()` POST.
@@ -150,8 +151,8 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 ### Proponer cambios
 
 1. Participante abre `SessionDetailModal`.
-2. Hace clic en editar/proponer cambio.
-3. Selecciona nueva modalidad, duración o fecha.
+2. El botón "Proponer modificación" solo aparece si la sesión está `SCHEDULED` y aún no inicia (SCHEDULING-40); se muestra deshabilitado con tooltip si quedan ≤3 días (SCHEDULING-41).
+3. En el formulario, modalidad y duración se habilitan solo si la disponibilidad del tutor lo permite; el botón Confirmar exige al menos un cambio (SCHEDULING-42).
 4. `modifySession()` POST.
 5. La otra parte recibe notificación/email para revisar.
 6. Revisa y acepta/rechaza vía `ReviewModificationDialog`.
@@ -161,7 +162,7 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 1. Participante abre `CancelSessionModal`.
 2. Indica motivo.
 3. `cancelSession()` DELETE.
-4. Sesión pasa a `CANCELLED_BY_STUDENT` o `CANCELLED_BY_TUTOR` según quién cancela.
+4. Sesión pasa a `CANCELLED`.
 
 ### Completar sesión y registrar asistencia
 
@@ -191,3 +192,4 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 - El wizard maneja estado complejo con `useSchedulingWizard`.
 - La máquina de estados de sesión es central: cada operación transita la sesión por estados bien definidos.
 - Los DTOs de modificación y edición están separados porque afectan distintos aspectos del backend.
+- **Franjas compartidas entre tutores:** el paso 1 del wizard solo ofrece tutores libres en la franja. Al reservar, la actualización optimista marca como ocupada únicamente la entrada del tutor reservado (`(slotId, tutorId)`, no todo el `slotId` compartido) y emite `slot:booked` con `tutorId` para que `Calendar.astro` refresque el bloque sin recargar. La lógica de ocupación por tutor vive en `getSlotsByDayStudent` de la feature `availability` (ver su README).

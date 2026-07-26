@@ -19,6 +19,15 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  overflow: visible;
+  /* Espacio para botones que sobresalen de la card (desktop) */
+  padding-bottom: 28px;
+}
+
+@media (max-width: 768px) {
+  .modal-card__container {
+    padding-bottom: 0;
+  }
 }
 
 /* ─── Card shell ─────────────────────────────────────────────────────────────── */
@@ -48,19 +57,19 @@
 
 .modal-card__close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: -12px;
+  right: -13px;
   background: none;
   border: none;
   font-size: 1.1rem;
   color: var(--neutral-300);
   cursor: pointer;
-  line-height: 1;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition:
-    color 0.2s,
-    background 0.2s;
+  /* line-height: 1; */
+  padding: 4px 10px;
+  border-radius: 1000px;
+  transition: color 0.2s, background 0.2s;
+  background: white;
+  border: 1px solid var(--border-primary);
 }
 
 .modal-card__close:hover {

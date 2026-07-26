@@ -8,11 +8,10 @@ export type SessionStatus =
   | 'CANCELLED_BY_STUDENT'
   | 'CANCELLED_BY_TUTOR'
   | 'CANCELLED_BY_ADMIN'
+  | 'EXPIRED_UNCONFIRMED'
+  | 'CONFIRMED'
   | 'COMPLETED'
-  | 'EXPIRED_UNCONFIRMED';
-
-// Individual ("Cerrada") vs. grupal ("Abierta"). Fuente: DashboardSessionSummary.sessionType.
-export type SessionType = 'INDIVIDUAL' | 'GROUP';
+  | 'CANCELLED';
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
 
@@ -265,7 +264,8 @@ export interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   available: boolean;
-  modality?: Modality;
+  /** 'BOTH' = el slot soporta ambas modalidades; null/undefined = modalidad ambigua (se asume ambas). */
+  modality?: Modality | 'BOTH' | null;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────

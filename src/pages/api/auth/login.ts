@@ -11,7 +11,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     cookies.set("access_token", result.accessToken, {
       httpOnly: true,
       secure: import.meta.env.PROD,
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60
     });
@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     cookies.set("refresh_token", result.refreshToken, {
       httpOnly: true,
       secure: import.meta.env.PROD,
-      sameSite: "strict",
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 30
     });

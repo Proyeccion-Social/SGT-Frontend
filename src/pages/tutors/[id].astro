@@ -1,0 +1,39 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import TutorDetail from "@/features/search/components/TutorDetail.astro";
+
+const { id: tutorId } = Astro.params;
+const tutorIdStr = tutorId ?? "";
+const pageTitle = tutorIdStr ? "Perfil del tutor | Atlas" : "Tutor no encontrado | Atlas";
+---
+
+<Layout title={pageTitle}>
+  <main>
+    {tutorIdStr ? <TutorDetail /> : <h1>Tutor no encontrado</h1>}
+  </main>
+  <style>
+    main {
+      display: contents;
+    }
+  </style>
+  <script define:vars={{ tutorId: tutorIdStr }}>
+    document.addEventListener("astro:page-load", () => {
+      setTimeout(() => {
+        if (typeof window.loadTutor === "function") {
+          window.loadTutor(tutorId);
+        }
+      }, 0);
+
+      const dialog = document.getElementById("tutor-detail-section");
+      if (dialog) {
+        dialog.addEventListener("close", () => {
+          if (document.referrer && document.referrer !== window.location.href) {
+            history.back();
+          } else {
+            window.location.href = "/search";
+          }
+        });
+      }
+    });
+  </script>
+</Layout>

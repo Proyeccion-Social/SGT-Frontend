@@ -11,6 +11,7 @@ import CalendarIcon from "./icons/CalendarIcon.svg";
 import BinocularIcon from "./icons/BinocularIcon.svg";
 import SearchIcon from "./icons/SearchIcon.svg";
 import CommunityIcon from "./icons/CommunityIcon.svg";
+import NotificationBadge from "@features/dashboards/components/notifications/NotificationBadge";
 import { UserRole } from "@/constants/roles";
 
 interface Props {
@@ -127,7 +128,7 @@ const currentPath = Astro.url.pathname;
           </>
         )
       }
-      <div class='notification-container' id="goNotificationsTUTORIAL">
+      <div class='notification-container' id="goNotificationsTUTORIAL" style="position:relative">
         <button
           id='notification-trigger'
           aria-label='Abrir notificaciones'
@@ -136,6 +137,7 @@ const currentPath = Astro.url.pathname;
           <Image src={NotificationIcon} alt='Notification' class='icon' />
           <span class='notification-label'>Notificaciones</span>
         </button>
+        <NotificationBadge client:idle transition:persist />
       </div>
     </div>
   </div>

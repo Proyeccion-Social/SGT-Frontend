@@ -133,12 +133,11 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 2. Hace clic en "Agendar" → navega a `/sessions?subjectId=...`.
 3. `StudentSchedule` carga slots disponibles en SSR vía `getTutorSlotsDetailedSSR()`.
 4. Estudiante selecciona slot → se abre `SchedulingWizard`.
-5. Paso 1: elige tutor. Si la franja es compartida, solo se listan los tutores **libres** (las entradas con `isBooked` quedan excluidas de `availableSlots`).
-6. Paso 2: elige modalidad.
-7. Paso 3: ingresa título y descripción.
-8. Paso 4: revisa y envía → `createSession()` POST.
-9. Sesión queda en estado `PENDING_TUTOR_CONFIRMATION`.
-10. Tutor recibe notificación/email.
+5. Paso 1: elige tutor. La tarjeta muestra las modalidades del slot de ese tutor (Presencial, Virtual o ambas). Si es una sola, queda fijada; si son ambas, el estudiante la elige en el paso de modalidad.
+6. Paso 2: ingresa título y descripción.
+7. Paso 3: selecciona tipo de espacio; si el slot ofrece ambas modalidades, elige la modalidad (paso 4); revisa y envía → `createSession()` POST (la modalidad proviene del slot o de la elección del estudiante, nunca se adivina).
+8. Sesión queda en estado `PENDING_TUTOR_CONFIRMATION`.
+9. Tutor recibe notificación/email.
 
 ### Confirmar/rechazar sesión
 

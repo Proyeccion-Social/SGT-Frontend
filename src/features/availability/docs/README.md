@@ -56,11 +56,11 @@ Los estudiantes necesitan saber:
 
 Interfaces y enums principales (distribuidos en archivos de tipos de la feature):
 
-- `Modality = 'PRES' | 'VIRT'`: modalidad de una sesión o slot.
+- `Modality = 'PRES' | 'VIRT'`: modalidad. Un slot puede ofrecer una o ambas, así que en `Slot`/`RawSlot` la modalidad es un arreglo (`Modality[]`): `['PRES']`, `['VIRT']` o `['PRES','VIRT']`.
 - `DayOfWeek = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO'`.
-- `RawSlot`: slot tal como viene del backend.
+- `RawSlot`: slot tal como viene del backend (su `modality` llega como arreglo).
 - `TutorAvailabilityResponse`: respuesta con slots agrupados por día.
-- `Slot`: estructura procesada y normalizada para la UI.
+- `Slot`: estructura procesada y normalizada para la UI (`modality: Modality[]`, normalizada con `toModalityList`).
 - `TutorInfo`: información pública del tutor.
 - `GetAvailabilityQueryDto`, `ManageSlotDto`: DTOs para queries y mutaciones.
 

@@ -13,6 +13,18 @@ export type SlotAction = 'CREATE' | 'UPDATE' | 'DELETE';
 
 export type SlotStatus = 'AVAILABLE' | 'BOOKED';
 
+/**
+ * El backend envía la modalidad de cada slot como arreglo (`['PRES']`, `['VIRT']`
+ * o `['PRES','VIRT']` cuando el tutor ofrece ambas). Se normaliza a `Modality[]`,
+ * tolerando respuestas viejas donde llegaba como escalar.
+ */
+export const toModalityList = (m: unknown): Modality[] => {
+  const arr = Array.isArray(m) ? m : m != null && m !== '' ? [m] : [];
+  return arr
+    .map((x) => String(x).toUpperCase())
+    .filter((x): x is Modality => x === 'PRES' || x === 'VIRT');
+};
+
 //===============================================================
 // Interfaces
 //===============================================================
@@ -22,7 +34,7 @@ export interface RawSlot {
   dayOfWeekNumber: number;
   startTime: string;
   endTime: string;
-  modality: string;
+  modality: string[];
   duration: number;
   isAvailable: boolean;
 }
@@ -40,7 +52,7 @@ export interface Slot {
   id: string;
   dayOfWeek: DayOfWeek;
   startTime: string;
-  modality: Modality | null;
+  modality: Modality[];
   endTime?: string;
   location?: string;
   platform?: string;
@@ -238,7 +250,7 @@ export async function getTutorSlots(
         dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] || s.dayOfWeek,
         startTime: s.startTime?.substring(0, 5),
         endTime: s.endTime?.substring(0, 5),
-        modality: s.modality,
+        modality: toModalityList(s.modality),
         location: s.location,
         platform: s.platform,
         isBooked: s.isAvailable === false ? true : (s.isBooked || false)
@@ -434,7 +446,7 @@ export async function getTutorSlotsDetailedSSR(
           dayOfWeek: string;
           startTime: string;
           endTime: string;
-          modality: string;
+          modality: string[];
           isAvailable: boolean;
         }>
       >;
@@ -476,7 +488,7 @@ export async function getTutorSlotsDetailedSSR(
             dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] ?? (s.dayOfWeek as DayOfWeek),
             startTime: s.startTime?.substring(0, 5),
             endTime: s.endTime?.substring(0, 5),
-            modality: (s.modality as Modality) ?? null,
+            modality: toModalityList(s.modality),
             isBooked: s.isAvailable === false,
             tutorIds: [tutor.tutorId],
             subject: subject.name,
@@ -574,7 +586,7 @@ export async function getAllTutorSlotsSSR(
           dayOfWeek: dayMap[s.dayOfWeek?.toUpperCase()] ?? s.dayOfWeek,
           startTime: s.startTime?.substring(0, 5),
           endTime: s.endTime?.substring(0, 5),
-          modality: (s.modality as Modality) ?? null,
+          modality: toModalityList(s.modality),
           isBooked: s.isAvailable === false,
           tutorIds: [tutor.tutorId],
           subject: subject.name,

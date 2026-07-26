@@ -141,23 +141,29 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
       const slotBlockId = (detail.slotBlockId as string) || matchingSlots[0]?.id || "";
 
+      // `detail.modality` llega como cadena separada por comas ("PRES", "VIRT" o
+      // "PRES,VIRT"); si ofrece ambas o ninguna, se muestra la etiqueta genérica.
+      const detailModalities = String(custom.detail.modality ?? "")
+        .split(",")
+        .map((x: string) => x.trim().toUpperCase())
+        .filter(Boolean);
       const modalityLabel =
-        !detail.modality || detail.modality === "null"
+        detailModalities.length !== 1
           ? "Presencial o Virtual"
-          : String(detail.modality).toUpperCase() === "VIRT"
-            ? "Virtual"
-            : "Presencial";
+          : detailModalities[0] === "VIRT"
+          ? "Virtual"
+          : "Presencial";
 
-      try {
-        sileo.action({
-          title: "Franja seleccionada",
-          description: `${detail.startTime} → ${detail.endTime} · ${modalityLabel}`,
-          fill: "#8751ff",
-          styles: { badge: "#ffffff" },
-        });
-      } catch {
-        // El toast no debe bloquear la apertura del popover
-      }
+      sileo.action({
+        title: "Franja seleccionada",
+        description: (
+          <span className="wizard-sileo-description">
+            {`${custom.detail.startTime} → ${custom.detail.endTime} · ${modalityLabel}`}
+          </span>
+        ),
+        fill: "#8751ff",
+        styles: { badge: "#ffffff" },
+      });
 
       // Evitar que el click residual cierre el popover al abrirlo
       ignoreCloseUntil.current = Date.now() + 150;
@@ -329,16 +335,28 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         (((endH * 60 + endM) - (startH * 60 + startM)) / 60) * 2
       ) / 2;
 
+    // SCHEDULING-05: la modalidad nunca se adivina. Sale de la elección del
+    // estudiante (paso de modalidad) o, si el slot ofrece una sola, de esa.
+    const slotModalities = currentData.slot?.modality ?? [];
+    const resolvedModality =
+      currentData.modality ??
+      (slotModalities.length === 1 ? slotModalities[0] : undefined);
+    if (!resolvedModality) {
+      sileo.action({
+        title: "Modalidad no disponible",
+        description: "No se pudo determinar la modalidad del espacio seleccionado.",
+        fill: "#f35761",
+        styles: { badge: "#ffffff" },
+      });
+      return;
+    }
+
     const sessionData = {
       tutorId: currentData.tutorId,
       subjectId: currentData.subjectId,
       availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
-      modality: currentData.modality
-        ?? (Array.isArray(currentData.slot?.modality)
-          ? currentData.slot!.modality[0]
-          : currentData.slot?.modality)
-        ?? "PRES",
+      modality: resolvedModality,
       title: currentData.title,
       durationHours,
       description: currentData.description,
@@ -414,17 +432,25 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     ...new Set(availableSlots.flatMap((s) => s.tutorIds || [])),
   ];
 
-  const slotContextModality = slotContext?.modality;
+  // Modalidades que ofrece cada tutor en la franja: es la fuente de verdad para
+  // la tarjeta. Un slot puede ofrecer una o ambas (['PRES'], ['VIRT'] o ambas);
+  // se unen las de todos sus slots dentro del rango.
+  const modalityByTutor: Record<string, string[]> = {};
+  for (const s of availableSlots) {
+    for (const t of s.tutorIds ?? []) {
+      modalityByTutor[t] = [
+        ...new Set([...(modalityByTutor[t] ?? []), ...(s.modality ?? [])]),
+      ];
+    }
+  }
 
-  // Calcular las modalidades disponibles de la franja para el paso de selección
-  const slotModalities: ("VIRT" | "PRES")[] = (() => {
-    const raw = data.slot?.modality ?? slotContextModality;
-    if (!raw || raw === "null") return ["VIRT", "PRES"];
-    if (Array.isArray(raw)) return raw.filter((m): m is "VIRT" | "PRES" => m === "VIRT" || m === "PRES");
-    if (raw === "BOTH") return ["VIRT", "PRES"];
-    if (raw === "VIRT" || raw === "PRES") return [raw];
-    return ["VIRT", "PRES"];
-  })();
+  // Siempre se muestra el paso de modalidad (paso 4), aunque solo haya una
+  // opción disponible. Preferir las del tutor elegido; si no, las del slot.
+  const slotModalities = (
+    (data.tutorId ? modalityByTutor[data.tutorId] : null) ??
+    data.slot?.modality ??
+    []
+  ) as ("VIRT" | "PRES")[];
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
   const stepTitleByStep: Record<number, { highlight: string; rest: string }> = {
@@ -490,14 +516,23 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     subject={data.subject}
                     subjectColor={colorMap[data.subject]}
                     tutorProfiles={tutorProfiles}
+                    modalityByTutor={modalityByTutor}
                     onSelect={(tutorId) => {
                       const selectedSlot =
                         availableSlots.find((s) => s.tutorIds?.includes(tutorId)) ?? data.slot;
+                      // Preselección si el tutor solo ofrece una modalidad; el
+                      // paso 4 siempre se muestra para confirmar/elegir.
+                      const tutorModalities = modalityByTutor[tutorId] ?? selectedSlot?.modality ?? [];
+                      const singleModality =
+                        tutorModalities.length === 1
+                          ? (tutorModalities[0] as "VIRT" | "PRES")
+                          : null;
                       setData((prev) => ({
                         ...prev,
                         tutorId,
                         slot: selectedSlot,
                         tutorName: tutorProfiles[tutorId]?.name ?? prev.tutorName,
+                        modality: singleModality,
                       }));
                       setStep(2);
                     }}
@@ -518,8 +553,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                   <SessionTypeStep
                     initialType={data.sessionType}
                     onNext={(sessionType) => {
-                      const updatedData = { ...data, sessionType };
-                      setData(updatedData);
+                      setData((prev) => ({ ...prev, sessionType }));
                       setStep(4);
                     }}
                     onBack={() => setStep(2)}

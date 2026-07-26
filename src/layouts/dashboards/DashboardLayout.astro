@@ -10,7 +10,8 @@ import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 import TutorAvailabilityOverlay from "@/features/tutorAvailability/components/TutorAvailabilityOverlay.astro";
 import { UserRole } from "@/constants/roles";
 import UserHeader from "@/features/general/components/UserHeader.astro";
-import NotificationsPanel from "@features/dashboards/components/notifications/NotificationsPanel";
+import NotificationsRoot from "@/components/notifications/NotificationsRoot";
+import GlobalSessionDetail from "@/features/dashboards/components/GlobalSessionDetail";
 import TutorialInitializer from "@/driverTutorial/TutorialInitializer";
 
 interface Props {
@@ -36,7 +37,7 @@ const userId = getUserIdFromCookie(Astro.cookies);
       <slot />
     </main>
   </div>
-  <NotificationsPanel client:idle transition:persist />
+  <NotificationsRoot client:idle transition:persist />
   <!-- <FirstLoginSetup client:idle transition:persist /> -->
   {
     (rol === "tutor" || rol === "student") && (
@@ -47,6 +48,7 @@ const userId = getUserIdFromCookie(Astro.cookies);
     )
   }
   <EmailActionController client:only='react' userId={userId} />
+  <GlobalSessionDetail client:load />
   <TutorialInitializer client:load />
 </Layout>
 

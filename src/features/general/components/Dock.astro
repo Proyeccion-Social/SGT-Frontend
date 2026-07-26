@@ -11,6 +11,7 @@ import CalendarIcon from "@/features/dashboards/components/icons/CalendarIcon.sv
 import BinocularIcon from "@/features/dashboards/components/icons/BinocularIcon.svg";
 import SearchIcon from "@/features/dashboards/components/icons/SearchIcon.svg";
 import CommunityIcon from "@/features/dashboards/components/icons/CommunityIcon.svg";
+import NotificationBadge from "@features/dashboards/components/notifications/NotificationBadge";
 
 interface Props {
   userRole: UserRole;
@@ -125,11 +126,18 @@ const currentPath = Astro.url.pathname;
 </nav>
 
 {/* Floating Notifications for Mobile */}
-<a href='#' class='notification-floating' id="goNotificationsMobileTUTORIAL">
+<button
+  class='notification-floating'
+  id="goNotificationsMobileTUTORIAL"
+  aria-label='Abrir notificaciones'
+  type="button"
+  onclick="window.dispatchEvent(new CustomEvent('toggle-notifications'))"
+>
   <div class='icon-highlight'>
-    <Image src={NotificationIcon} alt='Notificaciones' class='icon' />
+    <Image src={NotificationIcon} alt='Notificaciones' class='icon-notification' />
   </div>
-</a>
+  <NotificationBadge client:idle transition:persist />
+</button>
 
 <style>
   .dock {
@@ -153,39 +161,13 @@ const currentPath = Astro.url.pathname;
     border: 1px solid rgba(255, 255, 255, 0.01);
   }
 
-  @media (max-width: 768px) {
-    .dock {
-      display: flex;
-      position: fixed;
-      bottom: 25px;
-      top: auto;
-      left: 50%;
-      transform: translateX(-50%);
-      margin: 0;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-      /* width: 85%; */
-      justify-content: center;
-    }
-
-    .notification-floating {
-      position: fixed !important;
-      top: 2rem !important;
-      left: 20px !important;
-      bottom: auto !important;
-      width: 54px;
-      height: 54px;
-      background-color: var(--primary-100) !important;
-      border-radius: 50%;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      z-index: 1000;
-      border: 2px solid #fff;
-    }
-  }
-
   .notification-floating {
     display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
   }
 
   .dock-items {
@@ -224,6 +206,11 @@ const currentPath = Astro.url.pathname;
     height: 24px;
   }
 
+  .icon-notification {
+    width: 16px;
+    height: 16px;
+  }
+
   .dock-item.calendar-item {
     background: #b797ff;
     border: 0.5px solid rgba(0, 0, 0, 0.1);
@@ -239,6 +226,38 @@ const currentPath = Astro.url.pathname;
     background: #e7dcff;
     z-index: 1001;
   }
+
+    @media (max-width: 768px) {
+    .dock {
+      display: flex;
+      position: fixed;
+      bottom: 25px;
+      top: auto;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+      /* width: 85%; */
+      justify-content: center;
+    }
+
+    .notification-floating {
+      display: flex !important;
+      position: fixed !important;
+      top: 38px !important;
+      right: 92px !important;
+      bottom: auto !important;
+      width: 32px;
+      height: 32px;
+      background-color: var(--primary-100) !important;
+      border-radius: 50%;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      border: 2px solid #fff;
+    }
+  }
+
 </style>
 
 <script>

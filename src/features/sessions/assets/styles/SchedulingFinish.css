@@ -1,0 +1,114 @@
+.scheduling-finish.finish-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin: 0;
+  padding: 2.5rem 3.375rem;
+  border: none;
+}
+
+.scheduling-finish .finish-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  text-align: center;
+}
+
+.scheduling-finish .marked-completed {
+  position: relative;
+}
+
+.scheduling-finish .finish-title {
+  font-family: "Open Sauce Two", sans-serif;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--fontsize-heading-h2m);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  position: relative;
+}
+
+/* La palabra "agendado" queda resaltada por la marca, anclada a la propia palabra
+   (independiente del ancho total del título). */
+.scheduling-finish .finish-title__marked {
+  position: relative;
+  display: inline-block;
+  z-index: 0;
+}
+
+.scheduling-finish .finish-mark {
+  position: absolute;
+  left: 50%;
+  bottom: -0.1em;
+  transform: translateX(-50%);
+  width: 118%;
+  height: auto;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.scheduling-finish .finish-subtitle {
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 24px;
+  color: #3c3c3c;
+  margin: 0;
+}
+
+.scheduling-finish .arrow-continue {
+  position: absolute;
+  top: -64px;
+  z-index: 11;
+}
+
+.scheduling-finish .finish-arrow {
+  display: block;
+}
+
+.scheduling-finish .finish-anchord {
+  font-family: "Caveat";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 32px;
+  letter-spacing: -0.02em;
+  text-decoration-line: underline;
+  color: #9acc5b;
+  background: none;
+  border: none;
+  position: absolute;
+  top: -28px;
+  left: 72px;
+  cursor: pointer;
+}
+
+@media (max-width: 499px) {
+  .scheduling-finish.finish-body {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .scheduling-finish .finish-title {
+    font-size: 1.75rem;
+  }
+
+  .scheduling-finish .finish-subtitle {
+    font-size: 15px;
+  }
+
+  .scheduling-finish .arrow-continue {
+    display: none;
+  }
+
+  .scheduling-finish .finish-anchord {
+    font-size: 22px;
+    line-height: 22px;
+    top: -18px;
+    left: 44px;
+  }
+}

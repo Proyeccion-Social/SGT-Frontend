@@ -21,7 +21,7 @@ const userRole = UserRole.TUTOR;
     <div class='hours-bar'>
       <TutorAvailabilityManager client:only='react' />
     </div>
-
+    
     <div class='cards-container'>
       <div class='incoming-sessions-container' id="DashboardManagerTUTORIAL">
         <DashboardSessionManager role={userRole} client:only='react' />
@@ -93,10 +93,9 @@ const userRole = UserRole.TUTOR;
   .hours-bar {
     display: flex;
     position: relative;
-    min-height: 60px;
     overflow: hidden;
     border-radius: 12px;
-    margin: 0 clamp(1rem, 5vw, 10rem);
+    margin: 0 clamp(1rem,12vw,10rem);
     width: auto;
   }
 
@@ -135,7 +134,7 @@ const userRole = UserRole.TUTOR;
     display: grid;
     grid-template-columns: 64fr 36fr;
     gap: clamp(15px, 3vw, 40px);
-    padding: 0 clamp(1rem, 5vw, 10rem);
+    padding: 0 clamp(1rem, 12vw, 10rem);
     width: 100%;
     box-sizing: border-box;
     align-items: start;

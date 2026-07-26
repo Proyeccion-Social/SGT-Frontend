@@ -53,33 +53,38 @@
 }
 
 .presencial {
-    width: 72px;
-    height: 24px;
+    width: auto;
+    height: auto;
     border-radius: 12px;
     background-color: #FAE9B7;
     color: #91792E;
     font-weight: 400;
-    font-size: 11px;
-    line-height: 16px;
-    letter-spacing: -2%;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: "Cabinet Grotesk Variable";
+    padding: 2px 8px;
+    font-style: normal;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: -0.02em;
+    color: #91792E;
+
 }
 
 .virtual {
-    width: 72px;
-    height: 24px;
+    width: auto;
+    height: auto;
     border-radius: 12px;
     background-color: #82E0AA;
     color: #12522D;
-    font-weight: 400;
-    font-size: 11px;
+    font-weight: 400;   
+    font-family: "Cabinet Grotesk Variable";
+    padding: 2px 8px;
+    font-style: normal;
+    font-size: 12px;
     line-height: 16px;
-    letter-spacing: -2%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    letter-spacing: -0.02em;
 }
 .modality {
     display: flex;
@@ -88,16 +93,16 @@
 
 .day{
     font-weight: 600;
-    font-size: 14px;
-    line-height: 100%;
-    letter-spacing: -2%;
-    color: #1A1A1A;
+    letter-spacing: -0.02em;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--text-headings);
 }
 
 .hours{
     font-weight: 400;
+    letter-spacing: -0.02em;
     font-size: 14px;
-    line-height: 100%;
-    letter-spacing: -2%;
-    color: #1A1A1A;
+    line-height: 24px;
+    color: var(--text-headings);
 }

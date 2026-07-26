@@ -113,40 +113,6 @@ const slotsByDay = DAYS.map((day) => {
 ---
 
 <div class='right-menu-inner'>
-  <div class='user-profile'>
-    <UserHeader userRole={UserRole.TUTOR} />
-  </div>
-
-  <div class='mini-calendar'>
-    <div class='calendar-header'>
-      <h4>{monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}</h4>
-    </div>
-
-    <div class='calendar-grid'>
-      <div class='grid-header'>Lu</div>
-      <div class='grid-header'>Ma</div>
-      <div class='grid-header'>Mi</div>
-      <div class='grid-header'>Ju</div>
-      <div class='grid-header'>Vi</div>
-      <div class='grid-header'>Sa</div>
-      <div class='grid-header'>Do</div>
-
-      {
-        days.map((item) =>
-          item.day ? (
-            <div class={`grid-day ${item.isSelected ? "selected" : ""} ${item.isFirstOfWeek ? "week-start" : ""} ${item.isLastOfWeek ? "week-end" : ""}`}>
-              <span class={`day-num ${item.isFirstOfWeek || item.isLastOfWeek ? "circle-endpoint" : ""}`}>
-                {item.day}
-              </span>
-            </div>
-          ) : (
-            <div class='grid-day empty' />
-          ),
-        )
-      }
-    </div>
-  </div>
-
   <div class='slots-list-container'>
     <div class='slots-scroll'>
       {
@@ -298,7 +264,7 @@ const slotsByDay = DAYS.map((day) => {
     overflow: hidden;
     position: relative;
     border-radius: 20px;
-    padding: 8px 28px 28px 28px;
+    padding: 28px;
     
   }
 

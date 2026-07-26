@@ -1,7 +1,14 @@
 import { HOUR_START, HOUR_HEIGHT } from "./calendarConstants";
 
 
-export type Modality = 'PRES' | 'VIRT';
+/** Valores válidos de modalidad */
+export type ModalityValue = 'PRES' | 'VIRT';
+
+/**
+ * El backend ahora envía modality como un array de strings.
+ * Se mantiene soporte legacy para string único por retrocompatibilidad.
+ */
+export type Modality = ModalityValue[] | ModalityValue | null;
 
 export type DayOfWeek = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO';
 
@@ -10,13 +17,41 @@ export type SlotAction = 'CREATE' | 'UPDATE' | 'DELETE';
 export type SlotStatus = 'AVAILABLE' | 'BOOKED';
 
 //===============================================================
+// Helpers de modalidad
+//===============================================================
+
+/**
+ * Normaliza el campo modality a un array de ModalityValue.
+ * Soporta string legacy ("PRES", "VIRT", "BOTH") y arrays del nuevo backend.
+ */
+export function normalizeModality(modality: Modality): ModalityValue[] {
+  if (!modality) return [];
+  if (Array.isArray(modality)) return modality as ModalityValue[];
+  // Legacy: string único
+  if (modality === 'BOTH') return ['PRES', 'VIRT'];
+  return [modality as ModalityValue];
+}
+
+/**
+ * Compara si dos valores de modalidad son equivalentes.
+ * Funciona tanto con strings legacy como con arrays.
+ */
+export function isSameModality(a: Modality, b: Modality): boolean {
+  const setA = new Set(normalizeModality(a));
+  const setB = new Set(normalizeModality(b));
+  if (setA.size !== setB.size) return false;
+  for (const v of setA) if (!setB.has(v)) return false;
+  return true;
+}
+
+//===============================================================
 // Interfaces
 //===============================================================
 export interface Slot {
   id: string;
   dayOfWeek: DayOfWeek;
   startTime: string;
-  modality: Modality | null;
+  modality: Modality;
   endTime?: string;
   location?: string;
   platform?: string;
@@ -159,10 +194,29 @@ export function getSlotsByDayStudent(slots: Slot[], dayKey: string): any[] {
   return grouped;
 }
 
+function normalizeTime(time?: string): string {
+    if (!time) return "";
+    return time.substring(0, 5);
+}
+
+function normalizeIsBooked(slot: Slot | Record<string, unknown>): boolean {
+    const s = slot as Record<string, unknown>;
+    if (s.isAvailable === false) return true;
+    return Boolean(s.isBooked);
+}
+
 export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
-    const daySlots = slots.filter(
-        (s) => s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
-    );
+    const daySlots = slots
+        .filter(
+            (s) =>
+                s.dayOfWeek?.toString().toUpperCase() === dayKey.toUpperCase(),
+        )
+        .map((s) => ({
+            ...s,
+            startTime: normalizeTime(s.startTime),
+            endTime: s.endTime ? normalizeTime(s.endTime) : undefined,
+            isBooked: normalizeIsBooked(s),
+        }));
 
     if (daySlots.length === 0) return [];
 
@@ -188,10 +242,10 @@ export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
             : nextStart + 60;
 
         const isContiguous = currentEnd === nextStart;
-        const isSameModality = currentBlock.modality === nextSlot.modality;
-        const isSameStatus = currentBlock.isBooked === nextSlot.isBooked;
+        const sameModality = isSameModality(currentBlock.modality, nextSlot.modality);
+        const isSameStatus = Boolean(currentBlock.isBooked) === Boolean(nextSlot.isBooked);
 
-        if (isContiguous && isSameModality && isSameStatus) {
+        if (isContiguous && sameModality && isSameStatus) {
             currentEnd = nextEnd;
             const h = Math.floor(currentEnd / 60)
                 .toString()

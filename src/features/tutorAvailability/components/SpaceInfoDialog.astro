@@ -271,23 +271,30 @@ document.addEventListener("astro:page-load", () => {
     // HELPERS
     // =======================
 
-    // Obtener modalidad desde estado (NO desde clases)
-    function getSelectedModality() {
-        return currentSlot?.modality || "NONE";
+    // Obtener modalidad seleccionada como array
+    function getSelectedModalities(): string[] {
+        return normalizeModalityLocal(currentSlot?.modality);
     }
 
-    // Setear botones visualmente
-    function setModalityButtons(modality: string) {
+    // Normaliza modality a array (soporta string legacy y arrays del backend)
+    function normalizeModalityLocal(modality: any): string[] {
+        if (!modality) return [];
+        if (Array.isArray(modality)) return modality;
+        if (modality === 'BOTH') return ['PRES', 'VIRT'];
+        return [modality];
+    }
+
+    // Setear botones visualmente en base al array de modalidades activas
+    function setModalityButtons(modality: any) {
         const buttons = dialog?.querySelectorAll(".modality-btn");
+        const active = normalizeModalityLocal(modality);
 
         buttons?.forEach((btn) => {
             btn.classList.remove("active");
 
             if (
-                (btn.textContent === "Presencial" &&
-                    (modality === "PRES" || modality === "BOTH")) ||
-                (btn.textContent === "Virtual" &&
-                    (modality === "VIRT" || modality === "BOTH"))
+                (btn.textContent === "Presencial" && active.includes("PRES")) ||
+                (btn.textContent === "Virtual" && active.includes("VIRT"))
             ) {
                 btn.classList.add("active");
             }
@@ -314,23 +321,37 @@ document.addEventListener("astro:page-load", () => {
         }
     });
 
-    // 🔥 DELEGACIÓN DE EVENTOS PARA MODALIDAD
+    // 🔥 DELEGACIÓN DE EVENTOS PARA MODALIDAD (multi-select toggle)
     dialog?.addEventListener("click", (e) => {
         const target = e.target as HTMLElement;
 
         if (target.classList.contains("modality-btn")) {
-            const buttons = dialog.querySelectorAll(".modality-btn");
+            // Obtener array actual de modalidades
+            const current = normalizeModalityLocal(currentSlot.modality);
+            let code: string;
+
+            if (target.textContent === "Presencial") {
+                code = "PRES";
+            } else {
+                code = "VIRT";
+            }
+
+            // Toggle: si ya estaba activo se quita, si no se agrega
+            let updated: string[];
+            if (current.includes(code)) {
+                updated = current.filter((m) => m !== code);
+            } else {
+                updated = [...current, code];
+            }
+
+            // Al menos una modalidad debe quedar activa
+            if (updated.length === 0) return;
+
+            // 🔥 ESTADO REAL como array
+            currentSlot.modality = updated;
 
             // UI
-            buttons.forEach((b) => b.classList.remove("active"));
-            target.classList.add("active");
-
-            // 🔥 ESTADO REAL
-            if (target.textContent === "Presencial") {
-                currentSlot.modality = "PRES";
-            } else {
-                currentSlot.modality = "VIRT";
-            }
+            setModalityButtons(updated);
         }
     });
 
@@ -370,13 +391,18 @@ document.addEventListener("astro:page-load", () => {
 
         const newStartTime = hoursInputs[0].value;
         const newEndTime = hoursInputs[1].value;
-        const newModality = getSelectedModality();
+        const newModalities = getSelectedModalities();
+
+        if (newModalities.length === 0) {
+            sileo.error({ title: "Selecciona al menos una modalidad", fill: "#f35761", duration: 2500 });
+            return;
+        }
 
         const body = {
             dayOfWeek: currentSlot.dayOfWeek,
             startTime: newStartTime,
             endTime: newEndTime,
-            modality: newModality,
+            modality: newModalities,
         };
 
         await sileo.promise(async () => {
@@ -418,7 +444,7 @@ document.addEventListener("astro:page-load", () => {
             dayOfWeek: currentSlot.dayOfWeek,
             startTime: currentSlot.startTime?.slice(0, 5) || "",
             endTime: currentSlot.endTime?.slice(0, 5) || "",
-            modality: currentSlot.modality || "NONE",
+            modality: normalizeModalityLocal(currentSlot.modality),
         };
 
         await sileo.promise(async () => {

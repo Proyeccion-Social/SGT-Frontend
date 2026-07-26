@@ -49,6 +49,22 @@
   color: #3c3c3c;
 }
 
+.slot-popover__dot--empty {
+  background: #f5a623;
+}
+
+.slot-popover__empty {
+  margin: 0;
+  font-family: "Open Sauce Two";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #818181;
+  max-width: 220px;
+}
+
 .slot-popover__subjects {
   display: flex;
   flex-wrap: wrap;

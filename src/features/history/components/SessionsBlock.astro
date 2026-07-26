@@ -4,6 +4,7 @@ import HistorySessionManager from "./HistorySessionManager.tsx";
 import { HistoryFilters } from "./HistoryFilters.tsx";
 import CalendarAdd from "../assets/calendar-add.svg";
 import { Image } from "astro:assets";
+import { statusLabel } from "@/features/sessions/utils/statusLabel";
 
 const { data, currentStatus, userId } = Astro.props;
 
@@ -94,24 +95,14 @@ const pagination = data.meta;
                   </td>
                   <td>
                     {(() => {
-                      if (session.status === "CANCELLED") return "Cancelada";
-                      if (session.status === "CANCELLED_BY_STUDENT")
-                        return "Cancelada por el estudiante";
-                      if (session.status === "CANCELLED_BY_TUTOR")
-                        return "Cancelada por el tutor";
+                      // Override por ausencia: deriva de participants, no del status (reporte §4.3).
                       if (
                         session.participants.find(
                           (participant) => participant.id === userId,
                         )?.status === "ABSENT"
                       )
                         return "Completada - No asistió";
-                      if (session.status === "COMPLETED") return "Completada";
-                      if (session.status === "SCHEDULED") return "Programada";
-                      if (session.status === "PENDING_TUTOR_CONFIRMATION")
-                        return "Pendiente de confirmación por el tutor";
-                      if (session.status === "PENDING_STUDENT_CONFIRMATION")
-                        return "Pendiente de confirmación por el estudiante";
-                      return session.status;
+                      return statusLabel(session.status);
                     })()}
                   </td>
                 </tr>
@@ -124,16 +115,10 @@ const pagination = data.meta;
         <div class='mobile-cards mobile-only'>
           {
             sessions.map((session) => {
-              const statusLabel = (() => {
-                if (session.status === "CANCELLED") return "Cancelada";
-                if (session.status === "CANCELLED_BY_STUDENT") return "Cancelada por el estudiante";
-                if (session.status === "CANCELLED_BY_TUTOR") return "Cancelada por el tutor";
+              const statusText = (() => {
+                // Override por ausencia (reporte §4.3); variante corta por el espacio reducido en mobile.
                 if (session.participants.find((p) => p.id === userId)?.status === "ABSENT") return "Completada - No asistió";
-                if (session.status === "COMPLETED") return "Completada";
-                if (session.status === "SCHEDULED") return "Programada";
-                if (session.status === "PENDING_TUTOR_CONFIRMATION") return "Pendiente del tutor";
-                if (session.status === "PENDING_STUDENT_CONFIRMATION") return "Pendiente del estudiante";
-                return session.status;
+                return statusLabel(session.status, "short");
               })();
 
               const isPresencial = session.modality === "PRES" || session.modality === "PRESENCIAL";
@@ -155,7 +140,7 @@ const pagination = data.meta;
                   </p>
                   <div class='mobile-card-bottom'>
                     <span class='subject-name'>{session.subject.name}</span>
-                    <span class='mobile-card-status'>{statusLabel}</span>
+                    <span class='mobile-card-status'>{statusText}</span>
                   </div>
                 </div>
               );

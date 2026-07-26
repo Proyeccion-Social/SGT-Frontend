@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { sileo } from "sileo";
 
-const PW_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+const PW_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
+
+function getPasswordError(pw: string): string {
+  if (pw.length < 8)          return "Debe tener al menos 8 caracteres.";
+  if (!/[A-Z]/.test(pw))      return "Debe incluir al menos una letra may\u00fascula.";
+  if (!/[a-z]/.test(pw))      return "Debe incluir al menos una letra min\u00fascula.";
+  if (!/\d/.test(pw))         return "Debe incluir al menos un n\u00famero.";
+  if (!/[@$!%*?&#]/.test(pw)) return "Debe incluir al menos un car\u00e1cter especial (@$!%*?&#).";
+  return "";
+}
 
 import generalIconSrc   from "../../assets/general.svg?url";
 import contrasenaIconSrc from "../../assets/contraseña.svg?url";
@@ -99,8 +108,7 @@ export function GeneralSettingsView({ user, initialTab }: GeneralSettingsViewPro
   async function handleSavePassword() {
     const errors = { current: "", newPw: "", confirm: "" };
 
-    if (!PW_REGEX.test(pwForm.newPw))
-      errors.newPw = "Debe tener mayúscula, minúscula, número y carácter especial (@$!%*?&).";
+    errors.newPw = getPasswordError(pwForm.newPw);
 
     if (pwForm.newPw !== pwForm.confirm)
       errors.confirm = "Las contraseñas no coinciden.";

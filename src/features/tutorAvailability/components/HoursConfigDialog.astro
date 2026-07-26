@@ -176,9 +176,10 @@
           }
           
           window.dispatchEvent(new CustomEvent("refresh-slots"));
+          // Solo en onboarding: el dialog de horas no se abre en modo edición.
           setTimeout(() => {
               window.dispatchEvent(new CustomEvent('tutorial:start'));
-          }, 500); 
+          }, 500);
           dialog.close();
         },
         {

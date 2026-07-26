@@ -2,7 +2,7 @@
 
 ## Propósito y objetivo
 
-La feature `driverTutorial` implementa el **tour de onboarding** de la aplicación: un recorrido guiado, paso a paso, que se muestra la primera vez que un usuario accede a las pantallas clave de la plataforma. Está construida sobre la librería [`driver.js`](https://driverjs.com/) y se adapta al rol del usuario (estudiante o tutor) y a la ruta actual. Su objetivo es:
+La feature `driverTutorial` implementa el **tour de onboarding** de la aplicación: un recorrido guiado, paso a paso, que se muestra la primera vez que un usuario completa su perfil. Está construida sobre la librería [`driver.js`](https://driverjs.com/) y se adapta al rol del usuario (estudiante o tutor) y a la ruta actual. Su objetivo es:
 
 - Presentar la plataforma a usuarios nuevos sin necesidad de un manual externo.
 - Resaltar los elementos interactivos críticos de cada pantalla (calendario, filtros, botón de horarios, accesos a historial, etc.).
@@ -12,51 +12,65 @@ La feature `driverTutorial` implementa el **tour de onboarding** de la aplicaci�
 
 Sin un tour, los usuarios nuevos deben descubrir por sí solos dónde están las funcionalidades principales, lo que genera fricción y abandono temprano, especialmente en móvil. `driverTutorial` resuelve esto anclando tooltips a selectores HTML específicos y avanzando el recorrido según el rol y la pantalla visitada.
 
-Adicionalmente, centraliza tres problemas recurrentes que antes vivía en cada pantalla:
+Centraliza tres problemas recurrentes:
 
 1. **Reuso de la configuración del tour** (botones, offset, scroll suave, interacción activa) en una sola fábrica (`createTour`).
 2. **Mapeo automático de selectores desktop → mobile** para que el mismo tour funcione en ambos viewports sin duplicar steps.
-3. **Persistencia de progreso** entre páginas vía `localStorage("current-tour")`, de modo que un tour puede terminar navegando a otra ruta y continuar desde allí.
+3. **Persistencia de progreso** entre páginas vía `tutorialState` (key `atlas:tutorial:state` en `localStorage`), de modo que un tour puede terminar navegando a otra ruta y continuar desde allí.
 
 ## Componentes principales
 
-- [TutorialInitializer.tsx](../TutorialInitializer.tsx): componente React "invisible" montado globalmente. Detecta el rol del usuario, lee `localStorage("current-tour")` y la ruta actual, y lanza el tour correspondiente. Para el tour de disponibilidad del tutor espera al calendario real con un `setInterval` (ver *Notas técnicas*).
-- [createTour.js](../createTour.js): fábrica que crea una instancia de `driver()` con la configuración común (animación, offset, `allowClose`, `showCloseButton`, `disableActiveInteraction: false`, mapeo mobile, etc.) y la mezcla con la config de cada tour. Exporta además `isMobileViewport()` y `getInteractiveElement(selector)`.
-- [styles/dashStyles.css](../styles/dashStyles.css): estilos del popover, overlay y variantes de posición (`corner-popover`, `bottom-popover`, `celebration-popover`, `welcome-popover`, `final-popover`). Define el comportamiento responsive en breakpoints `≤ 768px` (tablet) y `≤ 480px` (móvil).
-- [gifs/cat-cat-licking.gif](../gifs/cat-cat-licking.gif): recurso visual usado en el paso final de celebración.
+- [TutorialInitializer.tsx](../TutorialInitializer.tsx): componente React "invisible" montado globalmente en `DashboardLayout.astro`. Detecta el rol del usuario, consulta el estado vía `tutorialState` y la ruta actual, y reanuda el tour correspondiente **solo si tiene estado `ACTIVE`**. Escucha el evento `tutorial:start` (disparado por el drawer al completar perfil) como único entry point para iniciar el primer tour.
+- [tutorialState.js](../tutorialState.js): única fuente de verdad del estado de los tours en `localStorage`. API: `getState`, `setState`, `getTourStatus`, `startTour`, `setTourStep`, `discardAllTours`, `completeTour`, `getResumeStep`. Opera en memoria si `localStorage` no está disponible y tolera JSON corrupto.
+- [createTour.js](../createTour.js): fábrica que crea una instancia de `driver()` con la configuración común (`allowClose: false`, `overlayClickAction: 'none'`, mapeo mobile, botón "Saltar tutorial"). Exporta además `isMobileViewport()` y `getInteractiveElement(selector)`.
+- [styles/dashStyles.css](../styles/dashStyles.css): estilos del popover, overlay, botón de skip y variantes de posición (`corner-popover`, `bottom-popover`, `celebration-popover`, `welcome-popover`, `final-popover`). Define el comportamiento responsive en breakpoints `≤ 768px` (tablet) y `≤ 480px` (móvil).
 
 ### Tours
 
 - [tutorials/Student/dashboardTutorial.js](../tutorials/Student/dashboardTutorial.js): tour inicial del dashboard del estudiante.
 - [tutorials/Tutor/dashboardTutorial.js](../tutorials/Tutor/dashboardTutorial.js): tour inicial del dashboard del tutor.
-- [tutorials/Tutor/disponibilidadTutorial.js](../tutorials/Tutor/disponibilidadTutorial.js): tour de la pantalla de gestión de disponibilidad del tutor (`/availability/tutor/slots`). Almacena `current-tour = "disponibilidad"` y limpia el estado en `onDestroyStarted`.
-- [tutorials/Student/agendamientoTutorial.js](../tutorials/Student/agendamientoTutorial.js): tour del calendario de agendamiento (`/sessions`). Al finalizar, redirige a `/search` y guarda `current-tour = "search"`.
+- [tutorials/Tutor/disponibilidadTutorial.js](../tutorials/Tutor/disponibilidadTutorial.js): tour de la pantalla de gestión de disponibilidad del tutor (`/availability/tutor/slots`).
+- [tutorials/Student/agendamientoTutorial.js](../tutorials/Student/agendamientoTutorial.js): tour del calendario de agendamiento (`/sessions`). Al finalizar, redirige a `/search`.
 - [tutorials/Student/searchTutorial.js](../tutorials/Student/searchTutorial.js): tour del buscador de tutores (`/search`).
-- [tutorials/finalTutorial.js](../tutorials/finalTutorial.js): tour final común a ambos roles, renderizado en `/dashboard` cuando `current-tour === "final"`. Cierra con un GIF de celebración y limpia `current-tour` al destruirse.
+- [tutorials/finalTutorial.js](../tutorials/finalTutorial.js): tour final común a ambos roles, renderizado en `/dashboard`. Cierra con una animación de celebración y marca el tour como `completed` automáticamente.
 
-## Servicios y APIs
+Cada tour declara al inicio del archivo sus constantes `TOUR_ID` y `TOUR_VERSION` y engancha los hooks `onNextClick`, `onPrevClick` y `onDestroyStarted` a `tutorialState` para persistir el paso actual.
 
-La feature no consume endpoints propios. Su único "almacén" de estado es el navegador:
+## Estado y persistencia
 
-- `localStorage.getItem("current-tour")` — valores posibles: `"disponibilidad"`, `"agendamiento"`, `"search"`, `"final"`. Indica qué tour está activo.
-- `localStorage.setItem("current-tour", <valor>)` — escrito por los tours al alcanzar un step de redirección para continuar el flujo en la siguiente página.
-- `localStorage.removeItem("current-tour")` — limpieza al cerrar o terminar un tour.
+La feature no consume endpoints propios. Su único almacén es el navegador, a través del módulo [`tutorialState.js`](../tutorialState.js):
 
-No hay DTOs propios; el tour no intercambia datos con el backend.
+- Key: `atlas:tutorial:state`
+- Valor: JSON con el siguiente esquema:
 
-## Tipos
+```json
+{
+  "version": 1,
+  "userRole": "STUDENT",
+  "tours": {
+    "<tourId>": {
+      "version": "1.0.0",
+      "status": "active | discarded | completed",
+      "currentStep": 2,
+      "totalSteps": 6,
+      "updatedAt": 1721750000000
+    }
+  }
+}
+```
 
-No hay definiciones TypeScript propias. Las firmas relevantes viven en el código como JSDoc implícito:
+### Reglas de estado
 
-- `createTour(config: DriverConfig): Driver` — devuelve una instancia de driver.js.
-- `getInteractiveElement(selector: string): Element | null` — devuelve el selector mobile si el viewport es ≤ 768 px y existe un mapeo, si no el selector original.
-- `startXxxTutorial(): void` — funciones `start*` exportadas por cada tour, sin retorno.
+- **`startTour()`** no reactiva un tour que ya fue `discarded` o `completed` (devuelve `false`).
+- **`discardAllTours()`** marca todos los tours como `discarded` de golpe (botón "Saltar tutorial").
+- **`maybeStartTour()`** (en `TutorialInitializer`) solo inicia un tour si ya existe con estado `ACTIVE`. Si no hay estado en localStorage (dispositivo nuevo), no inicia nada.
+- El **único entry point** para iniciar el flujo de tours es el evento `tutorial:start`, disparado por el drawer (estudiante) o el `HoursConfigDialog` (tutor) al completar el perfil.
 
 ## Utilidades
 
-### [createTour.js](../createTour.js) — `MOBILE_MAPPING`
+### `MOBILE_MAPPING` (createTour.js)
 
-Mapa centralizado de selectores de escritorio a sus equivalentes en móvil. Usado tanto en `createTour` (al transformar steps) como en `getInteractiveElement` (al resolver selectors en runtime):
+Mapa centralizado de selectores de escritorio a sus equivalentes en móvil:
 
 | Selector desktop | Selector mobile |
 |---|---|
@@ -69,107 +83,85 @@ Mapa centralizado de selectores de escritorio a sus equivalentes en móvil. Usad
 | `#goNotificationsTUTORIAL` | `#goNotificationsMobileTUTORIAL` |
 | `#godashboardTUTORIAL` | `#goDashboardMobileTUTORIAL` |
 
-### `isMobileViewport()`
+### Variantes de popover (dashStyles.css)
 
-Devuelve `true` cuando `window.innerWidth <= 768`. Usado para activar el `MOBILE_MAPPING` y como punto único de decisión móvil/escritorio para el tour.
-
-### Variantes de popover (`dashStyles.css`)
-
-- `.corner-popover` — popover anclado a la esquina inferior derecha en desktop, y a la parte inferior (sobre el dock móvil) en pantallas ≤ 768 px. Usado por el step del calendario.
-- `.bottom-popover` — popover fijo al fondo de la pantalla en mobile, posicionado por encima del dock para que el botón "Siguiente" del tour no quede tapado. Usado por steps de filtros.
-- `.celebration-popover` — popover centrado con el GIF de cierre del tour.
-- `.welcome-popover` — popover de bienvenida inicial del tour del dashboard.
-
-## Stores globales
-
-No consume ni actualiza stores de Zustand. La única "memoria" entre páginas es `localStorage("current-tour")`.
+- `.corner-popover` — anclado a la esquina inferior derecha en desktop, sobre el dock en mobile.
+- `.bottom-popover` — fijo al fondo en mobile, por encima del dock.
+- `.celebration-popover` — centrado, sin bordes, para la animación final.
+- `.welcome-popover` — popover de bienvenida centrado.
+- `.final-popover` — popover grande centrado para el cierre del tutorial.
+- `.atlas-skip-tutorial` — botón flotante "Saltar tutorial" en la parte superior central.
 
 ## Flujos de usuario
 
-### Arranque del tour desde el dashboard
+### Primer inicio (después de completar perfil)
 
-1. Usuario inicia sesión y entra a `/dashboard` por primera vez.
-2. `TutorialInitializer` detecta `role` y, como `current-tour` está vacío (o tiene cualquier valor distinto de `"final"`), llama a `startDashboardStudentTutorial()` o `startDashboardTutorTutorial()` tras 500 ms.
-3. El tour recorre los elementos clave del dashboard. Al terminar, queda en estado "listo para continuar".
+1. Usuario completa su perfil en el drawer (estudiante) o en `HoursConfigDialog` (tutor).
+2. Se dispara el evento `tutorial:start`.
+3. `TutorialInitializer` escucha el evento, verifica que el tour de dashboard no esté `discarded`/`completed`, e inicia `startDashboardStudentTutorial()` o `startDashboardTutorTutorial()`.
+4. El tour del dashboard avanza por los pasos y al final navega a la siguiente sección (agendamiento/disponibilidad), llamando a `startTour()` del siguiente tour antes de redirigir.
 
-### Tutor: dashboard → disponibilidad → dashboard final
+### Navegación entre tours
 
-1. El tour del dashboard del tutor termina y deja `current-tour` listo para avanzar (la lógica específica se gestiona dentro de cada tour; ver `disponibilidadTutorial.js`).
-2. El usuario navega a `/availability/tutor/slots`.
-3. `TutorialInitializer` ve `current-tour === "disponibilidad"` y arranca `startDisponibilidadTutorTutorial()`.
-4. El initializer **espera a `#calendarTutorTUTORIAL`** en el DOM con un `setInterval` (en vez de un `setTimeout` fijo) y solo entonces llama a `tour.drive()`. Esto evita que el tour se quede colgado si el calendario tarda en montar.
-5. El tour recorre calendario, navegación semana/mes, historial, notificaciones y termina con un step sobre el botón "Volvamos" (`#godashboardTUTORIAL`), que al hacer click navega a `/dashboard` y guarda `current-tour = "final"`.
-6. En `onDestroyStarted`, el tour limpia `current-tour` si todavía valía `"disponibilidad"` (caso de cierre manual).
+Cuando un tour termina y redirige a otra página, deja el siguiente tour con estado `ACTIVE` en localStorage. Al cargar la nueva página, `TutorialInitializer` detecta el estado `ACTIVE` vía `maybeStartTour()` y lo reanuda.
 
-### Estudiante: sesiones → search → dashboard final
+### Saltar tutorial
 
-1. Desde el dashboard, el usuario llega a `/sessions`.
-2. `current-tour === "agendamiento"` dispara `startAgendamientoStudentTutorial()`.
-3. El tour recorre el calendario (`#calendarStudentTUTORIAL`, con `corner-popover`), el filtro semanal (`#weekfilterStudentTUTORIAL`, con `bottom-popover`) y termina con un step sobre `#goSearchStudentTUTORIAL`.
-4. Al hacer click, el listener añade manualmente un `addEventListener` que guarda `current-tour = "search"` y redirige a `/search`.
-5. `TutorialInitializer` lanza `startSearchStudentTutorial()`. Al terminar, la lógica de cada tour guarda el siguiente `current-tour` o lo limpia.
+El usuario puede hacer click en "Saltar tutorial" (botón flotante superior central) en cualquier momento. Esto:
 
-### Cierre del tour (común)
+1. Llama a `discardAllTours()` que marca los 6 tours como `DISCARDED`.
+2. Destruye el tour actual.
+3. Ningún tour se volverá a mostrar en ninguna página de ese dispositivo.
 
-1. El último step del tour del dashboard muestra el GIF de celebración (`celebration-popover`).
-2. Tras 1.6 s, `setTimeout` llama a `tour.destroy()` y elimina `current-tour` de `localStorage`.
-3. El overlay desaparece y la pantalla queda en estado funcional sin residuos.
+### Reanudación tras recarga (F5)
+
+Si el usuario recarga la página mientras está en un paso intermedio:
+
+1. `TutorialInitializer` consulta `getTourStatus(tourId)` y ve `ACTIVE`.
+2. `startXxxTutorial()` llama a `getResumeStep(TOUR_ID, TOUR_VERSION)` que devuelve el paso guardado.
+3. El tour arranca con `tour.drive(resumeFrom)` y muestra el popover en ese paso.
+
+### Dispositivo nuevo
+
+Sin estado en localStorage, `maybeStartTour()` no inicia nada. El tutorial solo se muestra si el usuario vuelve a completar su perfil (lo cual no pasa si ya lo completó).
 
 ## Relación con otras features
 
-- **auth**: el initializer depende de `authStore.user.role` para decidir qué tour arrancar.
-- **dashboards**: el tour inicial se monta sobre `/dashboard` y ancla sus steps a selectores de `dashboards/components/*` (por ejemplo `#dashboardMainTUTORIAL`).
-- **tutorAvailability**: provee el selector `#calendarTutorTUTORIAL` que consume el tour de disponibilidad.
-- **sessions / search**: proveen los selectores `#calendarStudentTUTORIAL`, `#weekfilterStudentTUTORIAL`, `#goSearchStudentTUTORIAL` que consumen los tours de estudiante.
-- **general**: el `Dock.astro` provee los IDs `*MobileTUTORIAL` (ej. `#goAgendamientoMobileTUTORIAL`, `#goSearchStudentMobileTUTORIAL`) que el `MOBILE_MAPPING` resuelve como target móvil de los tours.
-- **tutorProfile**: si el usuario entra por primera vez sin perfil de tutor completo, el flujo de onboarding lo lleva por `tutorProfile` antes de llegar a `tutorAvailability`.
-
-## Páginas Astro que la utilizan
-
-- [src/pages/dashboard.astro](../../pages/dashboard.astro): monta `TutorialInitializer` y hospeda los tours de dashboard y el tour final.
-- [src/pages/sessions.astro](../../pages/sessions.astro): hospeda el tour de agendamiento del estudiante.
-- [src/pages/search.astro](../../pages/search.astro): hospeda el tour de búsqueda del estudiante.
-- [src/pages/availability/tutor/slots.astro](../../pages/availability/tutor/slots.astro): hospeda el tour de disponibilidad del tutor.
+- **auth**: el initializer depende de `authStore.user.role` y `requiresProfileCompletion` para decidir cuándo arrancar.
+- **dashboards**: el tour se monta sobre `/dashboard` y ancla steps a selectores de `dashboards/components/*`.
+- **tutorAvailability**: provee `#calendarTutorTUTORIAL`. El `HoursConfigDialog` dispara `tutorial:start` para tutores.
+- **sessions / search**: proveen selectores como `#calendarStudentTUTORIAL`, `#weekfilterStudentTUTORIAL`, `#goSearchStudentTUTORIAL`.
+- **general**: `Dock.astro` provee los IDs `*MobileTUTORIAL` que `MOBILE_MAPPING` resuelve.
+- **tutorProfile**: el drawer (`VaulDrawer`) dispara `tutorial:start` para estudiantes tras completar perfil.
 
 ## Notas técnicas
 
-### Decisión: `disableActiveInteraction: false`
+### `allowClose: false` + botón "Saltar tutorial"
 
-Por defecto driver.js bloquea el click sobre el elemento resaltado para evitar acciones accidentales. Esta feature lo desactiva globalmente (`createTour.js`) y lo reactiva selectivamente (`disableActiveInteraction: true` implícito en la mayoría de steps) **salvo** en los steps de redirección (ej. "Volvamos a la sección principal", "Zona de búsqueda"), donde el click debe propagarse al elemento real para que el listener pueda navegar a la siguiente página. En esos steps se usa `showButtons: []` para ocultar los botones de navegación del tour y dejar solo el click sobre el elemento como vía de avance.
+El tutorial bloquea toda interacción fuera del elemento resaltado. No hay X para cerrar ni click-to-dismiss en el overlay. La única forma de salir es:
+- Completar el flujo (avanzar todos los pasos).
+- Hacer click en "Saltar tutorial" (descarta todos los tours permanentemente).
 
-> Si en el futuro se introducen nuevos tours con steps interactivos, mantener esta convención: `disableActiveInteraction: false` solo en steps que **deben disparar una acción real** (navegación, toggle, etc.).
+### `setInterval` para disponibilidad
 
-### Decisión: `setInterval` en lugar de `setTimeout` para disponibilidad
+El tour de disponibilidad del tutor usa `setInterval` que reintenta cada 200 ms hasta encontrar `#calendarTutorTUTORIAL` en el DOM, en vez de un `setTimeout` fijo. El calendario depende de datos async y puede tardar en montarse.
 
-`TutorialInitializer` usa `setTimeout(..., 500)` para todos los tours **excepto** el de disponibilidad, donde usa `setInterval` que reintenta cada 200 ms hasta encontrar `#calendarTutorTUTORIAL` en el DOM. Esto se debe a que el calendario del tutor depende de la disponibilidad ya cargada, lo que introduce variabilidad en el tiempo de mount. Un `setTimeout` fijo podía dispararse antes de que el calendario existiera, dejando el tour apuntando a `null` y sin avanzar.
+### Mapeo mobile centralizado
 
-### Decisión: mapeo mobile centralizado en `createTour`
-
-En vez de duplicar cada step con su contraparte mobile, `createTour` reescribe los `element` de los steps al construir el tour si está en mobile. Esto evita drift entre versiones desktop y mobile de un mismo step y centraliza la regla de cuándo se considera "mobile" (`≤ 768 px`).
+`createTour` reescribe los `element` de los steps al construir el tour si está en mobile. Evita duplicar steps y centraliza la regla de cuándo se considera "mobile" (`≤ 768 px`).
 
 ### Convención de selectores: terminación `TUTORIAL`
 
-Todos los elementos HTML que son target de un step del tour deben tener un `id` terminado en `TUTORIAL` (ej. `#calendarTutorTUTORIAL`, `#goSearchStudentMobileTUTORIAL`). Esta convención:
+Todos los elementos target del tour deben tener un `id` terminado en `TUTORIAL`. Al añadir un nuevo target, añadir el par mobile en `MOBILE_MAPPING` y el `id` correspondiente en el componente mobile.
 
-- Hace que un `grep` rápido encuentre todos los targets de tour.
-- Permite a `MOBILE_MAPPING` emparejar pares desktop/mobile de forma sistemática.
-- Sirve como señal visual en el código HTML de que ese elemento es parte del flujo de onboarding.
+## Checklist para añadir un nuevo tour
 
-Al añadir un nuevo target, **siempre** añadir el par mobile en `MOBILE_MAPPING` y el `id` correspondiente en el componente mobile (típicamente `Dock.astro` o un `*Header.astro`).
-
-### Persistencia de progreso
-
-El estado del tour vive en `localStorage` con la clave `current-tour`. Valores válidos:
-
-| Valor | Disparado en | Tour que lanza |
-|---|---|---|
-| `"agendamiento"` | `/sessions` | `startAgendamientoStudentTutorial` |
-| `"search"` | `/search` | `startSearchStudentTutorial` |
-| `"disponibilidad"` | `/availability/tutor/slots` | `startDisponibilidadTutorTutorial` |
-| `"final"` | `/dashboard` | `startFinalTutorial` |
-
-Un tour debe **siempre** limpiar su valor de `current-tour` en `onDestroyStarted` para que el initializer no lo relance por accidente en visitas posteriores.
-
-### Estilos del popover
-
-`dashStyles.css` define `.driver-popover` con `max-width: 350px` en desktop y pasa a `width: auto; left: 16px; right: 16px` en mobile. El offset entre el popover y el elemento se controla con `popoverOffset: 24` (definido en `createTour`). Las variantes `corner-popover` y `bottom-popover` reposicionan el popover en mobile para que el botón "Siguiente" no quede tapado por el dock inferior.
+1. Crear el archivo en `tutorials/<Role>/nombreTutorial.js`.
+2. Declarar `TOUR_ID`, `TOUR_VERSION`, `TOTAL_STEPS`, `USER_ROLE`.
+3. Usar `startTour()` con check de `canStart` al inicio.
+4. Usar `getResumeStep()` y `tour.drive(resumeFrom)`.
+5. Enganchar `onNextClick`/`onPrevClick` a `setTourStep()`.
+6. Enganchar `onDestroyStarted` a `completeTour()` si es el último paso.
+7. Añadir el tour ID a `discardAllTours()` en `tutorialState.js`.
+8. Si el tour necesita reanudarse desde `TutorialInitializer`, añadir la entrada en `PATH_TOUR_MAP`.
+9. Añadir selectores mobile a `MOBILE_MAPPING` si aplica.

@@ -42,14 +42,46 @@
 
 /* Close Button */
 .driver-popover-close-btn {
-  color: var(--primary-700) !important;
-  transition: all 0.2s ease !important;
-  font-family: var(--type-font-family-primary), sans-serif !important;
-  letter-spacing: -0.02em !important;
+  display: none !important; /* Ocultar la X nativa de driver.js — el usuario usa "Saltar tutorial" */
 }
 
-.driver-popover-close-btn:hover {
-  color: var(--primary-default) !important;
+/* ─── SKIP TUTORIAL BUTTON ─────────────────────────────────────────────── */
+.atlas-skip-tutorial {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000000;
+  pointer-events: all !important;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: var(--primary-700, #513199);
+  border: 1px solid var(--neutral-200, #e2e2e2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--type-font-family-primary), sans-serif;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.atlas-skip-tutorial:hover {
+  background-color: var(--primary-100, #f3edff);
+  transform: translateX(-50%) scale(1.02);
+}
+
+.atlas-skip-tutorial:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .atlas-skip-tutorial {
+    top: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
 }
 
 /* Footer & Progress Text */

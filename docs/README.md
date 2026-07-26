@@ -9,6 +9,7 @@ Este directorio agrupa la documentación técnica de cada feature del proyecto. 
 | `auth` | Autenticación, registro, sesión, recuperación y cambio de contraseña. | [auth/docs/README.md](../auth/docs/README.md) |
 | `availability` | Lectura de disponibilidad de tutores (slots, información pública). | [availability/docs/README.md](../availability/docs/README.md) |
 | `dashboards` | Panel de control para estudiantes y tutores con métricas y notificaciones. | [dashboards/docs/README.md](../dashboards/docs/README.md) |
+| `driverTutorial` | Tour de onboarding guiado por rol (estudiante/tutor) basado en driver.js. | [driverTutorial/docs/README.md](../driverTutorial/docs/README.md) |
 | `emailScreens` | Acciones iniciadas desde emails (confirmar, evaluar, reprogramar, reset password). | [emailScreens/docs/README.md](../emailScreens/docs/README.md) |
 | `general` | Componentes transversales como el menú de usuario. | [general/docs/README.md](../general/docs/README.md) |
 | `history` | Historial de sesiones completadas/canceladas con filtros y evaluaciones. | [history/docs/README.md](../history/docs/README.md) |
@@ -45,6 +46,10 @@ graph TD
     L -->|evalúa| I
     C -->|datos iniciales| J
     C -->|completa perfil| E
+    F -->|ancla tour| M[driverTutorial]
+    G -->|ancla tour| M
+    J -->|ancla tour| M
+    K -->|ancla tour| M
 ```
 
 ## Convenciones de documentación

@@ -10,7 +10,7 @@ La característica `tutorAvailability` faculta de manera intuitiva y ágil a un 
 ## 2. Flujo Explicado del Usuario
 1. El tutor interactúa con un calendario visual fijo, con un rango que habitualmente ampara desde la mañana temprana `7:00` hasta el anochecer `19:00`, distribuido visualmente desde Lunes a Sábado.
 2. Buscando establecer disponibilidad un martes entre las diez y las once de la mañana, posiciona su ratón en el bloque del martes correspondiente a la celda "10:00", arrastra hacia abajo soltando el mouse en "11:00". (*Drag-to-Create*)
-3. En milisegundos y en segundo plano, la orden impacta contra la base de datos para forjar esa franja. Automáticamente la nueva franja florece a color a lo largo de su bloque correspondiente. Modalidad por defecto asumida: **Presencial**.
+3. En milisegundos y en segundo plano, la orden impacta contra la base de datos para forjar esa franja. Automáticamente la nueva franja florece a color a lo largo de su bloque correspondiente. Modalidad por defecto asumida: **Presencial** (se envía como `["PRES"]` — array).
 4. Si decide **modificar** o se arrepiente, el tutor simplemente hará *un solo clic superficial* sobre la tarjeta de franja ya coloreada. Se interpondrá en su vista un cuadro de dialogo para alterarlo o eliminar el espacio de tajo. 
 5. Al presionar **Guardar disponibilidad**, se abre un diálogo para configurar el **límite de horas semanales**; este paso valida que exista al menos **1 hora total** de franjas creadas. El límite máximo permitido es de **8 horas**, incluso si el tutor tiene más disponibilidad creada.
 6. **Integración Onboarding**: Este proceso es obligatorio para nuevos tutores y se dispara automáticamente tras completar el perfil (ver [Onboarding Integration](./04_onboarding_integration.md)).
@@ -46,7 +46,7 @@ La base de todo el feature consiste en una mezcolanza de Componentes de Archivo 
 
 ## 4. Fundamentos Aritméticos e Interpolación (`calendarUtils.ts`)
 Con frecuencia para efectos de flexibilidad y almacenamiento óptimo, el Backend despacha franjas atómicas y modulares (P. ej: de 30 en 30 minutos). Pintar cada tarjetita de impacto separada fracturaría brutalmente la visual de horas completas.
-- **`getSlotsByDay(slots, dayKey)`**: Es una trituradora y fusionadora visual. Caza bloques atomizados en una columna, indaga comparando cronologías relativas entre la hora `End` de bloque previo VS `Start` del bloque siguiente (*¿Están contiguos?*). Adicional evalúa que ambas posean equidad paramétrica (V. gr. Ambas son 'VIRTUAL', o bien ambas comparten un flag idéntico de reserva). Aquellas que convergen, las amalgama creando visualmente un bloque continuo y sin uniones para ser arrojado gráficamente al usuario, simplificándole la interfaz de forma impecable sin corromper el diseño backend.
+- **`getSlotsByDay(slots, dayKey)`**: Es una trituradora y fusionadora visual. Caza bloques atomizados en una columna, indaga comparando cronologías relativas entre la hora `End` de bloque previo VS `Start` del bloque siguiente (*¿Están contiguos?*). Adicional evalúa que ambas posean equidad paramétrica usando `isSameModality()` — que compara los arrays de modalidad por **contenido** (no por referencia), soportando tanto arrays del nuevo backend como strings legacy. Aquellas que convergen, las amalgama creando visualmente un bloque continuo y sin uniones para ser arrojado gráficamente al usuario.
 
 ## 5. Event Drive Arquitecture
 Dada la convivencia de Astro vs React, el feature elude dependencias engorrosas unificando la comunicación mediante mensajería pura del API JavaScript estándar: **`CustomEvents`**.
@@ -79,9 +79,11 @@ Endpoint: `PATCH /api/tutor-availability/patch-slots-by-range`
   "dayOfWeek": "MONDAY",
   "startTime": "10:00",
   "endTime": "11:00",
-  "modality": "PRES"
+  "modality": ["PRES"]
 }
 ```
+
+> El campo `modality` es un array de strings. Puede contener `["PRES"]`, `["VIRT"]` o `["PRES", "VIRT"]` para modalidad doble. El selector de modalidad en `SpaceInfoDialog` permite multi-select.
 
 #### DELETE (eliminar franja)
 Endpoint: `DELETE /api/tutor-availability/delete-slots-by-range`
@@ -91,11 +93,11 @@ Endpoint: `DELETE /api/tutor-availability/delete-slots-by-range`
   "dayOfWeek": "MONDAY",
   "startTime": "10:00",
   "endTime": "11:00",
-  "modality": "PRES"
+  "modality": ["PRES"]
 }
 ```
 
-> Nota: en el sidebar, `HoursCard.tsx` despacha este payload limpio por `delete-slot` para que `tutorCalendar.astro` lo reenvíe tal cual.
+> Nota: en el sidebar, `HoursCard.tsx` normaliza la modalidad a array antes de despacharla por `delete-slot`.
 
 ### Límite semanal: PATCH de límites
 Endpoint: `PATCH /api/tutor-availability/patch-tutor-limits`

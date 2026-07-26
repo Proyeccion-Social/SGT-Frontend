@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSubjectStore } from "@/store/subjectStore";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
@@ -39,52 +39,93 @@ interface Props {
   tutorProfiles?: Record<string, TutorProfileInfo>;
 }
 
+function normalizeDay(day: unknown): string {
+  return String(day ?? "")
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 interface CoveringTutor {
   tutorId: string;
   entrySlot: Slot;
+  /** Modalidades con las que el tutor cubre de forma continua toda la franja. */
+  modalities: ("PRES" | "VIRT")[];
 }
 
 function wizardTimeToMin(t?: string): number {
   if (!t) return 0;
   const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
+  return h * 60 + (m || 0);
 }
 
-// SCHEDULING-07: ¿los slots de un tutor (una materia y día) forman una cadena
-// continua, sin huecos, sin tramos ocupados y de una única modalidad, que cubre
-// por completo [selStart, selEnd]? Devuelve el slot de entrada (el que contiene el
-// inicio de la franja) si la cubre; null en caso contrario.
-function coverageEntrySlot(tutorSlots: Slot[], selStart: number, selEnd: number): Slot | null {
+/**
+ * SCHEDULING-07: ¿los slots de un tutor (una materia y día) forman una cadena
+ * continua, sin huecos, sin tramos ocupados y de una única modalidad, que cubre
+ * por completo [selStart, selEnd]?
+ * `modality` es Modality[] — un slot dual (PRES+VIRT) puede participar en ambas cadenas.
+ */
+function coverageForTutor(
+  tutorSlots: Slot[],
+  selStart: number,
+  selEnd: number,
+): { entrySlot: Slot; modalities: ("PRES" | "VIRT")[] } | null {
   if (selEnd <= selStart) return null;
 
-  // Cada modalidad se evalúa por separado: la cobertura exige una sola modalidad continua.
-  const byModality: Record<string, Slot[]> = {};
-  for (const s of tutorSlots) {
-    if (s.isBooked) continue; // un tramo ocupado rompe la cadena
-    const key = s.modality ?? "__NULL__";
-    if (!byModality[key]) byModality[key] = [];
-    byModality[key].push(s);
-  }
+  const freeSlots = tutorSlots.filter((s) => !s.isBooked);
+  if (freeSlots.length === 0) return null;
 
-  for (const key of Object.keys(byModality)) {
-    const chain = byModality[key]
+  const modalityKeys = new Set<"PRES" | "VIRT">();
+  for (const s of freeSlots) {
+    for (const m of s.modality ?? []) {
+      const k = String(m).toUpperCase();
+      if (k === "PRES" || k === "VIRT") modalityKeys.add(k);
+    }
+  }
+  // Sin modalidad explícita: evaluar una sola cadena con todos los slots libres.
+  const keysToTry: (("PRES" | "VIRT") | null)[] =
+    modalityKeys.size > 0 ? [...modalityKeys] : [null];
+
+  let entrySlot: Slot | null = null;
+  const covered: ("PRES" | "VIRT")[] = [];
+
+  for (const key of keysToTry) {
+    const chain = freeSlots
+      .filter((s) => {
+        if (key === null) return true;
+        const mods = (s.modality ?? []).map((m) => String(m).toUpperCase());
+        // Slot sin modalidad o que incluye la modalidad de la cadena.
+        return mods.length === 0 || mods.includes(key);
+      })
       .slice()
       .sort((a, b) => wizardTimeToMin(a.startTime) - wizardTimeToMin(b.startTime));
 
     let cursor = selStart;
-    let entrySlot: Slot | null = null;
+    let chainEntry: Slot | null = null;
     for (const s of chain) {
       const sStart = wizardTimeToMin(s.startTime);
-      const sEnd = wizardTimeToMin(s.endTime);
-      if (sStart > cursor) break; // hueco antes del cursor: la cadena no cubre
+      const sEnd = wizardTimeToMin(s.endTime ?? "23:59");
+      if (sStart > cursor) break; // hueco: la cadena no cubre
       if (sEnd > cursor) {
-        if (entrySlot === null) entrySlot = s; // primer slot que contiene el inicio de la franja
+        if (chainEntry === null) chainEntry = s;
         cursor = sEnd;
       }
-      if (cursor >= selEnd && entrySlot) return entrySlot;
+      if (cursor >= selEnd && chainEntry) {
+        if (!entrySlot) entrySlot = chainEntry;
+        if (key) covered.push(key);
+        break;
+      }
     }
   }
-  return null;
+
+  if (!entrySlot) return null;
+  return {
+    entrySlot,
+    modalities:
+      covered.length > 0
+        ? [...new Set(covered)]
+        : ((entrySlot.modality ?? []) as ("PRES" | "VIRT")[]),
+  };
 }
 
 // Tutores cuya disponibilidad continua cubre toda la franja para una materia dada.
@@ -93,21 +134,28 @@ function getCoveringTutors(
   dayOfWeek: string,
   subject: string,
   selStart: number,
-  selEnd: number
+  selEnd: number,
 ): CoveringTutor[] {
+  const day = normalizeDay(dayOfWeek);
   const byTutor: Record<string, Slot[]> = {};
   for (const s of allSlots) {
-    if (s.dayOfWeek !== dayOfWeek || s.subject !== subject) continue;
-    const t = s.tutorIds?.[0];
-    if (!t) continue;
-    if (!byTutor[t]) byTutor[t] = [];
-    byTutor[t].push(s);
+    if (normalizeDay(s.dayOfWeek) !== day || s.subject !== subject) continue;
+    for (const t of s.tutorIds ?? []) {
+      if (!byTutor[t]) byTutor[t] = [];
+      byTutor[t].push(s);
+    }
   }
 
   const result: CoveringTutor[] = [];
   for (const tutorId of Object.keys(byTutor)) {
-    const entrySlot = coverageEntrySlot(byTutor[tutorId], selStart, selEnd);
-    if (entrySlot) result.push({ tutorId, entrySlot });
+    const coverage = coverageForTutor(byTutor[tutorId], selStart, selEnd);
+    if (coverage) {
+      result.push({
+        tutorId,
+        entrySlot: coverage.entrySlot,
+        modalities: coverage.modalities,
+      });
+    }
   }
   return result;
 }
@@ -117,18 +165,19 @@ function getCoveringSubjects(
   allSlots: Slot[],
   dayOfWeek: string,
   selStart: number,
-  selEnd: number
+  selEnd: number,
 ): string[] {
+  const day = normalizeDay(dayOfWeek);
   const subjects = [
     ...new Set(
       allSlots
-        .filter((s) => s.dayOfWeek === dayOfWeek)
+        .filter((s) => normalizeDay(s.dayOfWeek) === day)
         .map((s) => s.subject)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[],
     ),
   ];
   return subjects.filter(
-    (subj) => getCoveringTutors(allSlots, dayOfWeek, subj, selStart, selEnd).length > 0
+    (subj) => getCoveringTutors(allSlots, dayOfWeek, subj, selStart, selEnd).length > 0,
   );
 }
 
@@ -139,6 +188,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
   const [slotContext, setSlotContext] = useState<any>(null);
+  const ignoreCloseUntil = useRef(0);
   const { colorMap } = useSubjectStore();
   const [data, setData] = useState<WizardData>({
     slot: null,
@@ -153,6 +203,10 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   });
 
   useEffect(() => {
+    setSlots(initialSlots);
+  }, [initialSlots]);
+
+  useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
       const detail = custom.detail;
@@ -165,6 +219,9 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
       // con disponibilidad continua. Si la selección abarca horarios de varios
       // tutores sin que ninguno la cubra por completo, no hay materias que ofrecer.
       const subjects = getCoveringSubjects(slots, detail.dayOfWeek, selStart, selEnd);
+
+      // Evitar que el click residual cierre el popover al abrirlo
+      ignoreCloseUntil.current = Date.now() + 150;
 
       if (subjects.length === 0) {
         sileo.action({
@@ -181,37 +238,42 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         return;
       }
 
+      // `detail.modality` llega como cadena separada por comas ("PRES", "VIRT" o
+      // "PRES,VIRT"); si ofrece ambas o ninguna, se muestra la etiqueta genérica.
+      const detailModalities = String(detail.modality ?? "")
+        .split(",")
+        .map((x: string) => x.trim().toUpperCase())
+        .filter(Boolean);
+      const modalityLabel =
+        detailModalities.length !== 1
+          ? "Presencial o Virtual"
+          : detailModalities[0] === "VIRT"
+            ? "Virtual"
+            : "Presencial";
+
       sileo.action({
         title: "Franja seleccionada",
         description: (
           <span className="wizard-sileo-description">
-            {`${detail.startTime} → ${detail.endTime} · ${
-              !detail.modality || detail.modality === "null"
-                ? "Presencial o Virtual"
-                : detail.modality.toUpperCase() === "VIRT"
-                ? "Virtual"
-                : "Presencial"
-            }`}
+            {`${detail.startTime} → ${detail.endTime} · ${modalityLabel}`}
           </span>
         ),
         fill: "#8751ff",
         styles: { badge: "#ffffff" },
       });
 
-      setTimeout(() => {
-        setPopover({
-          subjects,
-          slotBlockId,
-          slotData: detail,
-        });
-      }, 8);
+      setPopover({
+        subjects,
+        slotBlockId,
+        slotData: detail,
+      });
     };
 
     const closePopover = (e: MouseEvent) => {
+      if (Date.now() < ignoreCloseUntil.current) return;
       const target = e.target as HTMLElement;
-      if (!target.closest(".slot-popover") && !target.closest(".slot-block")) {
-        setPopover(null);
-      }
+      if (target.closest(".slot-popover") || target.closest(".slot-block")) return;
+      setPopover(null);
     };
 
     document.addEventListener("slot:clicked", handler);
@@ -363,12 +425,28 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         (((endH * 60 + endM) - (startH * 60 + startM)) / 60) * 2
       ) / 2;
 
+    // SCHEDULING-05: la modalidad nunca se adivina. Sale de la elección del
+    // estudiante (paso de modalidad) o, si el slot ofrece una sola, de esa.
+    const slotModalities = currentData.slot?.modality ?? [];
+    const resolvedModality =
+      currentData.modality ??
+      (slotModalities.length === 1 ? slotModalities[0] : undefined);
+    if (!resolvedModality) {
+      sileo.action({
+        title: "Modalidad no disponible",
+        description: "No se pudo determinar la modalidad del espacio seleccionado.",
+        fill: "#f35761",
+        styles: { badge: "#ffffff" },
+      });
+      return;
+    }
+
     const sessionData = {
       tutorId: currentData.tutorId,
       subjectId: currentData.subjectId,
       availabilityId: Number(currentData.slot?.id),
       scheduledDate: scheduledDateStr,
-      modality: currentData.modality ?? currentData.slot?.modality ?? "PRES",
+      modality: resolvedModality,
       title: currentData.title,
       durationHours,
       description: currentData.description,
@@ -387,15 +465,22 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
     await res.json();
 
-    // Marcar el slot como reservado en el estado local (evita reload)
+    // Marcar como reservado solo la entrada del tutor reservado (evita reload).
+    // El slotId es compartido entre tutores: marcar por id ocuparía también a
+    // los tutores que siguen libres. Se filtra por (slotId, tutorId).
     const bookedSlotId = currentData.slot?.id;
+    const bookedTutorId = currentData.tutorId;
     if (bookedSlotId) {
       setSlots((prev) =>
-        prev.map((s) => (s.id === bookedSlotId ? { ...s, isBooked: true } : s))
+        prev.map((s) =>
+          s.id === bookedSlotId && s.tutorIds?.includes(bookedTutorId)
+            ? { ...s, isBooked: true }
+            : s
+        )
       );
       document.dispatchEvent(
         new CustomEvent("slot:booked", {
-          detail: { slotId: bookedSlotId },
+          detail: { slotId: bookedSlotId, tutorId: bookedTutorId },
           bubbles: true,
         })
       );
@@ -437,11 +522,23 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
 
   const tutorIds = coveringTutors.map((c) => c.tutorId);
 
-  const slotContextModality = slotContext?.modality;
-  const isSlotContextAmbiguousModality =
-    !slotContextModality || slotContextModality === "null";
-  const needsModality = isSlotContextAmbiguousModality || data.slot?.modality == null;
-  const totalSteps = needsModality ? 4 : 3;
+  // Modalidades con las que cada tutor cubre de forma continua la franja
+  // (SCHEDULING-07 + SCHEDULING-05). Fuente de verdad para tarjeta y paso 4.
+  const modalityByTutor: Record<string, string[]> = {};
+  for (const c of coveringTutors) {
+    modalityByTutor[c.tutorId] =
+      c.modalities.length > 0
+        ? c.modalities
+        : [...(c.entrySlot.modality ?? [])];
+  }
+
+  // Siempre se muestra el paso de modalidad (paso 4), aunque solo haya una
+  // opción disponible. Preferir las del tutor elegido; si no, las del slot.
+  const slotModalities = (
+    (data.tutorId ? modalityByTutor[data.tutorId] : null) ??
+    data.slot?.modality ??
+    []
+  ) as ("VIRT" | "PRES")[];
 
   const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
   const stepTitleByStep: Record<number, { highlight: string; rest: string }> = {
@@ -491,7 +588,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                 Paso
                 <img
                   src={stepImages[step - 1]}
-                  alt={`Paso ${step} de ${totalSteps}`}
+                  alt={`Paso ${step} de 4`}
                   className="wizard-drawer__step-image"
                 />
               </div>
@@ -507,16 +604,25 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                     subject={data.subject}
                     subjectColor={colorMap[data.subject]}
                     tutorProfiles={tutorProfiles}
+                    modalityByTutor={modalityByTutor}
                     onSelect={(tutorId) => {
                       // El slot de entrada del tutor elegido es el que se reserva
                       // (availabilityId + duración lo resuelve el backend por cadena continua).
                       const covering = coveringTutors.find((c) => c.tutorId === tutorId);
                       const selectedSlot = covering?.entrySlot ?? data.slot;
+                      // Preselección si el tutor solo ofrece una modalidad; el
+                      // paso 4 siempre se muestra para confirmar/elegir.
+                      const tutorModalities = modalityByTutor[tutorId] ?? selectedSlot?.modality ?? [];
+                      const singleModality =
+                        tutorModalities.length === 1
+                          ? (tutorModalities[0] as "VIRT" | "PRES")
+                          : null;
                       setData((prev) => ({
                         ...prev,
                         tutorId,
                         slot: selectedSlot,
                         tutorName: tutorProfiles[tutorId]?.name ?? prev.tutorName,
+                        modality: singleModality,
                       }));
                       setStep(2);
                     }}
@@ -537,18 +643,17 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                   <SessionTypeStep
                     initialType={data.sessionType}
                     onNext={(sessionType) => {
-                      const updatedData = { ...data, sessionType };
-                      setData(updatedData);
-                      if (needsModality) setStep(4);
-                      else handleSubmit(updatedData);
+                      setData((prev) => ({ ...prev, sessionType }));
+                      setStep(4);
                     }}
                     onBack={() => setStep(2)}
                     isSubmitting={isSubmitting}
                   />
                 )}
-                {step === 4 && needsModality && (
+                {step === 4 && (
                   <ModalityStep
                     initialModality={data.modality}
+                    availableModalities={slotModalities}
                     onNext={(modality) => {
                       const updatedData = { ...data, modality };
                       setData(updatedData);

@@ -19,7 +19,6 @@ export const GET: APIRoute = async ({ cookies }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
-    console.error('[BFF] Error en dashboard/tutor:', error);
     return new Response(
       JSON.stringify({ message: error.message ?? 'Error interno del servidor' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

@@ -25,6 +25,7 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     title: "Dashboard - Pantalla Inicial",
                     description: "Aquí podrás ver y gestionar de manera rápida y fácil tus tutorías.",
+                    popoverClass: "corner-popover"
                 }
             },
             {
@@ -100,13 +101,6 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     description: "Mira tu perfil y ten la posibilidad de cambiar tu número de teléfono y contraseña.",
                     showButtons: ["next"]
-                }
-            },
-            {
-                element: "#disponibilidadTutorTUTORIAL",
-                popover: {
-                    title: "Actualiza tus horarios",
-                    description: "Aquí puedes modificar tus franjas de disponibilidad semanales.",
                 }
             },
             {

@@ -44,6 +44,7 @@ export const mapDashboardSessionToSession = (
     duration,
     modality: summary.modality,
     status: summary.status,
+    sessionType: summary.sessionType,
     tutor,
     subject,
     participants,

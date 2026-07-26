@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import type { Session, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import type { Session, SessionStatus, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { useAuthStore } from '@/store/authStore';
 import { useSessionStore } from '@/store/sessionStore';
 import { UserRole } from '@/constants/roles';
@@ -87,8 +87,13 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
         body: JSON.stringify({ sessionId, reason }),
       });
       if (!res.ok) throw new Error('Error al cancelar sesión');
+      // Estado optimista según el actor que cancela (el backend distingue por rol).
+      const cancelledStatus: SessionStatus =
+        role.toUpperCase() === UserRole.TUTOR.toUpperCase()
+          ? 'CANCELLED_BY_TUTOR'
+          : 'CANCELLED_BY_STUDENT';
       setSessions(
-        sessions.map(s => (s.id === sessionId ? { ...s, status: 'CANCELLED' } : s))
+        sessions.map(s => (s.id === sessionId ? { ...s, status: cancelledStatus } : s))
       );
       return true;
     } catch (err) {

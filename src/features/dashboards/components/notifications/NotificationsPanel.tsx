@@ -185,7 +185,10 @@ export function NotificationsPanel() {
 
   const handleView = async (n: AppNotification) => {
     try {
-      await fetch(`/api/notifications/${n.id}/read`, { method: 'PATCH' });
+      await fetch(`/api/notifications/${n.id}/read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
     } catch {}
     removeNotification(n.id);
 
@@ -204,7 +207,10 @@ export function NotificationsPanel() {
 
   const handleMarkAllRead = async () => {
     try {
-      await fetch('/api/notifications/read-all', { method: 'PATCH' });
+      await fetch('/api/notifications/read-all', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
     } catch {}
     markAllAsRead();
   };

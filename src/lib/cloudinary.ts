@@ -24,6 +24,8 @@ export const CLOUDINARY_SIZE = {
   profile: { width: 400, height: 400 },
   /** Scheduling tutor cards (~full width × 230px) */
   cover: { width: 400, height: 460 },
+  /** Dashboard promo banner 4:5 (~300×375 CSS; 2× for sharpness) */
+  banner: { width: 600, height: 750 },
 } as const;
 
 export type CloudinarySizeKey = keyof typeof CLOUDINARY_SIZE;

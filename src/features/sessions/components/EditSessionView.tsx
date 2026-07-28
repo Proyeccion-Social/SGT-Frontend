@@ -83,10 +83,10 @@ export const EditSessionForm = ({
   return (
     <div className="pmf">
 
-      {/* ── Fila 1: Título ── */}
-      <div className="pmf__row pmf__row--full">
+      {/* ── Fila 1: Título + Lugar/Link ── */}
+      <div className="pmf__row">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sdv-gray-dark, #475569)', marginLeft: '4px' }}>Título</label>
+          <label className="ef__label">Título</label>
           <input
             id="edit-title"
             type="text"
@@ -96,28 +96,10 @@ export const EditSessionForm = ({
             placeholder="Título de la sesión"
           />
         </div>
-      </div>
 
-      {/* ── Fila 2: Descripción ── */}
-      <div className="pmf__row pmf__row--full">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sdv-gray-dark, #475569)', marginLeft: '4px' }}>Descripción</label>
-          <textarea
-            id="edit-description"
-            className="ef ef--textarea"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            placeholder="Descripción de la sesión"
-          />
-        </div>
-      </div>
-
-      {/* ── Fila 3: Lugar o Link virtual ── */}
-      <div className="pmf__row pmf__row--full">
         {session.modality === 'PRES' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sdv-gray-dark, #475569)', marginLeft: '4px' }}>Salón / Lugar</label>
+            <label className="ef__label">Salón / Lugar</label>
             <input
               id="edit-location"
               type="text"
@@ -130,7 +112,7 @@ export const EditSessionForm = ({
         )}
         {session.modality === 'VIRT' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--sdv-gray-dark, #475569)', marginLeft: '4px' }}>Link de la reunión</label>
+            <label className="ef__label">Link de la reunión</label>
             <input
               id="edit-virtual-link"
               type="url"
@@ -141,6 +123,21 @@ export const EditSessionForm = ({
             />
           </div>
         )}
+      </div>
+
+      {/* ── Fila 2: Descripción ── */}
+      <div className="pmf__row pmf__row--full">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <label className="ef__label">Descripción</label>
+          <textarea
+            id="edit-description"
+            className="ef ef--textarea"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            placeholder="Descripción de la sesión"
+          />
+        </div>
       </div>
 
     </div>

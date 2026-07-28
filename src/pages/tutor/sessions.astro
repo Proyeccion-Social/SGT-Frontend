@@ -1,0 +1,6 @@
+---
+if (!Astro.cookies.get("access_token")?.value) {
+  return Astro.redirect("/?session=expired");
+}
+return Astro.redirect("/dashboard");
+---

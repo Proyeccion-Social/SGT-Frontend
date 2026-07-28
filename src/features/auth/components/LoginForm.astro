@@ -154,8 +154,14 @@
 
               if (redirectPath) {
                 const decoded = decodeURIComponent(redirectPath);
-                // Whitelist: solo destinos que empiecen con /dashboard
-                if (decoded.startsWith("/dashboard")) {
+                const allowedPrefixes = [
+                  '/dashboard', '/sessions', '/tutors', '/tutor',
+                  '/confirm-email', '/reset-password',
+                ];
+                const isAllowed = allowedPrefixes.some((p) =>
+                  decoded.startsWith(p)
+                );
+                if (isAllowed) {
                   destination = decoded;
                 }
               }

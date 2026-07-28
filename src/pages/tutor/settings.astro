@@ -1,0 +1,23 @@
+---
+import DashboardLayout from "@/layouts/dashboards/DashboardLayout.astro";
+import SettingsOpener from "@/features/tutorSettings/components/SettingsOpener";
+import { UserRole } from "@/constants/roles";
+
+const token = Astro.cookies.get("access_token")?.value;
+if (!token) {
+  return Astro.redirect("/?session=expired");
+}
+
+const payload = JSON.parse(atob(token.split(".")[1]));
+const userRole = payload.role.toLowerCase() as UserRole;
+
+if (userRole !== UserRole.TUTOR) {
+  return Astro.redirect("/dashboard");
+}
+---
+
+<DashboardLayout title="Ajustes | Atlas" rol={UserRole.TUTOR}>
+  <article>
+    <SettingsOpener client:only='react' />
+  </article>
+</DashboardLayout>

@@ -1,15 +1,10 @@
 // DashboardSessionManager.tsx
-// React orchestration wrapper — owns all modal state
-// Option B: listens to 'open-detail' CustomEvent dispatched by IncomingSessionsCard
+// Manages incoming sessions card list and listens for dashboard-refetch events
 
-import { useState, useEffect } from 'react';
-import type { Session } from '@/features/sessions/types/session.types';
+import { useEffect } from 'react';
 import { useSessionStore } from '@/store/sessionStore';
 import { IncomingSessionsCard } from './IncomingSessionsCard';
-import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
-import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
 import { UserRole } from '@/constants/roles';
-import type { ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { useDashboardData } from '../services/dashboardService';
 
 interface Props {
@@ -23,152 +18,11 @@ export const DashboardSessionManager = ({ role }: Props) => {
 
   const refetch = role === UserRole.TUTOR ? loadTutorDashboard : loadStudentDashboard;
 
-  const cancelar = async (id: string, reason: string) => {
-    try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: id, reason }),
-      });
-      if (!res.ok) throw new Error();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const modificar = async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/modify-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, ...data }),
-      });
-      if (!res.ok) throw new Error();
-      await refetch();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const editar = async (sessionId: string, data: EditSessionBody): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/edit-session', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, ...data }),
-      });
-      if (!res.ok) throw new Error();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const confirmar = async (sessionId: string): Promise<boolean> => {
-    console.log('[confirmar] sessionId:', sessionId);
-    try {
-      const res = await fetch('/api/sessions/confirm-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId }),
-      });
-      const body = await res.json().catch(() => null);
-      console.log('[confirmar] status:', res.status, 'body:', JSON.stringify(body, null, 2));
-      if (!res.ok) throw new Error(body?.message ?? `HTTP ${res.status}`);
-      await refetch();
-      return true;
-    } catch (e: any) {
-      console.error('[confirmar] error:', e.message);
-      return false;
-    }
-  };
-
-  const rechazar = async (sessionId: string, reason: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/reject-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, reason }),
-      });
-      if (!res.ok) throw new Error();
-      await refetch();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const aceptarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
-    console.log('[aceptarModificacion] sessionId:', sessionId, '| requestId:', requestId);
-    try {
-      const res = await fetch('/api/sessions/accept-modification', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, requestId }),
-      });
-      const body = await res.json().catch(() => null);
-      console.log('[aceptarModificacion] status:', res.status, 'body:', JSON.stringify(body, null, 2));
-      if (!res.ok) throw new Error(body?.message ?? `HTTP ${res.status}`);
-      await refetch();
-      return true;
-    } catch (e: any) {
-      console.error('[aceptarModificacion] error:', e.message);
-      return false;
-    }
-  };
-
-  const rechazarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
-    console.log('[rechazarModificacion] sessionId:', sessionId, '| requestId:', requestId);
-    try {
-      const res = await fetch('/api/sessions/reject-modification', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, requestId }),
-      });
-      const body = await res.json().catch(() => null);
-      console.log('[rechazarModificacion] status:', res.status, 'body:', JSON.stringify(body, null, 2));
-      if (!res.ok) throw new Error(body?.message ?? `HTTP ${res.status}`);
-      await refetch();
-      return true;
-    } catch (e: any) {
-      console.error('[rechazarModificacion] error:', e.message);
-      return false;
-    }
-  };
-
-  const canCancel = (session: Session) => true;
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
-  const [showCancelModal, setShowCancelModal]     = useState(false);
-  const [sessionToCancel, setSessionToCancel]     = useState<Session | null>(null);
-  
-  // Option B: listen to CustomEvent dispatched by IncomingSessionsCard
   useEffect(() => {
-    const handler = (e: Event) => {
-      const sessionId = (e as CustomEvent<{ sessionId: string }>).detail.sessionId;
-      if (sessionId) setSelectedSessionId(sessionId);
-    };
-    document.addEventListener('open-detail', handler);
-    return () => document.removeEventListener('open-detail', handler);
-  }, []);
-
-  const handleRequestCancel = (session: Session) => {
-    setSessionToCancel(session);
-    setSelectedSessionId(null);
-    setShowCancelModal(true);
-  };
-
-  const handleCancelClose = () => {
-    setShowCancelModal(false);
-    setSessionToCancel(null);
-  };
-
-  const handleCancelSuccess = () => {
-    setShowCancelModal(false);
-    setSessionToCancel(null);
-    refetch();
-  };
+    const handler = () => refetch();
+    document.addEventListener('dashboard-refetch', handler);
+    return () => document.removeEventListener('dashboard-refetch', handler);
+  }, [refetch]);
 
   return (
     <>
@@ -179,34 +33,6 @@ export const DashboardSessionManager = ({ role }: Props) => {
         viewerRole={role}
         onRefetch={() => refetch()}
       />
-
-      {selectedSessionId && (
-        <SessionDetailModal
-          sessionId={selectedSessionId}
-          role={role}
-          onClose={() => setSelectedSessionId(null)}
-          onRequestCancel={handleRequestCancel}
-          modificar={modificar}
-          editar={editar}
-          confirmar={confirmar}
-          rechazar={rechazar}
-          aceptarModificacion={aceptarModificacion}
-          rechazarModificacion={rechazarModificacion}
-        />
-      )}
-
-      {showCancelModal && sessionToCancel && (
-        <CancelSessionModal
-          session={sessionToCancel}
-          session_id={sessionToCancel.id}
-          onClose={handleCancelClose}
-          onSuccess={handleCancelSuccess}
-          cancelar={cancelar}
-          canCancel={canCancel}
-          isLoading={loading}
-          error={error}
-        />
-      )}
     </>
   );
 };

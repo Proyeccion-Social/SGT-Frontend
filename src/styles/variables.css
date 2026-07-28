@@ -122,7 +122,7 @@
   --secondary-700: var(--color-verdeps-700);
 
   --success-50: var(--color-verde-50);
-  --success-100: var(--color-verde-50);
+  --success-100: var(--color-verde-100);
   --success-200: var(--color-verde-200);
   --success-300: var(--color-verde-300);
   --success-default: var(--color-verde-400);
@@ -203,14 +203,14 @@
   --icon-information: var(--information-default);
 
   --border-primary: var(--neutral-200);
-  --border-secondary: var(--primary-default);
-  --border-action: var(--primary-default);
+  --border-secondary: var(--primary-300);
+  --border-action: var(--primary-200);
   --border-action-hover: var(--primary-600);
-  --border-focus: var(--primary-300);
-  --border-success: var(--success-default);
-  --border-error: var(--error-default);
-  --border-warning: var(--warning-default);
-  --border-information: var(--information-default);
+  --border-focus: var(--primary-200);
+  --border-success: var(--success-100);
+  --border-error: var(--error-200);
+  --border-warning: var(--warning-300);
+  --border-information: var(--information-200);
 
   --border-radius-none: var(--scale-0);
   --border-radius-sm: var(--scale-50);

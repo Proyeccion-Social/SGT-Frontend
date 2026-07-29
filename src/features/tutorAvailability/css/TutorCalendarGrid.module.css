@@ -106,6 +106,9 @@
     height: 64px;
     border-bottom: 1px solid #e8e8e8;
     flex-shrink: 0;
+    /* Evita que el scroll de la página se quede con el gesto de arrastre
+       en dispositivos táctiles. Sin esto el drag no llega a iniciarse. */
+    touch-action: none;
 }
 
 /* =================== SLOTS =================== */

@@ -228,7 +228,10 @@
         const mergedSlots = getSlotsByDay(slots, dayKey);
 
         // ---- Drag handlers ----
-        const handleMouseDown = (e: React.MouseEvent) => {
+        // Pointer events (no mouse events): cubren ratón, táctil y lápiz con
+        // el mismo código. Con mousedown/mousemove el gesto no llegaba a
+        // dispararse en un dispositivo táctil.
+        const handlePointerDown = (e: React.PointerEvent) => {
             const target = e.target as HTMLElement;
             // Solo iniciar drag en celdas vacías
             if (!target.classList.contains(styles.hourCell)) return;
@@ -244,7 +247,7 @@
 
             setDragState({ startMin, endMin: startMin + SLOT_INTERVAL });
 
-            const onMove = (ev: MouseEvent) => {
+            const onMove = (ev: PointerEvent) => {
                 const relY = ev.clientY - rect.top;
                 const currentMin = pixelsToMinutes(relY) + HOUR_START * 60;
                 const rounded = Math.ceil(currentMin / SLOT_INTERVAL) * SLOT_INTERVAL;
@@ -252,9 +255,21 @@
                 setDragState({ startMin, endMin: clamped });
             };
 
+            const detach = () => {
+                document.removeEventListener('pointermove', onMove);
+                document.removeEventListener('pointerup', onUp);
+                document.removeEventListener('pointercancel', onCancel);
+            };
+
+            // Gesto interrumpido por el sistema (llamada, gesto del navegador…):
+            // se descarta sin crear la franja.
+            const onCancel = () => {
+                detach();
+                setDragState(null);
+            };
+
             const onUp = async () => {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
+                detach();
 
                 setDragState((prev) => {
                     if (!prev || prev.endMin <= prev.startMin) return null;
@@ -314,8 +329,9 @@
                 });
             };
 
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
+            document.addEventListener('pointermove', onMove);
+            document.addEventListener('pointerup', onUp);
+            document.addEventListener('pointercancel', onCancel);
         };
 
         // ---- Click en slot existente ----
@@ -340,7 +356,7 @@
                 ref={columnRef}
                 className={`${styles.dayColumn}${isMobileActive ? ` ${styles.dayColumnMobileActive}` : ''}`}
                 style={{ '--day-color': DAY_COLORS[dayKey] } as React.CSSProperties}
-                onMouseDown={handleMouseDown}
+                onPointerDown={handlePointerDown}
             >
                 {/* Celdas horarias vacías */}
                 {HOURS_ARRAY.map((hour) => (

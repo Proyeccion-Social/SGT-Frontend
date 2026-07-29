@@ -63,6 +63,18 @@
         const weekDates = getWeekDates(new Date());
         const today = new Date();
 
+        const isSameDay = (date: Date | undefined) =>
+            !!date &&
+            today.getFullYear() === date.getFullYear() &&
+            today.getMonth() === date.getMonth() &&
+            today.getDate() === date.getDate();
+
+        // En móvil sólo se muestra un día a la vez: se abre en hoy, y si la
+        // semana mostrada no lo contiene, en el primero.
+        const [activeDayKey, setActiveDayKey] = useState<string>(
+            () => (DAYS.find((d) => isSameDay(weekDates[d.key])) ?? DAYS[0]).key,
+        );
+
         // ---- Fetch slots ----
         const fetchSlots = useCallback(async () => {
             try {
@@ -123,6 +135,30 @@
         return (
             <div className={styles.calendarOuter}>
                 <div className={styles.calendarWrapper}>
+                    {/* Selector de día — sólo visible en móvil */}
+                    <div className={styles.mobileDaySelector}>
+                        {DAYS.map((day) => {
+                            const date = weekDates[day.key];
+                            const isActive = day.key === activeDayKey;
+                            return (
+                                <button
+                                    key={day.key}
+                                    type='button'
+                                    aria-pressed={isActive}
+                                    className={`${styles.mobileDayBtn}${isActive ? ` ${styles.mobileDayBtnActive}` : ''}${isSameDay(date) ? ` ${styles.mobileDayBtnToday}` : ''}`}
+                                    onClick={() => setActiveDayKey(day.key)}
+                                >
+                                    <span className={styles.mobileDayBtnAbbr}>
+                                        {day.label.slice(0, 3)}
+                                    </span>
+                                    <span className={styles.mobileDayBtnNum}>
+                                        {date?.getDate().toString().padStart(2, '0')}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
                     {/* Header */}
                     <div className={styles.calendarHeader}>
                         <div className={styles.timeGutter} />
@@ -162,6 +198,7 @@
                                 dayKey={day.key}
                                 slots={slots}
                                 onSlotCreated={fetchSlots}
+                                isMobileActive={day.key === activeDayKey}
                             />
                         ))}
                     </div>
@@ -177,9 +214,10 @@
         dayKey: string;
         slots: Slot[];
         onSlotCreated: () => void;
+        isMobileActive: boolean;
     }
 
-    function DayColumn({ dayKey, slots, onSlotCreated }: DayColumnProps) {
+    function DayColumn({ dayKey, slots, onSlotCreated, isMobileActive }: DayColumnProps) {
         const columnRef = useRef<HTMLDivElement>(null);
         const [dragState, setDragState] = useState<{
             startMin: number;
@@ -300,7 +338,7 @@
         return (
             <div
                 ref={columnRef}
-                className={styles.dayColumn}
+                className={`${styles.dayColumn}${isMobileActive ? ` ${styles.dayColumnMobileActive}` : ''}`}
                 style={{ '--day-color': DAY_COLORS[dayKey] } as React.CSSProperties}
                 onMouseDown={handleMouseDown}
             >

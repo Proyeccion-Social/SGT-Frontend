@@ -169,3 +169,49 @@
 
 
 
+/* ── Móvil ──────────────────────────────────────────────────
+   --bp-md — los tokens --bp-* no son evaluables dentro de @media
+   (ver ADR-01). El drawer pasa a pantalla completa (ADR-05).
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .Content {
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .Panel {
+        height: 100%;
+        max-height: 100dvh;
+        border: none;
+        border-radius: 0;
+    }
+
+    .PanelHeader {
+        padding: var(--spacing-xs);
+        padding-top: max(var(--spacing-xs), env(safe-area-inset-top));
+    }
+
+    .SlotsContainer {
+        padding: var(--spacing-xs);
+    }
+
+    .CloseButtonContainer {
+        height: auto;
+        border-radius: 0;
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        padding-bottom: max(var(--spacing-xxs), env(safe-area-inset-bottom));
+    }
+
+    .CloseButton {
+        max-width: none;
+        font-size: var(--fontsize-body-lg);
+    }
+
+    .TriggerButton {
+        top: var(--spacing-xs);
+        right: var(--spacing-xs);
+    }
+}

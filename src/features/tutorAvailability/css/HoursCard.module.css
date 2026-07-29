@@ -3,7 +3,8 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    width: 320px;
+    width: 100%;
+    max-width: 320px;
     height: 70px;
     min-height: 70px;
     border-radius: 16px;

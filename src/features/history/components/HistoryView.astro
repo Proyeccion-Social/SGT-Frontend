@@ -1,6 +1,5 @@
 ---
 import SessionsBlock from "./SessionsBlock.astro";
-import Layout from "@/layouts/Layout.astro";
 import { getUserIdFromCookie } from "@/features/auth/utils/authUtils";
 import { getHistory } from "@/features/history/services/getHistory";
 
@@ -31,22 +30,22 @@ const history = await getHistory({
 });
 ---
 
-<Layout title='Historial de sesiones'>
-  <div class='history-layout'>
-    <div class='search-page'>
-      <SessionsBlock
-        data={history}
-        currentStatus={currentStatus}
-        userId={userId}
-      />
-    </div>
+<div class='history-layout'>
+  <div class='search-page'>
+    <SessionsBlock
+      data={history}
+      currentStatus={currentStatus}
+      userId={userId}
+    />
   </div>
-</Layout>
+</div>
 
 <style>
+  /* Se renderiza dentro del <main> de DashboardLayout, que ya define su
+     propia altura: usar 100% evita duplicar el alto en móvil. */
   .history-layout {
     display: flex;
-    height: 100vh;
+    height: 100%;
     overflow-y: hidden;
     background: #f6f1ff;
   }

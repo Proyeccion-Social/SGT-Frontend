@@ -104,3 +104,11 @@ Una vez autenticado, el usuario necesita:
 - La separación entre `ProfileSettingsDialog` (estudiante) y `TutorProfileDialog` (tutor) permite flujos de UI distintos sin mezclar lógica.
 - Los formularios usan validación cliente antes de enviar al API.
 - El toggle de activación de tutor es importante para controlar si el tutor aparece en resultados de búsqueda.
+
+## Responsive (móvil ≤768px)
+
+- `TutorProfileDialog` (`styles/tutorProfile.css`) pasa a **pantalla completa** bajo `--bp-md`: el
+  diálogo tenía `800×640` fijos con `!important` y desbordaba ya en tablet. `.tp-body` apila
+  `BasicInformation` sobre el panel de contenido y el scroll pasa a ser interno.
+- Los `!important` del bloque móvil son necesarios porque el shell del `Dialog` de shadcn ya los
+  usa; no se introdujeron donde no existían.

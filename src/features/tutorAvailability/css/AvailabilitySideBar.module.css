@@ -19,8 +19,76 @@
 }
 
 
+/* ── Shell del drawer (migrado desde utilidades de Tailwind:
+   los componentes propios usan CSS plano, ver frontend-standards §7) ── */
+
+.Overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1040;
+}
+
+.Content {
+    position: fixed;
+    right: var(--spacing-md);
+    top: var(--spacing-md);
+    bottom: var(--spacing-md);
+    width: 380px;
+    z-index: 1050;
+    outline: none;
+}
+
+.Panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: 600px;
+    background: #fafafa;
+    border: 1px solid #c6c6c6;
+    border-radius: var(--border-radius-lg);
+    z-index: 20;
+}
+
+.PanelHeader {
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid #c6c6c6;
+}
+
+.TriggerButton {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    padding: var(--spacing-2xs);
+    border: 1px solid #c6c6c6;
+    border-radius: 50%;
+    background: var(--surface-primary);
+    cursor: pointer;
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+.TriggerButton:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+}
+
+.TriggerButtonHidden {
+    width: 40px;
+    height: 40px;
+    opacity: 0;
+    pointer-events: none;
+}
+
 .CloseButton {
-    width: 320px;
+    width: 100%;
+    max-width: 320px;
     height: 56px;
     opacity: 1;
     border-radius: 24px;
@@ -96,6 +164,7 @@
     display: block; /* importante: algunos navegadores ignoran none */
     background: transparent;
 }
+
 
 
 

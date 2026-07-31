@@ -11,7 +11,7 @@ function getStrength(pw: string): 0 | 1 | 2 | 3 {
     let score = 0;
     if (pw.length >= MIN_LENGTH) score++;
     if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+    if (/\d/.test(pw) && /[@$!%*?&#]/.test(pw)) score++;
     return score as 0 | 1 | 2 | 3;
 }
 
@@ -34,7 +34,13 @@ export default function ResetPasswordForm() {
     }, []);
 
     const strength = getStrength(password);
-    const lengthOk = password.length >= MIN_LENGTH && password.length <= MAX_LENGTH;
+    const hasMinLength = password.length >= MIN_LENGTH;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSpecial = /[@$!%*?&#]/.test(password);
+
+    const lengthOk = hasMinLength && password.length <= MAX_LENGTH;
     const mismatch = confirm.length > 0 && password !== confirm;
     const matchOk = confirm.length > 0 && password === confirm && lengthOk;
 
@@ -190,8 +196,24 @@ export default function ResetPasswordForm() {
                             {showNew ? "Ocultar" : "Mostrar"}
                         </button>
                     </div>
-                    {touched.password && password.length > 0 && !lengthOk && (
-                        <p style={{ color: "#f35761", fontSize: "12px", marginTop: "4px" }}>Debe tener entre 8 y 128 caracteres.</p>
+                    {touched.password && password.length > 0 && (
+                        <div className="password-errors-list" style={{ marginTop: "4px", display: "flex", flexDirection: "column", gap: "2px" }}>
+                            {!hasMinLength && (
+                                <p style={{ color: "#f35761", fontSize: "12px" }}>Mínimo {MIN_LENGTH} caracteres</p>
+                            )}
+                            {password.length > MAX_LENGTH && (
+                                <p style={{ color: "#f35761", fontSize: "12px" }}>Máximo {MAX_LENGTH} caracteres</p>
+                            )}
+                            {(!hasUppercase || !hasLowercase) && (
+                                <p style={{ color: "#f35761", fontSize: "12px" }}>Incluye al menos una mayúscula y una minúscula</p>
+                            )}
+                            {!hasDigit && (
+                                <p style={{ color: "#f35761", fontSize: "12px" }}>Incluye al menos un número</p>
+                            )}
+                            {!hasSpecial && (
+                                <p style={{ color: "#f35761", fontSize: "12px" }}>Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?</p>
+                            )}
+                        </div>
                     )}
                 </div>
 

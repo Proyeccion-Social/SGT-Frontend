@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import checkmarkIcon from "../../assets/CheckmarkIcon.svg";
 import type { Slot, TutorProfileInfo } from "@features/availability/services/availabilityService";
+import { CloudinaryImage } from "@/components/CloudinaryImage";
 import "../../assets/styles/Availability.css";
 
 interface TutorInfo {
@@ -17,10 +18,12 @@ interface Props {
   subject: string;
   subjectColor?: { color: string; borderColor: string };
   tutorProfiles?: Record<string, TutorProfileInfo>;
+  /** Modalidades del slot de cada tutor en la franja (una o ambas: PRES / VIRT). */
+  modalityByTutor?: Record<string, string[]>;
   onSelect: (tutorId: string) => void;
 }
 
-export default function AvailabilityStep({ tutorIds, subject, subjectColor, tutorProfiles = {}, onSelect }: Props) {
+export default function AvailabilityStep({ tutorIds, subject, subjectColor, tutorProfiles = {}, modalityByTutor = {}, onSelect }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
 
   // Pre-populate from SSR profiles; only fetch what's missing
@@ -114,8 +117,9 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
                 {/* ── Foto del tutor ── */}
                 <div className="tutor-card__photo-wrapper">
                   {info?.photo ? (
-                    <img
+                    <CloudinaryImage
                       src={info.photo}
+                      size="cover"
                       alt={info.name}
                       className="tutor-card__photo"
                     />
@@ -132,12 +136,19 @@ export default function AvailabilityStep({ tutorIds, subject, subjectColor, tuto
                 {/* ── Información del tutor ── */}
                 <div className="tutor-card__info">
                   <p className="tutor-card__info-text">
-                    <strong>Modalidades disponibles:</strong>{" "}
-                    {info?.modality === "PRES"
-                      ? "Presencial"
-                      : info?.modality === "VIRT"
-                      ? "Virtual"
-                      : "Presencial o virtual"}
+                    <strong>Modalidad:</strong>{" "}
+                    {(() => {
+                      // Fuente de verdad: las modalidades del slot del tutor en esta
+                      // franja. Puede ofrecer una o ambas.
+                      const mods = modalityByTutor[tutorId] ?? [];
+                      if (mods.length > 1) return "Presencial y virtual";
+                      const modality = mods[0] ?? info?.modality;
+                      return modality === "PRES"
+                        ? "Presencial"
+                        : modality === "VIRT"
+                        ? "Virtual"
+                        : "Presencial o virtual";
+                    })()}
                   </p>
                 </div>
               </button>

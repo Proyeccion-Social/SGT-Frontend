@@ -21,19 +21,67 @@
       placeholder='Ingresa tu contraseña'
       required
     />
+    <div id="passwordRegisterErrors" class="password-errors-list" style="margin-top: 4px; display: none; flex-direction: column; gap: 2px;"></div>
   </div>
   <button type='submit'>Continuar</button>
 </form>
 
 <script>
   import { sileo } from "sileo";
-  const form = document.getElementById("registryForm");
-  const emailInput = document.getElementById("emailRegister");
-  const nameInput = document.getElementById("fullName");
-  const passwordInput = document.getElementById("passwordRegister");
+  const form = document.getElementById("registryForm") as HTMLFormElement;
+  const emailInput = document.getElementById("emailRegister") as HTMLInputElement;
+  const nameInput = document.getElementById("fullName") as HTMLInputElement;
+  const passwordInput = document.getElementById("passwordRegister") as HTMLInputElement;
+  const passwordErrors = document.getElementById("passwordRegisterErrors") as HTMLDivElement;
+
+  function validateRegisterPassword(pw: string) {
+    const errors: string[] = [];
+    if (pw.length < 8) {
+      errors.push("Mínimo 8 caracteres");
+    }
+    if (pw.length > 128) {
+      errors.push("Máximo 128 caracteres");
+    }
+    if (!/[A-Z]/.test(pw) || !/[a-z]/.test(pw)) {
+      errors.push("Incluye al menos una mayúscula y una minúscula");
+    }
+    if (!/\d/.test(pw)) {
+      errors.push("Incluye al menos un número");
+    }
+    if (!/[@$!%*?&#]/.test(pw)) {
+      errors.push("Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?");
+    }
+    return errors;
+  }
+
+  function updateErrors() {
+    const pw = passwordInput.value;
+    if (!pw) {
+      passwordErrors.style.display = "none";
+      passwordErrors.innerHTML = "";
+      return;
+    }
+    const errors = validateRegisterPassword(pw);
+    if (errors.length > 0) {
+      passwordErrors.style.display = "flex";
+      passwordErrors.innerHTML = `<p class="password-error-item">⚠ ${errors[0]}</p>`;
+    } else {
+      passwordErrors.style.display = "none";
+      passwordErrors.innerHTML = "";
+    }
+  }
+
+  passwordInput.addEventListener("input", updateErrors);
+  passwordInput.addEventListener("blur", updateErrors);
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const errors = validateRegisterPassword(passwordInput.value);
+    if (errors.length > 0) {
+      updateErrors();
+      return;
+    }
+
     await sileo
       .promise(
         async () => {
@@ -78,6 +126,24 @@
       });
   });
 </script>
+
+<style is:global>
+  .password-errors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+  }
+
+  .password-error-item {
+    font-family: "Open Sauce Two", system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: #e5484d;
+    margin: 0;
+    line-height: 1.4;
+  }
+</style>
 
 <style>
   .registryForm {

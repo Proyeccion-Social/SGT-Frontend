@@ -2,9 +2,15 @@ export type Modality = 'VIRT' | 'PRES' | "";
 
 export type SessionStatus =
   | 'PENDING_TUTOR_CONFIRMATION'
+  | 'SCHEDULED'
+  | 'PENDING_MODIFICATION'
+  | 'REJECTED_BY_TUTOR'
+  | 'CANCELLED_BY_STUDENT'
+  | 'CANCELLED_BY_TUTOR'
+  | 'CANCELLED_BY_ADMIN'
+  | 'EXPIRED_UNCONFIRMED'
   | 'CONFIRMED'
   | 'COMPLETED'
-  | 'SCHEDULED'
   | 'CANCELLED';
 
 export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
@@ -52,6 +58,7 @@ export interface Session {
   duration: number;
   modality: Modality;
   status: SessionStatus;
+  sessionType?: SessionType;      // INDIVIDUAL ("Cerrada") | GROUP ("Abierta")
   title: string;
   description: string;
   participants: SessionParticipant[];
@@ -257,7 +264,8 @@ export interface AvailabilitySlot {
   startTime: string;
   endTime: string;
   available: boolean;
-  modality?: Modality;
+  /** 'BOTH' = el slot soporta ambas modalidades; null/undefined = modalidad ambigua (se asume ambas). */
+  modality?: Modality | 'BOTH' | null;
 }
 
 // ─── DTOs de creación ────────────────────────────────────────

@@ -15,6 +15,7 @@
         getWeekDates,
     } from '../utils/calendarUtils';
     import type { Slot, DayOfWeek } from '../utils/calendarUtils';
+    import { normalizeModality } from '../utils/calendarUtils';
     import styles from '../css/TutorCalendarGrid.module.css';
     import { sileo } from 'sileo';
 
@@ -87,9 +88,19 @@
                     (daySlots as any[]).forEach((s) => {
                         allSlots.push({
                             ...s,
+                            id: s.slotId || s.id,
                             dayOfWeek: dayEs as DayOfWeek,
                             startTime: s.startTime?.substring(0, 5),
                             endTime: s.endTime?.substring(0, 5),
+                            modality: Array.isArray(s.modality)
+                                ? s.modality.map((m: string) => m.toUpperCase())
+                                : s.modality
+                                    ? String(s.modality).toUpperCase()
+                                    : s.modality,
+                            isBooked:
+                                s.isAvailable === false
+                                    ? true
+                                    : Boolean(s.isBooked),
                         });
                     });
                 });
@@ -222,7 +233,7 @@
                             dayOfWeek: dayEn,
                             startTime,
                             endTime,
-                            modality: 'PRES',
+                            modality: ['PRES', 'VIRT'],
                         }),
                     })
                     .then((res) => {
@@ -305,8 +316,14 @@
                     const top = ((startMin - HOUR_START * 60) / 60) * HOUR_HEIGHT;
                     const height = ((endMin - startMin) / 60) * HOUR_HEIGHT;
                     const isHalfHour = 30 >= endMin - startMin;
-                    const isVirtual = slot.modality?.toString().toUpperCase() === 'VIRT';
-                    const modalityLabel = isVirtual ? 'Virtual' : 'Presencial';
+                    const modalities = normalizeModality(slot.modality);
+                    const hasPres = modalities.includes('PRES');
+                    const hasVirt = modalities.includes('VIRT');
+                    const modalityLabel = hasPres && hasVirt
+                        ? (isHalfHour ? 'Pres + Virt' : 'Presencial + Virtual')
+                        : hasVirt
+                        ? 'Virtual'
+                        : 'Presencial';
                     const duration = formatDuration(slot.startTime, slot.endTime);
 
                     return (

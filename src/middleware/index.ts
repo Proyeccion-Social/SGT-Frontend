@@ -13,7 +13,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   const token = context.cookies.get('access_token')?.value;
-  const protectedRoutes = ['/dashboard', '/change-password', '/search', '/availability'];
+  const protectedRoutes = ['/dashboard', '/change-password', '/search', '/availability', '/sessions', '/tutor/sessions', '/tutor/settings'];
 
   // ── Home con token válido → redirigir a dashboard ──
   if (url.pathname === '/' && !url.searchParams.has('session') && token) {
@@ -75,7 +75,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set('access_token', data.accessToken, {
           httpOnly: true,
           secure: import.meta.env.PROD,
-          sameSite: 'strict',
+          sameSite: 'lax',
           path: '/',
           maxAge: 60 * 60,
         });
@@ -83,7 +83,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.cookies.set('refresh_token', data.refreshToken, {
           httpOnly: true,
           secure: import.meta.env.PROD,
-          sameSite: 'strict',
+          sameSite: 'lax',
           path: '/',
           maxAge: 60 * 60 * 24 * 30,
         });

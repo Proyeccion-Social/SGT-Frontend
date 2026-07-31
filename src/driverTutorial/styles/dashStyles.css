@@ -1,6 +1,7 @@
 /* Main Popover Container */
 .driver-popover {
   min-width: 300px;
+  max-width: 350px !important;
   background-color: var(--neutral-blanco) !important;
   border-radius: 16px !important;
   padding: 20px !important;
@@ -9,8 +10,6 @@
   font-family: var(--type-font-family-primary), sans-serif !important;
   letter-spacing: -0.02em !important;
   z-index: 100006 !important; /* Popover por encima del overlay (100005) */
-  margin-top: 40px !important; /* Margen vertical de seguridad para desktop */
-  margin-bottom: 40px !important;
 }
 
 /* Overlay Styling */
@@ -25,7 +24,7 @@
   font-size: 24px !important;
   line-height: var(--lineheight-heading-h5) !important;
   font-weight: 700 !important;
-  margin-bottom: 8 px !important;
+  margin-bottom: 8px !important;
   letter-spacing: -0.02em !important;
   font-family: var(--type-font-family-primary), sans-serif !important;
 }
@@ -43,14 +42,46 @@
 
 /* Close Button */
 .driver-popover-close-btn {
-  color: var(--primary-700) !important;
-  transition: all 0.2s ease !important;
-  font-family: var(--type-font-family-primary), sans-serif !important;
-  letter-spacing: -0.02em !important;
+  display: none !important; /* Ocultar la X nativa de driver.js — el usuario usa "Saltar tutorial" */
 }
 
-.driver-popover-close-btn:hover {
-  color: var(--primary-default) !important;
+/* ─── SKIP TUTORIAL BUTTON ─────────────────────────────────────────────── */
+.atlas-skip-tutorial {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000000;
+  pointer-events: all !important;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: var(--primary-700, #513199);
+  border: 1px solid var(--neutral-200, #e2e2e2);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--type-font-family-primary), sans-serif;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.atlas-skip-tutorial:hover {
+  background-color: var(--primary-100, #f3edff);
+  transform: translateX(-50%) scale(1.02);
+}
+
+.atlas-skip-tutorial:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .atlas-skip-tutorial {
+    top: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
 }
 
 /* Footer & Progress Text */
@@ -208,6 +239,28 @@
   display: none !important;
 }
 
+/* CORNER POPOVER: anclado a esquina inferior derecha, dentro del elemento resaltado pero lejos de los bordes */
+.driver-popover.corner-popover {
+  position: fixed !important;
+  bottom: 48px !important;
+  right: 40px !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  width: 320px !important;
+  max-width: calc(100vw - 80px) !important;
+}
+
+@media (max-width: 768px) {
+  .driver-popover.corner-popover {
+    bottom: 110px !important; /* Encima del dock móvil */
+    right: 16px !important;
+    left: 16px !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
+
 /* CELEBRATION POPOVER (GIF FINAL) */
 .driver-popover.celebration-popover {
   position: fixed !important;
@@ -235,12 +288,10 @@
 @media (max-width: 768px) {
   .driver-popover {
     min-width: unset !important;
-    width: calc(100vw - 64px) !important;
-    max-width: 100% !important;
+    width: auto !important;
+    left: 16px !important;
+    right: 16px !important;
     padding: 16px !important;
-    left: 32px !important; /* Mantiene el popover perfectamente centrado con 32px de margen lateral */
-    margin-top: 40px !important; /* Margen vertical amplio para tablet */
-    margin-bottom: 40px !important;
   }
 
   .driver-popover-title {
@@ -274,12 +325,11 @@
 /* Mobile (≤ 480px) */
 @media (max-width: 480px) {
   .driver-popover {
-    width: calc(100vw - 40px) !important;
-    padding: 14px !important;
-    border-radius: 12px !important;
-    left: 20px !important; /* Mantiene el popover perfectamente centrado con 20px de margen lateral */
-    margin-top: 16px !important; /* Margen vertical de 16px para evitar que toque los bordes superior/inferior de la pantalla */
-    margin-bottom: 16px !important;
+    width: auto !important;
+    left: 16px !important;
+    right: 16px !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
   }
 
   .driver-popover-title {
@@ -339,13 +389,14 @@
 }
 
 /* Popover anclado al fondo de pantalla en móvil (ej: "Planea y Filtra") */
+/* Solo se aplica en mobile porque en desktop el popover ya sigue al elemento */
 @media (max-width: 768px) {
   .driver-popover.bottom-popover {
     position: fixed !important;
     top: auto !important;
-    bottom: 16px !important;
-    left: 20px !important;
-    right: 20px !important;
+    bottom: 110px !important; /* Encima del dock móvil */
+    left: 16px !important;
+    right: 16px !important;
     width: auto !important;
     transform: none !important;
   }

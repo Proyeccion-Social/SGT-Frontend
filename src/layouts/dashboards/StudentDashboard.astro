@@ -1,13 +1,9 @@
 ---
-import { Image } from "astro:assets";
-import { jwtDecode } from "jwt-decode";
-import MainLayout from "../Layout.astro";
-import Sidebar from "../../features/dashboards/components/Sidebar.astro";
 import DashboardSessionManager from "@/features/dashboards/components/DashboardSessionManager";
 import StatCard from "@/features/dashboards/components/StatCard";
-import ImageIcon from "../../features/dashboards/components/icons/ImageIcon.svg";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
 import DashboardLoader from "@/features/dashboards/components/DashboardLoader";
+import DashboardBanner from "@/features/dashboards/components/DashboardBanner";
 import { UserRole } from "@/constants/roles";
 
 const userRole = UserRole.STUDENT;
@@ -27,7 +23,7 @@ const userRole = UserRole.STUDENT;
         </div>
 
         <div class='green-photo-space'>
-          <Image src={ImageIcon} alt='Image' />
+          <DashboardBanner client:only='react' />
         </div>
       </div>
       <div class='stats-container'>
@@ -155,18 +151,23 @@ const userRole = UserRole.STUDENT;
   }
 
   .green-photo-space {
-    background-color: #cdff8e;
-    border-radius: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: min(100%, 300px);
     aspect-ratio: 4 / 5;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 24px;
+  }
+
+  .green-photo-space :global(.dashboard-banner) {
+    width: 100%;
+    height: 100%;
   }
 
   @media (max-width: 768px) {
     .green-photo-space {
       width: 100%;
+      max-width: 300px;
+      align-self: center;
     }
   }
 </style>

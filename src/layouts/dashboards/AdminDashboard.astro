@@ -1,10 +1,6 @@
 ---
-import { Image } from "astro:assets";
 import { WelcomeBanner } from "@/features/dashboards/components/WelcomeBanner";
-import OptionButton from "@/features/dashboards/components/OptionButton.astro";
-
-import RoleChangeIcon from "@/features/dashboards/components/icons/RoleChangeIcon.svg";
-import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
+import BannerManager from "@/features/dashboards/components/BannerManager";
 ---
 
 <main class='content-wrapper'>
@@ -14,31 +10,7 @@ import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
     </div>
 
     <div class='buttons'>
-      <OptionButton
-        backgroundColor='#B797FF'
-        titleColor='#513199'
-        title='Crear tutor'
-      />
-      <OptionButton
-        backgroundColor='#CDFF8E'
-        titleColor='#4D662E'
-        title='Analíticas'
-      />
-      <OptionButton
-        backgroundColor='#F7DF94'
-        titleColor='#91792E'
-        title='Materias'
-      />
-      <OptionButton
-        backgroundColor='#A3A3A3'
-        titleColor='#1A1A1A'
-        title='Configuración'
-      />
-      <OptionButton
-        backgroundColor='#58D68D'
-        titleColor='#12522D'
-        title='Gestionar tutores'
-      />
+      <BannerManager client:only='react' />
     </div>
   </div>
 </main>
@@ -60,9 +32,9 @@ import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
     overflow-y: auto;
     align-items: center;
     justify-content: center;
-    padding-top: 72px;
     width: 100%;
     min-height: 100vh;
+    gap: 16px;
   }
 
   @media (max-width: 768px) {
@@ -89,6 +61,5 @@ import UserIcon from "@/features/dashboards/components/icons/UserIcon.svg";
     flex-wrap: wrap;
     justify-content: center;
     gap: 24px;
-    margin-top: 40px;
-  }
+}
 </style>

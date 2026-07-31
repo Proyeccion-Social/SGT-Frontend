@@ -7,18 +7,28 @@ export const prerender = false;
 /**
  * GET /api/availability/tutor-availability?tutorId=...&onlyAvailable=...&onlyFuture=...&modality=...
  *
- * Endpoint público — no requiere JWT.
- * Recopila las franjas de disponibilidad de un tutor específico
- * y las retorna al frontend para renderizar el calendario.
+ * BFF autenticado: reenvía el JWT de la cookie al backend.
+ * Usado por el flujo de propuesta de modificación (useTutorSlots).
  *
  * Query params:
  * - tutorId       (requerido) UUID del tutor
  * - onlyAvailable (opcional) true/false — solo franjas sin reserva
  * - onlyFuture    (opcional) true/false — solo franjas futuras
- * - modality      (opcional) PRES | VIR
+ * - modality      (opcional) PRES | VIRT
  */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, cookies }) => {
   try {
+    const token = cookies.get("access_token")?.value;
+    if (!token) {
+      return new Response(
+        JSON.stringify({
+          code: "AUTH_05",
+          message: "No hay token de sesión",
+        }),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
     const tutorId = url.searchParams.get("tutorId");
 
     if (!tutorId) {
@@ -27,11 +37,10 @@ export const GET: APIRoute = async ({ url }) => {
           code: "VALIDATION_01",
           message: "El parámetro tutorId es requerido",
         }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
-    // Construir query params
     const query: GetAvailabilityQueryDto = {};
 
     const onlyAvailable = url.searchParams.get("onlyAvailable");
@@ -49,18 +58,13 @@ export const GET: APIRoute = async ({ url }) => {
       query.modality = modality as Modality;
     }
 
-    const slots = await getTutorSlots(tutorId, query);
+    const slots = await getTutorSlots(tutorId, query, token);
 
-    return new Response(
-      JSON.stringify({ slots }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
+    return new Response(JSON.stringify({ slots }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: any) {
-    // Error estructurado del backend (ApiError)
     if (error.code && error.httpStatus) {
       return new Response(
         JSON.stringify({
@@ -71,12 +75,11 @@ export const GET: APIRoute = async ({ url }) => {
         {
           status: parseInt(error.httpStatus, 10) || 500,
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
     }
 
-    // Error inesperado
-    console.error('[tutor-availability BFF] Unexpected error:', error);
+    console.error("[tutor-availability BFF] Unexpected error:", error);
     return new Response(
       JSON.stringify({
         code: "INTERNAL_01",
@@ -85,7 +88,7 @@ export const GET: APIRoute = async ({ url }) => {
       {
         status: 500,
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   }
 };

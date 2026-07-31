@@ -1,8 +1,24 @@
 import { createTour, getInteractiveElement } from "../../createTour";
+import {
+  startTour,
+  setTourStep,
+  completeTour,
+  getResumeStep,
+} from "../../tutorialState";
 import "../../styles/dashStyles.css";
 
+const TOUR_ID = "dashboard-tutor";
+const TOUR_VERSION = "1.0.0";
+const TOTAL_STEPS = 12;
+const USER_ROLE = "TUTOR";
+
 export function startDashboardTutorTutorial() {
+    const canStart = startTour(TOUR_ID, TOUR_VERSION, TOTAL_STEPS, USER_ROLE);
+    if (!canStart) return;
+    const resumeFrom = getResumeStep(TOUR_ID, TOUR_VERSION);
+
     const tour = createTour({
+        tourId: TOUR_ID,
         steps: [
             {
                 popover: {
@@ -25,6 +41,7 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     title: "Dashboard - Pantalla Inicial",
                     description: "Aquí podrás ver y gestionar de manera rápida y fácil tus tutorías.",
+                    popoverClass: "corner-popover"
                 }
             },
             {
@@ -42,23 +59,16 @@ export function startDashboardTutorTutorial() {
                     showButtons: []
                 },
                 disableActiveInteraction: false,
-                onHighlighted: (element, step, { driver }) => {
-
-                        const btn = document.querySelector("#profileIconTUTORIAL");
-
-                        if (!btn) return;
-
-                        const handleClick = () => {
-
-                            // Esperar que el modal aparezca
-                            setTimeout(() => {
-                                driver.moveNext();
-                            }, 300);
-
-                            btn.removeEventListener("click", handleClick);
-                        };
-
-                        btn.addEventListener("click", handleClick);
+                onHighlighted: (_element, _step, { driver }) => {
+                    const btn = document.querySelector("#profileIconTUTORIAL");
+                    if (!btn) return;
+                    const handleClick = () => {
+                        setTimeout(() => {
+                            driver.moveNext();
+                        }, 300);
+                        btn.removeEventListener("click", handleClick);
+                    };
+                    btn.addEventListener("click", handleClick);
                 }
             },
             {
@@ -76,23 +86,16 @@ export function startDashboardTutorTutorial() {
                     showButtons: []
                 },
                 disableActiveInteraction: false,
-                onHighlighted: (element, step, { driver }) => {
-
-                        const btn = document.querySelector("#goIntoProfileTutorTUTORIAL");
-
-                        if (!btn) return;
-
-                        const handleClick = () => {
-
-                            // Esperar que el modal aparezca
-                            setTimeout(() => {
-                                driver.moveNext();
-                            }, 300);
-
-                            btn.removeEventListener("click", handleClick);
-                        };
-
-                        btn.addEventListener("click", handleClick);
+                onHighlighted: (_element, _step, { driver }) => {
+                    const btn = document.querySelector("#goIntoProfileTutorTUTORIAL");
+                    if (!btn) return;
+                    const handleClick = () => {
+                        setTimeout(() => {
+                            driver.moveNext();
+                        }, 300);
+                        btn.removeEventListener("click", handleClick);
+                    };
+                    btn.addEventListener("click", handleClick);
                 }
             },
             {
@@ -100,13 +103,6 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     description: "Mira tu perfil y ten la posibilidad de cambiar tu número de teléfono y contraseña.",
                     showButtons: ["next"]
-                }
-            },
-            {
-                element: "#disponibilidadTutorTUTORIAL",
-                popover: {
-                    title: "Actualiza tus horarios",
-                    description: "Aquí puedes modificar tus franjas de disponibilidad semanales.",
                 }
             },
             {
@@ -121,12 +117,12 @@ export function startDashboardTutorTutorial() {
                 popover: {
                     title: "Estado de tu cuenta",
                     description: "Podrás activar y desactivar tu cuenta. En caso de desactivarla, ¡comúnicalo!",
-                    onNextClick: (element, step, { driver }) => {
+                    onNextClick: (_element, _step, { driver }) => {
                         document.querySelector('.ps-close-btn')?.click();
-                        setTimeout(() => driver.moveNext(), 600); // 600ms para permitir que la animación de cierre termine y el dock se muestre
+                        setTourStep(TOUR_ID, driver.getActiveIndex() + 1);
+                        setTimeout(() => driver.moveNext(), 600);
                     }
                 }
-
             },
             {
                 element: "#sidebarTUTORIAL",
@@ -145,16 +141,34 @@ export function startDashboardTutorTutorial() {
                 },
                 disableActiveInteraction: false
             }
-        ]   
+        ],
+        onNextClick: (_el, _step, { driver }) => {
+            setTourStep(TOUR_ID, driver.getActiveIndex() + 1);
+            driver.moveNext();
+        },
+        onPrevClick: (_el, _step, { driver }) => {
+            setTourStep(TOUR_ID, driver.getActiveIndex() - 1);
+            driver.movePrevious();
+        },
+        onDestroyStarted: (_el, _step, { driver }) => {
+            if (driver.isLastStep() || !driver.hasNextStep()) {
+                completeTour(TOUR_ID);
+            }
+            tour.destroy();
+        },
     });
 
     const btn = getInteractiveElement("#goDisponibilidadTutorTUTORIAL");
     if (btn) {
         btn.addEventListener("click", () => {
-            localStorage.setItem("current-tour", "disponibilidad");
+            startTour("disponibilidad-tutor", "1.0.0", 5, USER_ROLE);
             window.location.href = "/availability/tutor/slots";
         });
     }
 
-    tour.drive();
+    if (resumeFrom > 0) {
+        tour.drive(resumeFrom);
+    } else {
+        tour.drive();
+    }
 }

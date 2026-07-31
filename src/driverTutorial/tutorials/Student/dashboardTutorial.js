@@ -1,8 +1,24 @@
 import { createTour, getInteractiveElement } from "../../createTour";
+import {
+  startTour,
+  setTourStep,
+  completeTour,
+  getResumeStep,
+} from "../../tutorialState";
 import "../../styles/dashStyles.css";
 
+const TOUR_ID = "dashboard-student";
+const TOUR_VERSION = "1.0.0";
+const TOTAL_STEPS = 6;
+
 export function startDashboardStudentTutorial() {
+    const userRole = "STUDENT";
+    const canStart = startTour(TOUR_ID, TOUR_VERSION, TOTAL_STEPS, userRole);
+    if (!canStart) return;
+    const resumeFrom = getResumeStep(TOUR_ID, TOUR_VERSION);
+
     const tour = createTour({
+        tourId: TOUR_ID,
         steps: [
             {
                 popover: {
@@ -25,6 +41,7 @@ export function startDashboardStudentTutorial() {
                 popover: {
                     title: "Dashboard - Pantalla Inicial",
                     description: "Aquí podrás ver y gestionar de manera rápida y fácil tus sesiones.",
+                    popoverClass: "corner-popover"
                 }
             },
             {
@@ -57,16 +74,34 @@ export function startDashboardStudentTutorial() {
                 },
                 disableActiveInteraction: false
             }
-        ]
+        ],
+        onNextClick: (_el, _step, { driver }) => {
+            setTourStep(TOUR_ID, driver.getActiveIndex() + 1);
+            driver.moveNext();
+        },
+        onPrevClick: (_el, _step, { driver }) => {
+            setTourStep(TOUR_ID, driver.getActiveIndex() - 1);
+            driver.movePrevious();
+        },
+        onDestroyStarted: (_el, _step, { driver }) => {
+            if (driver.isLastStep() || !driver.hasNextStep()) {
+                completeTour(TOUR_ID);
+            }
+            tour.destroy();
+        },
     });
 
     const btn = getInteractiveElement("#goAgendamientoTUTORIAL");
     if (btn) {
         btn.addEventListener("click", () => {
-            localStorage.setItem("current-tour", "agendamiento");
+            startTour("agendamiento-student", "1.0.0", 3, userRole);
             window.location.href = "/sessions";
         });
     }
 
-    tour.drive();
+    if (resumeFrom > 0) {
+        tour.drive(resumeFrom);
+    } else {
+        tour.drive();
+    }
 }

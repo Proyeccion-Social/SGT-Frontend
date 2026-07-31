@@ -1,38 +1,47 @@
-// ConfirmSessionDialog.tsx
-// Email action: confirm or reject a session request
-// Task 2 — Vista de confirmar/rechazar solicitud de sesión
-
 import { useState, useEffect, useCallback } from 'react';
-import '../styles/ConfirmSessionDialog.css';
-import type { Session } from '@features/emailScreens/types/session.types';
-import { Monitor, Clock, Calendar, MapPin, X } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { SessionDetailView } from '@/features/sessions/components/SessionDetailView';
+import { RejectSessionModal } from '@/features/sessions/components/RejectSessionModal';
+import '../styles/EmailScreensShared.css';
+import type { Session as EmailSession } from '../types/session.types';
+import type { Session } from '@/features/sessions/types/session.types';
+import { UserRole } from '@/constants/roles';
 
 interface Props {
   sessionId: string;
   onClose: () => void;
 }
 
-const statusLabel = (s: string): string => {
-  const map: Record<string, string> = {
-    VIRT: 'Virtual', PRES: 'Presencial',
-  };
-  return map[s] ?? s;
-};
-
-const formatDate = (date: string, time: string): string => {
-  const [y, m, d] = date.split('-').map(Number);
-  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  return `${d} ${months[m - 1]} ${y} · ${time.substring(0, 5)}`;
-};
+const mapToFullSession = (s: EmailSession): Session => ({
+  id: s.id,
+  tutor: s.tutor,
+  subject: s.subject,
+  scheduledDate: s.scheduledDate,
+  startTime: s.startTime,
+  endTime: s.endTime,
+  duration: s.duration,
+  modality: s.modality,
+  status: s.status,
+  title: s.title,
+  description: s.description,
+  participants: s.participants ?? [],
+  createdAt: s.createdAt,
+  location: '',
+  virtualLink: '',
+  cancelledAt: null,
+  cancellationReason: null,
+  sessionType: undefined,
+});
 
 export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
-  const [session, setSession]             = useState<Session | null>(null);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [success, setSuccess]             = useState<string | null>(null);
-  const [showRejectReason, setShowRejectReason] = useState(false);
-  const [rejectReason, setRejectReason]   = useState('');
+  const user = useAuthStore((s) => s.user);
+  const role = (user?.role?.toLowerCase() ?? 'student') as UserRole;
+
+  const [emailSession, setEmailSession] = useState<EmailSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [view, setView] = useState<'detail' | 'reject'>('detail');
 
   useEffect(() => {
     fetch(`/api/emailScreens/sessions/${sessionId}`)
@@ -43,14 +52,18 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
         }
         return res.json();
       })
-      .then(setSession)
+      .then(setEmailSession)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [sessionId]);
 
   const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); },
-    [onClose]
+    (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (view === 'reject') { setView('detail'); return; }
+      onClose();
+    },
+    [onClose, view]
   );
 
   useEffect(() => {
@@ -62,224 +75,136 @@ export const ConfirmSessionDialog = ({ sessionId, onClose }: Props) => {
     };
   }, [handleKeyDown]);
 
-  const handleAction = async (action: 'confirm' | 'reject') => {
-    if (action === 'reject' && !showRejectReason) {
-      setShowRejectReason(true);
-      return;
-    }
+  const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && view === 'detail') onClose();
+  };
 
-    if (action === 'reject' && rejectReason.trim() === '') return;
-
-    setActionLoading(true);
-    setError(null);
+  const handleConfirm = async () => {
     try {
-      const endpoint = action === 'confirm'
-        ? '/api/emailScreens/sessions/confirm-session'
-        : '/api/emailScreens/sessions/reject-session';
-
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/emailScreens/sessions/confirm-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId,
-          ...(action === 'reject' ? { reason: rejectReason } : {}),
-        }),
+        body: JSON.stringify({ sessionId }),
       });
-
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body?.message ?? `HTTP ${res.status}`);
       }
-
-      setSuccess(action === 'confirm'
-        ? 'Sesión confirmada exitosamente ✓'
-        : 'Sesión rechazada'
-      );
+      setSuccess('Sesión confirmada exitosamente ✓');
       setTimeout(onClose, 1500);
     } catch (err: any) {
-      setError(err?.message ?? 'Error al procesar la acción');
-    } finally {
-      setActionLoading(false);
+      setError(err?.message ?? 'Error al confirmar la sesión');
+      throw err;
     }
   };
 
-  const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) onClose();
+  const handleReject = async (id: string, reason: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/emailScreens/sessions/reject-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: id, reason }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `HTTP ${res.status}`);
+      }
+      return true;
+    } catch {
+      return false;
+    }
   };
 
-  // Check if session request expired
-  const isExpired = session?.expiresAt
-    ? new Date(session.expiresAt).getTime() < Date.now()
+  const session = emailSession ? mapToFullSession(emailSession) : null;
+  const isExpired = emailSession?.expiresAt
+    ? new Date(emailSession.expiresAt).getTime() < Date.now()
     : false;
 
-  return (
-    <div className="es-overlay" onClick={handleBackdrop} role="dialog" aria-modal="true">
-      <div className="es-card">
-        <button className="es-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
+  const isTutor =
+    !!user?.id &&
+    !!session?.tutor?.id &&
+    String(user.id) === String(session.tutor.id);
+  const effectiveRole = isTutor ? UserRole.TUTOR : UserRole.STUDENT;
 
+  return (
+    <div className="modal-overlay" onClick={handleBackdrop} role="dialog" aria-modal="true">
+      <div className="modal-card__container">
         {loading && (
-          <div className="es-card__loading"><p>Cargando sesión…</p></div>
+          <div className="modal-card__loading">
+            <button className="modal-card__close" onClick={onClose} aria-label="Cerrar">✕</button>
+            <p>Cargando sesión…</p>
+          </div>
         )}
 
         {!loading && error && !success && (
-          <div className="es-card__error" role="alert">
+          <div className="modal-card__error" role="alert">
             <p>{error}</p>
-            <button className="es-btn es-btn--confirm" onClick={onClose}>Cerrar</button>
+            <button className="sdv-btn sdv-btn--propose" onClick={onClose}>Cerrar</button>
           </div>
         )}
 
         {!loading && success && (
-          <div className="es-card__success"><p>{success}</p></div>
+          <div className="modal-card__error" role="alert">
+            <p>{success}</p>
+          </div>
         )}
 
-        {!loading && !error && !success && session && (
-          <>
-            {/* Header section */}
-            <div className="es-header">
-              {session.tutor?.photo ? (
-                <img src={session.tutor.photo} alt={session.tutor.name} className="es-avatar" />
-              ) : (
-                <div className="es-avatar" style={{ background: '#7c3aed', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                  {session.tutor?.name?.charAt(0) ?? 'T'}
-                </div>
-              )}
-              <div className="es-header-text">
-                <h2 className="es-title">{session.title}</h2>
-                <p className="es-description">{session.description || 'Sin descripción disponible.'}</p>
-              </div>
-            </div>
+        {!loading && !error && !success && session && view === 'detail' && (
+          <div style={{ maxWidth: 900, width: '100%', margin: '0 auto' }}>
+            <SessionDetailView
+              session={session}
+              tutorInfo={session.tutor}
+              role={effectiveRole}
+              onClose={onClose}
+              onProposeModification={() => {}}
+              onBack={() => {}}
+              onEdit={() => {}}
+              onCancel={() => {}}
+              onProposeSuccess={() => {}}
+              onEditSuccess={() => {}}
+              onConfirm={handleConfirm}
+              onRequestReject={() => setView('reject')}
+              onAcceptModification={async () => {}}
+              onRejectModification={async () => {}}
+              modificar={async () => false}
+              editar={async () => false}
+            />
 
-            {/* Tags row */}
-            <div className="es-tags">
-              <span className="es-tag es-tag--subject">
-                {String(session.subject?.name ?? session.subject)}
-              </span>
-              <span className="es-tag es-tag--tutor">
-                <span className="es-tag__dot" />
-                {session.tutor?.name}
-              </span>
-              <span className="es-tag es-tag--status">
-                {session.status}
-              </span>
-              {session.modality === 'VIRT' && (
-                <a href="#" className="es-tag es-tag--link" onClick={(e) => e.preventDefault()}>
-                  🔗 Enlace de la sesión
-                </a>
-              )}
-            </div>
-
-            {/* 4-Grid info cards */}
-            <div className="es-grid">
-              <div className="es-info-card">
-                <div className="es-info-card__icon">
-                  <Monitor size={20} />
-                </div>
-                <span className="es-info-card__label">{session.modality === 'VIRT' ? 'Virtual' : 'Presencial'}</span>
-              </div>
-              
-              <div className="es-info-card">
-                <div className="es-info-card__icon">
-                  <Clock size={20} />
-                </div>
-                <span className="es-info-card__label">{session.duration} horas</span>
-              </div>
-
-              <div className="es-info-card">
-                <div className="es-info-card__icon">
-                  <Calendar size={20} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span className="es-info-card__label">{formatDate(session.scheduledDate, '').split(' · ')[0]}</span>
-                  <span className="es-info-card__sublabel">{session.startTime.substring(0, 5)}</span>
-                </div>
-              </div>
-
-              <div className="es-info-card">
-                <div className="es-info-card__icon">
-                  <MapPin size={20} />
-                </div>
-                <span className="es-info-card__label">Pendiente</span>
-              </div>
-            </div>
-
-            {/* Expiration or Status Message */}
-            {session.status !== 'PENDING_TUTOR_CONFIRMATION' ? (
-              <div className="es-expiration" style={{ marginBottom: 20, background: '#f1f5f9', color: '#475569', textAlign: 'center' }}>
-                ✓ Esta sesión ya ha sido {session.status === 'SCHEDULED' ? 'confirmada' : 'procesada'}.
-              </div>
-            ) : session.expiresAt && (
-              <div className={`es-expiration ${isExpired ? 'es-expiration--expired' : ''}`} style={{ marginBottom: 20 }}>
+            {emailSession?.expiresAt && (
+              <div
+                className={`es-expiration${isExpired ? ' es-expiration--expired' : ''}`}
+                style={{ padding: '0 24px 20px', textAlign: 'center' }}
+              >
                 {isExpired
                   ? '⚠ Esta solicitud ha expirado'
-                  : `Expira: ${new Date(session.expiresAt).toLocaleString('es-CO')}`
+                  : `Expira: ${new Date(emailSession.expiresAt).toLocaleString('es-CO')}`
                 }
               </div>
             )}
 
-            {/* Reject reason textarea */}
-            {showRejectReason && (
-              <div style={{ width: '100%', marginBottom: '16px' }}>
-                <textarea
-                  className="es-reason-textarea"
-                  placeholder="Motivo del rechazo (mínimo 10 caracteres)…"
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  aria-label="Motivo del rechazo"
-                  aria-required="true"
-                  style={{ marginBottom: '4px' }}
-                />
-                <span style={{ fontSize: '11px', color: rejectReason.length < 10 ? '#ef4444' : '#10b981' }}>
-                  {rejectReason.length} / 500 caracteres (mínimo 10)
-                </span>
+            {!isExpired && session.status !== 'PENDING_TUTOR_CONFIRMATION' && (
+              <div
+                className="es-expiration"
+                style={{ padding: '12px 24px 20px', background: '#f1f5f9', color: '#475569', textAlign: 'center', borderRadius: '0 0 16px 16px' }}
+              >
+                ✓ Esta sesión ya ha sido {session.status === 'SCHEDULED' ? 'confirmada' : 'procesada'}.
               </div>
             )}
-
-            {!isExpired && session.status === 'PENDING_TUTOR_CONFIRMATION' && (
-              <div className="es-footer">
-                {!showRejectReason ? (
-                  <>
-                    <button
-                      className="es-btn es-btn--confirm"
-                      onClick={() => handleAction('confirm')}
-                      disabled={actionLoading}
-                    >
-                      {actionLoading ? 'Procesando…' : 'Aceptar'}
-                    </button>
-                    <button
-                      className="es-btn es-btn--reject"
-                      onClick={() => setShowRejectReason(true)}
-                      disabled={actionLoading}
-                    >
-                      Rechazar
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className="es-btn"
-                      style={{ background: '#f1f5f9', color: '#475569' }}
-                      onClick={() => {
-                        setShowRejectReason(false);
-                        setRejectReason('');
-                      }}
-                      disabled={actionLoading}
-                    >
-                      Volver
-                    </button>
-                    <button
-                      className="es-btn es-btn--reject"
-                      onClick={() => handleAction('reject')}
-                      disabled={actionLoading || rejectReason.trim().length < 10}
-                    >
-                      {actionLoading ? 'Procesando…' : 'Confirmar Rechazo'}
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
+
+      {view === 'reject' && session && (
+        <RejectSessionModal
+          session={session}
+          onClose={() => setView('detail')}
+          onSuccess={() => {
+            setSuccess('Sesión rechazada');
+            setTimeout(onClose, 1500);
+          }}
+          rechazar={handleReject}
+        />
+      )}
     </div>
   );
 };

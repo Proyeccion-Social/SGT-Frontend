@@ -108,6 +108,8 @@
   text-overflow: ellipsis;
   line-height: 20px;
   letter-spacing: -0.02em;
+  /* Un título de una sola palabra larga no debe fijar el min-content de la tarjeta. */
+  overflow-wrap: anywhere;
 }
 
 .card-person {
@@ -208,7 +210,9 @@
   font-size: var(--fontsize-body-sm); /* 12px */
   font-weight: 600;
   margin-left: auto;
-  white-space: nowrap;
+  /* Partible a propósito: con `nowrap`, "Pendiente de confirmación" (~163px) fijaba el
+     min-content de toda la tarjeta y desbordaba el ancho disponible (ADR-08). */
+  white-space: normal;
   display: flex;
   align-items: center;
   letter-spacing: -0.02em;

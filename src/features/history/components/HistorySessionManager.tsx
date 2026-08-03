@@ -14,7 +14,7 @@ export default function HistorySessionManager() {
   const [sessionToCancel, setSessionToCancel] = useState<Session | null>(null);
 
   const user = useAuthStore((s) => s.user);
-  const role = (user?.role ?? UserRole.STUDENT) as UserRole;
+  const role = (user?.role?.toLowerCase() ?? UserRole.STUDENT) as UserRole;
 
   useEffect(() => {
     function handler(e: Event) {

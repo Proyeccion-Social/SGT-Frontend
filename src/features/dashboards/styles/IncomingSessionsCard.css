@@ -54,6 +54,8 @@
   display: flex;
   gap: 14px;
   align-items: flex-start;
+  /* Bloque contenedor de .tag-status cuando se ancla a la esquina en móvil. */
+  position: relative;
 }
 
 .session-card:focus {
@@ -350,5 +352,46 @@
   }
   100% {
     opacity: 0.5;
+  }
+}
+
+/* ─── Responsive (móvil) ───────────────────────────────────────────────────────
+   Breakpoint escrito en px literales: los tokens --bp-* no son evaluables dentro
+   de @media (ADR-01). 768px === var(--bp-md).
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .session-container {
+    /* Altura fluida: deja de ser una caja de 380px fijos. */
+    min-height: 240px; /* cabecera + 2 tarjetas */
+    max-height: min(70dvh, 560px);
+  }
+
+  .cards-stack {
+    /* overflow-y: auto hace que overflow-x compute a `auto`: sin esto queda un
+       scroll lateral accidental en táctil. El badge sobresale dentro del padding
+       del stack, que no se recorta. */
+    overflow-x: hidden;
+  }
+
+  .card-top {
+    /* El indicador sale del flujo (abajo): el título recupera todo el ancho. */
+    display: block;
+  }
+
+  .tag-status {
+    /* Anclado a la esquina superior derecha de .session-card, sobresaliendo
+       ligeramente para no invadir la primera línea del título (ADR-08).
+       Alto = 16px (line-height) + 4px (padding) + 2px (borde) = 22px, así que
+       con top: -11px su borde inferior cae en +11px y el título empieza en +14px
+       (el padding de la tarjeta). */
+    position: absolute;
+    top: -11px;
+    right: -6px;
+    line-height: 16px;
+    margin-left: 0;
+    white-space: nowrap;
+    max-width: calc(100% - var(--spacing-sm)); /* 24px */
+    overflow: hidden;
   }
 }

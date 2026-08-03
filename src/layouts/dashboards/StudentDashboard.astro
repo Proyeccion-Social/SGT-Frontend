@@ -148,6 +148,10 @@ const userRole = UserRole.STUDENT;
 
   .incoming-sessions-container {
     width: 100%;
+    /* Item de la fila .left-side: su min-width: auto lo dejaría medir como mínimo
+       el min-content de la tarjeta, ensanchando la fila y sacándola de la pantalla
+       en el tramo en que aún no se ha apilado (769-850px). */
+    min-width: 0;
   }
 
   .green-photo-space {

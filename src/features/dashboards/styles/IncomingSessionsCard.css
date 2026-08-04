@@ -101,6 +101,9 @@
 }
 
 .card-title {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
   font-size: 16px;
   font-weight: 500;
   color: var(--text-body);

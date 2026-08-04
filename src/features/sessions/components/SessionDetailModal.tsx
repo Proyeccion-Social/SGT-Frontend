@@ -9,8 +9,12 @@ import { RejectSessionModal } from './RejectSessionModal';
 import { useTutorSlots } from '../hooks/useAvailability';
 import MultiStepDialog from '@/features/history/components/MultiStepRating';
 import { useAuthStore } from '@/store/authStore';
+import { canEvaluateSession } from '../utils/canEvaluate';
+import { isSessionEvaluated } from '../utils/checkSessionEvaluated';
+import AttendancePostSession from './AttendancePostSession';
+import { sileo } from 'sileo';
 
-export type ModalView = 'detail' | 'propose' | 'edit' | 'reject' | 'evaluate';
+export type ModalView = 'detail' | 'propose' | 'edit' | 'reject' | 'evaluate' | 'attendance';
 
 interface Props {
   sessionId: string;
@@ -30,11 +34,11 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
   const { session, tutorInfo, isLoading, error } = useSessionDetail(sessionId);
   const { slots: availabilitySlots, loading: slotsLoading } = useTutorSlots(view === 'propose' ? (session?.tutor?.id ?? null) : null);
   const user = useAuthStore((s) => s.user);
- 
+  
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (view === 'reject') {
+      if (view === 'reject' || view === 'attendance') {
         setView('detail');
         return;
       }
@@ -42,7 +46,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
     },
     [onClose, view]
   );
- 
+  
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflow = 'hidden';
@@ -53,14 +57,45 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
       document.body.classList.remove('modal-open');
     };
   }, [handleKeyDown]);
- 
+  
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
 
-  const participant = session?.participants?.find((p: any) => p.id === user?.id);
-  const canEvaluate = session?.status === 'COMPLETED' && String(role).toLowerCase() === UserRole.STUDENT && participant?.status !== 'ABSENT';
- 
+  const participant = session?.participants?.find((p) => p.id === user?.id);
+  const canEvaluate =
+    String(role).toLowerCase() === UserRole.STUDENT &&
+    !!session &&
+    canEvaluateSession(session, participant).canEvaluate;
+
+  /** Abre la evaluación solo si el estudiante aún no calificó; si ya lo hizo, toast. */
+  const handleEvaluate = async () => {
+    if (session && user?.id) {
+      const alreadyEvaluated = await isSessionEvaluated(session.id, user.id);
+      if (alreadyEvaluated === true) {
+        sileo.info({
+          title: 'Ya calificada',
+          description: 'Ya calificaste esta sesión.',
+          fill: '#9f74ff',
+        });
+        return;
+      }
+    }
+    setView('evaluate');
+  };
+
+  // Solo asistencia: no renderizar el overlay del detalle (evita superposición).
+  if (view === 'attendance' && session) {
+    return createPortal(
+      <AttendancePostSession
+        session={session}
+        onClose={onClose}
+        onRefetch={onClose}
+      />,
+      document.body
+    );
+  }
+  
   return createPortal(
     <>
       <div
@@ -91,6 +126,7 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
               <MultiStepDialog
                 session={session}
                 userId={user?.id}
+                apiBase="/api/history"
                 onClose={() => {
                   setView('detail');
                   onClose();
@@ -127,7 +163,8 @@ export const SessionDetailModal = ({ sessionId, role, onClose, onRequestCancel, 
                   if (!ok) throw new Error('No se pudo rechazar la modificación.');
                   onClose();
                 }}
-                onEvaluate={canEvaluate ? () => setView('evaluate') : undefined}
+                onEvaluate={canEvaluate ? handleEvaluate : undefined}
+                onMarkAttendance={() => setView('attendance')}
                 modificar={modificar}
                 editar={editar}
               />

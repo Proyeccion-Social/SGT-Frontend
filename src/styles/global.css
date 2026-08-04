@@ -135,6 +135,11 @@
   color: #ffffff !important;
 }
 
+/* Toast informativo: badge en tono primario en vez del azul por defecto de sileo */
+[data-sileo-badge][data-state="info"] {
+  background-color: var(--primary-300) !important;
+}
+
 [data-sileo-button] {
   color: #ffffff !important;
   background-color: #ffffff20 !important;

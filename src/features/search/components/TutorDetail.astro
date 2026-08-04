@@ -82,13 +82,16 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     async function loadTutor(id: string) {
       try {
-        const [profileRes, slotsRes] = await Promise.all([
+        const [profileRes, slotsRes, ratingsRes] = await Promise.all([
           fetch(`/api/search/${encodeURIComponent(id)}`),
-          fetch(`/api/search/${encodeURIComponent(id)}/availability`)
+          fetch(`/api/search/${encodeURIComponent(id)}/availability`),
+          fetch(`/api/search/${encodeURIComponent(id)}/ratings`)
         ]);
 
         const tutor = await profileRes.json();
         const { availableSlots = [] } = await slotsRes.json();
+        const ratingsData = await ratingsRes.json().catch(() => null);
+        const summary = ratingsData?.summary ?? {};
         const { colorMap } = useSubjectStore.getState();
 
         const subjectsHTML = tutor.subjects?.map((s: { name: string }) => {
@@ -128,9 +131,9 @@ import schedule from "@/features/search/assets/schedule.svg"
         };
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
-        el("tutor-total-ratings")!.textContent = `${tutor.totalRatings} valoraciones`;
+        el("tutor-total-ratings")!.textContent = `${summary.totalEvaluations ?? 0} valoraciones`;
 
-        const rating = Math.round(tutor.averageRating ?? 0);
+        const rating = Math.round(summary.averageRating ?? 0);
         let starsHTML = '';
 
         const starSrc = dialogEl.getAttribute("data-star");

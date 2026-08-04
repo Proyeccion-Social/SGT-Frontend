@@ -16,7 +16,7 @@ export default function SessionTypeStep({ onNext, onBack, initialType = null, is
 
   const options = [
     { value: "INDIVIDUAL" as const, label: "Individual", icon: individualIcon },
-    { value: "GRUPAL" as const, label: "Grupal", icon: grupalIcon },
+    // { value: "GRUPAL" as const, label: "Grupal", icon: grupalIcon },
   ];
 
   return (

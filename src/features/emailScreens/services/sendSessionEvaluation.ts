@@ -33,6 +33,7 @@ export async function sendSessionEvaluation(
   if (!response.ok) {
     const error = new Error(data.message || "Error sending evaluation") as any;
     error.status = response.status;
+    error.errorCode = data.errorCode;
     throw error;
   }
   return data;

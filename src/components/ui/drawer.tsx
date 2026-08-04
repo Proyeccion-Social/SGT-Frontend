@@ -5,7 +5,6 @@ import React, { useEffect, useCallback } from 'react';
 
 import type { StepHandle } from '@/features/tutorProfile/components/ChooseSubjects';
 import ChooseSubjects from '@/features/tutorProfile/components/ChooseSubjects';
-import UploadProfileImage from '@/features/tutorProfile/components/UploadProfileImage';
 import PersonalData from '@/features/tutorProfile/components/PersonalData';
 import Finish from '@/features/tutorProfile/components/Finish';
 import { Button } from '@/components/ui/button';
@@ -16,15 +15,13 @@ import './styles/drawer.css';
 import checkedIcon from "./images/checked-icon.svg"
 import numberOne from "./images/number-one.png";
 import numberTwo from "./images/number-two.png";
-import numberThree from "./images/number-three.png";
 import markedTitle from "./images/marked-title.svg"
 
 import StudentAdditionalData from '@/features/studentProfile/components/StudentAdditionalData';
 
 const TUTOR_STEPS = [
     { id: 1, label: 'Materias', shortLabel: '01' },
-    { id: 2, label: 'Foto de Perfil', shortLabel: '02' },
-    { id: 3, label: 'Datos personales', shortLabel: '03' },
+    { id: 2, label: 'Datos personales', shortLabel: '02' },
 ];
 
 const STUDENT_STEPS = [
@@ -34,7 +31,6 @@ const STUDENT_STEPS = [
 
 interface DrawerFormData {
     phone: string;
-    url_image: string;
     max_weekly_hours: number;
     subjectIds: string[];
     preferredModality: string;
@@ -48,11 +44,10 @@ export default function VaulDrawer() {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const isStudent = user?.role === 'STUDENT';
     const activeSteps = isStudent ? STUDENT_STEPS : TUTOR_STEPS;
-    const finishStepId = isStudent ? 3 : 4;
+    const finishStepId = 3;
 
     const [formData, setFormData] = React.useState<DrawerFormData>({
         phone: user?.phone || '',
-        url_image: user?.url_image || 'https://avatars.githubusercontent.com/u/150485576?v=4',
         max_weekly_hours: user?.max_weekly_hours || 8,
         subjectIds: user?.subjects?.map(s => s.id) || [],
         preferredModality: user?.preferredModality || '',
@@ -258,13 +253,6 @@ export default function VaulDrawer() {
                                                 />
                                             )}
                                             {step === 2 && (
-                                                <UploadProfileImage
-                                                    ref={stepRef}
-                                                    onNext={() => nextStep()}
-                                                    onCanContinueChange={handleCanContinueChange}
-                                                />
-                                            )}
-                                            {step === 3 && (
                                                 <PersonalData
                                                     ref={stepRef}
                                                     initialPhone={formData.phone}
@@ -333,13 +321,13 @@ export default function VaulDrawer() {
                                     <p className="drawer-footer-step-text">Paso</p>
                                     <div className="drawer-footer-step-img">
                                         <img
-                                            src={[numberOne, numberTwo, numberThree][step - 1]?.src}
+                                            src={[numberOne, numberTwo][step - 1]?.src}
                                             alt={String(step)}
                                         />
                                     </div>
                                 </div>
                                 <Button className="next-button" style={{position: "absolute", right: "2rem"}} onClick={handleFooterContinue} disabled={!canContinue || isSubmitting}>
-                                    {isSubmitting ? "Guardando..." : step === (isStudent ? 2 : 3) ? 'Guardar' : continueLabel}
+                                    {isSubmitting ? "Guardando..." : step === 2 ? 'Guardar' : continueLabel}
                                 </Button>
                             </div>
                         }

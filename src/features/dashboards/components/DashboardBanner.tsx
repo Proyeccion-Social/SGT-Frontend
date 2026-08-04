@@ -66,6 +66,7 @@ export default function DashboardBanner() {
             rel="noopener noreferrer"
           >
             {img}
+            <span className="open-link__banner">Abrir enlace en una nueva pestaña</span>
           </a>
         </div>
       );

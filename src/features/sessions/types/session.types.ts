@@ -13,7 +13,7 @@ export type SessionStatus =
   | 'COMPLETED'
   | 'CANCELLED';
 
-export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
+export type ParticipantStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'ATTENDED' | 'ABSENT' | 'LATE';
 
 
 export interface SessionTutor {
@@ -58,7 +58,7 @@ export interface Session {
   duration: number;
   modality: Modality;
   status: SessionStatus;
-  sessionType?: SessionType;      // INDIVIDUAL ("Cerrada") | GROUP ("Abierta")
+  sessionType?: 'INDIVIDUAL' | 'GROUP';
   title: string;
   description: string;
   participants: SessionParticipant[];
@@ -68,37 +68,30 @@ export interface Session {
   cancelledAt: string | null;
   cancellationReason: string | null;
   pendingModification?: ModificationRequest;
+  expiresAt?: string;
+  student?: { name: string };
+  tutorConfirmed?: boolean;
 }
 
 export type EvaluationAspect =
   | 'CLARITY'
   | 'PATIENCE'
   | 'PUNCTUALITY'
-  | 'KNOWLEDGE'
-  | 'USEFULNESS';
+  | 'KNOWLEDGE';
 
-export type AttendanceStatus = 'ATTENDED' | 'ABSENT' | 'LATE' | 'NO_SHOW';
+/** Estados de asistencia que acepta PATCH /attendance (sin NO_SHOW). */
+export type AttendanceStatus = 'ATTENDED' | 'ABSENT' | 'LATE';
 
 // ─── Asistencia (RF34) ───────────────────────────────────────
 
 export interface AttendanceRecord {
-  studentId: string;            
+  studentId: string;
   status: AttendanceStatus;
   arrivalTime?: string;          // ISO date-time — requerido si status === 'LATE'
 }
 
 export interface RegisterAttendanceDTO {
   attendances: AttendanceRecord[];
-  tutorId?: string;
-}
-
-export interface CompleteSessionBody {
-  tutorId: string;
-}
-
-export interface CompleteSessionResult {
-  success: boolean;
-  message: string;
 }
 
 export interface AttendanceResponse {
@@ -117,6 +110,7 @@ export interface RegisterAttendanceResult {
 }
 
 // ─── Completar sesión (RF35) ─────────────────────────────────
+// PATCH /sessions/:id/complete — solo sessionId en path, sin body.
 
 export interface CompleteSessionResult {
   message: string;
@@ -127,6 +121,17 @@ export interface CompleteSessionResult {
   studentsNotified: number;
 }
 
+/** Respuesta del BFF que encadena attendance → complete. */
+export interface AttendanceAndCompleteResult {
+  message: string;
+  attendance: RegisterAttendanceResult;
+  completion: CompleteSessionResult | null;
+  completionError?: {
+    errorCode?: string;
+    message: string;
+  };
+}
+
 // ─── Evaluación (RF36-RF37) ──────────────────────────────────
 
 export interface EvaluationRatings {
@@ -134,7 +139,6 @@ export interface EvaluationRatings {
   patience: number;              // 1-5
   punctuality: number;           // 1-5
   knowledge: number;             // 1-5
-  usefulness: number;            // 1-5
 }
 
 export interface SendEvaluationDTO {
@@ -163,7 +167,7 @@ export interface SessionEvaluationDetail {
   subjectName: string;
   evaluations: Array<{
     evaluationId: string;
-    studentId: string;
+    studentId?: string;
     studentName?: string;        // anónimo para tutores
     ratings: EvaluationRatings;
     overallRating: number;
@@ -189,20 +193,20 @@ export interface EvaluationQuestion {
 }
 
 export interface EvaluationQuestionnaire {
-  sesionId: string;
+  id: string;
   version: string;
   questions: EvaluationQuestion[];
   comments: {
-    enabled: boolean;
-    required: boolean;
     maxLength: number;
-    label: string;
-    placeholder: string;
+    enabled?: boolean;
+    required?: boolean;
+    label?: string;
+    placeholder?: string;
   };
-  overallRating: {
-    enabled: boolean;
-    required: boolean;
-    calculation: string;
+  overallRating?: {
+    enabled?: boolean;
+    required?: boolean;
+    calculation?: string;
   };
 }
 
@@ -212,6 +216,7 @@ export interface TutorRatingMetrics {
   averageOverall: number;
   totalEvaluations: number;
   averageByAspect: EvaluationRatings;
+  ratingsByAspect?: EvaluationRatings;
   ratingDistribution: Record<'1' | '2' | '3' | '4' | '5', number>;
 }
 
@@ -227,26 +232,40 @@ export interface TutorSessionMetrics {
 }
 
 export interface TutorAttendanceMetrics {
-  attendanceRate: number;        // porcentaje
+  attendanceRate: number;
   presentCount: number;
   absentCount: number;
   lateCount: number;
-  noShowCount: number;
 }
 
 export interface TutorStats {
   tutorId: string;
   tutorName: string;
+  period?: { startDate?: string; endDate?: string };
   ratingMetrics: TutorRatingMetrics;
   sessionMetrics: TutorSessionMetrics;
   attendanceMetrics: TutorAttendanceMetrics;
-  
+  temporalMetrics?: Record<string, unknown>;
+  calculatedAt?: string;
 }
 
 // ─── Historial del estudiante (RF38) ─────────────────────────
 
 export interface StudentEvaluationHistory {
-  
+  studentId: string;
+  studentName: string;
+  evaluations: Evaluation[];
+  summary: {
+    totalEvaluations: number;
+    averageRatingGiven: number;
+  };
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  filters?: Record<string, unknown>;
 }
 
 // ─── Disponibilidad ──────────────────────────────────────────

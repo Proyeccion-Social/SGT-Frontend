@@ -23,6 +23,8 @@ const STATUS_LABEL: Record<SessionStatus, string> = {
   CANCELLED_BY_ADMIN:         'Cancelada por administración',
   COMPLETED:                  'Completada',
   EXPIRED_UNCONFIRMED:        'Expirada sin confirmar',
+  CONFIRMED:                  'Confirmada',
+  CANCELLED:                  'Cancelada',
 };
 
 /** Sobrescrituras cortas para mobile. Un estado ausente cae en la etiqueta larga. */

@@ -35,7 +35,7 @@
     font-size: 20px;
     font-weight: 700;
     line-height: 36px;
-    letter-spacing: -2%;
+    letter-spacing: -0.02em;
     border-radius: 100%;
     width: 40px;
     height: 40px;
@@ -54,7 +54,7 @@
     font-size: 28px;
     font-weight: 600;
     line-height: 32px;
-    letter-spacing: -2%;
+    letter-spacing: -0.02em;
     color: #3C3C3C;
 }
 
@@ -73,7 +73,7 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 20px;
-    letter-spacing: -2%;
+    letter-spacing: -0.02em;
     border-radius: 8px;
     width: 139px;
     height: 36px;
@@ -96,7 +96,7 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 20px;
-    letter-spacing: -2%;
+    letter-spacing: -0.02em;
     border-radius: 8px;
     width: 139px;
     height: 36px;

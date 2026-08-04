@@ -8,7 +8,6 @@ La feature `tutorProfile` implementa el flujo de onboarding y gestión del perfi
 - Permitir seleccionar las materias que enseñará.
 - Configurar horario disponible y límite de horas semanales.
 - Forzar el cambio de contraseña inicial.
-- Subir foto de perfil.
 - Completar el perfil antes de permitir el acceso al dashboard.
 
 ## Problema que resuelve
@@ -28,7 +27,6 @@ Cuando un nuevo tutor se registra, el sistema necesita:
 - [components/ChooseSubjects.tsx](../components/ChooseSubjects.tsx): selección de materias a enseñar.
 - [components/SetAvailabilityHours.tsx](../components/SetAvailabilityHours.tsx): configuración inicial de horario disponible.
 - [components/SetNewPassword.tsx](../components/SetNewPassword.tsx): cambio de contraseña inicial.
-- [components/UploadProfileImage.tsx](../components/UploadProfileImage.tsx): subida de foto de perfil.
 - [components/Finish.tsx](../components/Finish.tsx): pantalla de conclusión del onboarding.
 
 ## Servicios y APIs
@@ -66,11 +64,10 @@ CompleteTutorProfileDto {
 2. El backend retorna `requiresProfileCompletion=true`.
 3. `auth` redirige al wizard de `tutorProfile`.
 4. El tutor completa los pasos:
-   - Datos personales.
    - Selección de materias.
+   - Datos personales.
    - Configuración de horario.
    - Cambio de contraseña.
-   - Subida de foto.
 5. Al finalizar, `completeTutorProfile()` envía todo al backend.
 6. On success, redirige al dashboard de tutor.
 
@@ -95,4 +92,3 @@ CompleteTutorProfileDto {
 
 - El onboarding es un wizard multi-paso. Cada paso puede mantener estado local o global antes del envío final.
 - `completeTutorProfile` agrupa múltiples configuraciones en un solo request para atomicidad.
-- La foto de perfil puede subirse a un servicio de almacenamiento y retornar una URL, o enviarse como base64 según la implementación del backend.

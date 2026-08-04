@@ -179,10 +179,11 @@ export const EvaluationDialog = ({ sessionId, userId, isReminder = false, onClos
   return (
     <div className="es-overlay" onClick={handleBackdrop} role="dialog" aria-modal="true">
       {showRating && status === 'ok' && data ? (
-        <MultiStepDialog 
-          session={data} 
-          userId={userId} 
-          onClose={onClose} 
+        <MultiStepDialog
+          session={data}
+          userId={userId}
+          apiBase="/api/emailScreens"
+          onClose={onClose}
         />
       ) : (
         <div className="es-card">

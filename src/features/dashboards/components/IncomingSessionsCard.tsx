@@ -14,6 +14,9 @@ import FinishSession from '@/features/sessions/components/FinishSession';
 import { UserRole } from '@/constants/roles';
 import { getSessionTimePhase, formatTime, formatDate, sortSessionsForDisplay } from '../utils/incomingSessionsUtils';
 import { CloudinaryImage } from '@/components/CloudinaryImage';
+import { sileo } from 'sileo';
+import { useAuthStore } from '@/store/authStore';
+import { isSessionEvaluated } from '@/features/sessions/utils/checkSessionEvaluated';
 
 interface Props {
   sessions: Session[];
@@ -78,6 +81,7 @@ const SkeletonCard = () => (
 
 export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, onRefetch }: Props) => {
   const isTutor = viewerRole === UserRole.TUTOR;
+  const user = useAuthStore((s) => s.user);
 
   const displaySessions = useMemo(() => {
     // D2: solo se muestran SCHEDULED / PENDING_* (todos los roles) y COMPLETED (solo tutor).
@@ -89,12 +93,46 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
   const [attendanceSession, setAttendanceSession] = useState<Session | null>(null);
   const [finishingSession, setFinishingSession] = useState<Session | null>(null);
 
+  /** Pre-condiciones del backend: SCHEDULED + fecha no futura (EXECUTION-02/03). */
+  const canOpenAttendance = (session: Session): string | null => {
+    if (session.status !== 'SCHEDULED') {
+      return 'Solo se puede registrar asistencia en sesiones programadas.';
+    }
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if (session.scheduledDate > todayStr) {
+      return 'No se puede registrar asistencia de una sesión con fecha futura.';
+    }
+    return null;
+  };
+
   const handleAttendanceOpen = (session: Session) => {
+    const reason = canOpenAttendance(session);
+    if (reason) {
+      sileo.error({ title: 'No disponible', description: reason, fill: '#f35761' });
+      return;
+    }
     setAttendanceSession(session);
   };
 
   const handleAttendanceClose = () => {
     setAttendanceSession(null);
+  };
+
+  /** Si el estudiante ya calificó, no abre el detalle: lanza toast informativo. */
+  const handleCalificarClick = async (session: Session) => {
+    if (user?.id) {
+      const alreadyEvaluated = await isSessionEvaluated(session.id, user.id);
+      if (alreadyEvaluated === true) {
+        sileo.info({
+          title: 'Ya calificada',
+          description: 'Ya calificaste esta sesión.',
+          fill: '#9f74ff',
+        });
+        return;
+      }
+    }
+    openDetail(session.id);
   };
 
   return (
@@ -216,12 +254,15 @@ export const IncomingSessionsCard = ({ sessions, isLoading, error, viewerRole, o
                         Asistencia
                       </button>
                     )}
-                    {phase === 'ended' && !isTutor && (
+                    {phase === 'ended' && !isTutor && session.status === 'COMPLETED' && (
                       <button
                         type="button"
                         className="btn-calificar"
                         aria-label={`Calificar sesión ${session.title}`}
-                        onClick={e => e.stopPropagation()}
+                        onClick={e => {
+                          e.stopPropagation();
+                          void handleCalificarClick(session);
+                        }}
                       >
                         Calificar
                       </button>

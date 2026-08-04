@@ -21,6 +21,7 @@ import {
   canProposeModification,
   canCancelSession,
   getSessionDisplayStatus,
+  getSessionTimePhase,
 } from '../utils/sessionStatus';
 import { CloudinaryImage } from '@/components/CloudinaryImage';
 import { statusLabel } from '../utils/statusLabel';
@@ -52,6 +53,8 @@ interface Props {
   onAcceptModification: () => Promise<void>;
   onRejectModification: () => Promise<void>;
   onEvaluate?: () => void;
+  /** Tutor: abrir registro de asistencia (sesión en curso o finalizada). */
+  onMarkAttendance?: () => void;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
@@ -126,6 +129,7 @@ export const SessionDetailView = ({
   onAcceptModification,
   onRejectModification,
   onEvaluate,
+  onMarkAttendance,
   modificar,
   editar,
 }: Props) => {
@@ -206,10 +210,27 @@ export const SessionDetailView = ({
     showModificationView &&
     !isProposer &&
     (proposedById ? true : role === UserRole.TUTOR);
-  const showEditButton = !isAltView && !showModificationView && role === UserRole.TUTOR && String(session.status) === 'SCHEDULED';
+  const timePhase = getSessionTimePhase(
+    session.scheduledDate,
+    session.startTime,
+    session.endTime
+  );
+  const isTutorScheduled =
+    !isAltView &&
+    !showModificationView &&
+    role === UserRole.TUTOR &&
+    String(session.status) === 'SCHEDULED';
+  // Antes de la hora: Editar. En curso o ya pasó la hora: Marcar asistencia.
+  const showEditButton = isTutorScheduled && timePhase === 'upcoming';
+  const showAttendanceButton =
+    isTutorScheduled && timePhase !== 'upcoming' && !!onMarkAttendance;
   // Las reglas de negocio (canPropose/canCancel) ya excluyen estados terminales,
   // PENDING_MODIFICATION y sesiones en curso/terminadas.
-  const showActionButtons = proposeAvailability.visible || cancelAvailability.visible || showEditButton;
+  const showActionButtons =
+    proposeAvailability.visible ||
+    cancelAvailability.visible ||
+    showEditButton ||
+    showAttendanceButton;
   const showFooter =
     isAltView ||
     (showModificationView && canRespondToModification) ||
@@ -450,6 +471,14 @@ export const SessionDetailView = ({
                 {showEditButton && (
                   <button className="sdv-btn sdv-btn--edit" onClick={onEdit}>
                     Editar
+                  </button>
+                )}
+                {showAttendanceButton && (
+                  <button
+                    className="sdv-btn sdv-btn--edit"
+                    onClick={onMarkAttendance}
+                  >
+                    Marcar asistencia
                   </button>
                 )}
                 {cancelAvailability.visible && (

@@ -56,6 +56,15 @@ const modalityText = (m: unknown): string => {
 };
 
 const systemToday = new Date();
+
+const isSameDay = (date: Date | undefined): boolean =>
+  !!date &&
+  systemToday.getFullYear() === date.getFullYear() &&
+  systemToday.getMonth() === date.getMonth() &&
+  systemToday.getDate() === date.getDate();
+
+// Si la semana mostrada contiene hoy, el selector móvil abre en ese día.
+const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
 ---
 
 <div class='calendar-outer' data-mode={mode}>
@@ -64,14 +73,12 @@ const systemToday = new Date();
       {
         DAYS.map((day, idx) => {
           const date = weekDates[day.key];
-          const isToday =
-            date &&
-            systemToday.getFullYear() === date.getFullYear() &&
-            systemToday.getMonth() === date.getMonth() &&
-            systemToday.getDate() === date.getDate();
+          const isToday = isSameDay(date);
+          const isActive = weekHasToday ? isToday : idx === 0;
           return (
             <button
-              class={`mobile-day-btn${idx === 0 ? " mobile-day-btn--active" : ""}${isToday ? " mobile-day-btn--today" : ""}`}
+              type='button'
+              class={`mobile-day-btn${isActive ? " mobile-day-btn--active" : ""}${isToday ? " mobile-day-btn--today" : ""}`}
               data-day-key={day.key}
             >
               <span class='mobile-day-btn__abbr'>{day.label.slice(0, 3)}</span>
@@ -116,9 +123,9 @@ const systemToday = new Date();
       </div>
 
       {
-        DAYS.map((day) => (
+        DAYS.map((day, idx) => (
           <div
-            class='day-column'
+            class={`day-column${(weekHasToday ? isSameDay(weekDates[day.key]) : idx === 0) ? " mobile-active" : ""}`}
             data-day-key={day.key}
             style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
@@ -853,8 +860,11 @@ const systemToday = new Date();
       });
     };
 
-    const firstBtn = selector.querySelector(".mobile-day-btn");
-    if (firstBtn) setActiveDay(firstBtn.dataset.dayKey);
+    // Preferir el día de hoy; si la semana mostrada no lo contiene, caer al primero.
+    const initialBtn =
+      selector.querySelector(".mobile-day-btn--today") ||
+      selector.querySelector(".mobile-day-btn");
+    if (initialBtn) setActiveDay(initialBtn.dataset.dayKey);
 
     selector.querySelectorAll(".mobile-day-btn").forEach((btn) => {
       btn.addEventListener("click", () => setActiveDay(btn.dataset.dayKey));

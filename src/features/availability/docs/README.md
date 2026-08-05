@@ -141,3 +141,14 @@ El registro base de `Availability` (día + hora) es **compartido** entre tutores
 Regla clave que aplica `getSlotsByDayStudent`: **una franja está ocupada solo si TODOS sus tutores lo están.** Si al menos un tutor está libre, el bloque se muestra disponible y ofrece únicamente a los tutores libres. El contador «Tutorías disponibles: N» usa `availableTutorCount`.
 
 `Calendar.astro` expone `data-available-tutors` en cada `.slot-block`. Al reservar, el evento `slot:booked` (emitido por `SchedulingWizard`) viaja con `{ slotId, tutorId }`: el listener remueve solo a ese tutor de la lista, decrementa el contador y marca la franja como reservada **únicamente** cuando se agota el último tutor libre.
+
+## Responsive (móvil ≤768px)
+
+`Calendar.astro` ya colapsaba a una sola columna con un selector de día horizontal. Ahora el día
+activo se inicializa en **hoy** (antes siempre en lunes); si la semana mostrada no contiene hoy, cae
+al primer día. La clase activa se aplica también en el render del servidor para evitar un parpadeo
+antes de que corra el script.
+
+La página contenedora `layouts/availability/CalendarSlots.astro` reserva espacio superior en móvil
+para que la cabecera "Tu Semana" no quede bajo los elementos flotantes (cabecera de usuario y botón
+de notificaciones), y baja el título al escalón `Heading h6` del Design System.

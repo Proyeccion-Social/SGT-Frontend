@@ -138,8 +138,23 @@ import closeIcon from "@/features/tutorAvailability/assets/close.png";
         padding: 30px;
         border-radius: 16px;
         border: 1px solid #c6c6c6;
-        width: 514px;
-        height: 307px;
+        width: 100%;
+        max-width: 514px;
+        min-height: 307px;
+    }
+
+    /* --bp-md — ver ADR-01 */
+    @media (max-width: 768px) {
+        dialog[open] {
+            padding: var(--spacing-xs);
+            box-sizing: border-box;
+        }
+
+        .container {
+            padding: var(--spacing-sm);
+            min-height: 0;
+            box-sizing: border-box;
+        }
     }
 
     .modality-container {

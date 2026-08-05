@@ -182,3 +182,41 @@
   height: 24px;
   object-fit: contain;
 }
+
+/* ── Mobile ──────────────────────────────────────────────────
+   --bp-md — los tokens --bp-* no son evaluables dentro de @media
+   (ver ADR-01). El diálogo pasa a pantalla completa (ADR-05).
+   Los !important son necesarios porque el shell del Dialog de
+   shadcn ya los usa; no se introducen donde no existían.
+   ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .tp-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    /* El Dialog de shadcn centra con las utilidades -translate-x/y-1/2 de
+       Tailwind v4, que usan la propiedad CSS `translate` (no `transform`):
+       hay que anular esa misma propiedad o el diálogo queda desplazado. */
+    translate: none !important;
+    transform: none !important;
+  }
+
+  .tp-dialog > *:not(.ps-close-btn) {
+    overflow: auto;
+  }
+
+  .tp-body {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-xs);
+    overflow-y: auto;
+  }
+
+  .tp-panel {
+    min-height: 0;
+  }
+}

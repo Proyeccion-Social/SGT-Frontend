@@ -128,3 +128,25 @@ Después de iniciar sesión, el usuario necesita una vista unificada donde pueda
 - El dashboard usa BFF (Backend for Frontend) para obtener datos iniciales en SSR, reduciendo la latencia percibida.
 - La separación `DashboardLoader` / `DashboardSessionManager` permite que la página Astro se enfoque en layout mientras los componentes React manejan estado.
 - El mapeo entre `DashboardSessionSummary` y `Session` es necesario porque el backend devuelve un resumen más ligero para el dashboard.
+
+## Responsive (móvil ≤768px)
+
+`IncomingSessionsCard` lo montan **ambos** dashboards (`layouts/dashboards/TutorDashboard.astro` y
+`StudentDashboard.astro`), así que cualquier cambio en su CSS afecta a los dos roles.
+
+- **El badge de estado no reserva ancho.** `.tag-status` es partible (`white-space: normal`) en todos
+  los tamaños: con `nowrap`, "Pendiente de confirmación" fijaba el `min-content` de la tarjeta en
+  ~163px, lo que arrastraba a `.session-card` (~327px) y a `.session-container` (~366px) por encima
+  del ancho disponible en móvil (~312px a 360px de viewport) y sacaba las tarjetas de la pantalla.
+- **Anclaje del badge bajo `--bp-md`**: pasa a `position: absolute` en la esquina superior derecha de
+  `.session-card`, sobresaliendo ~10px por arriba y ~5px por la derecha. Así el título dispone del
+  ancho completo y el badge no invade su primera línea. En escritorio sigue en flujo, sin cambios.
+- **Altura del contenedor**: `.session-container` deja de ser una caja de 380px fijos y pasa a
+  `min-height: 240px` / `max-height: min(70dvh, 560px)`.
+- **Salvaguardas de layout**: `.cards-container` del tutor usa `minmax(0, 1fr)` en vez de `1fr`
+  (`1fr` equivale a `minmax(auto, 1fr)` y deja que el `min-content` del hijo ensanche la pista), y
+  `.incoming-sessions-container` del estudiante lleva `min-width: 0` por el mismo motivo dentro de
+  la fila `.left-side` de escritorio.
+
+> Los tokens `--bp-*` no son evaluables dentro de una `@media`; las media queries usan el valor
+> literal con un comentario que referencia el token.

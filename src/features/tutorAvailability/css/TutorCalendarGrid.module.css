@@ -106,6 +106,9 @@
     height: 64px;
     border-bottom: 1px solid #e8e8e8;
     flex-shrink: 0;
+    /* Evita que el scroll de la página se quede con el gesto de arrastre
+       en dispositivos táctiles. Sin esto el drag no llega a iniciarse. */
+    touch-action: none;
 }
 
 /* =================== SLOTS =================== */
@@ -217,4 +220,105 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+}
+
+/* =================== MÓVIL ===================
+   --bp-md — los tokens --bp-* no son evaluables dentro de @media
+   (ver ADR-01). En móvil se muestra un solo día, con un selector
+   horizontal arriba: replica el patrón ya aprobado en
+   features/availability/components/Calendar.astro.
+   ============================================= */
+
+.mobileDaySelector {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    /* El scroll real vive en .tutor-calendar-scroll (el contenedor del
+       overlay). Con overflow:hidden aquí, el sticky del selector se
+       resolvería contra este wrapper —que nunca scrollea— y no se fijaría. */
+    .calendarWrapper {
+        overflow: visible;
+    }
+
+    .mobileDaySelector {
+        display: flex;
+        gap: var(--spacing-2xs);
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        overflow-x: auto;
+        scrollbar-width: none;
+        background: var(--surface-primary);
+        border-bottom: 1px solid var(--border-primary);
+        position: sticky;
+        top: 0;
+        z-index: 11;
+    }
+
+    .mobileDaySelector::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobileDayBtn {
+        display: flex;
+        flex: 1 0 auto;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: var(--spacing-2xs) var(--spacing-xxs);
+        border: none;
+        border-radius: var(--border-radius-lg);
+        background: var(--surface-disabled);
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .mobileDayBtn:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+    }
+
+    .mobileDayBtnActive {
+        background: var(--surface-focus);
+    }
+
+    .mobileDayBtnAbbr {
+        font-size: var(--fontsize-body-sm);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--text-body);
+        font-family: var(--type-font-family-secondary);
+    }
+
+    .mobileDayBtnNum {
+        font-size: var(--fontsize-body-md);
+        font-weight: 700;
+        line-height: 1;
+        color: var(--text-headings);
+        font-family: var(--type-font-family-secondary);
+    }
+
+    .mobileDayBtnActive .mobileDayBtnAbbr,
+    .mobileDayBtnActive .mobileDayBtnNum {
+        color: var(--text-action);
+    }
+
+    .mobileDayBtnToday .mobileDayBtnNum {
+        color: var(--secondary-600);
+    }
+
+    .calendarHeader {
+        display: none;
+    }
+
+    .calendarBody {
+        grid-template-columns: 56px 1fr;
+    }
+
+    .dayColumn {
+        display: none;
+    }
+
+    .dayColumnMobileActive {
+        display: block;
+    }
 }

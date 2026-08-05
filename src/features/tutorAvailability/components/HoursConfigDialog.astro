@@ -297,8 +297,23 @@
     padding: 60px;
     border-radius: 16px;
     border: 1px solid #c6c6c6;
-    width: 570px;
-    height: 320px;
+    width: 100%;
+    max-width: 570px;
+    min-height: 320px;
+  }
+
+  /* --bp-md — ver ADR-01 */
+  @media (max-width: 768px) {
+    dialog[open] {
+      padding: var(--spacing-xs);
+      box-sizing: border-box;
+    }
+
+    .container {
+      padding: var(--spacing-md) var(--spacing-sm);
+      min-height: 0;
+      box-sizing: border-box;
+    }
   }
 
   .enviarBtn {

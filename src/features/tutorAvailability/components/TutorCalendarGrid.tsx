@@ -63,6 +63,18 @@
         const weekDates = getWeekDates(new Date());
         const today = new Date();
 
+        const isSameDay = (date: Date | undefined) =>
+            !!date &&
+            today.getFullYear() === date.getFullYear() &&
+            today.getMonth() === date.getMonth() &&
+            today.getDate() === date.getDate();
+
+        // En móvil sólo se muestra un día a la vez: se abre en hoy, y si la
+        // semana mostrada no lo contiene, en el primero.
+        const [activeDayKey, setActiveDayKey] = useState<string>(
+            () => (DAYS.find((d) => isSameDay(weekDates[d.key])) ?? DAYS[0]).key,
+        );
+
         // ---- Fetch slots ----
         const fetchSlots = useCallback(async () => {
             try {
@@ -123,6 +135,30 @@
         return (
             <div className={styles.calendarOuter}>
                 <div className={styles.calendarWrapper}>
+                    {/* Selector de día — sólo visible en móvil */}
+                    <div className={styles.mobileDaySelector}>
+                        {DAYS.map((day) => {
+                            const date = weekDates[day.key];
+                            const isActive = day.key === activeDayKey;
+                            return (
+                                <button
+                                    key={day.key}
+                                    type='button'
+                                    aria-pressed={isActive}
+                                    className={`${styles.mobileDayBtn}${isActive ? ` ${styles.mobileDayBtnActive}` : ''}${isSameDay(date) ? ` ${styles.mobileDayBtnToday}` : ''}`}
+                                    onClick={() => setActiveDayKey(day.key)}
+                                >
+                                    <span className={styles.mobileDayBtnAbbr}>
+                                        {day.label.slice(0, 3)}
+                                    </span>
+                                    <span className={styles.mobileDayBtnNum}>
+                                        {date?.getDate().toString().padStart(2, '0')}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
                     {/* Header */}
                     <div className={styles.calendarHeader}>
                         <div className={styles.timeGutter} />
@@ -162,6 +198,7 @@
                                 dayKey={day.key}
                                 slots={slots}
                                 onSlotCreated={fetchSlots}
+                                isMobileActive={day.key === activeDayKey}
                             />
                         ))}
                     </div>
@@ -177,9 +214,10 @@
         dayKey: string;
         slots: Slot[];
         onSlotCreated: () => void;
+        isMobileActive: boolean;
     }
 
-    function DayColumn({ dayKey, slots, onSlotCreated }: DayColumnProps) {
+    function DayColumn({ dayKey, slots, onSlotCreated, isMobileActive }: DayColumnProps) {
         const columnRef = useRef<HTMLDivElement>(null);
         const [dragState, setDragState] = useState<{
             startMin: number;
@@ -190,7 +228,10 @@
         const mergedSlots = getSlotsByDay(slots, dayKey);
 
         // ---- Drag handlers ----
-        const handleMouseDown = (e: React.MouseEvent) => {
+        // Pointer events (no mouse events): cubren ratón, táctil y lápiz con
+        // el mismo código. Con mousedown/mousemove el gesto no llegaba a
+        // dispararse en un dispositivo táctil.
+        const handlePointerDown = (e: React.PointerEvent) => {
             const target = e.target as HTMLElement;
             // Solo iniciar drag en celdas vacías
             if (!target.classList.contains(styles.hourCell)) return;
@@ -206,7 +247,7 @@
 
             setDragState({ startMin, endMin: startMin + SLOT_INTERVAL });
 
-            const onMove = (ev: MouseEvent) => {
+            const onMove = (ev: PointerEvent) => {
                 const relY = ev.clientY - rect.top;
                 const currentMin = pixelsToMinutes(relY) + HOUR_START * 60;
                 const rounded = Math.ceil(currentMin / SLOT_INTERVAL) * SLOT_INTERVAL;
@@ -214,9 +255,21 @@
                 setDragState({ startMin, endMin: clamped });
             };
 
+            const detach = () => {
+                document.removeEventListener('pointermove', onMove);
+                document.removeEventListener('pointerup', onUp);
+                document.removeEventListener('pointercancel', onCancel);
+            };
+
+            // Gesto interrumpido por el sistema (llamada, gesto del navegador…):
+            // se descarta sin crear la franja.
+            const onCancel = () => {
+                detach();
+                setDragState(null);
+            };
+
             const onUp = async () => {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
+                detach();
 
                 setDragState((prev) => {
                     if (!prev || prev.endMin <= prev.startMin) return null;
@@ -276,8 +329,9 @@
                 });
             };
 
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
+            document.addEventListener('pointermove', onMove);
+            document.addEventListener('pointerup', onUp);
+            document.addEventListener('pointercancel', onCancel);
         };
 
         // ---- Click en slot existente ----
@@ -300,9 +354,9 @@
         return (
             <div
                 ref={columnRef}
-                className={styles.dayColumn}
+                className={`${styles.dayColumn}${isMobileActive ? ` ${styles.dayColumnMobileActive}` : ''}`}
                 style={{ '--day-color': DAY_COLORS[dayKey] } as React.CSSProperties}
-                onMouseDown={handleMouseDown}
+                onPointerDown={handlePointerDown}
             >
                 {/* Celdas horarias vacías */}
                 {HOURS_ARRAY.map((hour) => (

@@ -87,7 +87,8 @@ const { today, weekRangeStr } = getWeekRangeFromOffset(weekOffset);
   }
 
   .week-selector h3 {
-    font-size: 32px;
+    font-size: var(--fontsize-heading-h4);
+    line-height: var(--lineheight-heading-h4);
     font-weight: bold;
     color: var(--primary-400);
   }
@@ -164,6 +165,43 @@ const { today, weekRangeStr } = getWeekRangeFromOffset(weekOffset);
 
   .actualizar-btn:active {
     opacity: 0.9;
+  }
+
+  /* --bp-md — los tokens --bp-* no son evaluables dentro de @media (ver ADR-01) */
+  @media (max-width: 768px) {
+    .content-wrapper {
+      border-radius: 0;
+      border: none;
+    }
+
+    /* El dock deja flotando la cabecera de usuario y el botón de
+       notificaciones sobre esta zona: se reserva espacio para que el
+       título no quede debajo. Mismo patrón que TutorDashboard. */
+    .calendar-header {
+      padding: var(--spacing-md) var(--spacing-xs) var(--spacing-sm);
+      padding-top: max(var(--spacing-3xl), env(safe-area-inset-top));
+      gap: var(--spacing-xxs);
+    }
+
+    .week-selector {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-2xs);
+    }
+
+    /* Heading h6 del Design System (20px/24px) */
+    .week-selector h3 {
+      font-size: var(--fontsize-heading-h6);
+      line-height: var(--lineheight-heading-h6);
+    }
+
+    .week-selector p {
+      margin-top: 0;
+    }
+
+    .actualizar-btn {
+      margin-top: 0;
+    }
   }
 </style>
 

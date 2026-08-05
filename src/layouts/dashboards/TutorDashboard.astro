@@ -155,7 +155,10 @@ const userRole = UserRole.TUTOR;
 
   @media (max-width: 768px) {
     .cards-container {
-      grid-template-columns: 1fr;
+      /* minmax(0, 1fr) y no 1fr: `1fr` equivale a `minmax(auto, 1fr)`, y ese
+         `auto` deja que el min-content de la tarjeta ensanche la pista y saque
+         el grid de la pantalla. */
+      grid-template-columns: minmax(0, 1fr);
       padding: 0 1rem;
       gap: 1.5rem;
     }

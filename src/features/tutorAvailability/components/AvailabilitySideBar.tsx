@@ -208,20 +208,15 @@
         <Drawer.Trigger asChild>
           <button
             type="button"
-            className={`
-              ${open ? "h-10 w-10 opacity-0 pointer-events-none" : "h-14 w-14 opacity-100"}
-              absolute z-[100] top-6 right-6 flex items-center justify-center
-              rounded-full border border-[#C6C6C6] bg-white p-2
-              transition-all duration-300
-              cursor-pointer
-            `}
+            aria-label="Ver tus franjas"
+            className={`${styles.TriggerButton}${open ? ` ${styles.TriggerButtonHidden}` : ''}`}
           >
             <img src={sidebarLogo.src} alt="" />
           </button>
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay
-            className="fixed inset-0 bg-black/40 z-[1040]"
+            className={styles.Overlay}
             onClick={() => {
               if (!isSpaceInfoDialogOpenRef.current) {
                 setOpen(false);
@@ -229,7 +224,7 @@
             }}
           />
           <Drawer.Content
-            className="right-8 top-8 bottom-8 fixed z-[1050] outline-none w-[380px]"
+            className={styles.Content}
             style={{ '--initial-transform': 'calc(100% + 50px)' } as React.CSSProperties}
             onInteractOutside={() => {
               // Importante: NO hacer preventDefault aquí, porque bloquea clicks
@@ -237,8 +232,8 @@
               if (!isSpaceInfoDialogOpenRef.current) setOpen(false);
             }}
           >
-            <div className="bg-zinc-50 w-full max-h-[600px] flex flex-col rounded-[16px] border border-[#C6C6C6] z-20">
-              <div className="p-6 border-b border-[#C6C6C6]">
+            <div className={styles.Panel}>
+              <div className={styles.PanelHeader}>
                 <Drawer.Title className={styles.Title}>Tus franjas</Drawer.Title>
                 <Drawer.Description className={styles.Description}>
                   Haz click en una franja para editarla

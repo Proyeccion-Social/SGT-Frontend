@@ -126,3 +126,24 @@ Un tutor necesita:
 - El calendario es un componente React complejo con cálculos de posicionamiento basados en minutos.
 - Las operaciones por rango permiten replicar disponibilidad semanal en múltiples semanas de una sola vez.
 - Los slots en el pasado están deshabilitados visualmente para evitar ediciones inválidas.
+
+## Responsive (móvil ≤768px)
+
+El overlay de configuración se adapta bajo `--bp-md` (768px):
+
+- **Rejilla (`TutorCalendarGrid`)**: muestra **un solo día** a la vez con un selector horizontal
+  arriba (`mobileDaySelector`). Abre en el día de hoy; si la semana mostrada no lo contiene, en el
+  primero. Replica el patrón de `features/availability/components/Calendar.astro`.
+- **Gesto de crear franja**: se mantiene el arrastre. El manejo migró de eventos de ratón a
+  **pointer events**, que cubren ratón, táctil y lápiz; con `mousedown`/`mousemove` el gesto no
+  llegaba a dispararse en un dispositivo táctil. `.hourCell` lleva `touch-action: none` para que el
+  scroll de la página no se quede con el gesto. Un `pointercancel` descarta el arrastre sin crear
+  franja.
+- **Contenedores modales** (overlay del calendario, drawer de franjas, diálogos de configuración):
+  pasan a **pantalla completa**, sin márgenes ni radio de borde, siguiendo el patrón de
+  `DashboardLayout.astro`.
+- **`AvailabilitySideBar`**: su shell se migró de utilidades de Tailwind a CSS plano en
+  `css/AvailabilitySideBar.module.css`, como exige el estándar de estilos para componentes propios.
+
+> Los tokens `--bp-*` no son evaluables dentro de una `@media`; las media queries usan el valor
+> literal con un comentario que referencia el token.

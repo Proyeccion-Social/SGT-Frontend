@@ -53,11 +53,97 @@
 
 .attendance-header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.4fr;
   gap: 16px;
   padding: 32px;
   padding-bottom: 20px;
   border-bottom: 1px solid #c6c6c6;
+}
+
+.attendance-header h6 {
+  font-family: "Open Sauce Two", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3c3c3c;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.attendance-loading {
+  padding: 16px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.attendance-status-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.attendance-status-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attendance-status-btn {
+  appearance: none;
+  border: 1px solid #c6c6c6;
+  background: #fff;
+  color: #3c3c3c;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: "Cabinet Grotesk Variable", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  letter-spacing: -0.02em;
+}
+
+.attendance-status-btn:hover {
+  border-color: #9f74ff;
+  color: #9f74ff;
+}
+
+.attendance-status-btn--active {
+  background: #9f74ff;
+  border-color: #9f74ff;
+  color: #fff;
+}
+
+.attendance-status-btn--active.attendance-status-btn--late {
+  background: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.attendance-status-btn--active.attendance-status-btn--absent {
+  background: #f35761;
+  border-color: #f35761;
+}
+
+.attendance-arrival {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #555;
+}
+
+.attendance-arrival-input {
+  border: 1px solid #c6c6c6;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: "Open Sauce Two", sans-serif;
+  font-size: 13px;
+  color: #3c3c3c;
+}
+
+.attendance-arrival-input:focus {
+  outline: none;
+  border-color: #9f74ff;
 }
 
 .attendance-content {
@@ -80,7 +166,7 @@
   font-family: "Open Sauce Two";
   font-size: 20px;
   font-weight: 500;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   color: #3c3c3c;
 }
 
@@ -92,10 +178,11 @@
 
 .attendance-content-item-name {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.4fr;
   gap: 16px;
+  align-items: center;
   justify-items: left;
-  padding: 30px 0px;
+  padding: 20px 0;
   border-bottom: 1px solid #c6c6c6;
 }
 
@@ -108,7 +195,7 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   color: #3c3c3c;
 }
 
@@ -155,14 +242,15 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
 }
 
 .attendance-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 16px;
   border-top: 1px solid #c6c6c6;
+  align-items: center;
 }
 
 .attendance-button {
@@ -172,21 +260,13 @@
   font-size: 20px;
   font-weight: 700;
   line-height: 36px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   border-radius: 8px;
 }
 
-.attendance-close {
-  position: absolute;
-  top: -16px;
-  right: -16px;
-  background-color: #ffffff;
-  border: 1px solid #c6c6c6;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 36px;
-  letter-spacing: -2%;
-  border-radius: 100%;
-  width: 40px;
-  height: 40px;
+.attendance-error {
+  color: #f35761 !important;
+  font-size: 12px !important;
+  margin: 0px !important;
+  font-style: italic !important;
 }

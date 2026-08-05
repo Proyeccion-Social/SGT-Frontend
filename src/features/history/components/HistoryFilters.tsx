@@ -27,7 +27,6 @@ const STATUS_OPTIONS = [
   { value: "CANCELLED_BY_STUDENT", label: "Canceladas por estudiante" },
   { value: "CANCELLED_BY_TUTOR", label: "Canceladas por tutor" },
   { value: "CANCELLED_BY_ADMIN", label: "Canceladas por administración" },
-  { value: "NO_SHOW", label: "No asistió" },
 ]
 
 interface HistoryFiltersProps {

@@ -186,7 +186,7 @@
 
   --surface-page: var(--neutral-blanco);
   --surface-primary: var(--neutral-blanco);
-  --surface-action: var(--primary-default);
+  --surface-action: var(--primary-100);
   --surface-action-hover: var(--primary-600);
   --surface-focus: var(--primary-50);
   --surface-disabled: var(--neutral-200);
@@ -204,7 +204,7 @@
 
   --border-primary: var(--neutral-200);
   --border-secondary: var(--primary-300);
-  --border-action: var(--primary-200);
+  --border-action: var(--primary-100);
   --border-action-hover: var(--primary-600);
   --border-focus: var(--primary-200);
   --border-success: var(--success-100);

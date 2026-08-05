@@ -66,6 +66,24 @@
   animation: dashboard-banner-shimmer 1.2s ease-in-out infinite;
 }
 
+.open-link__banner {
+  position: absolute;
+  bottom: 16px;
+  font-family: 'Cabinet Grotesk Variable';
+  letter-spacing: -0.02em;
+  color: var(--text-headings);
+  font-size: 14px;
+  text-decoration: underline;
+  left: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(12.1px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  padding: 4px 8px;
+}
+
 @keyframes dashboard-banner-shimmer {
   0% {
     background-position: 100% 0;

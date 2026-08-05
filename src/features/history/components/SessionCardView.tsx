@@ -1,6 +1,7 @@
 import { CloudinaryImage } from "@/components/CloudinaryImage";
 
 import { statusLabel } from '@/features/sessions/utils/statusLabel';
+import { canEvaluateSession } from '@/features/sessions/utils/canEvaluate';
 
 interface SessionCardViewProps {
   session: any;
@@ -30,7 +31,7 @@ export default function SessionCardView({ session, userId, onClose, onEvaluate }
     return "";
   }
 
-  const canEvaluate = session.status === "COMPLETED" && participantStatus === "ATTENDED";
+  const canEvaluate = canEvaluateSession(session, participant).canEvaluate;
 
   return (
     <div className="sc-card">

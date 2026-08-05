@@ -16,7 +16,7 @@
   font-weight: 500;
   font-size: 26px;
   line-height: 36px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   color: #1a1a1a;
 }
 
@@ -24,7 +24,7 @@
   font-weight: 300;
   font-size: 16px;
   line-height: 20px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   color: #3c3c3c;
 }
 
@@ -130,7 +130,7 @@
   font-style: Bold;
   font-size: 20px;
   line-height: 36px;
-  letter-spacing: -2%;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   justify-content: center;

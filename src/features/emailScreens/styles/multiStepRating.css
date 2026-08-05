@@ -1,5 +1,7 @@
 /* ============================================
-   multiStepRating.css — emailScreens
+   MultiStepRating.css
+   Estilos del componente de evaluación de sesión.
+   Importar en MultiStepRating.tsx para que sea portátil.
    ============================================ */
 
 @keyframes scaleUpFade {
@@ -39,12 +41,13 @@
   min-height: 104px;
   height: auto;
   padding: 1.25rem;
-  margin-bottom: 1.25rem;
-  border-radius: 16px;
+  /* margin-bottom: 1.25rem; */
+  border-radius: 16px 16px 0px 0px;
   border: 1px solid #c6c6c6;
   background-color: #ffffff;
   box-sizing: border-box;
   position: relative;
+  border-bottom: none;
 }
 
 .evaluation-card-header-title {
@@ -56,7 +59,7 @@
 
 .evaluation-card-header-title h3,
 .evaluation-card-header-title span {
-  font-family: Open Sauce Two;
+  font-family: "Open Sauce Two";
   font-weight: 600;
   font-size: clamp(18px, 3.4vw, 28px);
   line-height: 1.2;
@@ -65,7 +68,7 @@
 }
 .evaluation-card-header-title span {
   color: #9f74ff;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0;
   margin: 0;
   text-align: left;
@@ -81,30 +84,6 @@
   padding-top: 5px;
 }
 
-.evaluation-card-header-buttons {
-  flex-shrink: 0;
-}
-
-@media (max-width: 600px) {
-  .evaluation-card-header {
-    min-height: unset;
-    padding: 0.85rem 1rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .evaluation-card-header-title {
-    padding-left: 4px;
-  }
-}
-
-@media (max-width: 400px) {
-  .evaluation-card-header {
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-start;
-  }
-}
-
 /* --- Body --- */
 .evaluation-card-body {
   display: flex;
@@ -114,7 +93,7 @@
   align-items: center;
   height: auto;
   width: 100%;
-  border-radius: 16px;
+  border-radius: 0px 0px 16px 16px;
   border: 1px solid #c6c6c6;
   background-color: #ffffff;
   box-sizing: border-box;
@@ -128,8 +107,7 @@
   align-items: center;
   height: auto;
   min-height: 300px;
-  padding: 1.25rem 0;
-  border-radius: 16px;
+  border-radius: 0px 0px 16px 16px;
   background-color: #ffffff;
   width: 100%;
   box-sizing: border-box;
@@ -138,11 +116,11 @@
 .evaluation-card-body-question {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  gap: 32px;
   justify-content: center;
   align-items: start;
   height: auto;
-  padding: 1.25rem;
+  padding: 32px;
   border-radius: 16px;
   background-color: #ffffff;
   width: 100%;
@@ -153,7 +131,7 @@
   display: flex;
   flex-direction: column;
   text-align: center;
-  padding: 0.8rem 1rem;
+  padding: 20px 24px;
   border-radius: 16px;
   border: 1px dashed #b3b2b2;
   height: auto;
@@ -168,9 +146,8 @@
   height: 75px;
   min-height: 75px;
   width: 100%;
-  max-width: 288px;
   gap: 0.5rem;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
   align-self: center;
   background-color: #f3edff;
@@ -178,6 +155,7 @@
   border-radius: 16px;
   box-sizing: border-box;
 }
+
 
 /* ---- Mobile: step 2 — pregunta por pregunta ---- */
 @media (max-width: 600px) {
@@ -239,6 +217,7 @@
   }
 
   .question-dot {
+    /* Área visual */
     width: 14px;
     height: 14px;
     border-radius: 50%;
@@ -246,6 +225,7 @@
     background: #d9d0f7;
     cursor: pointer;
     transition: background 0.2s, transform 0.2s, width 0.2s;
+    /* Área táctil reducida */
     padding: 5px;
     box-sizing: content-box;
     background-clip: content-box;
@@ -257,6 +237,8 @@
     width: 24px;
     border-radius: 6px;
   }
+
+
 }
 
 /* --- Comentarios --- */
@@ -267,7 +249,7 @@
   justify-content: center;
   height: auto;
   min-height: 200px;
-  padding: 1.25rem;
+  padding: 20px 34px;
   border-radius: 16px;
   background-color: #ffffff;
   width: 100%;
@@ -323,6 +305,7 @@
   z-index: 100;
   font-size: clamp(18px, 3.4vw, 28px);
   font-weight: 600;
+  letter-spacing: -0.02em;
   padding: 0;
   margin: 0;
   text-align: center;
@@ -334,6 +317,7 @@
   z-index: 100;
   font-size: clamp(18px, 3.4vw, 28px);
   font-weight: 600;
+  letter-spacing: -0.02em;
   display: inline-block;
   padding: 5px 20px;
   background-size: 90% 90%;
@@ -356,6 +340,7 @@
   color: #3c3c3c;
   font-size: clamp(15px, 2.4vw, 20px);
   font-weight: 500;
+  letter-spacing: -0.02em;
   padding: 0;
   margin: 0;
   text-align: left;
@@ -364,8 +349,9 @@
 .question-description {
   color: #3c3c3c;
   font-size: 11px;
+  letter-spacing: -0.02em;
   padding: 0;
-  margin: 4px 0 10px 0;
+  margin: 0px 0 8px 0;
   text-align: left;
 }
 
@@ -393,6 +379,33 @@
 
 .btn-rating:hover img {
   transform: scale(1.1);
+}
+
+.evaluation-card-header-buttons {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .evaluation-card-header {
+    min-height: unset;
+    padding: 0.85rem 1rem;
+  }
+
+  .evaluation-card-header-title {
+    padding-left: 4px;
+  }
+
+  .evaluation-card-body-comment-container {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .evaluation-card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
 }
 
 .btn-continue {
@@ -495,4 +508,5 @@
 
 .star-description {
   color: #8751ff;
+  letter-spacing: -0.02em;
 }

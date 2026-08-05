@@ -104,7 +104,7 @@
     font-weight: 700;
     font-size: 24px;
     line-height: 32px;
-    letter-spacing: -2%;
+    letter-spacing: -0.02em;
     display: flex;
     justify-content: center;
     align-items: center;

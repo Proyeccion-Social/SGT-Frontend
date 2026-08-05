@@ -22,10 +22,6 @@ const { currentStatus = "all"} = Astro.props;
         <input type="radio" name="history_filter" checked={currentStatus === 'CANCELLED'} value="CANCELLED" />
         <span>Canceladas</span>
       </label>
-      <label class={`segment-label ${currentStatus === 'NO_SHOW' ? 'active' : ''}`} data-filter="noshow">
-        <input type="radio" name="history_filter" checked={currentStatus === 'NO_SHOW'} value="NO_SHOW" />
-        <span>No asistió</span>
-      </label>
     </div>
   </div>
 </div>

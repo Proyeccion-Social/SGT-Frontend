@@ -7,7 +7,6 @@ import type {
     EditSessionBody,
     RegisterAttendanceDTO,
     RegisterAttendanceResult,
-    CompleteSessionBody,
     CompleteSessionResult,
     ConfirmSessionBody,
     ConfirmSessionResult,
@@ -18,6 +17,25 @@ import type {
 } from '../types/session.types';
 
 const API_URL = (import.meta.env.API_URL ?? '').replace(/\/$/, '');
+
+export class SessionServiceError extends Error {
+    status: number;
+    errorCode?: string;
+    description?: string;
+
+    constructor(
+        message: string,
+        status: number,
+        errorCode?: string,
+        description?: string
+    ) {
+        super(message);
+        this.name = 'SessionServiceError';
+        this.status = status;
+        this.errorCode = errorCode;
+        this.description = description;
+    }
+}
 
 async function request<T>(
     path: string,
@@ -36,11 +54,12 @@ async function request<T>(
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
         console.error(`[sessionService] ${options.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, JSON.stringify(errorBody));
-        const err = new Error(
-            errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`
+        throw new SessionServiceError(
+            errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`,
+            res.status,
+            errorBody?.errorCode,
+            errorBody?.description
         );
-        (err as any).status = res.status;
-        throw err;
     }
 
     return res.json() as Promise<T>;
@@ -192,14 +211,12 @@ export function rejectSession(
     });
 }
 
-/** PATCH /session-execution/sessions/{sessionId}/complete */
+/** PATCH /session-execution/sessions/{sessionId}/complete — sin body */
 export function registerCompletedSession(
     sessionId: string,
-    body: CompleteSessionBody,
     token: string
 ): Promise<CompleteSessionResult> {
     return request(`/session-execution/sessions/${sessionId}/complete`, token, {
         method: 'PATCH',
-        body: JSON.stringify(body),
     });
 }

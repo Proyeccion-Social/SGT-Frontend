@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import Envelope from "../assets/icons/Envelope With Arrow.png"
+import GreenHeart from "../assets/icons/Green Heart.svg"
 ---
 
 <footer>
@@ -9,9 +9,9 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
       <p>
         Diseñado por <span><a target="_blank" href="https://www.linkedin.com/in/cristian-bonilladev/">Cristian</a></span>
       </p>
-      <Image src={Envelope} alt="Contact Us" />
+      <Image src={GreenHeart} alt="Green Heart" />
     </article>
-    <p>
+    <p class="credit-desktop">
       Desarrollado por 
       <span><a target="_blank" href="https://www.linkedin.com/in/dancmo/">Daniel</a></span>, 
       <span><a target="_blank" href="https://www.linkedin.com/in/luna-alejandra-sandoval-rodr%C3%ADguez-8b4563256/">Luna</a></span>, 
@@ -21,6 +21,10 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
       <span><a target="_blank" href="https://www.linkedin.com/in/hailen/">Luis</a></span>, 
       <span><a target="_blank" href="https://www.linkedin.com/in/devin-alzate/">Devin</a></span>
     </p>
+    <div class="credit-mobile">
+      <p>De estudiantes para estudiantes. Por <a target="_blank" href="https://instagram.com/proysocialud">Proyección Social</a></p>
+      <Image src={GreenHeart} alt="Green Heart" />
+    </div>
   </div>
 </footer>
 
@@ -61,9 +65,15 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
     margin-top: 4px;
   }
 
+  .credit-mobile {
+    display: none;
+    font-family: "Cabinet Grotesk Variable";
+    font-size: 14px;
+  }
+
   .contact a {
     color: #1A1A1A;
-    letter-spacing: normal;
+    letter-spacing: -0.02em;
     font-size: 18px;
     font-weight: 800;
     font-family: "Cabinet Grotesk Variable";
@@ -72,6 +82,9 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
   img {
     width: 20px;
     height: 20px;
+    position: relative;
+    top: 2px;
+    left: -4px;
   }
 
   @media (768px < width <= 1024px) {
@@ -92,7 +105,6 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
   @media (width <= 768px) {
     footer {
       height: auto;
-      min-height: 60px;
       padding: 8px 0;
     }
 
@@ -102,19 +114,38 @@ import Envelope from "../assets/icons/Envelope With Arrow.png"
       text-align: center;
       gap: 6px;
       font-size: 12px;
-      padding: 0 16px;
+      padding: 0;
     }
 
     .contact article {
-      justify-content: center;
+      display: none;
     }
 
     .contact a {
       font-size: 14px;
     }
 
-    img {
+    .credit-desktop {
       display: none;
     }
+
+    .credit-mobile {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .credit-mobile p {
+      font-size: 12px;
+    }
+
+    img {
+      top: 0;
+      left: 0;
+      width: 16px;
+      height: 16px;
+    }
+
   }
 </style>

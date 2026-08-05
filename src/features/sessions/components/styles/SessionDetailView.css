@@ -126,8 +126,8 @@
   .sdv__top {
     flex-direction: row;
     align-items: center;
-    text-align: center;
-    padding: 10px;
+    padding: 16px;
+    gap: 12px;
   }
   .sdv-avatar {
     width: 28px;

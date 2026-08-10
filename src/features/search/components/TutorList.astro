@@ -339,12 +339,12 @@
       if (isActive) panel.classList.add("active");
 
       const img = panel.querySelector(".panel-photo") as HTMLImageElement;
-      img.src = cloudinaryImage(tutor.photo, "list");
-      img.alt = tutor.tutorName || tutor.name || "Tutor";
       img.onerror = () => {
         img.onerror = null;
         img.src = FALLBACK;
       };
+      img.src = cloudinaryImage(tutor.photo, "list");
+      img.alt = tutor.tutorName || tutor.name || "Tutor";
 
       panel.querySelector(".panel-tutor-name")!.textContent =
         tutor.tutorName || tutor.name || tutor.fullName || "Tutor";

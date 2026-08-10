@@ -46,19 +46,12 @@ import schedule from "@/features/search/assets/schedule.svg"
       </div>
       <a href="/sessions">
         <button class="scheduleBtn">
-          <Image src={schedule} alt="Agendar tutoría" />
-          Agendar una tutoría
+          <Image src={schedule} alt="" />
         </button>
       </a>
     </div>
   </section>
-  <section class="downSectionDetail">
-    <div class="tutor-slots-container">
-      <h3 class="section-title">Horarios disponibles</h3>
-      <ul id="tutor-slots" class="slots-list"></ul>
-    </div>
-  </section>  
-</dialog>
+  </dialog>
 
 <script>
   import { useSubjectStore } from "@/store/subjectStore";
@@ -82,14 +75,12 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     async function loadTutor(id: string) {
       try {
-        const [profileRes, slotsRes, ratingsRes] = await Promise.all([
+        const [profileRes, ratingsRes] = await Promise.all([
           fetch(`/api/search/${encodeURIComponent(id)}`),
-          fetch(`/api/search/${encodeURIComponent(id)}/availability`),
           fetch(`/api/search/${encodeURIComponent(id)}/ratings`)
         ]);
 
         const tutor = await profileRes.json();
-        const { availableSlots = [] } = await slotsRes.json();
         const ratingsData = await ratingsRes.json().catch(() => null);
         const summary = ratingsData?.summary ?? {};
         const { colorMap } = useSubjectStore.getState();
@@ -101,34 +92,25 @@ import schedule from "@/features/search/assets/schedule.svg"
           return `<div class="tutorSubjects" style="background:${bg};border-color:${border}"><p>${s.name}</p></div>`;
         }).join("") ?? "";
 
-        const slotsHTML = availableSlots
-          .map((slot: { dayOfWeek: string; startTime: string; endTime: string; modality: string }) =>
-            `<li>
-              <span class="slot-day">${slot.dayOfWeek}</span>
-              <span class="slot-time">${slot.startTime} – ${slot.endTime}</span>
-              <span class="slot-modality">${slot.modality}</span>
-            </li>`
-          )
-          .join("");
-
         const photoUrl = cloudinaryImage(tutor.photo, "profile");
         const photoEl = el("tutor-photo") as HTMLImageElement;
         const shadowEl = el("tutor-photo-shadow") as HTMLImageElement;
+        const fallback = getCloudinaryFallback();
+        photoEl.onerror = () => {
+          photoEl.src = fallback;
+          shadowEl.src = fallback;
+        };
+        shadowEl.onerror = () => {
+          shadowEl.src = fallback;
+        };
         photoEl.src = photoUrl;
         photoEl.width = 400;
         photoEl.height = 400;
         photoEl.loading = "eager";
-        photoEl.onerror = () => {
-          photoEl.src = getCloudinaryFallback();
-          shadowEl.src = getCloudinaryFallback();
-        };
         shadowEl.src = photoUrl;
         shadowEl.width = 400;
         shadowEl.height = 400;
         shadowEl.loading = "eager";
-        shadowEl.onerror = () => {
-          shadowEl.src = getCloudinaryFallback();
-        };
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
         el("tutor-total-ratings")!.textContent = `${summary.totalEvaluations ?? 0} valoraciones`;
@@ -158,7 +140,6 @@ import schedule from "@/features/search/assets/schedule.svg"
         }
 
         el("tutor-stars")!.innerHTML = starsHTML;
-        el("tutor-slots")!.innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
 
         dialogEl.showModal();
       } catch (error) {
@@ -258,7 +239,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
   .leftSideDetail {
     width: 260px;
-    height: 225px;
+    aspect-ratio: 1/1;
     flex-shrink: 0;
     display: flex;
     position: relative;
@@ -321,7 +302,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     display: flex;
     flex-direction: column;
     gap: 12px;
-    justify-content: flex-end;
+    justify-content: center;
     padding: 20px 32px;
     border: 1px solid var(--neutral-200);
     border-radius: 24px;
@@ -363,14 +344,14 @@ import schedule from "@/features/search/assets/schedule.svg"
     gap: 8px;
     width: fit-content;
     position: absolute;
-    top: 24px;
-    right: 24px;
-    padding: 8px 12px;
+    top: 16px;
+    right: 16px;
+    padding: 6px 8px;
     background: #DAFFAA;
-    border-radius: 8px;
+    border-radius: 12px;
     font-style: normal;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 18px;
     letter-spacing: -0.02em;
     color: #4D662E;
@@ -396,7 +377,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .leftSideDetail {
       width: 200px;
-      height: 180px;
+      aspect-ratio: 1/1;
     }
 
     .tutorName {
@@ -423,7 +404,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .leftSideDetail {
       width: 160px;
-      height: 145px;
+      aspect-ratio: 1/1;
     }
 
     .profileImg,
@@ -473,7 +454,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .leftSideDetail {
       width: 100%;
-      height: 160px;
+      aspect-ratio: 1/1;
     }
 
     .profileImg,
@@ -601,13 +582,6 @@ import schedule from "@/features/search/assets/schedule.svg"
     line-height: 20px;
     letter-spacing: -0.02em;
     color: #9F74FF;
-  }
-
-  .downSectionDetail {
-    width: 100%;
-    flex-direction: column;
-    gap: 10px;
-    display: none;
   }
 
   @media (max-width: 439px) {

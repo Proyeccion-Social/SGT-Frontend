@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import ToasterReact from "@/components/ui/ToasterReact";
 import StoreHydrator from "@/store/StoreHydrator";
 import SEO from "@/components/seo/SEO.astro";
+import Analytics from '@vercel/analytics/astro'
 
 interface Props {
   title: string;
@@ -43,6 +44,7 @@ const {
       schema={schema}
     />
     <ClientRouter />
+    <Analytics/>
   </head>
   <body>
     <TooltipProvider>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { sileo } from "sileo";
 import "../../assets/styles/Detail.css";
 
 const TITLE_MIN = 5;
@@ -18,6 +19,17 @@ export default function DetailsStep({ onNext, onBack, initialTitle = "", initial
   const [description, setDescription] = useState(initialDescription);
   const [titleTouched, setTitleTouched] = useState(false);
   const [descTouched, setDescTouched] = useState(false);
+  const warnedRef = useRef(false);
+
+  useEffect(() => {
+    if (warnedRef.current) return;
+    warnedRef.current = true;
+    sileo.warning({
+      description: "Si la tutoría que estás agendado quieres que sea grupal, especifícalo en la descripción",
+      fill: "#f5a623",
+      styles: { badge: "#ffffff" },
+    });
+  }, []);
 
   const titleError =
     titleTouched && title.length > 0 && title.length < TITLE_MIN

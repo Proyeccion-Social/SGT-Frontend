@@ -24,9 +24,10 @@ export default function DetailsStep({ onNext, onBack, initialTitle = "", initial
   useEffect(() => {
     if (warnedRef.current) return;
     warnedRef.current = true;
-    sileo.warning({
+    sileo.info({
+      title: "Ten en cuenta",
       description: "Si la tutoría que estás agendado quieres que sea grupal, especifícalo en la descripción",
-      fill: "#f5a623",
+      fill: "#9f74ff",
       styles: { badge: "#ffffff" },
     });
   }, []);

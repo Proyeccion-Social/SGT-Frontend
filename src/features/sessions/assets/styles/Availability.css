@@ -97,11 +97,19 @@
   letter-spacing: -0.02em;
 }
 
-/* ── Foto del tutor ── */
+/* ── Foto del tutor ──
+ * La proporción es cuadrada y ES LA MISMA en Desktop y móvil, a propósito:
+ * coincide con la del preset `cover` de Cloudinary (400x400), de modo que el
+ * `object-fit: cover` de abajo queda neutro y no vuelve a recortar el encuadre
+ * que ya calculó Cloudinary sobre el rostro.
+ *
+ * No añadir `object-position` por breakpoint: era el parche que este fix
+ * elimina. Si el encuadre falla, se corrige en el preset, no aquí.
+ */
 .tutor-card__photo-wrapper {
   width: 100%;
-  height: 230px;
-  background: #e5e7eb;
+  aspect-ratio: 1 / 1;
+  background: var(--neutral-100);
   border-radius: 16px 16px 0 0;
   display: flex;
   align-items: center;
@@ -200,10 +208,6 @@
     max-width: 340px;
   }
 
-  .tutor-card__photo-wrapper {
-    height: 230px;
-  }
-
   .availability-footer {
     margin-top: 20px;
     justify-content: center;
@@ -213,9 +217,5 @@
     width: 100%;
     padding: 14px;
     border-radius: 12px;
-  }
-
-  .tutor-card__photo {
-    object-position: 50% 15%;
   }
 }

@@ -95,4 +95,4 @@ Un estudiante necesita encontrar rápidamente un tutor que:
 - La carga inicial de tutores es SSR para mejorar el tiempo de primera pintura.
 - Los filtros avanzados se manejan en el cliente usando React islands.
 - `TutorDetail` puede cargar disponibilidad bajo demanda para no sobrecargar la carga inicial.
-- Las fotos de tutores (Cloudinary) se optimizan en runtime con `cloudinaryImage()` / `CloudinaryImage` (`src/lib/cloudinary.ts`): `f_auto`, `q_auto`, tamaño por contexto (`list` en accordion, `profile` en detalle), `loading="lazy"` en listado y fallback `/default-avatar.svg`. Ver `docs/specs/issue-#242.md` y `docs/specs/adr-cloudinary-transforms.md`.
+- Las fotos de tutores (Cloudinary) se optimizan en runtime con `cloudinaryImage()` / `CloudinaryImage` (`src/lib/cloudinary.ts`): `f_auto`, `q_auto`, tamaño por contexto (`list` en accordion, `profile` en detalle), `loading="lazy"` en listado y fallback `/default-avatar.svg`. Los presets viven en `CLOUDINARY_SIZE`.

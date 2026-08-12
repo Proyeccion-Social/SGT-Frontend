@@ -32,7 +32,7 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
   - Paso 2: Detalles (título, descripción).
   - Paso 3: Tipo de sesión (Individual / Grupal).
   - Paso 4: Modalidad (`PRES`/`VIRT`) — siempre se muestra, filtra opciones según la franja.
-- [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): paso 1, selección de tutor.
+- [components/scheduling/Availability.tsx](../components/scheduling/Availability.tsx): paso 1, selección de tutor. Cada tarjeta resuelve su perfil en tres estados: cargado, skeleton (aún sin resolver) y error con reintento — la carga usa `Promise.allSettled`, de modo que un tutor que falle no deja sin cargar a los demás. Sin foto se usa el fallback `/default-avatar.svg`, nunca un texto.
 - [components/scheduling/Details.tsx](../components/scheduling/Details.tsx): paso 2, formulario de detalles.
 - [components/scheduling/SessionType.tsx](../components/scheduling/SessionType.tsx): paso 3, tipo de sesión.
 - [components/scheduling/Modality.tsx](../components/scheduling/Modality.tsx): paso 4, selección de modalidad (acepta `availableModalities` para filtrar opciones).
@@ -191,4 +191,6 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 - El wizard maneja estado complejo con `useSchedulingWizard`.
 - La máquina de estados de sesión es central: cada operación transita la sesión por estados bien definidos.
 - Los DTOs de modificación y edición están separados porque afectan distintos aspectos del backend.
+- **Encuadre de las fotos de tutor (paso 1):** el recorte lo decide **solo** Cloudinary, vía el preset `cover` de `src/lib/cloudinary.ts` (`c_fill,g_auto:faces`, cuadrado). La caja CSS usa `aspect-ratio: 1 / 1` con la misma proporción en Desktop y móvil para que el `object-fit: cover` quede neutro y no vuelva a recortar. **No añadir `object-position` por breakpoint**: ese parche era la causa de que el rostro saliera del marco (issue #270); si un encuadre falla, se ajusta el preset.
+  - **No usar `g_face` ni `g_auto:face` aquí, ni `c_thumb`/`z_`.** Sobre las fotos reales de tutores la detección devuelve una caja delimitadora inflada (de la cabeza a la cintura, comprobado con `e_pixelate_faces`); como la gravedad de rostro ancla en el centro de esa caja, el recorte se va al pecho y corta la cabeza. `g_auto:faces` pondera el rostro dentro del análisis de saliencia y no hereda ese defecto.
 - **Franjas compartidas entre tutores:** el paso 1 del wizard solo ofrece tutores libres en la franja. Al reservar, la actualización optimista marca como ocupada únicamente la entrada del tutor reservado (`(slotId, tutorId)`, no todo el `slotId` compartido) y emite `slot:booked` con `tutorId` para que `Calendar.astro` refresque el bloque sin recargar. La lógica de ocupación por tutor vive en `getSlotsByDayStudent` de la feature `availability` (ver su README).

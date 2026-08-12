@@ -65,6 +65,23 @@
   box-shadow: 0 0 0 2px var(--primary-400);
 }
 
+/* ── Hover: solo con puntero real, nunca en táctil ── */
+@media (hover: hover) {
+  .tutor-card:hover {
+    box-shadow: 0 0 0 2px var(--border-secondary);
+  }
+
+  .tutor-card--selected:hover {
+    box-shadow: 0 0 0 2px var(--primary-400);
+  }
+}
+
+/* ── Focus: la tarjeta es un <button>, tiene que ser navegable por teclado ── */
+.tutor-card:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
 /* ── Indicador de selección (check) ── */
 .tutor-card__check-badge {
   position: absolute;
@@ -123,9 +140,10 @@
   object-fit: cover;
 }
 
-.tutor-card__photo-placeholder {
-  color: #9ca3af;
-  font-size: 12px;
+/* El avatar por defecto es un SVG: recortarlo a `cover` lo deforma. */
+.tutor-card__photo--fallback {
+  object-fit: contain;
+  padding: var(--spacing-sm);
 }
 
 /* ── Nombre superpuesto sobre la foto ── */
@@ -156,6 +174,87 @@
 
 .tutor-card__info-text:last-child {
   margin: 0;
+}
+
+/* ── Estado de carga (skeleton) ── */
+.tutor-card--skeleton {
+  cursor: default;
+}
+
+.tutor-card__skeleton-block {
+  background: var(--loading-100);
+  border-radius: var(--border-radius-sm);
+  animation: tutor-card-pulse 1.4s ease-in-out infinite;
+}
+
+.tutor-card__photo-wrapper--skeleton {
+  border-radius: 16px 16px 0 0;
+}
+
+.tutor-card__skeleton-line {
+  height: 12px;
+  margin: var(--spacing-2xs) 0;
+}
+
+.tutor-card__skeleton-line--short {
+  width: 55%;
+}
+
+@keyframes tutor-card-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutor-card__skeleton-block {
+    animation: none;
+  }
+}
+
+/* ── Estado de error de carga de un tutor ── */
+.tutor-card--error {
+  box-shadow: 0 0 0 1px var(--border-error);
+  cursor: default;
+}
+
+.tutor-card__error {
+  padding: var(--spacing-xs);
+  text-align: center;
+}
+
+.tutor-card__error-text {
+  color: var(--text-error);
+  font-size: 12px;
+  margin: 0 0 var(--spacing-2xs);
+}
+
+.tutor-card__retry-btn {
+  background: none;
+  border: 1px solid var(--border-error);
+  border-radius: var(--border-radius-md);
+  color: var(--text-error);
+  cursor: pointer;
+  font-size: 12px;
+  padding: var(--spacing-3xs) var(--spacing-xxs);
+}
+
+.tutor-card__retry-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ── Estado vacío: la franja no tiene tutores que mostrar ── */
+.tutor-list__empty {
+  color: var(--text-body);
+  font-size: 14px;
+  margin: 0;
+  padding: var(--spacing-sm) 0;
+  text-align: center;
 }
 
 /* ── Pie de la tarjeta con el botón de continuar ── */

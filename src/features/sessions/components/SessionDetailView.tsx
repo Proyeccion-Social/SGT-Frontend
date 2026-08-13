@@ -363,68 +363,70 @@ export const SessionDetailView = ({
             modification={session.pendingModification ?? null}
           />
         ) : (
-          <div className="sdv__cards">
+          <>
+            <div className="sdv__cards">
 
-            <div className="sdv-card">
-              <div className="sdv-card__icon">
-                {modalityIcon(String(session.modality))}
-              </div>
-              <span className="sdv-card__label">
-                {modalityLabel(String(session.modality))}
-              </span>
-            </div>
-
-            <div className="sdv-card">
-              <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">
-                {formatDuration(session.startTime, session.endTime)}
-              </span>
-            </div>
-
-            <div className="sdv-card">
-              <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">
-                {dateStr}
-                <br/>
-                <span className="sdv-card__sublabel">{timeStr}</span>
-              </span>
-            </div>
-
-            <div className="sdv-card">
-              <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">{statusLabel(session.status)}</span>
-            </div>
-
-          </div>
-
-          {role === UserRole.TUTOR && session.participants.length > 0 && (
-            <div style={{
-              background: 'rgba(243, 237, 255, 0.5)',
-              border: '1px dashed var(--neutral-200)',
-              borderRadius: 16,
-              padding: '14px 18px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-            }}>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: 13, color: 'var(--primary-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Contacto del estudiante
-              </p>
-              {session.participants.map((p) => (
-                <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
-                  <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--neutral-600)' }}>{p.name}</span>
-                  {p.email && (
-                    <a
-                      href={`mailto:${p.email}`}
-                      style={{ fontSize: 14, color: 'var(--primary-default)', textDecoration: 'none', wordBreak: 'break-all' }}
-                    >
-                      {p.email}
-                    </a>
-                  )}
+              <div className="sdv-card">
+                <div className="sdv-card__icon">
+                  {modalityIcon(String(session.modality))}
                 </div>
-              ))}
+                <span className="sdv-card__label">
+                  {modalityLabel(String(session.modality))}
+                </span>
+              </div>
+
+              <div className="sdv-card">
+                <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
+                <span className="sdv-card__label">
+                  {formatDuration(session.startTime, session.endTime)}
+                </span>
+              </div>
+
+              <div className="sdv-card">
+                <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
+                <span className="sdv-card__label">
+                  {dateStr}
+                  <br/>
+                  <span className="sdv-card__sublabel">{timeStr}</span>
+                </span>
+              </div>
+
+              <div className="sdv-card">
+                <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
+                <span className="sdv-card__label">{statusLabel(session.status)}</span>
+              </div>
+
             </div>
-          )}
+
+            {role === UserRole.TUTOR && session.participants.length > 0 && (
+              <div style={{
+                background: 'rgba(243, 237, 255, 0.5)',
+                border: '1px dashed var(--neutral-200)',
+                borderRadius: 16,
+                padding: '14px 18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+              }}>
+                <p style={{ margin: 0, fontWeight: 600, fontSize: 13, color: 'var(--primary-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Contacto del estudiante
+                </p>
+                {session.participants.map((p) => (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
+                    <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--neutral-600)' }}>{p.name}</span>
+                    {p.email && (
+                      <a
+                        href={`mailto:${p.email}`}
+                        style={{ fontSize: 14, color: 'var(--primary-default)', textDecoration: 'none', wordBreak: 'break-all' }}
+                      >
+                        {p.email}
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
  
         {/* ── Footer ── */}

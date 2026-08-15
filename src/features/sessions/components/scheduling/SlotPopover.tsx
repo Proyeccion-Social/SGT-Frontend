@@ -1,5 +1,12 @@
-import { useFloating, flip, offset, shift } from "@floating-ui/react";
-import { useEffect, useState } from "react";
+import {
+  useFloating,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  type VirtualElement,
+} from "@floating-ui/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import "../../assets/styles/SlotPopover.css";
 import { useSubjectStore } from "@/store/subjectStore";
 
@@ -7,7 +14,9 @@ interface Props {
   subjects: string[];
   slotBlockId: string;
   slotData: any;
+  open: boolean;
   onSelect: (subject: string) => void;
+  onExited: () => void;
 }
 
 const FALLBACK_COLORS = [
@@ -30,52 +39,68 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-function getSubIntervalRect(
-  anchorEl: HTMLElement,
-  slotStartTime: string,
-  selectionStartTime: string,
-  selectionEndTime: string
-): DOMRect {
-  const slotRect = anchorEl.getBoundingClientRect();
-  const slotStartMin = timeToMinutes(slotStartTime);
-  const selStartMin = timeToMinutes(selectionStartTime);
-  const selEndMin = timeToMinutes(selectionEndTime);
-
-  const offsetTop = ((selStartMin - slotStartMin) / 60) * HOUR_HEIGHT;
-  const height = ((selEndMin - selStartMin) / 60) * HOUR_HEIGHT;
-
+function emptyRect(): DOMRect {
   return {
-    top: slotRect.top + offsetTop,
-    bottom: slotRect.top + offsetTop + height,
-    left: slotRect.left,
-    right: slotRect.right,
-    width: slotRect.width,
-    height,
-    x: slotRect.x,
-    y: slotRect.top + offsetTop,
+    top: 0, bottom: 0, left: 0, right: 0,
+    width: 0, height: 0, x: 0, y: 0,
     toJSON: () => {},
   } as DOMRect;
 }
 
-export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect }: Props) {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [containerRect, setContainerRect] = useState<DOMRect | null>(null);
+export default function SlotPopover({ subjects, slotBlockId, slotData, open, onSelect, onExited }: Props) {
   const { colorMap } = useSubjectStore();
+  const [visible, setVisible] = useState(false);
 
+  // Animación de entrada/salida en dos fases (patrón NotificationsRoot):
+  // al abrir se monta invisible y tras un frame se anima la entrada; al
+  // cerrar se reproduce la salida y solo entonces el padre desmonta.
   useEffect(() => {
+    if (open) {
+      const raf = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(raf);
+    }
+    setVisible(false);
+    const timer = setTimeout(onExited, 160);
+    return () => clearTimeout(timer);
+  }, [open, onExited]);
+
+  // Rect del sub-intervalo seleccionado, leído en vivo desde el DOM cada vez
+  // que se posiciona o re-renderiza (nunca queda stale).
+  const getSubRect = useCallback((): DOMRect => {
     const el = document.getElementById(`slot-block-${slotBlockId}`);
-    setAnchorEl(el);
-  }, [slotBlockId]);
+    const slotRect = el?.getBoundingClientRect();
+    if (!slotRect) return emptyRect();
 
-  useEffect(() => {
-    const container = document.querySelector(".schedule-container");
-    if (container) setContainerRect(container.getBoundingClientRect());
-  }, []);
+    const slotStartMin = timeToMinutes(el?.dataset.start ?? slotData.startTime);
+    const selStartMin = timeToMinutes(slotData.startTime);
+    const selEndMin = timeToMinutes(slotData.endTime ?? slotData.startTime);
+
+    const top = slotRect.top + ((selStartMin - slotStartMin) / 60) * HOUR_HEIGHT;
+    const height = Math.max(1, ((selEndMin - selStartMin) / 60) * HOUR_HEIGHT);
+
+    return {
+      top,
+      bottom: top + height,
+      left: slotRect.left,
+      right: slotRect.right,
+      width: slotRect.width,
+      height,
+      x: slotRect.x,
+      y: top,
+      toJSON: () => {},
+    } as DOMRect;
+  }, [slotBlockId, slotData.startTime, slotData.endTime]);
+
+  // Ancla virtual: el popover se posiciona contra la franja seleccionada, no
+  // contra el bloque completo → flip/offset/shift operan sobre la selección.
+  const virtualEl = useMemo<VirtualElement>(
+    () => ({ getBoundingClientRect: getSubRect }),
+    [getSubRect],
+  );
 
   const { refs, floatingStyles, update } = useFloating({
     placement: "right-start",
     strategy: "fixed",
-    elements: { reference: anchorEl },
     middleware: [
       offset(10),
       flip({
@@ -83,36 +108,37 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
       }),
       shift({ padding: 12 }),
     ],
+    whileElementsMounted: autoUpdate,
   });
 
   useEffect(() => {
-    if (!anchorEl) return;
+    refs.setReference(virtualEl);
     update();
+  }, [virtualEl, refs, update]);
+
+  // Respaldo manual: con ancla virtual autoUpdate no observa scrolls/resizes
+  // del bloque del slot (solo de los ancestros del flotante).
+  useEffect(() => {
+    if (!refs.floating.current) return;
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
     return () => {
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [update, anchorEl]);
+  }, [update, refs.floating]);
 
   useEffect(() => {
-    if (!anchorEl) return;
-    anchorEl.classList.add("slot-selected");
-    return () => anchorEl.classList.remove("slot-selected");
-  }, [anchorEl]);
+    const el = document.getElementById(`slot-block-${slotBlockId}`);
+    if (!el) return;
+    el.classList.add("slot-selected");
+    return () => el.classList.remove("slot-selected");
+  }, [slotBlockId]);
 
-  if (!anchorEl) return null;
+  const subRect = getSubRect();
+  const container = document.querySelector(".schedule-container");
+  const containerRect = container ? container.getBoundingClientRect() : null;
 
-  // Rect del subintervalo calculado en tiempo real desde el DOM
-  const subRect = getSubIntervalRect(
-    anchorEl,
-    anchorEl.dataset.start || "00:00",
-    slotData.startTime,
-    slotData.endTime
-  );
-
-  const today = new Date();
   const dateLabel = (() => {
     const dayName = dayLabels[slotData.dayOfWeek] ?? slotData.dayOfWeek;
     if (slotData.date) {
@@ -125,10 +151,18 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
     return dayName;
   })();
 
+  const stateClass = visible ? "slot-popover--open" : "slot-popover--closing";
+  const borderClass = visible
+    ? "slot-selection-border--open"
+    : "slot-selection-border--closing";
+  const backdropClass = visible
+    ? "slot-popover__backdrop--open"
+    : "slot-popover__backdrop--closing";
+
   return (
     <>
       <svg
-        className="slot-popover__backdrop"
+        className={`slot-popover__backdrop ${backdropClass}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -166,7 +200,7 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
       </svg>
 
       <div
-        className="slot-selection-border"
+        className={`slot-selection-border ${borderClass}`}
         style={{
           top: subRect.top - 2,
           left: subRect.left - 2,
@@ -176,44 +210,46 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, onSelect 
       />
 
       <div
-        className="slot-popover"
+        className={`slot-popover ${stateClass}`}
         ref={refs.setFloating}
         style={floatingStyles}
       >
-        <div className="slot-popover__header">
-          <div className={`slot-popover__dot${subjects.length === 0 ? " slot-popover__dot--empty" : ""}`} />
-          <span className="slot-popover__title">
-            {subjects.length === 0 ? "Sin disponibilidad" : "Materias disponibles"}
-          </span>
-        </div>
-
-        <p className="slot-popover__date">
-          {dateLabel}
-        </p>
-
-        {subjects.length === 0 ? (
-          <p className="slot-popover__empty">
-            No hay tutores disponibles para esta franja horaria.
-          </p>
-        ) : (
-          <div className="slot-popover__subjects">
-            {subjects.map((subject, i) => {
-              const mapped = colorMap[subject];
-              const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
-              const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
-              return (
-                <button
-                  key={subject}
-                  onClick={() => onSelect(subject)}
-                  className="slot-popover__subject-btn"
-                  style={{ background: bg, color: text }}
-                >
-                  {subject}
-                </button>
-              );
-            })}
+        <div className="slot-popover__inner">
+          <div className="slot-popover__header">
+            <div className={`slot-popover__dot${subjects.length === 0 ? " slot-popover__dot--empty" : ""}`} />
+            <span className="slot-popover__title">
+              {subjects.length === 0 ? "Sin disponibilidad" : "Materias disponibles"}
+            </span>
           </div>
-        )}
+
+          <p className="slot-popover__date">
+            {dateLabel}
+          </p>
+
+          {subjects.length === 0 ? (
+            <p className="slot-popover__empty">
+              No hay tutores disponibles para esta franja horaria.
+            </p>
+          ) : (
+            <div className="slot-popover__subjects">
+              {subjects.map((subject, i) => {
+                const mapped = colorMap[subject];
+                const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
+                const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
+                return (
+                  <button
+                    key={subject}
+                    onClick={() => onSelect(subject)}
+                    className="slot-popover__subject-btn"
+                    style={{ background: bg, color: text }}
+                  >
+                    {subject}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

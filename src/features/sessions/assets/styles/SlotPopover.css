@@ -5,6 +5,30 @@
   padding: 16px;
   z-index: 5001;
   min-width: 220px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.slot-popover--open {
+  opacity: 1;
+}
+
+.slot-popover--closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* La animación vive en un wrapper interno: floating-ui controla `transform`
+   del elemento posicionado (translate3d), así que transform/scale se animan
+   aquí para no romper el posicionamiento. */
+.slot-popover__inner {
+  transform: translateX(10px) scale(0.96);
+  transform-origin: left center;
+  transition: transform 150ms ease;
+}
+
+.slot-popover--open .slot-popover__inner {
+  transform: translateX(0) scale(1);
 }
 
 .slot-popover__backdrop {
@@ -13,6 +37,17 @@
   width: 100vw;
   height: 100vh;
   z-index: 5000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.slot-popover__backdrop--open {
+  opacity: 1;
+}
+
+.slot-popover__backdrop--closing {
+  opacity: 0;
 }
 
 .slot-popover__header {
@@ -92,6 +127,16 @@
   pointer-events: none;
   z-index: 5002;
   box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.slot-selection-border--open {
+  opacity: 1;
+}
+
+.slot-selection-border--closing {
+  opacity: 0;
 }
 
 /* ── Mobile: popover como bottom sheet ── */
@@ -111,6 +156,15 @@
     padding: 20px 20px calc(56px + 25px + 16px) !important;
     z-index: 50001 !important;
     box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  .slot-popover__inner {
+    transform: translateY(24px);
+    transform-origin: top center;
+  }
+
+  .slot-popover--open .slot-popover__inner {
+    transform: translateY(0);
   }
 
   .slot-popover__subjects {

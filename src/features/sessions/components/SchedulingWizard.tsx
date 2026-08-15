@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSubjectStore } from "@/store/subjectStore";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
@@ -186,6 +186,8 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const handlePopoverExited = useCallback(() => setPopover(null), []);
   const [slotContext, setSlotContext] = useState<any>(null);
   const ignoreCloseUntil = useRef(0);
   const { colorMap } = useSubjectStore();
@@ -233,6 +235,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
           styles: { badge: "#ffffff" },
         });
         setPopover({ subjects: [], slotBlockId, slotData: detail });
+        setPopoverOpen(true);
         return;
       }
 
@@ -265,13 +268,14 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
         slotBlockId,
         slotData: detail,
       });
+      setPopoverOpen(true);
     };
 
     const closePopover = (e: MouseEvent) => {
       if (Date.now() < ignoreCloseUntil.current) return;
       const target = e.target as HTMLElement;
       if (target.closest(".slot-popover") || target.closest(".slot-block")) return;
-      setPopover(null);
+      setPopoverOpen(false);
     };
 
     document.addEventListener("slot:clicked", handler);
@@ -344,6 +348,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     }));
 
     setPopover(null);
+    setPopoverOpen(false);
     setStep(1);
     setOpen(true);
   };
@@ -551,7 +556,9 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
           subjects={popover.subjects}
           slotBlockId={popover.slotBlockId}
           slotData={popover.slotData}
+          open={popoverOpen}
           onSelect={handleSubjectSelect}
+          onExited={handlePopoverExited}
         />
       )}
 

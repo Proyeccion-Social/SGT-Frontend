@@ -41,16 +41,16 @@ export const TutorAvailabilityBar = ({
 
     return (
         <div className="hours-bar">
-            {2 > 0 && (
-                <div className="hours-segment-taught" title={`${2}h enseñadas`}>
+            {completedHours > 0 && (
+                <div className="hours-segment-taught" title={`${completedHours}h enseñadas`}>
                     <span className="taught-hours-text">
-                        {2}h enseñada{completedHours !== 1 ? 's' : ''}
+                        {completedHours}h enseñada{completedHours !== 1 ? 's' : ''}
                     </span>
                 </div>
             )}
             
             <span className="remaining-hours-text">
-                {remainingHours} hora{remainingHours !== 1 ? 's' : ''} disponible{remainingHours !== 1 ? 's' : ''} esta semana
+                {remainingHours} hora{remainingHours !== 1 ? 's' : ''} disponible{remainingHours !== 1 ? 's' : ''}
             </span>
         </div>
     );

@@ -3,7 +3,6 @@ import { useSubjectStore } from "@/store/subjectStore";
 import { Drawer } from "vaul";
 import AvailabilityStep from "./scheduling/Availability";
 import DetailsStep from "./scheduling/Details";
-import SessionTypeStep from "./scheduling/SessionType";
 import ModalityStep from "./scheduling/Modality";
 import SlotPopover from "./scheduling/SlotPopover";
 import SchedulingFinish from "./scheduling/SchedulingFinish";
@@ -13,7 +12,6 @@ import { sileo } from "sileo";
 import StepOne from "../assets/StepOne.svg";
 import StepTwo from "../assets/StepTwo.svg";
 import StepThree from "../assets/Stepthree.svg";
-import StepFour from "../assets/StepFour.svg";
 
 import "../assets/styles/SchedulingWizard.css";
 
@@ -25,7 +23,6 @@ export interface WizardData {
   subject: string;
   title: string;
   description: string;
-  sessionType: "INDIVIDUAL" | "GRUPAL" | null;
   modality: "VIRT" | "PRES" | null;
 }
 
@@ -200,7 +197,6 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     subjectId: "",
     title: "",
     description: "",
-    sessionType: null,
     modality: null,
   });
 
@@ -363,7 +359,6 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
       subject: "",
       title: "",
       description: "",
-      sessionType: null,
       tutorName: "",
       subjectId: "",
       modality: null,
@@ -444,6 +439,8 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
       return;
     }
 
+    // El tipo de tutoría no viaja en el body: el endpoint /individual ya lo fija.
+    // (La implementación de GRUPAL tendrá su propio endpoint.)
     const sessionData = {
       tutorId: currentData.tutorId,
       subjectId: currentData.subjectId,
@@ -538,12 +535,11 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     []
   ) as ("VIRT" | "PRES")[];
 
-  const stepImages = [StepOne.src, StepTwo.src, StepThree.src, StepFour.src];
+  const stepImages = [StepOne.src, StepTwo.src, StepThree.src];
   const stepTitleByStep: Record<number, { highlight: string; rest: string }> = {
     1: { highlight: "Selecciona", rest: "el tutor de tu preferencia" },
     2: { highlight: "Información", rest: "adicional" },
-    3: { highlight: "Selecciona", rest: "el tipo de espacio" },
-    4: { highlight: "Selecciona", rest: "la modalidad del espacio" },
+    3: { highlight: "Selecciona", rest: "la modalidad del espacio" },
   };
   const currentTitle = stepTitleByStep[step] ?? stepTitleByStep[1];
 
@@ -590,7 +586,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                 Paso
                 <img
                   src={stepImages[step - 1]}
-                  alt={`Paso ${step} de 4`}
+                  alt={`Paso ${step} de 3`}
                   className="wizard-drawer__step-image"
                 />
               </div>
@@ -642,17 +638,6 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                   />
                 )}
                 {step === 3 && (
-                  <SessionTypeStep
-                    initialType={data.sessionType}
-                    onNext={(sessionType) => {
-                      setData((prev) => ({ ...prev, sessionType }));
-                      setStep(4);
-                    }}
-                    onBack={() => setStep(2)}
-                    isSubmitting={isSubmitting}
-                  />
-                )}
-                {step === 4 && (
                   <ModalityStep
                     initialModality={data.modality}
                     availableModalities={slotModalities}
@@ -661,7 +646,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
                       setData(updatedData);
                       handleSubmit(updatedData);
                     }}
-                    onBack={() => setStep(3)}
+                    onBack={() => setStep(2)}
                     isSubmitting={isSubmitting}
                   />
                 )}

@@ -41,10 +41,10 @@ export const TutorAvailabilityBar = ({
 
     return (
         <div className="hours-bar">
-            {completedHours > 0 && (
-                <div className="hours-segment-taught" title={`${completedHours}h enseñadas`}>
+            {2 > 0 && (
+                <div className="hours-segment-taught" title={`${2}h enseñadas`}>
                     <span className="taught-hours-text">
-                        {completedHours}h enseñada{completedHours !== 1 ? 's' : ''}
+                        {2}h enseñada{completedHours !== 1 ? 's' : ''}
                     </span>
                 </div>
             )}

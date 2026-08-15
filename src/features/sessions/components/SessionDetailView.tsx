@@ -399,25 +399,17 @@ export const SessionDetailView = ({
             </div>
 
             {role === UserRole.TUTOR && session.participants.length > 0 && (
-              <div style={{
-                background: 'rgba(243, 237, 255, 0.5)',
-                border: '1px dashed var(--neutral-200)',
-                borderRadius: 16,
-                padding: '14px 18px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-              }}>
-                <p style={{ margin: 0, fontWeight: 600, fontSize: 13, color: 'var(--primary-600)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div className="sdv-contact">
+                <p className="sdv-contact__title">
                   Contacto del estudiante
                 </p>
                 {session.participants.map((p) => (
-                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
-                    <span style={{ fontSize: 15, fontWeight: 500, color: 'var(--neutral-600)' }}>{p.name}</span>
+                  <div key={p.id} className="sdv-contact__row">
+                    <span className="sdv-contact__name">{p.name}</span>
                     {p.email && (
                       <a
+                        className="sdv-contact__email"
                         href={`mailto:${p.email}`}
-                        style={{ fontSize: 14, color: 'var(--primary-default)', textDecoration: 'none', wordBreak: 'break-all' }}
                       >
                         {p.email}
                       </a>

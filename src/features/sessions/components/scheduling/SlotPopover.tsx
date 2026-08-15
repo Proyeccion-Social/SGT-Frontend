@@ -7,6 +7,7 @@ import {
   type VirtualElement,
 } from "@floating-ui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Drawer } from "vaul";
 import "../../assets/styles/SlotPopover.css";
 import { useSubjectStore } from "@/store/subjectStore";
 
@@ -16,8 +17,13 @@ interface Props {
   slotData: any;
   open: boolean;
   onSelect: (subject: string) => void;
+  onCloseRequest: () => void;
   onExited: () => void;
 }
+
+const EXIT_MS_DESKTOP = 160;
+// ≥ animación de salida de vaul (0.5s) para no cortarla antes de desmontar.
+const EXIT_MS_MOBILE = 550;
 
 const FALLBACK_COLORS = [
   { bg: "#c7d2fe", text: "#3730a3" },
@@ -47,9 +53,74 @@ function emptyRect(): DOMRect {
   } as DOMRect;
 }
 
-export default function SlotPopover({ subjects, slotBlockId, slotData, open, onSelect, onExited }: Props) {
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(query).matches,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
+    setMatches(mql.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, [query]);
+  return matches;
+}
+
+function SlotPopoverContent({
+  subjects,
+  dateLabel,
+  onSelect,
+}: {
+  subjects: string[];
+  dateLabel: string;
+  onSelect: (subject: string) => void;
+}) {
   const { colorMap } = useSubjectStore();
+
+  return (
+    <>
+      <div className="slot-popover__header">
+        <div className={`slot-popover__dot${subjects.length === 0 ? " slot-popover__dot--empty" : ""}`} />
+        <span className="slot-popover__title">
+          {subjects.length === 0 ? "Sin disponibilidad" : "Materias disponibles"}
+        </span>
+      </div>
+
+      <p className="slot-popover__date">
+        {dateLabel}
+      </p>
+
+      {subjects.length === 0 ? (
+        <p className="slot-popover__empty">
+          No hay tutores disponibles para esta franja horaria.
+        </p>
+      ) : (
+        <div className="slot-popover__subjects">
+          {subjects.map((subject, i) => {
+            const mapped = colorMap[subject];
+            const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
+            const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
+            return (
+              <button
+                key={subject}
+                onClick={() => onSelect(subject)}
+                className="slot-popover__subject-btn"
+                style={{ background: bg, color: text }}
+              >
+                {subject}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function SlotPopover({ subjects, slotBlockId, slotData, open, onSelect, onCloseRequest, onExited }: Props) {
   const [visible, setVisible] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Animación de entrada/salida en dos fases (patrón NotificationsRoot):
   // al abrir se monta invisible y tras un frame se anima la entrada; al
@@ -60,9 +131,9 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
       return () => cancelAnimationFrame(raf);
     }
     setVisible(false);
-    const timer = setTimeout(onExited, 160);
+    const timer = setTimeout(onExited, isMobile ? EXIT_MS_MOBILE : EXIT_MS_DESKTOP);
     return () => clearTimeout(timer);
-  }, [open, onExited]);
+  }, [open, onExited, isMobile]);
 
   // Rect del sub-intervalo seleccionado, leído en vivo desde el DOM cada vez
   // que se posiciona o re-renderiza (nunca queda stale).
@@ -135,10 +206,6 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
     return () => el.classList.remove("slot-selected");
   }, [slotBlockId]);
 
-  const subRect = getSubRect();
-  const container = document.querySelector(".schedule-container");
-  const containerRect = container ? container.getBoundingClientRect() : null;
-
   const dateLabel = (() => {
     const dayName = dayLabels[slotData.dayOfWeek] ?? slotData.dayOfWeek;
     if (slotData.date) {
@@ -150,6 +217,38 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
     }
     return dayName;
   })();
+
+  // ── Mobile: bottom sheet real con vaul (swipe-to-close, handle, spring).
+  // Vaul maneja su propia animación de entrada/salida.
+  if (isMobile) {
+    return (
+      <Drawer.Root
+        open={open}
+        onOpenChange={(o) => {
+          if (!o) onCloseRequest();
+        }}
+      >
+        <Drawer.Portal>
+          <Drawer.Overlay className="slot-popover-drawer__overlay" />
+          <Drawer.Content className="slot-popover-drawer">
+            <div aria-hidden className="slot-popover-drawer__handle" />
+            <div className="slot-popover-drawer__body">
+              <SlotPopoverContent
+                subjects={subjects}
+                dateLabel={dateLabel}
+                onSelect={onSelect}
+              />
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
+
+  // ── Desktop: popover flotante anclado a la franja seleccionada ──
+  const subRect = getSubRect();
+  const container = document.querySelector(".schedule-container");
+  const containerRect = container ? container.getBoundingClientRect() : null;
 
   const stateClass = visible ? "slot-popover--open" : "slot-popover--closing";
   const borderClass = visible
@@ -215,40 +314,11 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
         style={floatingStyles}
       >
         <div className="slot-popover__inner">
-          <div className="slot-popover__header">
-            <div className={`slot-popover__dot${subjects.length === 0 ? " slot-popover__dot--empty" : ""}`} />
-            <span className="slot-popover__title">
-              {subjects.length === 0 ? "Sin disponibilidad" : "Materias disponibles"}
-            </span>
-          </div>
-
-          <p className="slot-popover__date">
-            {dateLabel}
-          </p>
-
-          {subjects.length === 0 ? (
-            <p className="slot-popover__empty">
-              No hay tutores disponibles para esta franja horaria.
-            </p>
-          ) : (
-            <div className="slot-popover__subjects">
-              {subjects.map((subject, i) => {
-                const mapped = colorMap[subject];
-                const bg = mapped?.color && mapped.color !== "transparent" ? mapped.color : FALLBACK_COLORS[i % FALLBACK_COLORS.length].bg;
-                const text = mapped ? "#1a1a1a" : FALLBACK_COLORS[i % FALLBACK_COLORS.length].text;
-                return (
-                  <button
-                    key={subject}
-                    onClick={() => onSelect(subject)}
-                    className="slot-popover__subject-btn"
-                    style={{ background: bg, color: text }}
-                  >
-                    {subject}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          <SlotPopoverContent
+            subjects={subjects}
+            dateLabel={dateLabel}
+            onSelect={onSelect}
+          />
         </div>
       </div>
     </>

@@ -274,7 +274,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     const closePopover = (e: MouseEvent) => {
       if (Date.now() < ignoreCloseUntil.current) return;
       const target = e.target as HTMLElement;
-      if (target.closest(".slot-popover") || target.closest(".slot-block")) return;
+      if (target.closest(".slot-popover") || target.closest(".slot-popover-drawer") || target.closest(".slot-block")) return;
       setPopoverOpen(false);
     };
 
@@ -558,6 +558,7 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
           slotData={popover.slotData}
           open={popoverOpen}
           onSelect={handleSubjectSelect}
+          onCloseRequest={() => setPopoverOpen(false)}
           onExited={handlePopoverExited}
         />
       )}

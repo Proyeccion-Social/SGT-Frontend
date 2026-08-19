@@ -2,8 +2,13 @@
 
 ---
 
-<section id='tutor-list-section' class='tutor-list-section' hidden>
-  <div id='accordion-container' class='accordion-container'></div>
+<section id='tutor-list-section' class='tutor-list-section'>
+  <div id='accordion-container' class='accordion-container'>
+    <!-- Placeholder de carga: reserva el espacio y evita el salto al renderizar los tutores -->
+    <div id='tutor-list-placeholder' class='tutor-list-placeholder'>
+      Cargando tutores…
+    </div>
+  </div>
 
   <!-- Empty state -->
   <div id='tutor-empty-state' class='tutor-empty-state' hidden>
@@ -63,6 +68,33 @@
     line-height: 24px;
     letter-spacing: -0.02em;
     color: #3c3c3c;
+  }
+
+  /* ─── Placeholder de carga (reserva el espacio del listado) ─── */
+  .tutor-list-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1000px;
+    height: 250px;
+    border-radius: 20px;
+    background: rgba(243, 237, 255, 0.25);
+    color: #9ca3af;
+    font-family: "Open Sauce Two";
+    font-size: 15px;
+    letter-spacing: 0.01em;
+    animation: tutor-placeholder-pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes tutor-placeholder-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   /* ─── Accordion Container ─── */
@@ -316,6 +348,10 @@
     .tutor-empty-state {
       height: 180px;
     }
+
+    .tutor-list-placeholder {
+      height: 180px;
+    }
   }
 </style>
 
@@ -390,11 +426,10 @@
       const payload = (e as CustomEvent).detail;
       const tutors = Array.isArray(payload) ? payload : payload?.tutors || [];
 
-      const section = document.getElementById("tutor-list-section");
+      // La sección siempre está visible: el espacio queda reservado y el
+      // render se reemplaza sin saltos de layout.
       const container = document.getElementById("accordion-container");
       const emptyState = document.getElementById("tutor-empty-state");
-
-      if (section) section.hidden = false;
 
       if (tutors.length === 0) {
         if (container) container.hidden = true;

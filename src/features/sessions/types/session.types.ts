@@ -332,6 +332,17 @@ export interface CancelSessionResponse {
   message: string;
 }
 
+/**
+ * Resultado de una cancelación tal como lo consume la UI.
+ * El backend responde 200 con `{ success, message }` y los errores de negocio
+ * (400/403/404) con `{ statusCode, message, error }`. En ambos casos el texto
+ * visible para el usuario es el `message` del backend, no uno inventado aquí:
+ * es lo único que distingue un abandono grupal parcial de una cancelación completa.
+ */
+export type CancelResult =
+  | { ok: true; message: string }
+  | { ok: false; status: number; message: string };
+
 export interface ModifySessionBody {
   newScheduledDate?: string;    // ISO date string
   newAvailabilityID?: string;   // ID del slot de disponibilidad del tutor

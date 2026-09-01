@@ -167,7 +167,7 @@ export const canCancelSession = (
     return {
       visible: true,
       disabled: true,
-      reason: `Solo puedes cancelar hasta ${MIN_CANCEL_LEAD_HOURS} horas antes de la sesión.`,
+      reason: `No es posible cancelar, faltan menos de ${MIN_CANCEL_LEAD_HOURS} horas para la sesión.`,
     };
   }
 

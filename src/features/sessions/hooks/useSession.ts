@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
-import type { Session, SessionStatus, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import type { CancelResult, Session, SessionStatus, CreateSessionDTO, Modality, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import { cancelSessionRequest } from '../utils/cancelSessionRequest';
 import { useAuthStore } from '@/store/authStore';
 import { useSessionStore } from '@/store/sessionStore';
 import { UserRole } from '@/constants/roles';
@@ -10,7 +11,7 @@ interface UseSessionsReturn {
   error: string | null;
   fetchMySessions: (force?: boolean) => Promise<void>;
   agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
-  cancelar: (sessionId: string, reason: string) => Promise<boolean>;
+  cancelar: (sessionId: string, reason: string) => Promise<CancelResult>;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;
 }
@@ -77,16 +78,16 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
     [sessions, setSessions, setLoading, setError]
   );
 
-  const cancelar = useCallback(async (sessionId: string, reason: string): Promise<boolean> => {
+  const cancelar = useCallback(async (sessionId: string, reason: string): Promise<CancelResult> => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, reason }),
-      });
-      if (!res.ok) throw new Error('Error al cancelar sesión');
+      const result = await cancelSessionRequest(sessionId, reason);
+      if (!result.ok) {
+        // Mensaje del backend tal cual (p. ej. la regla de 24h en un 400).
+        setError(result.message);
+        return result;
+      }
       // Estado optimista según el actor que cancela (el backend distingue por rol).
       const cancelledStatus: SessionStatus =
         role.toUpperCase() === UserRole.TUTOR.toUpperCase()
@@ -95,15 +96,11 @@ export function useSession(rawRole: UserRole | string): UseSessionsReturn {
       setSessions(
         sessions.map(s => (s.id === sessionId ? { ...s, status: cancelledStatus } : s))
       );
-      return true;
-    } catch (err) {
-      console.error('[useSession] cancelar error:', err);
-      setError(err instanceof Error ? err.message : 'Error cancelling session');
-      return false;
+      return result;
     } finally {
       setLoading(false);
     }
-  }, [sessions, setSessions, setLoading, setError]);
+  }, [role, sessions, setSessions, setLoading, setError]);
 
   const modificar = useCallback(
     async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {

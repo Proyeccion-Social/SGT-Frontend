@@ -1,7 +1,9 @@
 ---
 import { Image } from "astro:assets";
 import star from "@/features/search/assets/star-simple.svg";
+import starHalf from "@/features/search/assets/star-simple-half.svg";
 import fullStar from "@/features/search/assets/star-full.svg";
+import fullStarHalf from "@/features/search/assets/star-full-half.svg";
 import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
 import starSimpleUnfilled from "@/features/search/assets/star-simple-unfilled.svg";
 import active from "@/features/search/assets/active.svg"
@@ -13,7 +15,9 @@ import schedule from "@/features/search/assets/schedule.svg"
 
 <dialog id="tutor-detail-section"
   data-star={star.src}
+  data-star-half={starHalf.src}
   data-star-full={fullStar.src}
+  data-star-full-half={fullStarHalf.src}
   data-star-unfilled={starUnfilled.src}
   data-star-simple-unfilled={starSimpleUnfilled.src}
 >
@@ -61,6 +65,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 <script>
   import { useSubjectStore } from "@/store/subjectStore";
   import { cloudinaryImage, getCloudinaryFallback } from "@/lib/cloudinary";
+  import { getStarStates, formatRatingValue } from "@/lib/renderStarRating";
   import {
     DAYS,
     DAY_COLORS,
@@ -243,31 +248,42 @@ import schedule from "@/features/search/assets/schedule.svg"
         shadowEl.loading = "eager";
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
-        el("tutor-total-ratings")!.textContent = `${summary.totalEvaluations ?? 0} valoraciones`;
 
-        const rating = Math.round(summary.averageRating ?? 0);
+        const avgRating = summary.averageRating ?? 0;
+        const totalEvaluations = summary.totalEvaluations ?? 0;
+        const formattedRating = formatRatingValue(avgRating);
+
+        if (totalEvaluations > 0) {
+          el("tutor-total-ratings")!.textContent = `${formattedRating} ★ • ${totalEvaluations} valoraciones`;
+        } else {
+          el("tutor-total-ratings")!.textContent = "Sin valoraciones";
+        }
+
+        const starStates = getStarStates(avgRating);
         let starsHTML = '';
 
         const starSrc = dialogEl.getAttribute("data-star");
+        const starHalfSrc = dialogEl.getAttribute("data-star-half");
         const starFullSrc = dialogEl.getAttribute("data-star-full");
+        const starFullHalfSrc = dialogEl.getAttribute("data-star-full-half");
         const starUnfilledSrc = dialogEl.getAttribute("data-star-unfilled");
         const starSimpleUnfilledSrc = dialogEl.getAttribute("data-star-simple-unfilled");
 
-        for (let i = 1; i <= 5; i++) {
-          if (i <= rating) {
-            if (i === 5) {
-              starsHTML += `<img src="${starFullSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
-            } else {
-              starsHTML += `<img src="${starSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
-            }
+        starStates.forEach((state, index) => {
+          const i = index + 1;
+          let imgSrc = '';
+          if (i === 5) {
+            if (state === 'full') imgSrc = starFullSrc!;
+            else if (state === 'half') imgSrc = starFullHalfSrc!;
+            else imgSrc = starUnfilledSrc!;
+            starsHTML += `<img src="${imgSrc}" alt="${state} star" style="width: 45px; height: 45px; align-self: center;" />`;
           } else {
-            if (i === 5) {
-              starsHTML += `<img src="${starUnfilledSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
-            } else {
-              starsHTML += `<img src="${starSimpleUnfilledSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
-            }
+            if (state === 'full') imgSrc = starSrc!;
+            else if (state === 'half') imgSrc = starHalfSrc!;
+            else imgSrc = starSimpleUnfilledSrc!;
+            starsHTML += `<img src="${imgSrc}" alt="${state} star" style="width: 31px; height: 29px; align-self: center;" />`;
           }
-        }
+        });
 
         el("tutor-stars")!.innerHTML = starsHTML;
 

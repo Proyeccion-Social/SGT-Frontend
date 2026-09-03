@@ -5,6 +5,30 @@
   padding: 16px;
   z-index: 5001;
   min-width: 220px;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.slot-popover--open {
+  opacity: 1;
+}
+
+.slot-popover--closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* La animación vive en un wrapper interno: floating-ui controla `transform`
+   del elemento posicionado (translate3d), así que transform/scale se animan
+   aquí para no romper el posicionamiento. */
+.slot-popover__inner {
+  transform: translateX(10px) scale(0.96);
+  transform-origin: left center;
+  transition: transform 150ms ease;
+}
+
+.slot-popover--open .slot-popover__inner {
+  transform: translateX(0) scale(1);
 }
 
 .slot-popover__backdrop {
@@ -13,6 +37,17 @@
   width: 100vw;
   height: 100vh;
   z-index: 5000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+
+.slot-popover__backdrop--open {
+  opacity: 1;
+}
+
+.slot-popover__backdrop--closing {
+  opacity: 0;
 }
 
 .slot-popover__header {
@@ -92,33 +127,64 @@
   pointer-events: none;
   z-index: 5002;
   box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 150ms ease;
 }
 
-/* ── Mobile: popover como bottom sheet ── */
-@media (max-width: 768px) {
-  .slot-popover {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    transform: none !important;
-    border-radius: 16px 16px 0 0 !important;
-    min-width: unset !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    /* padding-bottom: dock (56px) + dock bottom offset (25px) + breathing room (16px) */
-    padding: 20px 20px calc(56px + 25px + 16px) !important;
-    z-index: 50001 !important;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18) !important;
-  }
+.slot-selection-border--open {
+  opacity: 1;
+}
 
-  .slot-popover__subjects {
-    gap: 10px;
-  }
+.slot-selection-border--closing {
+  opacity: 0;
+}
 
-  .slot-popover__subject-btn {
-    padding: 8px 18px;
-    font-size: 14px;
-  }
+/* ── Mobile: bottom sheet real con vaul ── */
+.slot-popover-drawer__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 50000;
+}
+
+.slot-popover-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 65vh;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  z-index: 50001;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.18);
+  /* padding-bottom: dock (56px) + dock bottom offset (25px) + breathing room (16px) */
+  padding: 20px;
+}
+
+.slot-popover-drawer__handle {
+  width: 48px;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  margin: 12px auto 8px;
+  flex-shrink: 0;
+}
+
+.slot-popover-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 8px;
+}
+
+.slot-popover-drawer__body .slot-popover__subjects {
+  gap: 10px;
+}
+
+.slot-popover-drawer__body .slot-popover__subject-btn {
+  padding: 8px 18px;
+  font-size: 14px;
 }

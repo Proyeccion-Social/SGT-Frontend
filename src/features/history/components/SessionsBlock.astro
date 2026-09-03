@@ -139,7 +139,7 @@ const pagination = data.meta;
                     {session.title}
                   </p>
                   <div class='mobile-card-bottom'>
-                    <span class='subject-name'>{session.subject.name}</span>
+                    <span class='subject-name' data-subject-name={session.subject.name}>{session.subject.name}</span>
                     <span class='mobile-card-status'>{statusText}</span>
                   </div>
                 </div>
@@ -486,7 +486,7 @@ const pagination = data.meta;
     border-radius: 16px;
     background-color: rgba(183, 151, 255, 1);
     color: rgb(25, 25, 25);
-    padding: 4px 10px;
+    padding: 2px 8px;
     font-weight: 400;
   }
 

@@ -1,7 +1,9 @@
 ---
 import { Image } from "astro:assets";
 import star from "@/features/search/assets/star-simple.svg";
+import starHalf from "@/features/search/assets/star-simple-half.svg";
 import fullStar from "@/features/search/assets/star-full.svg";
+import fullStarHalf from "@/features/search/assets/star-full-half.svg";
 import starUnfilled from "@/features/search/assets/star-full-unfilled.svg";
 import starSimpleUnfilled from "@/features/search/assets/star-simple-unfilled.svg";
 import active from "@/features/search/assets/active.svg"
@@ -13,58 +15,158 @@ import schedule from "@/features/search/assets/schedule.svg"
 
 <dialog id="tutor-detail-section"
   data-star={star.src}
+  data-star-half={starHalf.src}
   data-star-full={fullStar.src}
+  data-star-full-half={fullStarHalf.src}
   data-star-unfilled={starUnfilled.src}
   data-star-simple-unfilled={starSimpleUnfilled.src}
 >
   <button id="close-dialog-btn" class="closeDialogBtn" aria-label="Cerrar">
     <Image src={closeSvg} alt="Cerrar modal" />
   </button>
-  <section class="upSectionDetail">
-    <div class="leftSideDetail">
-      <img id="tutor-photo-shadow" src="" alt="" class="profileImgShadow" width="400" height="400" decoding="async" />
-      <img id="tutor-photo" src="" alt="" class="profileImg" width="400" height="400" decoding="async" />
-      <div class="badgeActive">
-        <Image src={active} alt="" class="activeIcon" />
-        <p>Activo</p>
+  <section class="sectionDetail">
+    <section class="upSectionDetail">
+      <div class="leftSideDetail">
+        <img id="tutor-photo-shadow" src="" alt="" class="profileImgShadow" width="400" height="400" decoding="async" />
+        <img id="tutor-photo" src="" alt="" class="profileImg" width="400" height="400" decoding="async" />
+        <div class="badgeActive">
+          <Image src={active} alt="" class="activeIcon" />
+          <p>Activo</p>
+        </div>
       </div>
-    </div>
-    <div class="rightSideDetail">
-      <!-- <p class="informativeText">
-        Racha de 15 semanas dando al menos una tutoría
-      </p> -->
-      <h2 class="tutorName" id="tutor-name"></h2>
-      <div class="containerTutorSubjects" id="tutor-subjects"></div>
-      <div class="tutorRating">
-        <div class="stars" id="tutor-stars">
+      <div class="rightSideDetail">
+        <!-- <p class="informativeText">
+          Racha de 15 semanas dando al menos una tutoría
+        </p> -->
+        <h2 class="tutorName" id="tutor-name"></h2>
+        <div class="containerTutorSubjects" id="tutor-subjects"></div>
+        <div class="tutorRating">
+          <div class="stars" id="tutor-stars">
 
+          </div>
+          <div class="totalRatings">
+            <Image src={arrow} alt="" class="arrowRatings" />
+            <p class="labelTotalRatings" id="tutor-total-ratings"></p>
+          </div>
         </div>
-        <div class="totalRatings">
-          <Image src={arrow} alt="" class="arrowRatings" />
-          <p class="labelTotalRatings" id="tutor-total-ratings"></p>
-        </div>
+        <a href="/sessions">
+          <button class="scheduleBtn">
+            <Image src={schedule} alt="" />
+          </button>
+        </a>
       </div>
-      <a href="/sessions">
-        <button class="scheduleBtn">
-          <Image src={schedule} alt="Agendar tutoría" />
-          Agendar una tutoría
-        </button>
-      </a>
-    </div>
+    </section>
+    <section class="availabilitySectionDetail" id="availability-section">
+      <div id="tutor-availability"></div>
+    </section>
   </section>
-  <section class="downSectionDetail">
-    <div class="tutor-slots-container">
-      <h3 class="section-title">Horarios disponibles</h3>
-      <ul id="tutor-slots" class="slots-list"></ul>
-    </div>
-  </section>  
-</dialog>
+  </dialog>
 
 <script>
   import { useSubjectStore } from "@/store/subjectStore";
   import { cloudinaryImage, getCloudinaryFallback } from "@/lib/cloudinary";
+  import { getStarStates, formatRatingValue } from "@/lib/renderStarRating";
+  import {
+    DAYS,
+    DAY_COLORS,
+    DAY_TEXT_COLORS,
+    HOUR_START,
+    HOURS_ARRAY as hours,
+  } from "@/features/availability/utils/calendarConstants";
+  import {
+    timeToMinutes,
+    formatDuration,
+    getSlotsByDay,
+  } from "@/features/availability/utils/calendarUtils";
+
+  // Altura de fila proporcional al font-size reducido de la mini-semana
+  // (64px en el calendario completo → 48px aquí). No modifica la constante
+  // compartida HOUR_HEIGHT de Calendar.astro.
+  const CAL_HOUR_HEIGHT = 48;
 
   const el = (id: string) => document.getElementById(id);
+
+  // Normaliza la modalidad del slot (llega como arreglo: ['PRES'], ['VIRT'] o ['PRES','VIRT']).
+  const toModalityList = (m: unknown): string[] =>
+    (Array.isArray(m) ? m : m != null && m !== "" ? [m] : []).map((x) =>
+      String(x).toUpperCase(),
+    );
+
+  const modalityText = (m: unknown): string => {
+    const list = toModalityList(m);
+    if (list.length > 1) return "Ambas";
+    return list[0] === "VIRT" ? "Virtual" : "Presencial";
+  };
+
+  function renderAvailability(slots: any[]) {
+    const container = el("tutor-availability");
+    if (!container) return;
+
+    if (slots.length === 0) {
+      container.innerHTML = `<p class="availabilityMessage">Sin disponibilidad esta semana</p>`;
+      return;
+    }
+
+    let html = `<div class="availabilityCalendar">
+      <div class="availabilityCalHeader">
+        <div class="availabilityTimeGutter"></div>`;
+
+    DAYS.forEach((day) => {
+      html += `<div class="availabilityDayHeader">
+          <span class="availabilityDayName">${day.label}</span>
+        </div>`;
+    });
+
+    html += `</div>
+      <div class="availabilityCalBody">
+        <div class="availabilityTimeColumn">`;
+
+    hours.forEach((hour) => {
+      html += `<div class="availabilityHourCell">${hour}:00</div>`;
+    });
+
+    html += `</div>`;
+
+    DAYS.forEach((day) => {
+      // getSlotsByDay fusiona franjas contiguas con la misma modalidad (misma utilidad de Calendar.astro).
+      const blocks = getSlotsByDay(slots, day.key);
+      html += `<div class="availabilityDayColumn" style="--day-color:${DAY_COLORS[day.key]};--day-text-color:${DAY_TEXT_COLORS[day.key]}">`;
+      hours.forEach(() => {
+        html += `<div class="availabilityHourCell"></div>`;
+      });
+
+      blocks.forEach((slot) => {
+        const startMin = timeToMinutes(slot.startTime);
+        const endMin = slot.endTime ? timeToMinutes(slot.endTime) : startMin + 60;
+        const top = ((startMin - HOUR_START * 60) / 60) * CAL_HOUR_HEIGHT;
+        const height = ((endMin - startMin) / 60) * CAL_HOUR_HEIGHT;
+        const isHalfHour = 30 >= endMin - startMin;
+        const duration = formatDuration(slot.startTime, slot.endTime);
+
+        html += `<div class="availabilitySlotBlock${isHalfHour ? " availabilitySlotBlock--half" : ""}" style="top:${top}px;height:${height}px;">`;
+
+        if (isHalfHour) {
+          html += `<div class="availabilitySlotHalfContent">
+            <span class="availabilitySlotModality">${modalityText(slot.modality)}</span>
+            <span class="availabilitySlotDurationInline">${duration}</span>
+          </div>`;
+        } else {
+          html += `<div class="availabilitySlotDuration">${duration}</div>
+          <div class="availabilitySlotInfo">
+            <span class="availabilitySlotModality">${modalityText(slot.modality)}</span>
+          </div>`;
+        }
+
+        html += `</div>`;
+      });
+
+      html += `</div>`;
+    });
+
+    html += `</div></div>`;
+
+    container.innerHTML = html;
+  }
 
   document.addEventListener("astro:page-load", () => {
     const dialog = el("tutor-detail-section") as HTMLDialogElement | null;
@@ -82,14 +184,38 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     async function loadTutor(id: string) {
       try {
-        const [profileRes, slotsRes, ratingsRes] = await Promise.all([
+        const [profileRes, ratingsRes] = await Promise.all([
           fetch(`/api/search/${encodeURIComponent(id)}`),
-          fetch(`/api/search/${encodeURIComponent(id)}/availability`),
           fetch(`/api/search/${encodeURIComponent(id)}/ratings`)
         ]);
 
+        const availabilityEl = el("tutor-availability");
+        const availabilitySection = el("availability-section");
+        if (availabilityEl) {
+          availabilityEl.innerHTML = `<p class="availabilityMessage">Cargando disponibilidad…</p>`;
+        }
+
+        // La disponibilidad es complementaria: si falla, se oculta la sección sin romper el perfil.
+        // Solo desktop: en responsive la sección está oculta (≤768px), no se hace la llamada.
+        let slots: any[] = [];
+        if (window.innerWidth > 768) {
+          try {
+            const availabilityRes = await fetch(
+              `/api/availability/tutors/${encodeURIComponent(id)}/slots?onlyAvailable=true&onlyFuture=true`
+            );
+            if (availabilityRes.ok) {
+              const data = await availabilityRes.json();
+              slots = Array.isArray(data?.slots) ? data.slots : [];
+            } else {
+              if (availabilitySection) availabilitySection.style.display = "none";
+            }
+          } catch {
+            if (availabilitySection) availabilitySection.style.display = "none";
+          }
+          renderAvailability(slots);
+        }
+
         const tutor = await profileRes.json();
-        const { availableSlots = [] } = await slotsRes.json();
         const ratingsData = await ratingsRes.json().catch(() => null);
         const summary = ratingsData?.summary ?? {};
         const { colorMap } = useSubjectStore.getState();
@@ -101,64 +227,65 @@ import schedule from "@/features/search/assets/schedule.svg"
           return `<div class="tutorSubjects" style="background:${bg};border-color:${border}"><p>${s.name}</p></div>`;
         }).join("") ?? "";
 
-        const slotsHTML = availableSlots
-          .map((slot: { dayOfWeek: string; startTime: string; endTime: string; modality: string }) =>
-            `<li>
-              <span class="slot-day">${slot.dayOfWeek}</span>
-              <span class="slot-time">${slot.startTime} – ${slot.endTime}</span>
-              <span class="slot-modality">${slot.modality}</span>
-            </li>`
-          )
-          .join("");
-
         const photoUrl = cloudinaryImage(tutor.photo, "profile");
         const photoEl = el("tutor-photo") as HTMLImageElement;
         const shadowEl = el("tutor-photo-shadow") as HTMLImageElement;
+        const fallback = getCloudinaryFallback();
+        photoEl.onerror = () => {
+          photoEl.src = fallback;
+          shadowEl.src = fallback;
+        };
+        shadowEl.onerror = () => {
+          shadowEl.src = fallback;
+        };
         photoEl.src = photoUrl;
         photoEl.width = 400;
         photoEl.height = 400;
         photoEl.loading = "eager";
-        photoEl.onerror = () => {
-          photoEl.src = getCloudinaryFallback();
-          shadowEl.src = getCloudinaryFallback();
-        };
         shadowEl.src = photoUrl;
         shadowEl.width = 400;
         shadowEl.height = 400;
         shadowEl.loading = "eager";
-        shadowEl.onerror = () => {
-          shadowEl.src = getCloudinaryFallback();
-        };
         el("tutor-name")!.textContent = tutor.name;
         el("tutor-subjects")!.innerHTML = subjectsHTML;
-        el("tutor-total-ratings")!.textContent = `${summary.totalEvaluations ?? 0} valoraciones`;
 
-        const rating = Math.round(summary.averageRating ?? 0);
+        const avgRating = summary.averageRating ?? 0;
+        const totalEvaluations = summary.totalEvaluations ?? 0;
+        const formattedRating = formatRatingValue(avgRating);
+
+        if (totalEvaluations > 0) {
+          el("tutor-total-ratings")!.textContent = `${formattedRating} ★ • ${totalEvaluations} valoraciones`;
+        } else {
+          el("tutor-total-ratings")!.textContent = "Sin valoraciones";
+        }
+
+        const starStates = getStarStates(avgRating);
         let starsHTML = '';
 
         const starSrc = dialogEl.getAttribute("data-star");
+        const starHalfSrc = dialogEl.getAttribute("data-star-half");
         const starFullSrc = dialogEl.getAttribute("data-star-full");
+        const starFullHalfSrc = dialogEl.getAttribute("data-star-full-half");
         const starUnfilledSrc = dialogEl.getAttribute("data-star-unfilled");
         const starSimpleUnfilledSrc = dialogEl.getAttribute("data-star-simple-unfilled");
 
-        for (let i = 1; i <= 5; i++) {
-          if (i <= rating) {
-            if (i === 5) {
-              starsHTML += `<img src="${starFullSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
-            } else {
-              starsHTML += `<img src="${starSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
-            }
+        starStates.forEach((state, index) => {
+          const i = index + 1;
+          let imgSrc = '';
+          if (i === 5) {
+            if (state === 'full') imgSrc = starFullSrc!;
+            else if (state === 'half') imgSrc = starFullHalfSrc!;
+            else imgSrc = starUnfilledSrc!;
+            starsHTML += `<img src="${imgSrc}" alt="${state} star" style="width: 45px; height: 45px; align-self: center;" />`;
           } else {
-            if (i === 5) {
-              starsHTML += `<img src="${starUnfilledSrc}" alt="star" style="width: 45px; height: 45px; align-self: center;" />`;
-            } else {
-              starsHTML += `<img src="${starSimpleUnfilledSrc}" alt="star" style="width: 31px; height: 29px; align-self: center;" />`;
-            }
+            if (state === 'full') imgSrc = starSrc!;
+            else if (state === 'half') imgSrc = starHalfSrc!;
+            else imgSrc = starSimpleUnfilledSrc!;
+            starsHTML += `<img src="${imgSrc}" alt="${state} star" style="width: 31px; height: 29px; align-self: center;" />`;
           }
-        }
+        });
 
         el("tutor-stars")!.innerHTML = starsHTML;
-        el("tutor-slots")!.innerHTML = slotsHTML || '<li class="no-slots">Sin horarios disponibles</li>';
 
         dialogEl.showModal();
       } catch (error) {
@@ -177,6 +304,29 @@ import schedule from "@/features/search/assets/schedule.svg"
     border: none;
     outline: none;
     position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    scrollbar-color: transparent transparent;
+  }
+
+  #tutor-detail-section::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  #tutor-detail-section::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  #tutor-detail-section::-webkit-scrollbar-thumb {
+    display: none;
+    background: transparent;
+  }
+
+  #tutor-detail-section::-webkit-scrollbar-track {
+    display: none;
   }
 
   /* ── Boton Cerrar ── */
@@ -184,6 +334,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     position: absolute;
     top: 12px;
     right: 12px;
+    align-self: flex-end;
     width: 32px;
     height: 32px;
     display: flex;
@@ -195,6 +346,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     border-radius: 50%;
     transition: background 0.2s, transform 0.2s;
     z-index: 10;
+    flex-shrink: 0;
   }
   .closeDialogBtn:hover {
     transform: scale(1.1);
@@ -231,21 +383,23 @@ import schedule from "@/features/search/assets/schedule.svg"
     from { opacity: 0; }
     to { opacity: 1; }
   }
+  
+  .sectionDetail {
+    padding: 48px;
+  }
 
   .upSectionDetail {
     width: 100%;
-    border: 1px solid #e7dcff;
     border-bottom: none;
     border-radius: 22.4px;
     display: flex;
     gap: 22px;
-    padding: 48px;
     background: rgba(256, 256, 256, 0.5);
     backdrop-filter: blur(34.3px);
     position: relative;
   }
 
-  .upSectionDetail::after {
+  /* .upSectionDetail::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -254,11 +408,11 @@ import schedule from "@/features/search/assets/schedule.svg"
     height: 2px;
     background: linear-gradient(90deg, #FFFFFF 0%, rgba(0, 0, 0, 0) 54%, #FFFFFF 100%);
     border-radius: 0 0 22.4px 22.4px;
-  }
+  } */
 
   .leftSideDetail {
     width: 260px;
-    height: 225px;
+    aspect-ratio: 1/1;
     flex-shrink: 0;
     display: flex;
     position: relative;
@@ -266,13 +420,13 @@ import schedule from "@/features/search/assets/schedule.svg"
 
   .profileImgShadow {
     position: absolute;
-    top: 15px;
+    top: 4px;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 22.4px;
-    filter: blur(28px);
+    filter: blur(16px);
     opacity: 0.8;
     z-index: 0;
   }
@@ -321,7 +475,7 @@ import schedule from "@/features/search/assets/schedule.svg"
     display: flex;
     flex-direction: column;
     gap: 12px;
-    justify-content: flex-end;
+    justify-content: center;
     padding: 20px 32px;
     border: 1px solid var(--neutral-200);
     border-radius: 24px;
@@ -363,14 +517,14 @@ import schedule from "@/features/search/assets/schedule.svg"
     gap: 8px;
     width: fit-content;
     position: absolute;
-    top: 24px;
-    right: 24px;
-    padding: 8px 12px;
+    top: 16px;
+    right: 16px;
+    padding: 6px 8px;
     background: #DAFFAA;
-    border-radius: 8px;
+    border-radius: 12px;
     font-style: normal;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 12px;
     line-height: 18px;
     letter-spacing: -0.02em;
     color: #4D662E;
@@ -387,6 +541,31 @@ import schedule from "@/features/search/assets/schedule.svg"
     background: #C6E88B;
   }
 
+  /* ── Disponibilidad semanal (solo desktop) ── */
+  .availabilitySectionDetail {
+    margin-top: 24px;
+    position: relative;
+    z-index: 1;
+    border: 1px solid var(--neutral-200);
+    border-radius: 24px;
+  }
+
+  .availabilitySectionTitle {
+    font-family: 'Open Sauce Two';
+    font-style: normal;
+    font-weight: 600;
+    font-size: var(--fontsize-heading-h6);
+    line-height: var(--lineheight-heading-h6);
+    letter-spacing: -0.02em;
+    color: var(--text-headings);
+    margin: 0 0 16px;
+  }
+
+  #tutor-availability {
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
   /* ── Responsive ── */
 
   @media (max-width: 1060px) {
@@ -396,7 +575,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .leftSideDetail {
       width: 200px;
-      height: 180px;
+      aspect-ratio: 1/1;
     }
 
     .tutorName {
@@ -415,6 +594,10 @@ import schedule from "@/features/search/assets/schedule.svg"
       border-radius: 18px;
     }
 
+    .availabilitySectionDetail {
+      display: none;
+    }
+
     .upSectionDetail {
       padding: 28px 24px;
       gap: 18px;
@@ -423,7 +606,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .leftSideDetail {
       width: 160px;
-      height: 145px;
+      aspect-ratio: 1/1;
     }
 
     .profileImg,
@@ -456,12 +639,15 @@ import schedule from "@/features/search/assets/schedule.svg"
       width: 16px;
       height: 16px;
     }
-  }
 
-  @media (max-width: 499px) {
+    /* ── Antiguo quiebre ≤499px, fusionado para preservarse desde 768px ── */
     #tutor-detail-section {
       width: calc(100vw - 24px);
       border-radius: 16px;
+    }
+
+    .sectionDetail {
+      padding: 0px;
     }
 
     .upSectionDetail {
@@ -473,7 +659,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
     .leftSideDetail {
       width: 100%;
-      height: 160px;
+      aspect-ratio: 1/1;
     }
 
     .profileImg,
@@ -484,7 +670,6 @@ import schedule from "@/features/search/assets/schedule.svg"
     .profileImgShadow {
       display: none;
     }
-
 
     .badgeActive p {
       font-size: 12px;
@@ -548,12 +733,172 @@ import schedule from "@/features/search/assets/schedule.svg"
 </style>
 
 <style is:global>
+  /* ── Disponibilidad: calendario inyectado por script (innerHTML) ──
+     Replica el estilo de Calendar.astro (slot-block, day-column, hour-cell). */
+  .availabilityCalendar {
+    background: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .availabilityCalHeader {
+    display: grid;
+    grid-template-columns: 56px repeat(6, 1fr);
+    border-bottom: 1px solid #e8e8e8;
+    background: #ffffff;
+  }
+
+  .availabilityTimeGutter {
+    border-right: 1px solid #e8e8e8;
+  }
+
+  .availabilityDayHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 8px 8px;
+    border-right: 1px solid #e8e8e8;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .availabilityDayHeader:last-child {
+    border-right: none;
+  }
+
+  .availabilityDayName {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    white-space: nowrap;
+    font-family: "Cabinet Grotesk Variable", sans-serif;
+  }
+
+  .availabilityCalBody {
+    display: grid;
+    grid-template-columns: 56px repeat(6, 1fr);
+  }
+
+  .availabilityTimeColumn {
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .availabilityHourCell {
+    height: 48px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 4px 8px 0 0;
+    font-size: 11px;
+    color: #9ca3af;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    border-bottom: 1px solid #e8e8e8;
+    white-space: nowrap;
+  }
+
+  .availabilityDayColumn {
+    position: relative;
+    border-right: 1px solid #e8e8e8d8;
+    min-width: 0;
+  }
+
+  .availabilityDayColumn:last-child {
+    border-right: none;
+  }
+
+  .availabilitySlotBlock {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    border-radius: 6px;
+    padding: 12px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: var(--day-color, #f3f4f6);
+    color: rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    font-family: "Cabinet Grotesk Variable";
+    letter-spacing: -0.02em;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  .availabilitySlotBlock--half {
+    justify-content: center;
+    padding: 4px 8px;
+  }
+
+  .availabilitySlotDuration {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--day-text-color, inherit);
+    opacity: 0.8;
+  }
+
+  .availabilitySlotInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .availabilitySlotModality {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .availabilitySlotBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    width: max-content;
+  }
+
+  .availabilitySlotHalfContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .availabilitySlotDurationInline {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--day-text-color, inherit);
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+
+  .availabilityMessage {
+    font-family: 'Open Sauce Two';
+    font-size: var(--fontsize-body-sm);
+    line-height: var(--lineheight-body-sm);
+    color: var(--neutral-400);
+    margin: 0;
+    padding: 8px 0;
+  }
+
   .tutorSubjects {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 2.8px 8.4px;
+    padding: 2px 8px;
     background: #E6FFC7;
     border-radius: 22.4px;
   }
@@ -601,13 +946,6 @@ import schedule from "@/features/search/assets/schedule.svg"
     line-height: 20px;
     letter-spacing: -0.02em;
     color: #9F74FF;
-  }
-
-  .downSectionDetail {
-    width: 100%;
-    flex-direction: column;
-    gap: 10px;
-    display: none;
   }
 
   @media (max-width: 439px) {

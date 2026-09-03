@@ -188,19 +188,20 @@
 
   .modality-card {
     padding: 20px 16px;
+    height: 100vh;
   }
 
   .modality-options {
     gap: 12px;
     flex-direction: column;
     align-items: center;
+    height: 100%;
+    width: 100%;
   }
 
   .modality-option {
     flex: 1;
     width: 100%;
-    max-width: 200px;
-    height: 110px;
     font-size: 13px;
     gap: 4px;
   }
@@ -226,5 +227,14 @@
     width: 100%;
     padding: 14px;
     border-radius: 12px;
+  }
+
+  .modality-card__label {
+    font-size: 22px;
+  }
+
+  .modality-option__check-badge img {
+    width: 12px;
+    height: 12px;
   }
 }

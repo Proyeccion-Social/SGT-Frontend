@@ -103,6 +103,7 @@
 }
 
 .card-title {
+  display: block;
   flex: 1;
   min-width: 0;
   white-space: nowrap;
@@ -113,8 +114,6 @@
   text-overflow: ellipsis;
   line-height: 20px;
   letter-spacing: -0.02em;
-  /* Un título de una sola palabra larga no debe fijar el min-content de la tarjeta. */
-  overflow-wrap: anywhere;
 }
 
 .card-person {
@@ -281,7 +280,7 @@
   cursor: pointer;
   font-weight: 500;
   transition: all 0.25s ease;
-  background: var(--surface-action);
+  background: var(--primary-400);
 }
 
 .btn-details:hover,

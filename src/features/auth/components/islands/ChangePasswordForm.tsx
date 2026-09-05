@@ -6,18 +6,14 @@ import { sileo } from "sileo";
 
 import eyeNormal from "../../assets/icons/eye-normal.svg";
 import eyeLabeled from "../../assets/icons/eye-labeled.svg";
+import {
+    getPasswordStrength,
+    PASSWORD_SPECIAL_CHARS_REGEX,
+    MIN_PASSWORD_LENGTH as MIN_LENGTH,
+    MAX_PASSWORD_LENGTH as MAX_LENGTH,
+} from "@/lib/passwordPolicy";
 
-const MIN_LENGTH = 8;
-const MAX_LENGTH = 128;
-
-function getStrength(pw: string): 0 | 1 | 2 | 3 {
-    if (pw.length === 0) return 0;
-    let score = 0;
-    if (pw.length >= MIN_LENGTH) score++;
-    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw) && /[@$!%*?&#]/.test(pw)) score++;
-    return score as 0 | 1 | 2 | 3;
-}
+const getStrength = getPasswordStrength;
 
 const STRENGTH_LABELS: Record<1 | 2 | 3, string> = {
     1: "Débil",
@@ -59,7 +55,7 @@ export default function ChangePasswordForm() {
     const hasUppercase = /[A-Z]/.test(newPassword);
     const hasLowercase = /[a-z]/.test(newPassword);
     const hasDigit = /\d/.test(newPassword);
-    const hasSpecial = /[@$!%*?&#]/.test(newPassword);
+    const hasSpecial = PASSWORD_SPECIAL_CHARS_REGEX.test(newPassword);
 
     const currentEmpty = touched.current && currentPassword.length === 0;
     const tooShort = newPassword.length > 0 && !hasMinLength;
@@ -237,7 +233,7 @@ export default function ChangePasswordForm() {
                                     <p className="password-error">Incluye al menos un número</p>
                                 )}
                                 {!hasSpecial && (
-                                    <p className="password-error">Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?</p>
+                                    <p className="password-error">Incluye al menos un carácter especial (ej. @, #, ., ,, ;, !)</p>
                                 )}
                             </div>
                         )}

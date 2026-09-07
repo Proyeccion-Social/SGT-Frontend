@@ -2,18 +2,12 @@ import "../styles/ChooseSubjects.css";
 import "../styles/SetNewPassword.css";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import type { StepHandle } from "./ChooseSubjects";
-
-const MIN_LENGTH = 8;
-const MAX_LENGTH = 128;
-
-function getStrength(pw: string): 0 | 1 | 2 | 3 {
-    if (pw.length === 0) return 0;
-    let score = 0;
-    if (pw.length >= MIN_LENGTH) score++;
-    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw) && /[@$!%*?&#]/.test(pw)) score++;
-    return score as 0 | 1 | 2 | 3;
-}
+import {
+    getPasswordStrength as getStrength,
+    PASSWORD_SPECIAL_CHARS_REGEX,
+    MIN_PASSWORD_LENGTH as MIN_LENGTH,
+    MAX_PASSWORD_LENGTH as MAX_LENGTH,
+} from "@/lib/passwordPolicy";
 
 const STRENGTH_LABELS: Record<1 | 2 | 3, string> = {
     1: "Débil",
@@ -56,7 +50,7 @@ const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasDigit = /\d/.test(password);
-    const hasSpecial = /[@$!%*?&#]/.test(password);
+    const hasSpecial = PASSWORD_SPECIAL_CHARS_REGEX.test(password);
 
     const tooShort = password.length > 0 && !hasMinLength;
     const tooLong  = password.length > MAX_LENGTH;
@@ -188,7 +182,7 @@ const SetNewPassword = forwardRef<StepHandle, { onNext: (password: string, phone
                                         <p className="password-error">Incluye al menos un número</p>
                                     )}
                                     {!hasSpecial && (
-                                        <p className="password-error">Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?</p>
+                                        <p className="password-error">Incluye al menos un carácter especial (ej. @, #, ., ,, ;, !)</p>
                                     )}
                                 </div>
                             )}

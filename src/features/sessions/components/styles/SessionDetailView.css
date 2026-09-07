@@ -409,6 +409,50 @@
   color: var(--neutral-600);
 }
 
+/* ── Contacto del estudiante (tutor) ── */
+.sdv-contact {
+  background: rgba(243, 237, 255, 0.5);
+  border: 1px dashed var(--neutral-200);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sdv-contact__title {
+  margin: 0px;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--primary-default);
+  letter-spacing: -0.02em;
+}
+
+.sdv-contact__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sdv-contact__name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-600);
+  font-family: 'Cabinet Grotesk Variable';
+  letter-spacing: -0.02em;
+}
+
+.sdv-contact__email {
+  font-size: 14px;
+  color: var(--primary-default);
+  text-decoration: none;
+  word-break: break-all;
+  font-family: 'Cabinet Grotesk Variable';
+  letter-spacing: -0.02em;
+}
+
 /* ══════════════════════════════
    4. FOOTER BUTTONS
    Desktop (Figma): botones sobresalen de la card, ancho al contenido.

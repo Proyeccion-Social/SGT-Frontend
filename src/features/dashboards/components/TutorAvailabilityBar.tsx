@@ -50,7 +50,7 @@ export const TutorAvailabilityBar = ({
             )}
             
             <span className="remaining-hours-text">
-                {remainingHours} hora{remainingHours !== 1 ? 's' : ''} disponible{remainingHours !== 1 ? 's' : ''} esta semana
+                {remainingHours} hora{remainingHours !== 1 ? 's' : ''} disponible{remainingHours !== 1 ? 's' : ''}
             </span>
         </div>
     );

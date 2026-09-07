@@ -363,39 +363,62 @@ export const SessionDetailView = ({
             modification={session.pendingModification ?? null}
           />
         ) : (
-          <div className="sdv__cards">
- 
-            <div className="sdv-card">
-              <div className="sdv-card__icon">
-                {modalityIcon(String(session.modality))}
+          <>
+            <div className="sdv__cards">
+
+              <div className="sdv-card">
+                <div className="sdv-card__icon">
+                  {modalityIcon(String(session.modality))}
+                </div>
+                <span className="sdv-card__label">
+                  {modalityLabel(String(session.modality))}
+                </span>
               </div>
-              <span className="sdv-card__label">
-                {modalityLabel(String(session.modality))}
-              </span>
+
+              <div className="sdv-card">
+                <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
+                <span className="sdv-card__label">
+                  {formatDuration(session.startTime, session.endTime)}
+                </span>
+              </div>
+
+              <div className="sdv-card">
+                <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
+                <span className="sdv-card__label">
+                  {dateStr}
+                  <br/>
+                  <span className="sdv-card__sublabel">{timeStr}</span>
+                </span>
+              </div>
+
+              <div className="sdv-card">
+                <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
+                <span className="sdv-card__label">{statusLabel(session.status)}</span>
+              </div>
+
             </div>
- 
-            <div className="sdv-card">
-              <img src={time.src} alt="Icono de tiempo" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">
-                {formatDuration(session.startTime, session.endTime)}
-              </span>
-            </div>
- 
-            <div className="sdv-card">
-              <img src={calendar.src} alt="Icono de calendario" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">
-                {dateStr}
-                <br/>
-                <span className="sdv-card__sublabel">{timeStr}</span>
-              </span>
-            </div>
- 
-            <div className="sdv-card">
-              <img src={pin.src} alt="Icono de estado" style={{ width: '40px', height: '40px' }} />
-              <span className="sdv-card__label">{statusLabel(session.status)}</span>
-            </div>
- 
-          </div>
+
+            {role === UserRole.TUTOR && session.participants.length > 0 && (
+              <div className="sdv-contact">
+                <p className="sdv-contact__title">
+                  Contacto del estudiante
+                </p>
+                {session.participants.map((p) => (
+                  <div key={p.id} className="sdv-contact__row">
+                    <span className="sdv-contact__name">{p.name}</span>
+                    {p.email && (
+                      <a
+                        className="sdv-contact__email"
+                        href={`mailto:${p.email}`}
+                      >
+                        {p.email}
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
  
         {/* ── Footer ── */}

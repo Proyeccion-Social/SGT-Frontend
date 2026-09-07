@@ -3,16 +3,19 @@ import { sileo } from "sileo";
 import ojoSrc      from "../../assets/ojo.svg?url";
 import ojoOcultoSrc from "../../assets/ojo-oculto.svg?url";
 import "../../styles/formGeneral.css";
+import {
+  PASSWORD_REGEX as PW_REGEX,
+  PASSWORD_SPECIAL_CHARS_REGEX,
+} from "@/lib/passwordPolicy";
 
 const PHONE_REGEX = /^\d{10}$/;
-const PW_REGEX    = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
 
 function getPasswordError(pw: string): string {
-  if (pw.length < 8)                        return "Debe tener al menos 8 caracteres.";
-  if (!/[A-Z]/.test(pw))                    return "Debe incluir al menos una letra mayúscula.";
-  if (!/[a-z]/.test(pw))                    return "Debe incluir al menos una letra minúscula.";
-  if (!/\d/.test(pw))                       return "Debe incluir al menos un número.";
-  if (!/[@$!%*?&#]/.test(pw))              return "Debe incluir al menos un carácter especial (@$!%*?&#).";
+  if (pw.length < 8)                          return "Debe tener al menos 8 caracteres.";
+  if (!/[A-Z]/.test(pw))                      return "Debe incluir al menos una letra mayúscula.";
+  if (!/[a-z]/.test(pw))                      return "Debe incluir al menos una letra minúscula.";
+  if (!/\d/.test(pw))                         return "Debe incluir al menos un número.";
+  if (!PASSWORD_SPECIAL_CHARS_REGEX.test(pw)) return "Debe incluir al menos un carácter especial (ej. @, #, ., ,, ;, !).";
   return "";
 }
 

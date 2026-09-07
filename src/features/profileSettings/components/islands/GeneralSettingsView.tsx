@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { sileo } from "sileo";
-
-const PW_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
+import {
+  PASSWORD_REGEX as PW_REGEX,
+  PASSWORD_SPECIAL_CHARS_REGEX,
+} from "@/lib/passwordPolicy";
 
 function getPasswordError(pw: string): string {
-  if (pw.length < 8)          return "Debe tener al menos 8 caracteres.";
-  if (!/[A-Z]/.test(pw))      return "Debe incluir al menos una letra may\u00fascula.";
-  if (!/[a-z]/.test(pw))      return "Debe incluir al menos una letra min\u00fascula.";
-  if (!/\d/.test(pw))         return "Debe incluir al menos un n\u00famero.";
-  if (!/[@$!%*?&#]/.test(pw)) return "Debe incluir al menos un car\u00e1cter especial (@$!%*?&#).";
+  if (pw.length < 8)                          return "Debe tener al menos 8 caracteres.";
+  if (!/[A-Z]/.test(pw))                      return "Debe incluir al menos una letra may\u00fascula.";
+  if (!/[a-z]/.test(pw))                      return "Debe incluir al menos una letra min\u00fascula.";
+  if (!/\d/.test(pw))                         return "Debe incluir al menos un n\u00famero.";
+  if (!PASSWORD_SPECIAL_CHARS_REGEX.test(pw)) return "Debe incluir al menos un car\u00e1cter especial (ej. @, #, ., ,, ;, !).";
   return "";
 }
 

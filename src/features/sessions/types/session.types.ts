@@ -28,8 +28,9 @@ export interface SessionSubject {
 }
 
 export interface SessionParticipant {
-  id: string;        
+  id: string;
   name: string;
+  email?: string;
   status: ParticipantStatus;
   role: string;
 }

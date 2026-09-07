@@ -18,11 +18,12 @@
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  width: 827px;
-  max-height: 593px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #c6c6c6;
+  width: min(827px, 100%);
+  max-width: 827px;
+  max-height: min(593px, 90vh);
+  border-radius: var(--border-radius-lg);
+  background: var(--neutral-blanco);
+  border: 1px solid var(--neutral-200);
   z-index: 10001;
 }
 
@@ -36,11 +37,14 @@
   font-weight: 600;
   color: #3c3c3c;
   margin: 0 0 4px;
+  letter-spacing: -0.02em;
 }
 
 .attendance-session-subject {
-  font-size: 14px;
-  color: #777;
+  font-family: "Cabinet Grotesk Variable";
+  font-size: 12px;
+  color: var(--neutral-600);
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
@@ -49,6 +53,7 @@
   color: #666;
   font-size: 14px;
   margin: 0;
+  letter-spacing: -0.02em;
 }
 
 .attendance-header {
@@ -150,6 +155,10 @@
   padding: 0px 32px;
   overflow-y: auto;
   max-height: 300px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .attendance-content::-webkit-scrollbar {
@@ -247,7 +256,7 @@
 
 .attendance-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 16px;
   border-top: 1px solid #c6c6c6;
   align-items: center;
@@ -265,8 +274,104 @@
 }
 
 .attendance-error {
-  color: #f35761 !important;
-  font-size: 12px !important;
+  color: var(--text-error) !important;
+  font-size: var(--fontsize-body-sm) !important;
   margin: 0px !important;
   font-style: italic !important;
+}
+
+/* ─── Responsive: tablet (bp-md) ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .attendance-container {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - var(--spacing-xs));
+    max-width: none;
+    max-height: 90vh;
+    border-radius: var(--border-radius-lg);
+  }
+
+  .attendance-session-meta {
+    padding: 20px 20px 10px 20px;
+  }
+
+  .attendance-header {
+    display: none;
+  }
+
+  .attendance-content {
+    padding: 16px 20px 20px 20px;
+    max-height: none;
+    flex: 1 1 0%;
+    min-height: 0;
+    border-top: 1px solid var(--neutral-200);
+  }
+
+  .attendance-content-item-name {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xs);
+    padding: var(--spacing-xs) 0;
+  }
+
+  .attendance-status-controls {
+    gap: var(--spacing-2xs);
+  }
+
+  .attendance-status-btn {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
+  .attendance-arrival {
+    flex-wrap: wrap;
+  }
+
+  .attendance-arrival-input {
+    flex: 1 1 100%;
+  }
+
+  .attendance-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-xxs);
+    padding: var(--spacing-xs);
+    padding-bottom: calc(var(--spacing-xs) + env(safe-area-inset-bottom));
+  }
+
+  .attendance-footer .attendance-error {
+    text-align: center;
+  }
+
+  .attendance-button {
+    width: 100%;
+    font-size: var(--fontsize-body-md);
+    line-height: var(--lineheight-body-md);
+  }
+}
+
+/* ─── Responsive: teléfono (bp-sm) ────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .attendance-container {
+    max-height: 92vh;
+  }
+
+  .attendance-content-item {
+    padding: 0px;
+  }
+
+  .attendance-content-item-name {
+    gap: var(--spacing-xxs);
+    padding: 0;
+  }
+
+  .attendance-content-item-name p {
+    font-size: var(--fontsize-body-sm);
+    line-height: var(--lineheight-body-sm);
+  }
+
+  .attendance-session-title {
+    font-size: var(--fontsize-heading-h6);
+    line-height: var(--lineheight-heading-h6);
+  }
 }

@@ -187,7 +187,7 @@
   --surface-page: var(--neutral-blanco);
   --surface-primary: var(--neutral-blanco);
   --surface-action: var(--primary-100);
-  --surface-action-hover: var(--primary-600);
+  --surface-action-hover: var(--primary-default);
   --surface-focus: var(--primary-50);
   --surface-disabled: var(--neutral-200);
   --surface-success: var(--success-50);

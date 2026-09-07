@@ -56,7 +56,6 @@ export default function AttendancePostSession({
     const [attendances, setAttendances] = useState<AttendanceMap>({});
     const [arrivalTimes, setArrivalTimes] = useState<ArrivalMap>({});
     const [isSaving, setIsSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [confirmAbsent, setConfirmAbsent] = useState(false);
 
     const {
@@ -93,12 +92,10 @@ export default function AttendancePostSession({
             });
         }
         setConfirmAbsent(false);
-        setError(null);
     };
 
     const setArrival = (participantId: string, time: string) => {
         setArrivalTimes((prev) => ({ ...prev, [participantId]: time }));
-        setError(null);
     };
 
     const buildRecords = (): AttendanceRecord[] | null => {
@@ -114,9 +111,11 @@ export default function AttendancePostSession({
             if (status === "LATE") {
                 const time = arrivalTimes[p.id];
                 if (!time) {
-                    setError(
-                        `Indica la hora de llegada de ${p.name} (estado Tarde).`
-                    );
+                    sileo.error({
+                        title: "Falta la hora de llegada",
+                        description: `Indica la hora de llegada de ${p.name} (estado Tarde).`,
+                        fill: "#f35761",
+                    });
                     return null;
                 }
                 record.arrivalTime = toIsoArrival(
@@ -136,9 +135,11 @@ export default function AttendancePostSession({
 
         if (unresolvedCount > 0 && !confirmAbsent) {
             setConfirmAbsent(true);
-            setError(
-                `${unresolvedCount} participante(s) sin marcar quedarán como Ausente. Confirma de nuevo para continuar.`
-            );
+            sileo.error({
+                title: "Participantes sin marcar",
+                description: `${unresolvedCount} participante(s) sin marcar quedarán como Ausente. Confirma de nuevo para continuar.`,
+                fill: "#f59e0b",
+            });
             return;
         }
 
@@ -146,7 +147,6 @@ export default function AttendancePostSession({
         if (!records) return;
 
         setIsSaving(true);
-        setError(null);
 
         try {
             const res = await fetch(
@@ -166,7 +166,6 @@ export default function AttendancePostSession({
                 const msg =
                     ("message" in data && data.message) ||
                     "Error al registrar asistencia";
-                setError(msg);
                 sileo.error({
                     title: "Error en el registro",
                     description: msg,
@@ -201,7 +200,6 @@ export default function AttendancePostSession({
                 e instanceof Error
                     ? e.message
                     : "Error al registrar asistencia";
-            setError(msg);
             sileo.error({
                 title: "Error en el registro",
                 description: msg,
@@ -358,9 +356,6 @@ export default function AttendancePostSession({
                     )}
                 </div>
                 <div className="attendance-footer">
-                    <p className="attendance-error" role="alert">
-                        { error && (error)}
-                    </p>
                     <Button
                         className="attendance-button"
                         variant="default"

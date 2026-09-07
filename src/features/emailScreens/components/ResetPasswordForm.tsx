@@ -2,18 +2,12 @@ import { useState, useEffect } from "react";
 import { navigate } from "astro:transitions/client";
 import { sileo } from "sileo";
 import "../styles/ResetPasswordForm.css";
-
-const MIN_LENGTH = 8;
-const MAX_LENGTH = 128;
-
-function getStrength(pw: string): 0 | 1 | 2 | 3 {
-    if (pw.length === 0) return 0;
-    let score = 0;
-    if (pw.length >= MIN_LENGTH) score++;
-    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/\d/.test(pw) && /[@$!%*?&#]/.test(pw)) score++;
-    return score as 0 | 1 | 2 | 3;
-}
+import {
+    getPasswordStrength as getStrength,
+    PASSWORD_SPECIAL_CHARS_REGEX,
+    MIN_PASSWORD_LENGTH as MIN_LENGTH,
+    MAX_PASSWORD_LENGTH as MAX_LENGTH,
+} from "@/lib/passwordPolicy";
 
 export default function ResetPasswordForm() {
     const [token, setToken] = useState<string | null>(null);
@@ -38,7 +32,7 @@ export default function ResetPasswordForm() {
     const hasUppercase = /[A-Z]/.test(password);
     const hasLowercase = /[a-z]/.test(password);
     const hasDigit = /\d/.test(password);
-    const hasSpecial = /[@$!%*?&#]/.test(password);
+    const hasSpecial = PASSWORD_SPECIAL_CHARS_REGEX.test(password);
 
     const lengthOk = hasMinLength && password.length <= MAX_LENGTH;
     const mismatch = confirm.length > 0 && password !== confirm;
@@ -211,7 +205,7 @@ export default function ResetPasswordForm() {
                                 <p style={{ color: "#f35761", fontSize: "12px" }}>Incluye al menos un número</p>
                             )}
                             {!hasSpecial && (
-                                <p style={{ color: "#f35761", fontSize: "12px" }}>Incluye al menos un carácter especial como #, @, $, %, &, *, !, ?</p>
+                                <p style={{ color: "#f35761", fontSize: "12px" }}>Incluye al menos un carácter especial (ej. @, #, ., ,, ;, !)</p>
                             )}
                         </div>
                     )}

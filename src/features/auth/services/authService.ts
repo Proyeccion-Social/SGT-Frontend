@@ -19,7 +19,6 @@ export type RegisterDto = {
   email: string;
   password: string;
   confirmPassword: string;
-  frontendUrl?: string;
 };
 
 export type LogoutDto = {
@@ -76,11 +75,12 @@ export const fetchMe = async (accessToken: string) => {
   return response.json();
 };
 
-export const register = async (data: RegisterDto) => {
+export const register = async (data: RegisterDto, frontendUrl?: string) => {
   const response = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(frontendUrl ? { "x-frontend-url": frontendUrl } : {}),
     },
     body: JSON.stringify(data),
   });

@@ -6,8 +6,9 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
-		const { frontendUrl, ...data } = await request.json();
-		const result = await register({ ...data, frontendUrl: getFrontendUrl(frontendUrl) });
+		const data = await request.json();
+		const frontendUrl = getFrontendUrl(request.headers.get("x-frontend-url"));
+		const result = await register(data, frontendUrl);
 
 		return new Response(
 			JSON.stringify({ user: result.user }),	

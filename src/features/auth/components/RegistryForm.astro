@@ -89,13 +89,13 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+                "x-frontend-url": window.location.origin,
             },
             body: JSON.stringify({
               name: nameInput.value,
               email: emailInput.value,
               password: passwordInput.value,
               confirmPassword: passwordInput.value,
-                frontendUrl: window.location.origin,
             }),
           });
           const data = await res.json();

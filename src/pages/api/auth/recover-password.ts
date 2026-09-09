@@ -6,11 +6,14 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
     try {
-        const { email, frontendUrl } = await request.json();
+        const { email } = await request.json();
         if (!email) {
             return new Response(JSON.stringify({ error: "Email is required" }), { status: 400, headers: { 'Content-Type': 'application/json' } });
         }
-        await recoverPassword(email, getFrontendUrl(frontendUrl));
+        await recoverPassword(
+            email,
+            getFrontendUrl(request.headers.get("x-frontend-url")),
+        );
         return new Response(JSON.stringify({ message: "Password recovery email sent" }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

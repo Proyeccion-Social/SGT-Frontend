@@ -9,8 +9,9 @@ export const recoverPassword = async (
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                ...(frontendUrl ? { 'x-frontend-url': frontendUrl } : {}),
             },
-            body: JSON.stringify({ email, frontendUrl }),
+            body: JSON.stringify({ email }),
         });
         if (!response.ok) {
             throw new Error('Failed to recover password');

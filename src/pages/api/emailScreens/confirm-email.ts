@@ -6,7 +6,7 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    const { token, frontendUrl } = await request.json();
+    const { token } = await request.json();
 
     if (!token) {
       return new Response(
@@ -19,8 +19,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const res = await fetch(apiUrl.toString(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, frontendUrl: getFrontendUrl(frontendUrl) }),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-frontend-url': getFrontendUrl(request.headers.get('x-frontend-url')),
+      },
+      body: JSON.stringify({ token }),
     });
 
     const data = await res.json().catch(() => ({}));

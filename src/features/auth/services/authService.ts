@@ -19,6 +19,7 @@ export type RegisterDto = {
   email: string;
   password: string;
   confirmPassword: string;
+  frontendUrl?: string;
 };
 
 export type LogoutDto = {

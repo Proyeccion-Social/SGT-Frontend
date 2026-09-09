@@ -1,12 +1,14 @@
 import type { APIRoute } from "astro";
 import { register } from "@/features/auth/services/authService";
+import { getFrontendUrl } from "@/lib/frontendUrl";
 
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
 	try {
 		const data = await request.json();
-		const result = await register(data);
+		const frontendUrl = getFrontendUrl(request.headers.get("x-frontend-url"));
+		const result = await register(data, frontendUrl);
 
 		return new Response(
 			JSON.stringify({ user: result.user }),	

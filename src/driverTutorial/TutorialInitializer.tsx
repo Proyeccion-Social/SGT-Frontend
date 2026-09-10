@@ -85,7 +85,9 @@ export default function TutorialInitializer() {
     const role = user?.role === UserRole.TUTOR ? "TUTOR" : user?.role === UserRole.STUDENT ? "STUDENT" : null;
     if (!role) return;
 
-    const mapping = PATH_TOUR_MAP[role]?.[path];
+    const mapping = (
+      PATH_TOUR_MAP as Record<string, Record<string, { tourId: string; start: () => void }>>
+    )[role]?.[path];
     if (!mapping) return;
 
     const { tourId, start } = mapping;

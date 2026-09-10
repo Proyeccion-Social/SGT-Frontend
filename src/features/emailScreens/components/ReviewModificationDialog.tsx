@@ -75,6 +75,7 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
   }, [handleKeyDown]);
 
   const handleAction = async (action: 'accept' | 'reject') => {
+    if (!request) return;
     setActionLoading(true);
     setError(null);
     try {

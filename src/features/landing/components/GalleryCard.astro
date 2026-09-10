@@ -115,7 +115,7 @@ const { images, title, header, headerSubtitle, bg } = Astro.props;
 
       // After fade: silently move dismissed card to back-of-stack, then fade in
       setTimeout(() => {
-        deck.prepend(top);
+        deck?.prepend(top);
         cards.unshift(cards.pop()!);
 
         // Snap to back position while still invisible — no visual jump

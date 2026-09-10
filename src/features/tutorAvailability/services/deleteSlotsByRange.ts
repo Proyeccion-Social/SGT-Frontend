@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.API_URL;
 
 
-export async function deleteSlotsByRange(token?: string, body) {
+export async function deleteSlotsByRange(token: string | undefined, body: unknown) {
 
     const response = await fetch(
     `${API_URL}/availability/tutor/slots/range`,

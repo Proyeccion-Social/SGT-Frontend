@@ -1,7 +1,5 @@
 // useCancelSession.ts — 24h validation + cancel execution
 import { useState } from 'react';
-import { useAuthStore } from '@store/authStore';
-import { cancelSession } from '../services/sessionService';
 import type { Session } from '../types/session.types';
 
 interface UseCancelSessionReturn {
@@ -12,7 +10,6 @@ interface UseCancelSessionReturn {
 }
 
 export function useCancelSession(): UseCancelSessionReturn {
-  const token = useAuthStore((s) => s.token);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,11 +23,15 @@ export function useCancelSession(): UseCancelSessionReturn {
   }
 
   async function cancel(sessionId: string, justification: string): Promise<void> {
-    if (!token) throw new Error('Not authenticated');
     setIsLoading(true);
     setError(null);
     try {
-      await cancelSession(sessionId, justification, token);
+      const response = await fetch('/api/sessions/cancel-session', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reason: justification }),
+      });
+      if (!response.ok) throw new Error('Cancellation failed');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Cancellation failed';
       setError(msg);

@@ -8,7 +8,22 @@ import { statusLabel } from "@/features/sessions/utils/statusLabel";
 
 const { data, currentStatus, userId } = Astro.props;
 
-const sessions = data.data;
+type HistoryParticipant = {
+  id: string;
+  status: string;
+};
+
+type HistorySession = {
+  id: string;
+  status: string;
+  scheduledDate: string;
+  modality: string;
+  title: string;
+  subject: { name: string };
+  participants: HistoryParticipant[];
+};
+
+const sessions = data.data as HistorySession[];
 const statistics = data.statistics;
 const pagination = data.meta;
 ---

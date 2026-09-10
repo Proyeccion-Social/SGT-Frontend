@@ -789,7 +789,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
   }
 
   function setupDrag() {
-    const calendar = document.querySelector(".calendar-outer");
+    const calendar = document.querySelector<HTMLElement>(".calendar-outer");
     if (calendar?.dataset.mode === "tutor") return;
 
     document
@@ -873,8 +873,8 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
 
     // Preferir el día de hoy; si la semana mostrada no lo contiene, caer al primero.
     const initialBtn =
-      selector.querySelector(".mobile-day-btn--today") ||
-      selector.querySelector(".mobile-day-btn");
+      selector.querySelector<HTMLElement>(".mobile-day-btn--today") ||
+      selector.querySelector<HTMLElement>(".mobile-day-btn");
     if (initialBtn) setActiveDay(initialBtn.dataset.dayKey);
 
     selector.querySelectorAll<HTMLElement>(".mobile-day-btn").forEach((btn) => {

@@ -5,6 +5,7 @@ import { HistoryFilters } from "./HistoryFilters.tsx";
 import CalendarAdd from "../assets/calendar-add.svg";
 import { Image } from "astro:assets";
 import { statusLabel } from "@/features/sessions/utils/statusLabel";
+import type { SessionStatus } from "@/features/sessions/types/session.types";
 
 const { data, currentStatus, userId } = Astro.props;
 
@@ -15,7 +16,7 @@ type HistoryParticipant = {
 
 type HistorySession = {
   id: string;
-  status: string;
+  status: SessionStatus;
   scheduledDate: string;
   modality: string;
   title: string;

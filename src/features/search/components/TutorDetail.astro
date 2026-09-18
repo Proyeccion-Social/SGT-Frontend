@@ -252,9 +252,10 @@ import schedule from "@/features/search/assets/schedule.svg"
         const avgRating = summary.averageRating ?? 0;
         const totalEvaluations = summary.totalEvaluations ?? 0;
         const formattedRating = formatRatingValue(avgRating);
+        const starIconSrc = dialogEl.getAttribute("data-star-full")!;
 
         if (totalEvaluations > 0) {
-          el("tutor-total-ratings")!.textContent = `${formattedRating} ★ • ${totalEvaluations} valoraciones`;
+          el("tutor-total-ratings")!.textContent = `${formattedRating} <img src="${starIconSrc}" alt="" class="totalRatingsStarIcon" /> • ${totalEvaluations} valoraciones`;
         } else {
           el("tutor-total-ratings")!.textContent = "Sin valoraciones";
         }
@@ -914,7 +915,7 @@ import schedule from "@/features/search/assets/schedule.svg"
 
   .tutorRating {
     display: flex;
-    width: 100%
+    width: 100%;
     justify-content: center;
     align-items: center;
     position: relative;

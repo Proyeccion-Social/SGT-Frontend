@@ -255,7 +255,7 @@ import schedule from "@/features/search/assets/schedule.svg"
         const starIconSrc = dialogEl.getAttribute("data-star-full")!;
 
         if (totalEvaluations > 0) {
-          el("tutor-total-ratings")!.textContent = `${formattedRating} <img src="${starIconSrc}" alt="" class="totalRatingsStarIcon" /> • ${totalEvaluations} valoraciones`;
+          el("tutor-total-ratings")!.textContent = `${formattedRating} • ${totalEvaluations} valoraciones`;
         } else {
           el("tutor-total-ratings")!.textContent = "Sin valoraciones";
         }

@@ -646,7 +646,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
   const HOUR_HEIGHT = 64;
   const SLOT_INTERVAL = 30;
 
-  function minutesToTime(minutes) {
+  function minutesToTime(minutes: number): string {
     const h = Math.floor(minutes / 60)
       .toString()
       .padStart(2, "0");
@@ -654,16 +654,16 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     return `${h}:${m}`;
   }
 
-  function timeToMinutes(time) {
+  function timeToMinutes(time: string): number {
     const [h, m] = time.split(":").map(Number);
     return h * 60 + m;
   }
 
-  function pixelsToMinutes(px) {
+  function pixelsToMinutes(px: number): number {
     return (px / HOUR_HEIGHT) * 60;
   }
 
-  function formatModalityLabel(modality) {
+  function formatModalityLabel(modality: string | undefined): string {
     if (!modality || modality === "null") return "Presencial o Virtual";
     return modality.toUpperCase() === "VIRT" ? "Virtual" : "Presencial";
   }
@@ -691,7 +691,18 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
   }
 
   // Module-level drag state shared across all slot interactions
-  let activeDrag = null;
+  type ActiveDrag = {
+    overlay: HTMLDivElement;
+    dragStartY: number;
+    dragStartMinutes: number;
+    slotStartMin: number;
+    slotEndMin: number;
+    slotTopPx: number;
+    modality: string | undefined;
+    slotBlock: HTMLElement;
+  };
+
+  let activeDrag: ActiveDrag | null = null;
 
   function cleanupDrag() {
     const overlay = document.getElementById("drag-overlay");
@@ -699,7 +710,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     activeDrag = null;
   }
 
-  function handlePointerMove(e) {
+  function handlePointerMove(e: PointerEvent) {
     if (!activeDrag) return;
     const {
       overlay,
@@ -729,7 +740,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     overlay.dataset.endMinutes = clampedEndMinutes.toString();
   }
 
-  function handlePointerUp(e) {
+  function handlePointerUp(e: PointerEvent) {
     if (!activeDrag) return;
     const { overlay, dragStartMinutes, slotBlock, modality } = activeDrag;
     if (!overlay) return;
@@ -778,13 +789,13 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
   }
 
   function setupDrag() {
-    const calendar = document.querySelector(".calendar-outer");
+    const calendar = document.querySelector<HTMLElement>(".calendar-outer");
     if (calendar?.dataset.mode === "tutor") return;
 
     document
-      .querySelectorAll(".slot-block:not(.slot-booked):not(.slot-past)")
+      .querySelectorAll<HTMLElement>(".slot-block:not(.slot-booked):not(.slot-past)")
       .forEach((slotBlock) => {
-        slotBlock.addEventListener("pointerdown", (e) => {
+        slotBlock.addEventListener("pointerdown", (e: PointerEvent) => {
           e.preventDefault();
           // Limpiar cualquier overlay residual antes de crear uno nuevo
           document.getElementById("drag-overlay")?.remove();
@@ -838,18 +849,18 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     document.addEventListener("keydown", handleEscape);
   }
 
-  function handleEscape(e) {
+  function handleEscape(e: KeyboardEvent) {
     if (e.key === "Escape") cleanupDrag();
   }
 
   function setupMobileDaySelector() {
-    const selector = document.querySelector(".mobile-day-selector");
+    const selector = document.querySelector<HTMLElement>(".mobile-day-selector");
     if (!selector) return;
 
-    const dayColumns = document.querySelectorAll(".day-column[data-day-key]");
+    const dayColumns = document.querySelectorAll<HTMLElement>(".day-column[data-day-key]");
 
-    const setActiveDay = (dayKey) => {
-      selector.querySelectorAll(".mobile-day-btn").forEach((btn) => {
+    const setActiveDay = (dayKey: string | undefined) => {
+      selector.querySelectorAll<HTMLElement>(".mobile-day-btn").forEach((btn) => {
         btn.classList.toggle(
           "mobile-day-btn--active",
           btn.dataset.dayKey === dayKey,
@@ -862,11 +873,11 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
 
     // Preferir el día de hoy; si la semana mostrada no lo contiene, caer al primero.
     const initialBtn =
-      selector.querySelector(".mobile-day-btn--today") ||
-      selector.querySelector(".mobile-day-btn");
+      selector.querySelector<HTMLElement>(".mobile-day-btn--today") ||
+      selector.querySelector<HTMLElement>(".mobile-day-btn");
     if (initialBtn) setActiveDay(initialBtn.dataset.dayKey);
 
-    selector.querySelectorAll(".mobile-day-btn").forEach((btn) => {
+    selector.querySelectorAll<HTMLElement>(".mobile-day-btn").forEach((btn) => {
       btn.addEventListener("click", () => setActiveDay(btn.dataset.dayKey));
     });
   }

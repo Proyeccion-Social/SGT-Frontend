@@ -64,6 +64,58 @@ export default function HistorySessionManager() {
     }
   };
 
+  const confirmar = async (sessionId: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/confirm-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const rechazar = async (sessionId: string, reason: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/reject-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, reason }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const aceptarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/accept-modification', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, requestId }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  const rechazarModificacion = async (sessionId: string, requestId?: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/reject-modification', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, requestId }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
   const handleRequestCancel = (session: Session) => {
     setSessionToCancel(session);
     setActiveSessionId(null);
@@ -79,6 +131,10 @@ export default function HistorySessionManager() {
           onRequestCancel={handleRequestCancel}
           modificar={modificar}
           editar={editar}
+          confirmar={confirmar}
+          rechazar={rechazar}
+          aceptarModificacion={aceptarModificacion}
+          rechazarModificacion={rechazarModificacion}
         />
       )}
 

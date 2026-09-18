@@ -9,7 +9,7 @@ interface UseSessionsReturn {
   isLoading: boolean;
   error: string | null;
   fetchMySessions: (force?: boolean) => Promise<void>;
-  agendar: (data: CreateSessionDTO, modalidadesPermitidas: Modality[]) => Promise<boolean>;
+  agendar: (data: CreateSessionDTO) => Promise<boolean>;
   cancelar: (sessionId: string, reason: string) => Promise<boolean>;
   modificar: (sessionId: string, data: ModifySessionBody) => Promise<boolean>;
   editar: (sessionId: string, data: EditSessionBody) => Promise<boolean>;

@@ -22,12 +22,12 @@ export const DAY_COLORS: Record<string, string> = {
 };
 
 export const DAY_BORDER_COLORS: Record<string, string> = {
-    LUNES:     "#7C3AED", // violeta oscuro — contrasta con el lila suave
-    MARTES:    "#059669", // verde esmeralda — contrasta con el verde menta
-    MIERCOLES: "#65A30D", // verde oliva — contrasta con el verde lima
-    JUEVES:    "#1D7FC4", // azul medio — contrasta con el azul cielo
-    VIERNES:   "#7C3AED", // violeta oscuro — contrasta con el lila
-    SABADO:    "#C2620A", // naranja quemado — contrasta con el durazno
+    LUNES: "#b797ff",
+    MARTES: "#82e0aa",
+    MIERCOLES: "#9ACC5B",
+    JUEVES: "#78BEF8",
+    VIERNES: "#b797ff",
+    SABADO: "#FFB878",
 };
 
 export const DAY_TEXT_COLORS: Record<string, string> = {

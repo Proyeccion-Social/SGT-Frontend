@@ -186,6 +186,8 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [popover, setPopover] = useState<PopoverData | null>(null);
+  const popoverRef = useRef<PopoverData | null>(null);
+  popoverRef.current = popover;
   const [popoverOpen, setPopoverOpen] = useState(false);
   const handlePopoverExited = useCallback(() => setPopover(null), []);
   const [slotContext, setSlotContext] = useState<any>(null);
@@ -274,7 +276,12 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
     const closePopover = (e: MouseEvent) => {
       if (Date.now() < ignoreCloseUntil.current) return;
       const target = e.target as HTMLElement;
-      if (target.closest(".slot-popover") || target.closest(".slot-popover-drawer") || target.closest(".slot-block")) return;
+      if (
+        target.closest(".slot-popover") ||
+        target.closest(".slot-popover-drawer") ||
+        target.closest(".slot-selection-border") ||
+        target.closest(".slot-block")
+      ) return;
       setPopoverOpen(false);
     };
 
@@ -321,6 +328,65 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
       window.scrollTo(scrollX, scrollY);
     };
   }, [open, popover]);
+
+  const getModalityLabel = (modality: unknown) => {
+    const detailModalities = String(modality ?? "")
+      .split(",")
+      .map((x) => x.trim().toUpperCase())
+      .filter(Boolean);
+    return detailModalities.length !== 1
+      ? "Presencial o Virtual"
+      : detailModalities[0] === "VIRT"
+        ? "Virtual"
+        : "Presencial";
+  };
+
+  const handleDragChange = (currentEndTime: string) => {
+    const current = popoverRef.current;
+    if (!current) return;
+
+    sileo.action({
+      title: "Franja seleccionada",
+      description: (
+        <span className="wizard-sileo-description">
+          {`${current.slotData.startTime} → ${currentEndTime} · ${getModalityLabel(current.slotData.modality)}`}
+        </span>
+      ),
+      fill: "#8751ff",
+      styles: { badge: "#ffffff" },
+    });
+  };
+
+  const handleEndTimeChange = (newEndTime: string) => {
+    const current = popoverRef.current;
+    if (!current) return;
+
+    const updatedSlotData = { ...current.slotData, endTime: newEndTime };
+    const subjects = getCoveringSubjects(
+      slots,
+      updatedSlotData.dayOfWeek,
+      wizardTimeToMin(updatedSlotData.startTime),
+      wizardTimeToMin(newEndTime),
+    );
+    const modalityLabel = getModalityLabel(updatedSlotData.modality);
+
+    sileo.action({
+      title: subjects.length === 0 ? "Franja sin cobertura" : "Franja seleccionada",
+      description: (
+        <span className="wizard-sileo-description">
+          {subjects.length === 0
+            ? `Ningún tutor cubre por completo esta franja (${updatedSlotData.startTime} → ${newEndTime}).`
+            : `${updatedSlotData.startTime} → ${newEndTime} · ${modalityLabel}`}
+        </span>
+      ),
+      fill: subjects.length === 0 ? "#f5a623" : "#8751ff",
+      styles: { badge: "#ffffff" },
+    });
+
+    setPopover((prev) => prev
+      ? { ...prev, subjects, slotData: updatedSlotData }
+      : prev);
+  };
 
   const handleSubjectSelect = (subject: string) => {
     const currentSlotData = popover!.slotData;
@@ -560,6 +626,11 @@ export default function SchedulingWizard({ slots: initialSlots, tutorProfiles = 
           onSelect={handleSubjectSelect}
           onCloseRequest={() => setPopoverOpen(false)}
           onExited={handlePopoverExited}
+          onEndTimeChange={handleEndTimeChange}
+          onDragChange={handleDragChange}
+          onResizeEnd={() => {
+            ignoreCloseUntil.current = Date.now() + 300;
+          }}
         />
       )}
 

@@ -21,6 +21,7 @@ const slots = Array.isArray(rawSlots) ? rawSlots : [];
 import {
   DAYS,
   DAY_COLORS,
+  DAY_BORDER_COLORS,
   DAY_TEXT_COLORS,
   HOURS_ARRAY as hours,
 } from "../utils/calendarConstants";
@@ -127,7 +128,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
           <div
             class={`day-column${(weekHasToday ? isSameDay(weekDates[day.key]) : idx === 0) ? " mobile-active" : ""}`}
             data-day-key={day.key}
-            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
+            style={`--day-color: ${DAY_COLORS[day.key]}; --day-border-color: ${DAY_BORDER_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
             {hours.map((_) => (
               <div class='hour-cell' />
@@ -676,8 +677,15 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
       left: 2px;
       right: 2px;
       border-radius: 8px;
-      background: rgba(124, 58, 237, 0.18);
-      border: 2px solid #7c3aed;
+      --selection-border-color: currentColor;
+      color: var(--selection-border-color);
+      background:
+        linear-gradient(90deg, currentColor 0 16px, transparent 16px 24px) top / 24px 2px repeat-x,
+        linear-gradient(90deg, currentColor 0 16px, transparent 16px 24px) bottom / 24px 2px repeat-x,
+        linear-gradient(180deg, currentColor 0 16px, transparent 16px 24px) left / 2px 24px repeat-y,
+        linear-gradient(180deg, currentColor 0 16px, transparent 16px 24px) right / 2px 24px repeat-y,
+        color-mix(in srgb, var(--selection-border-color) 18%, transparent);
+      border: 0;
       pointer-events: none;
       z-index: 20;
       display: flex;
@@ -685,8 +693,14 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
       align-items: center;
       justify-content: center;
       gap: 4px;
-      overflow: hidden;
+      overflow: visible;
     `;
+
+    const handle = document.createElement("div");
+    handle.className = "slot-selection-border__handle";
+    handle.style.pointerEvents = "none";
+    overlay.appendChild(handle);
+
     return overlay;
   }
 
@@ -804,6 +818,10 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
             Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
 
           const overlay = createOverlay();
+          const dayBorderColor = getComputedStyle(slotBlock.parentElement).getPropertyValue("--day-border-color").trim();
+          if (dayBorderColor) {
+            overlay.style.setProperty("--selection-border-color", dayBorderColor);
+          }
           const startPxInSlot =
             ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
           overlay.style.top = `${slotTopPx + startPxInSlot}px`;

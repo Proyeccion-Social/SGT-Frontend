@@ -3,7 +3,7 @@
   border-radius: 14px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   padding: 16px;
-  z-index: 5001;
+  z-index: 5007;
   min-width: 220px;
   opacity: 0;
   transition: opacity 150ms ease;
@@ -122,13 +122,52 @@
 
 .slot-selection-border {
   position: fixed;
-  border: 3px dashed #8751ff;
+  --selection-border-color: currentColor;
+  color: var(--selection-border-color);
+  border: 0;
   border-radius: 10px;
   pointer-events: none;
-  z-index: 5002;
+  z-index: 5006;
   box-sizing: border-box;
   opacity: 0;
+  overflow: visible;
   transition: opacity 150ms ease;
+}
+
+.slot-selection-border__outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.slot-selection-border__handle {
+  position: absolute;
+  z-index: 1;
+  bottom: -4px;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 8px;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  background-color: var(--selection-border-color, currentColor);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  pointer-events: auto;
+}
+
+.slot-selection-border__handle::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -12px;
+  right: -12px;
 }
 
 .slot-selection-border--open {

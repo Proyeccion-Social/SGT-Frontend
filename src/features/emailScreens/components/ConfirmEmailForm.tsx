@@ -32,7 +32,10 @@ export default function ConfirmEmailForm() {
         try {
             const response = await fetch("/api/emailScreens/confirm-email", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-frontend-url": window.location.origin,
+                },
                 body: JSON.stringify({ token }),
             });
 

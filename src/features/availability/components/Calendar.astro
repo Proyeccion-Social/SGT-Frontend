@@ -21,6 +21,7 @@ const slots = Array.isArray(rawSlots) ? rawSlots : [];
 import {
   DAYS,
   DAY_COLORS,
+  DAY_BORDER_COLORS,
   DAY_TEXT_COLORS,
   HOURS_ARRAY as hours,
 } from "../utils/calendarConstants";
@@ -127,7 +128,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
           <div
             class={`day-column${(weekHasToday ? isSameDay(weekDates[day.key]) : idx === 0) ? " mobile-active" : ""}`}
             data-day-key={day.key}
-            style={`--day-color: ${DAY_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
+            style={`--day-color: ${DAY_COLORS[day.key]}; --day-border-color: ${DAY_BORDER_COLORS[day.key]}; --day-text-color: ${DAY_TEXT_COLORS[day.key]};`}
           >
             {hours.map((_) => (
               <div class='hour-cell' />
@@ -676,8 +677,12 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
       left: 2px;
       right: 2px;
       border-radius: 8px;
-      background: rgba(124, 58, 237, 0.18);
-      border: 2px solid #7c3aed;
+      --selection-border-color: currentColor;
+      color: var(--selection-border-color);
+      background:
+        linear-gradient(color-mix(in srgb, var(--selection-border-color) 30%, transparent), color-mix(in srgb, var(--selection-border-color) 30%, transparent)),
+        linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.82));
+      border: 0;
       pointer-events: none;
       z-index: 20;
       display: flex;
@@ -685,8 +690,35 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
       align-items: center;
       justify-content: center;
       gap: 4px;
-      overflow: hidden;
+      overflow: visible;
     `;
+
+    // Mismo borde que la selección confirmada (SlotPopover): un <rect rx="8">
+    // en SVG sigue la curva — los gradientes simulaban el dashed con bandas
+    // rectas y por eso las esquinas se veían cuadradas.
+    const svgNS = "http://www.w3.org/2000/svg";
+    const outline = document.createElementNS(svgNS, "svg");
+    outline.setAttribute("aria-hidden", "true");
+    outline.style.cssText =
+      "position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;";
+    const frame = document.createElementNS(svgNS, "rect");
+    frame.setAttribute("fill", "none");
+    frame.setAttribute("stroke", "currentColor");
+    frame.setAttribute("stroke-width", "2");
+    frame.setAttribute("stroke-dasharray", "16 8");
+    frame.setAttribute("rx", "8");
+    frame.setAttribute(
+      "style",
+      "x:1px;y:1px;width:calc(100% - 2px);height:calc(100% - 2px);",
+    );
+    outline.appendChild(frame);
+    overlay.appendChild(outline);
+
+    const handle = document.createElement("div");
+    handle.className = "slot-selection-border__handle";
+    handle.style.pointerEvents = "none";
+    overlay.appendChild(handle);
+
     return overlay;
   }
 
@@ -804,6 +836,10 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
             Math.floor(clickedMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
 
           const overlay = createOverlay();
+          const dayBorderColor = getComputedStyle(slotBlock.parentElement).getPropertyValue("--day-border-color").trim();
+          if (dayBorderColor) {
+            overlay.style.setProperty("--selection-border-color", dayBorderColor);
+          }
           const startPxInSlot =
             ((dragStartMinutes - slotStartMin) / 60) * HOUR_HEIGHT;
           overlay.style.top = `${slotTopPx + startPxInSlot}px`;

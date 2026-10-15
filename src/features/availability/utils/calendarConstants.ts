@@ -14,29 +14,29 @@ export const DAYS = [
 
 export const DAY_COLORS: Record<string, string> = {
     LUNES: "#CFB9FF99",
-    MARTES: "#ABEBC699",
-    MIERCOLES: "#DAFFAA99",
-    JUEVES: "#A5D8FF99",
-    VIERNES: "#CFB9FF99",
-    SABADO: "#FFD2A199",
+    MARTES: "#FFD2A199",
+    MIERCOLES: "#ABEBC699",
+    JUEVES: "#CDFF8E99",
+    VIERNES: "#D7D1FF99",
+    SABADO: "#A5D8FF99",
 };
 
 export const DAY_BORDER_COLORS: Record<string, string> = {
-    LUNES:     "#7C3AED", // violeta oscuro — contrasta con el lila suave
-    MARTES:    "#059669", // verde esmeralda — contrasta con el verde menta
-    MIERCOLES: "#65A30D", // verde oliva — contrasta con el verde lima
-    JUEVES:    "#1D7FC4", // azul medio — contrasta con el azul cielo
-    VIERNES:   "#7C3AED", // violeta oscuro — contrasta con el lila
-    SABADO:    "#C2620A", // naranja quemado — contrasta con el durazno
+    LUNES: "#9f74ff",
+    MARTES: "#ffa76b",
+    MIERCOLES: "#58d68d",
+    JUEVES: "#9acc5b",
+    VIERNES: "#9b8cff",
+    SABADO: "#78bef8",
 };
 
 export const DAY_TEXT_COLORS: Record<string, string> = {
     LUNES: "#8751ff",
-    MARTES: "#25A35A",
-    MIERCOLES: "#749944",
-    JUEVES: "#2B6CB0",
-    VIERNES: "#6C41CC",
-    SABADO: "#9C4221",
+    MARTES: "#9C4221",
+    MIERCOLES: "#25A35A",
+    JUEVES: "#749944",
+    VIERNES: "#7c70cc",
+    SABADO: "#2B6CB0",
 };
 
 export const HOURS_ARRAY = Array.from({ length: TOTAL_HOURS }, (_, i) => HOUR_START + i);

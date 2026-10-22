@@ -89,7 +89,7 @@ const findCurrentSlot = (
 const slotSupportsBothModalities = (slot: AvailabilitySlot | undefined): boolean => {
   if (!slot) return false;
   const m = slot.modality;
-  if (m == null || m === '' || m === 'null' || m === 'undefined') return true;
+  if (m == null) return true;
   const raw = String(m).toUpperCase().replace(/\s+/g, '');
   if (
     raw === 'BOTH' ||

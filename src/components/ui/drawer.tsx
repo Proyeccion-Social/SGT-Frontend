@@ -10,6 +10,7 @@ import Finish from '@/features/tutorProfile/components/Finish';
 import { Button } from '@/components/ui/button';
 
 import { useAuthStore } from '@/store/authStore';
+import { UserRole } from '@/constants/roles';
 
 import './styles/drawer.css';
 import checkedIcon from "./images/checked-icon.svg"
@@ -42,7 +43,7 @@ export default function VaulDrawer() {
     const [isOpen, setIsOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const isStudent = user?.role === 'STUDENT';
+    const isStudent = user?.role === UserRole.STUDENT;
     const activeSteps = isStudent ? STUDENT_STEPS : TUTOR_STEPS;
     const finishStepId = 3;
 

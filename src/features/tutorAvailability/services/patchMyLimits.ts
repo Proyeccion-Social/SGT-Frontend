@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.API_URL;
 
-export async function patchMyLimits(token?: string, body) {
+export async function patchMyLimits(token: string | undefined, body: { hours: number | string }) {
 
   const response = await fetch(
     `${API_URL}/availability/tutor/me/limits`,

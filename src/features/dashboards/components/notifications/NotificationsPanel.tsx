@@ -217,7 +217,7 @@ export function NotificationsPanel() {
 
   const handleRetry = () => {
     setPage(1);
-    fetchNotifications(1, false);
+    loadMore(1);
   };
 
   const formatTime = (iso: string) => {

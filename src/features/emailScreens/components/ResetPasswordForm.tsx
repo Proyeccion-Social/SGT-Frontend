@@ -96,7 +96,7 @@ export default function ResetPasswordForm() {
                 },
                 fill: "#58d68d",
                 styles: {
-                    badge: { fill: "#ffffff" },
+                    badge: "#ffffff",
                 },
             });
 

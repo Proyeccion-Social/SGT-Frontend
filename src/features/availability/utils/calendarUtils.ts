@@ -1,4 +1,4 @@
-import type { Slot } from "@/features/availability/services/availabilityService";
+import { toModalityList, type Slot } from "@/features/availability/services/availabilityService";
 import { HOUR_START, HOUR_HEIGHT } from "./calendarConstants";
 
 /**
@@ -171,9 +171,7 @@ export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
             ...s,
             startTime: s.startTime?.substring(0, 5) || s.startTime,
             endTime: s.endTime?.substring(0, 5) || s.endTime,
-            modality: s.modality
-                ? (String(s.modality).toUpperCase() as Slot["modality"])
-                : s.modality,
+            modality: toModalityList(s.modality),
             isBooked: Boolean(s.isBooked),
         }));
 

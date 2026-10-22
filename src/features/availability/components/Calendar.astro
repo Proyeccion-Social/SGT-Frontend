@@ -554,6 +554,20 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
   .slot-selected {
     z-index: 100;
     overflow: visible;
+    /* Evita que el hover escale el bloque y mueva el marco durante el arrastre. */
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+
+  .slot-block > * {
+    transition: opacity 0.3s ease, visibility 0s;
+  }
+
+  .slot-selected > * {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
   }
 
   /* ── Mobile day selector ── */

@@ -18,7 +18,10 @@ import { createPortal } from "react-dom";
 import { Drawer } from "vaul";
 import "../../assets/styles/SlotPopover.css";
 import { useSubjectStore } from "@/store/subjectStore";
-import { DAY_BORDER_COLORS } from "@/features/availability/utils/calendarConstants";
+import {
+  DAY_BORDER_COLORS,
+  DAY_TEXT_COLORS,
+} from "@/features/availability/utils/calendarConstants";
 
 interface Props {
   subjects: string[];
@@ -29,7 +32,6 @@ interface Props {
   onCloseRequest: () => void;
   onExited: () => void;
   onEndTimeChange?: (newEndTime: string) => void;
-  onDragChange?: (currentEndTime: string) => void;
   onResizeEnd?: () => void;
 }
 
@@ -61,6 +63,23 @@ function minutesToTime(minutes: number): string {
   const h = Math.floor(minutes / 60).toString().padStart(2, "0");
   const m = (minutes % 60).toString().padStart(2, "0");
   return `${h}:${m}`;
+}
+
+function formatTimeRange(startTime: string, endTime: string): string {
+  const formatTime = (time: string) => {
+    const minutes = timeToMinutes(time);
+    const hour = Math.floor(minutes / 60);
+    return {
+      label: `${hour % 12 || 12}:${String(minutes % 60).padStart(2, "0")}`,
+      period: hour < 12 ? "am" : "pm",
+    };
+  };
+  const start = formatTime(startTime);
+  const end = formatTime(endTime);
+
+  return start.period === end.period
+    ? `${start.label} → ${end.label} ${end.period}`
+    : `${start.label} ${start.period} → ${end.label} ${end.period}`;
 }
 
 function emptyRect(): DOMRect {
@@ -145,7 +164,6 @@ export default function SlotPopover({
   onCloseRequest,
   onExited,
   onEndTimeChange,
-  onDragChange,
   onResizeEnd,
 }: Props) {
   const [visible, setVisible] = useState(false);
@@ -250,6 +268,13 @@ export default function SlotPopover({
     return () => el.classList.remove("slot-selected");
   }, [slotBlockId]);
 
+  useEffect(() => {
+    if (!isDragging) return;
+    const root = document.documentElement;
+    root.classList.add("slot-duration-dragging");
+    return () => root.classList.remove("slot-duration-dragging");
+  }, [isDragging]);
+
   const handleHandlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -281,7 +306,6 @@ export default function SlotPopover({
       if (clampedEnd !== latestClampedEnd) {
         latestClampedEnd = clampedEnd;
         setDragEndMinutes(clampedEnd);
-        onDragChange?.(minutesToTime(clampedEnd));
       }
     };
 
@@ -352,12 +376,16 @@ export default function SlotPopover({
   const containerRect = container ? container.getBoundingClientRect() : null;
   const frameWidth = subRect.width + 4;
   const frameHeight = subRect.height + 4;
+  const selectedEndTime = minutesToTime(
+    dragEndMinutes ?? timeToMinutes(currentEndTime ?? slotData.endTime ?? slotData.startTime),
+  );
 
   const stateClass = visible ? "slot-popover--open" : "slot-popover--closing";
   const borderClass = visible
     ? "slot-selection-border--open"
     : "slot-selection-border--closing";
   const selectionBorderColor = DAY_BORDER_COLORS[slotData.dayOfWeek] ?? "currentColor";
+  const selectionTextColor = DAY_TEXT_COLORS[slotData.dayOfWeek] ?? "#3c3c3c";
   const backdropClass = visible
     ? "slot-popover__backdrop--open"
     : "slot-popover__backdrop--closing";
@@ -411,6 +439,7 @@ export default function SlotPopover({
             width: frameWidth,
             height: frameHeight,
             "--selection-border-color": selectionBorderColor,
+            "--selection-text-color": selectionTextColor,
           } as CSSProperties}
         >
           <svg
@@ -419,16 +448,6 @@ export default function SlotPopover({
             viewBox={`0 0 ${frameWidth} ${frameHeight}`}
             preserveAspectRatio="none"
           >
-            <rect
-              x="2"
-              y="2"
-              width={Math.max(0, frameWidth - 4)}
-              height={Math.max(0, frameHeight - 4)}
-              rx="8"
-              fill="rgba(255,255,255,0.82)"
-              stroke="rgba(255,255,255,0.95)"
-              strokeWidth="4.5"
-            />
             <rect
               x="1"
               y="1"
@@ -441,6 +460,9 @@ export default function SlotPopover({
               strokeDasharray="16 8"
             />
           </svg>
+          <span className="slot-selection-border__time">
+            {formatTimeRange(slotData.startTime, selectedEndTime)}
+          </span>
           <div
             className="slot-selection-border__handle"
             role="button"

@@ -13,6 +13,13 @@ El workflow `CI` corre en pushes y PRs a `main` y `develop`. Usa Node.js 24 y
 `npm ci`, prueba la política SDD, ejecuta `astro check` y compila el frontend.
 Los despliegues siguen a cargo de la integración de Vercel.
 
+En las PRs a `main` o `develop`, el job `SDD PR validation` valida la PR real
+con permisos de lectura: comprueba su contrato SDD, el archivo de cierre y las
+revisiones de GitHub. No se limita a ejecutar pruebas de la política. Se ejecuta
+al abrir o actualizar una PR y cuando cambian sus revisiones. Los eventos de
+revisión requieren que el workflow ya esté integrado en la rama predeterminada;
+durante la instalación inicial, volver a ejecutar CI tras recibir el Approve.
+
 El workflow `SDD gate`, copiado de Nexo, publica el estado `SDD / Feature gate`
 sobre el commit de cada PR. Comprueba el bloque JSON de la plantilla de PR y
 `sdd/features/<feature_id>/state.json` en ese mismo commit. Exige que el estado

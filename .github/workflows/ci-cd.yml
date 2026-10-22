@@ -5,17 +5,21 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+    types: [opened, reopened, synchronize, edited, ready_for_review, converted_to_draft]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   ci:
     name: Check and build
+    if: github.event_name != 'pull_request_review'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -42,3 +46,40 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  sdd:
+    name: SDD PR validation
+    if: >-
+      github.event_name != 'push' &&
+      (github.base_ref == 'main' || github.base_ref == 'develop')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      # This PR workflow has read-only permissions. Commit statuses are written
+      # separately by the trusted default-branch SDD gate.
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const { evaluate } = require('./scripts/ci/sdd-policy.cjs');
+            const pull_number = context.payload.pull_request.number;
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo, pull_number,
+            });
+            try {
+              const feature = await evaluate({ github, repo: context.repo, pr });
+              const { data: current } = await github.rest.pulls.get({
+                ...context.repo, pull_number,
+              });
+              if (current.head.sha !== pr.head.sha || current.state !== 'open') {
+                throw new Error('La PR cambió durante la comprobación; requiere reevaluación.');
+              }
+              core.info(`${feature}: archivada y aprobada en ${pr.head.sha}.`);
+            } catch (error) {
+              core.setFailed(`PR #${pull_number} no cumple el contrato SDD: ${error.message}`);
+            }

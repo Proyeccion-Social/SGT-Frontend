@@ -51,7 +51,7 @@ jobs:
     name: SDD PR validation
     if: >-
       github.event_name != 'push' &&
-      (github.base_ref == 'main' || github.base_ref == 'develop')
+      (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'develop')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

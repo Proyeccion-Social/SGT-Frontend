@@ -4,6 +4,24 @@ _Para las preguntas que requieren de respuesta, añadirla en la descripción de 
 Issue/Spec: #___
 Diseño (Figma):
 
+## Contrato SDD
+<!-- Reemplazar <feature-id> por el identificador real, por ejemplo 1-frontend-cicd.
+El gate lee sdd/features/<feature-id>/state.json en el commit actual de esta PR.
+La feature debe estar archivada con verificación pass y operación archive/complete.
+Se requiere un Approve real de otro colaborador con permisos write, maintain o admin,
+sobre el commit actual. El JSON no sustituye la revisión de GitHub.
+-->
+<!-- sdd-feature:start -->
+```json
+{
+  "schema_version": 1,
+  "feature_id": "<feature-id>",
+  "feature_status": "archived",
+  "required_review_state": "APPROVED"
+}
+```
+<!-- sdd-feature:end -->
+
 ## ¿Qué cambia?
 <!-- Pantalla(s) o componente(s) afectados. -->
 

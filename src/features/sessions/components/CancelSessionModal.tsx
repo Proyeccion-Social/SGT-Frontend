@@ -5,7 +5,8 @@ import './styles/CancelSessionModal.css';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { sileo, Toaster } from 'sileo';
-import type { Session } from '../types/session.types';
+import type { CancelResult, Session } from '../types/session.types';
+import { canCancelSession } from '../utils/sessionStatus';
 
 const REASON_MAX = 500;
 
@@ -14,8 +15,7 @@ interface Props {
   session_id: string;
   onClose: () => void;
   onSuccess: () => void;
-  canCancel: (session: Session) => boolean;
-  cancelar: (sessionId: string, reason: string) => Promise<boolean>;
+  cancelar: (sessionId: string, reason: string) => Promise<CancelResult>;
   isLoading: boolean;
   error: string | null;
 }
@@ -24,11 +24,10 @@ export const CancelSessionModal = ({
   session,
   onClose,
   onSuccess,
-  canCancel,
   cancelar,
 }: Props) => {
   const [reason, setReason] = useState('');
-  const [windowWarning, setWindowWarning] = useState(false);
+  const [windowWarning, setWindowWarning] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -39,33 +38,56 @@ export const CancelSessionModal = ({
       setValidationError('El motivo de cancelación es obligatorio.');
       return;
     }
-    if (!canCancel(session)) {
-      setWindowWarning(true);
+
+    // Fuente única de la regla de 24h: sessionStatus.canCancelSession.
+    const availability = canCancelSession(session);
+    if (!availability.visible || availability.disabled) {
+      setWindowWarning(
+        availability.reason ?? 'Esta tutoría ya no se puede cancelar.'
+      );
       return;
     }
-    setWindowWarning(false);
+
+    setWindowWarning(null);
     setValidationError(null);
     setSubmitError(null);
     setIsCancelling(true);
     await sileo
-      .promise(
+      .promise<CancelResult>(
         async () => {
-          const ok = await cancelar(session.id, trimmed);
-          if (!ok) throw new Error('No se pudo cancelar la sesión.');
+          const result = await cancelar(session.id, trimmed);
+          // El backend responde 200 con `{ success, message }` y los errores de
+          // negocio con `{ statusCode, message, error }`; en ambos casos el
+          // texto que se muestra es el suyo, no uno inventado en el frontend.
+          if (!result.ok) throw new Error(result.message);
           onSuccess();
+          return result;
         },
         {
           loading: { title: 'Cancelando sesión...' },
-          success: {
-            title: 'Sesión cancelada',
-            description: 'La tutoría ha sido cancelada exitosamente.',
+          // Título neutro a propósito: el `message` del backend es lo único que
+          // distingue un abandono grupal parcial de una cancelación completa.
+          success: (result) => ({
+            title: 'Listo',
+            description: result.ok ? result.message : '',
             fill: '#2ecc71',
-          },
-          error: { title: 'Error al cancelar', fill: '#f35761' },
+          }),
+          error: (err) => ({
+            title: 'No se pudo cancelar',
+            description:
+              err instanceof Error
+                ? err.message
+                : 'No se pudo cancelar la tutoría. Intenta de nuevo.',
+            fill: '#f35761',
+          }),
         }
       )
-      .catch(() => {
-        setSubmitError('No se pudo cancelar la tutoría. Intenta de nuevo.');
+      .catch((err) => {
+        setSubmitError(
+          err instanceof Error
+            ? err.message
+            : 'No se pudo cancelar la tutoría. Intenta de nuevo.'
+        );
       })
       .finally(() => {
         setIsCancelling(false);
@@ -104,7 +126,7 @@ export const CancelSessionModal = ({
           value={reason}
           onChange={(e) => {
             setReason(e.target.value.slice(0, REASON_MAX));
-            setWindowWarning(false);
+            setWindowWarning(null);
             setValidationError(null);
             setSubmitError(null);
           }}
@@ -122,7 +144,7 @@ export const CancelSessionModal = ({
 
         {windowWarning && (
           <p className="cancel-modal__warning" role="alert">
-            La ventana de cancelación para esta sesión ya expiró.
+            {windowWarning}
           </p>
         )}
 

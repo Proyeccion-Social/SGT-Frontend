@@ -20,6 +20,7 @@ const API_URL = (import.meta.env.API_URL ?? '').replace(/\/$/, '');
 
 export class SessionServiceError extends Error {
     status: number;
+    /** Campo `error` de NestJS ("Bad Request", "Forbidden", "Not Found"). */
     errorCode?: string;
     description?: string;
 
@@ -54,10 +55,14 @@ async function request<T>(
     if (!res.ok) {
         const errorBody = await res.json().catch(() => ({}));
         console.error(`[sessionService] ${options.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, JSON.stringify(errorBody));
+        // NestJS devuelve `message: string` en las excepciones propias y
+        // `message: string[]` cuando falla el ValidationPipe.
+        const rawMessage = errorBody?.message;
+        const message = Array.isArray(rawMessage) ? rawMessage.join(' ') : rawMessage;
         throw new SessionServiceError(
-            errorBody?.message ?? `HTTP ${res.status}: ${res.statusText}`,
+            message ?? `HTTP ${res.status}: ${res.statusText}`,
             res.status,
-            errorBody?.errorCode,
+            errorBody?.error ?? errorBody?.errorCode,
             errorBody?.description
         );
     }

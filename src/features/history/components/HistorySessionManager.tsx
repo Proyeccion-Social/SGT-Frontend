@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
-import type { Session, ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
+import { cancelSessionRequest } from '@/features/sessions/utils/cancelSessionRequest';
+import type { CancelResult, Session, ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { UserRole } from '@/constants/roles';
 
 export default function HistorySessionManager() {
@@ -51,18 +52,8 @@ export default function HistorySessionManager() {
     }
   };
 
-  const cancelar = async (id: string, reason: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: id, reason }),
-      });
-      return res.ok;
-    } catch {
-      return false;
-    }
-  };
+  const cancelar = (id: string, reason: string): Promise<CancelResult> =>
+    cancelSessionRequest(id, reason);
 
   const handleRequestCancel = (session: Session) => {
     setSessionToCancel(session);
@@ -89,7 +80,6 @@ export default function HistorySessionManager() {
           onClose={() => setSessionToCancel(null)}
           onSuccess={() => setSessionToCancel(null)}
           cancelar={cancelar}
-          canCancel={() => true}
           isLoading={false}
           error={null}
         />

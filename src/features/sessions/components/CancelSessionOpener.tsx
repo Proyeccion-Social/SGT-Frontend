@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CancelSessionModal } from './CancelSessionModal';
-import type { Session } from '../types/session.types';
+import { cancelSessionRequest } from '../utils/cancelSessionRequest';
+import type { CancelResult, Session } from '../types/session.types';
 
 interface Props {
   sessionId: string;
@@ -27,19 +28,8 @@ export default function CancelSessionOpener({ sessionId }: Props) {
 
   const goToDashboard = () => { window.location.href = '/dashboard'; };
 
-  const cancelar = async (id: string, reason: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: id, reason }),
-      });
-      if (!res.ok) throw new Error();
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  const cancelar = (id: string, reason: string): Promise<CancelResult> =>
+    cancelSessionRequest(id, reason);
 
   if (loading) {
     return (
@@ -68,7 +58,6 @@ export default function CancelSessionOpener({ sessionId }: Props) {
       session_id={session.id}
       onClose={goToDashboard}
       onSuccess={goToDashboard}
-      canCancel={() => true}
       cancelar={cancelar}
       isLoading={false}
       error={null}

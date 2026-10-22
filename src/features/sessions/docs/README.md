@@ -46,7 +46,7 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - [components/EditSessionView.tsx](../components/EditSessionView.tsx): edición de detalles básicos (título, descripción, enlace, ubicación) con validación y renderizado condicional de enlace o ubicación según la modalidad de la sesión.
 - [components/ProposeModificationView.tsx](../components/ProposeModificationView.tsx): proponer cambios de modalidad, duración o fecha. Valida contra la disponibilidad real del tutor: la modalidad solo es editable si el slot soporta ambas (`BOTH`/ambigua), la duración solo ofrece valores que caben en la disponibilidad contigua, y el selector de horario solo lista franjas libres. Exige al menos un cambio para poder confirmar (SCHEDULING-42).
 - [components/PendingModificationView.tsx](../components/PendingModificationView.tsx): visualizar modificaciones pendientes.
-- [components/CancelSessionModal.tsx](../components/CancelSessionModal.tsx): cancelar sesión.
+- [components/CancelSessionModal.tsx](../components/CancelSessionModal.tsx): cancelar sesión. Muestra **siempre el `message` del backend**, tanto en éxito como en error (ver "Contrato de cancelación" abajo); la regla de 24h la resuelve `canCancelSession()` de `utils/sessionStatus.ts`, no una validación propia.
 - [components/FinishSession.tsx](../components/FinishSession.tsx): marcar sesión como completada.
 - [components/AttendancePostSession.tsx](../components/AttendancePostSession.tsx): registrar asistencia de participantes.
 - [components/SubjectSelector.tsx](../components/SubjectSelector.tsx): selector de materia.
@@ -85,7 +85,6 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - [hooks/useSession.ts](../hooks/useSession.ts): lógica para crear una sesión desde el cliente.
 - [hooks/useSessionDetail.ts](../hooks/useSessionDetail.ts): obtención de detalle de sesión.
 - [hooks/useSchedulingWizard.ts](../hooks/useSchedulingWizard.ts): estado del wizard de agendamiento.
-- [hooks/useCancelSession.ts](../hooks/useCancelSession.ts): lógica de cancelación.
 - [hooks/useAvailability.ts](../hooks/useAvailability.ts): carga de disponibilidad.
 
 ## Tipos
@@ -105,6 +104,10 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - `CompleteSessionBody`: payload de completar sesión.
 
 ## Utilidades
+
+### [utils/cancelSessionRequest.ts](../utils/cancelSessionRequest.ts)
+
+Único punto de entrada de cliente para cancelar (`DELETE /api/sessions/cancel-session`). Devuelve `CancelResult` con el `message` del backend. Ver "Contrato de cancelación".
 
 ### [utils/sessionStatus.ts](../utils/sessionStatus.ts)
 
@@ -160,7 +163,7 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 
 1. Participante abre `CancelSessionModal`.
 2. Indica motivo.
-3. `cancelSession()` DELETE.
+3. `cancelSessionRequest()` → `DELETE /api/sessions/cancel-session` (BFF) → `cancelSession()` DELETE.
 4. Sesión pasa a `CANCELLED`.
 
 ### Completar sesión y registrar asistencia

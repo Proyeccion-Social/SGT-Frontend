@@ -189,6 +189,11 @@ html.slot-duration-dragging * {
   cursor: grabbing !important;
 }
 
+/* El drawer conserva su capa visual; el arrastre se detiene en su borde superior. */
+html.slot-duration-dragging .slot-popover-drawer {
+  pointer-events: none;
+}
+
 .slot-selection-border__handle::before {
   content: "";
   position: absolute;
@@ -211,7 +216,7 @@ html.slot-duration-dragging * {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
-  z-index: 50000;
+  z-index: 5000;
 }
 
 .slot-popover-drawer {
@@ -222,7 +227,7 @@ html.slot-duration-dragging * {
   max-height: 65vh;
   background: #fff;
   border-radius: 20px 20px 0 0;
-  z-index: 50001;
+  z-index: 5007;
   outline: none;
   display: flex;
   flex-direction: column;

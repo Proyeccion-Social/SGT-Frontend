@@ -737,15 +737,38 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
   }
 
   // Module-level drag state shared across all slot interactions
-  let activeDrag = null;
+  type ActiveSlotDrag = {
+    pointerId: number;
+    overlay: HTMLDivElement;
+    dragStartY: number;
+    dragStartMinutes: number;
+    slotStartMin: number;
+    slotEndMin: number;
+    slotTopPx: number;
+    modality: string | undefined;
+    slotBlock: HTMLDivElement;
+  };
+
+  let activeDrag: ActiveSlotDrag | null = null;
 
   function cleanupDrag() {
+    if (activeDrag?.slotBlock) {
+      activeDrag.slotBlock.removeEventListener("pointermove", handlePointerMove);
+      activeDrag.slotBlock.removeEventListener("pointerup", handlePointerUp);
+      activeDrag.slotBlock.removeEventListener("pointercancel", handlePointerCancel);
+      if (
+        activeDrag.pointerId != null &&
+        activeDrag.slotBlock.hasPointerCapture(activeDrag.pointerId)
+      ) {
+        activeDrag.slotBlock.releasePointerCapture(activeDrag.pointerId);
+      }
+    }
     const overlay = document.getElementById("drag-overlay");
     if (overlay) overlay.remove();
     activeDrag = null;
   }
 
-  function handlePointerMove(e) {
+  function handlePointerMove(e: PointerEvent) {
     if (!activeDrag) return;
     const {
       overlay,
@@ -775,10 +798,14 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     overlay.dataset.endMinutes = clampedEndMinutes.toString();
   }
 
-  function handlePointerUp(e) {
+  function handlePointerUp(e: PointerEvent) {
     if (!activeDrag) return;
+    if (e.pointerId !== activeDrag.pointerId) return;
     const { overlay, dragStartMinutes, slotBlock, modality } = activeDrag;
-    if (!overlay) return;
+    if (!overlay) {
+      cleanupDrag();
+      return;
+    }
 
     const rawEnd =
       parseInt(overlay.dataset.endMinutes || "") ||
@@ -786,7 +813,9 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     const endMinutes = Math.min(rawEnd, dragStartMinutes + 120);
     const overlayRect = overlay.getBoundingClientRect();
 
-    slotBlock.releasePointerCapture(e.pointerId);
+    if (slotBlock.hasPointerCapture(e.pointerId)) {
+      slotBlock.releasePointerCapture(e.pointerId);
+    }
     cleanupDrag();
 
     if (endMinutes <= dragStartMinutes) return;
@@ -823,14 +852,20 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
     );
   }
 
+  function handlePointerCancel(e: PointerEvent) {
+    // Chrome móvil puede cancelar un pointer durante un gesto táctil; conserva
+    // la franja alcanzada en vez de borrar la selección en curso.
+    handlePointerUp(e);
+  }
+
   function setupDrag() {
     const calendar = document.querySelector(".calendar-outer");
     if (calendar?.dataset.mode === "tutor") return;
 
     document
-      .querySelectorAll(".slot-block:not(.slot-booked):not(.slot-past)")
+      .querySelectorAll<HTMLDivElement>(".slot-block:not(.slot-booked):not(.slot-past)")
       .forEach((slotBlock) => {
-        slotBlock.addEventListener("pointerdown", (e) => {
+        slotBlock.addEventListener("pointerdown", (e: PointerEvent) => {
           e.preventDefault();
           // Limpiar cualquier overlay residual antes de crear uno nuevo
           document.getElementById("drag-overlay")?.remove();
@@ -861,6 +896,7 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
           slotBlock.parentElement?.appendChild(overlay);
 
           activeDrag = {
+            pointerId: e.pointerId,
             dragStartY: e.clientY,
             dragStartMinutes,
             slotStartMin,
@@ -872,12 +908,8 @@ const weekHasToday = DAYS.some((day) => isSameDay(weekDates[day.key]));
           };
 
           slotBlock.addEventListener("pointermove", handlePointerMove);
-          slotBlock.addEventListener("pointerup", handlePointerUp, {
-            once: true,
-          });
-          slotBlock.addEventListener("pointercancel", cleanupDrag, {
-            once: true,
-          });
+          slotBlock.addEventListener("pointerup", handlePointerUp);
+          slotBlock.addEventListener("pointercancel", handlePointerCancel);
         });
       });
 

@@ -6,10 +6,22 @@ import {
   shift,
   type VirtualElement,
 } from "@floating-ui/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+import { createPortal } from "react-dom";
 import { Drawer } from "vaul";
 import "../../assets/styles/SlotPopover.css";
 import { useSubjectStore } from "@/store/subjectStore";
+import {
+  DAY_BORDER_COLORS,
+  DAY_TEXT_COLORS,
+} from "@/features/availability/utils/calendarConstants";
 
 interface Props {
   subjects: string[];
@@ -19,6 +31,8 @@ interface Props {
   onSelect: (subject: string) => void;
   onCloseRequest: () => void;
   onExited: () => void;
+  onEndTimeChange?: (newEndTime: string) => void;
+  onResizeEnd?: () => void;
 }
 
 const EXIT_MS_DESKTOP = 160;
@@ -43,6 +57,29 @@ const HOUR_HEIGHT = 64;
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
   return h * 60 + m;
+}
+
+function minutesToTime(minutes: number): string {
+  const h = Math.floor(minutes / 60).toString().padStart(2, "0");
+  const m = (minutes % 60).toString().padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function formatTimeRange(startTime: string, endTime: string): string {
+  const formatTime = (time: string) => {
+    const minutes = timeToMinutes(time);
+    const hour = Math.floor(minutes / 60);
+    return {
+      label: `${hour % 12 || 12}:${String(minutes % 60).padStart(2, "0")}`,
+      period: hour < 12 ? "am" : "pm",
+    };
+  };
+  const start = formatTime(startTime);
+  const end = formatTime(endTime);
+
+  return start.period === end.period
+    ? `${start.label} → ${end.label} ${end.period}`
+    : `${start.label} ${start.period} → ${end.label} ${end.period}`;
 }
 
 function emptyRect(): DOMRect {
@@ -118,8 +155,23 @@ function SlotPopoverContent({
   );
 }
 
-export default function SlotPopover({ subjects, slotBlockId, slotData, open, onSelect, onCloseRequest, onExited }: Props) {
+export default function SlotPopover({
+  subjects,
+  slotBlockId,
+  slotData,
+  open,
+  onSelect,
+  onCloseRequest,
+  onExited,
+  onEndTimeChange,
+  onResizeEnd,
+}: Props) {
   const [visible, setVisible] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragEndMinutes, setDragEndMinutes] = useState<number | null>(null);
+  const [currentEndTime, setCurrentEndTime] = useState<string>(
+    slotData.endTime ?? slotData.startTime,
+  );
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Animación de entrada/salida en dos fases (patrón NotificationsRoot):
@@ -135,6 +187,11 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
     return () => clearTimeout(timer);
   }, [open, onExited, isMobile]);
 
+  useEffect(() => {
+    setCurrentEndTime(slotData.endTime ?? slotData.startTime);
+    setDragEndMinutes(null);
+  }, [slotBlockId, slotData.startTime, slotData.endTime]);
+
   // Rect del sub-intervalo seleccionado, leído en vivo desde el DOM cada vez
   // que se posiciona o re-renderiza (nunca queda stale).
   const getSubRect = useCallback((): DOMRect => {
@@ -144,7 +201,8 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
 
     const slotStartMin = timeToMinutes(el?.dataset.start ?? slotData.startTime);
     const selStartMin = timeToMinutes(slotData.startTime);
-    const selEndMin = timeToMinutes(slotData.endTime ?? slotData.startTime);
+    const selEndMin =
+      dragEndMinutes ?? timeToMinutes(currentEndTime ?? slotData.endTime ?? slotData.startTime);
 
     const top = slotRect.top + ((selStartMin - slotStartMin) / 60) * HOUR_HEIGHT;
     const height = Math.max(1, ((selEndMin - selStartMin) / 60) * HOUR_HEIGHT);
@@ -160,7 +218,7 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
       y: top,
       toJSON: () => {},
     } as DOMRect;
-  }, [slotBlockId, slotData.startTime, slotData.endTime]);
+  }, [slotBlockId, slotData.startTime, slotData.endTime, currentEndTime, dragEndMinutes]);
 
   // Ancla virtual: el popover se posiciona contra la franja seleccionada, no
   // contra el bloque completo → flip/offset/shift operan sobre la selección.
@@ -187,6 +245,10 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
     update();
   }, [virtualEl, refs, update]);
 
+  useEffect(() => {
+    if (dragEndMinutes !== null) update();
+  }, [dragEndMinutes, update]);
+
   // Respaldo manual: con ancla virtual autoUpdate no observa scrolls/resizes
   // del bloque del slot (solo de los ancestros del flotante).
   useEffect(() => {
@@ -206,6 +268,99 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
     return () => el.classList.remove("slot-selected");
   }, [slotBlockId]);
 
+  useEffect(() => {
+    if (!isDragging) return;
+    const root = document.documentElement;
+    root.classList.add("slot-duration-dragging");
+    return () => root.classList.remove("slot-duration-dragging");
+  }, [isDragging]);
+
+  const handleHandlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const selStartMin = timeToMinutes(slotData.startTime);
+    const initialEndMin = timeToMinutes(
+      currentEndTime ?? slotData.endTime ?? slotData.startTime,
+    );
+    const maxEndMin = Math.min(19 * 60, selStartMin + 120);
+    const startY = e.clientY;
+    const pointerId = e.pointerId;
+    const handle = e.currentTarget;
+    const selectionFrame = handle.closest<HTMLElement>(".slot-selection-border");
+    const initialFrameBottom = selectionFrame?.getBoundingClientRect().bottom ?? startY;
+    let latestClampedEnd = initialEndMin;
+    let dragFinished = false;
+    let finishDrag = () => {};
+
+    setIsDragging(true);
+    setDragEndMinutes(initialEndMin);
+    handle.setPointerCapture(pointerId);
+
+    const onPointerMove = (ev: PointerEvent) => {
+      if (ev.pointerId !== pointerId) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      const deltaMinutes = ((ev.clientY - startY) / HOUR_HEIGHT) * 60;
+      const roundedDelta = Math.round(deltaMinutes / 30) * 30;
+      const rawEnd = initialEndMin + roundedDelta;
+      const clampedEnd = Math.min(
+        maxEndMin,
+        Math.max(selStartMin + 30, rawEnd),
+      );
+
+      const drawer = document.querySelector<HTMLElement>(".slot-popover-drawer");
+      if (drawer) {
+        const drawerTop = drawer.getBoundingClientRect().top;
+        const candidateFrameBottom =
+          initialFrameBottom + ((clampedEnd - initialEndMin) / 60) * HOUR_HEIGHT;
+        if (ev.clientY >= drawerTop || candidateFrameBottom >= drawerTop) {
+          finishDrag();
+          return;
+        }
+      }
+
+      if (clampedEnd !== latestClampedEnd) {
+        latestClampedEnd = clampedEnd;
+        setDragEndMinutes(clampedEnd);
+      }
+    };
+
+    const onPointerUp = (ev: PointerEvent) => {
+      if (ev.pointerId !== pointerId) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      finishDrag();
+    };
+
+    finishDrag = () => {
+      if (dragFinished) return;
+      dragFinished = true;
+      window.removeEventListener("pointermove", onPointerMove, true);
+      window.removeEventListener("pointerup", onPointerUp, true);
+      window.removeEventListener("pointercancel", onPointerUp, true);
+      if (handle.hasPointerCapture(pointerId)) {
+        handle.releasePointerCapture(pointerId);
+      }
+      onResizeEnd?.();
+
+      const finalEndTime = minutesToTime(latestClampedEnd);
+      setCurrentEndTime(finalEndTime);
+      setDragEndMinutes(null);
+      setIsDragging(false);
+
+      if (finalEndTime !== (slotData.endTime ?? slotData.startTime)) {
+        onEndTimeChange?.(finalEndTime);
+      }
+    };
+
+    window.addEventListener("pointermove", onPointerMove, true);
+    window.addEventListener("pointerup", onPointerUp, true);
+    window.addEventListener("pointercancel", onPointerUp, true);
+  };
+
   const dateLabel = (() => {
     const dayName = dayLabels[slotData.dayOfWeek] ?? slotData.dayOfWeek;
     if (slotData.date) {
@@ -218,46 +373,101 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
     return dayName;
   })();
 
-  // ── Mobile: bottom sheet real con vaul (swipe-to-close, handle, spring).
-  // Vaul maneja su propia animación de entrada/salida.
-  if (isMobile) {
-    return (
-      <Drawer.Root
-        open={open}
-        onOpenChange={(o) => {
-          if (!o) onCloseRequest();
-        }}
-      >
-        <Drawer.Portal>
-          <Drawer.Overlay className="slot-popover-drawer__overlay" />
-          <Drawer.Content className="slot-popover-drawer">
-            <div aria-hidden className="slot-popover-drawer__handle" />
-            <div className="slot-popover-drawer__body">
-              <SlotPopoverContent
-                subjects={subjects}
-                dateLabel={dateLabel}
-                onSelect={onSelect}
-              />
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
-    );
-  }
-
-  // ── Desktop: popover flotante anclado a la franja seleccionada ──
   const subRect = getSubRect();
-  const container = document.querySelector(".schedule-container");
+  const container = document.querySelector<HTMLElement>(".schedule-container");
   const containerRect = container ? container.getBoundingClientRect() : null;
+  const frameWidth = subRect.width + 4;
+  const frameHeight = subRect.height + 4;
+  const selectedEndTime = minutesToTime(
+    dragEndMinutes ?? timeToMinutes(currentEndTime ?? slotData.endTime ?? slotData.startTime),
+  );
 
   const stateClass = visible ? "slot-popover--open" : "slot-popover--closing";
   const borderClass = visible
     ? "slot-selection-border--open"
     : "slot-selection-border--closing";
+  const selectionBorderColor = DAY_BORDER_COLORS[slotData.dayOfWeek] ?? "currentColor";
+  const selectionTextColor = DAY_TEXT_COLORS[slotData.dayOfWeek] ?? "#3c3c3c";
   const backdropClass = visible
     ? "slot-popover__backdrop--open"
     : "slot-popover__backdrop--closing";
 
+  const selectionFrame = createPortal(
+    <div
+      className={`slot-selection-border ${borderClass}`}
+      style={{
+        top: subRect.top - 2,
+        left: subRect.left - 2,
+        width: frameWidth,
+        height: frameHeight,
+        "--selection-border-color": selectionBorderColor,
+        "--selection-text-color": selectionTextColor,
+      } as CSSProperties}
+    >
+      <svg
+        className="slot-selection-border__outline"
+        aria-hidden="true"
+        viewBox={`0 0 ${frameWidth} ${frameHeight}`}
+        preserveAspectRatio="none"
+      >
+        <rect
+          x="1"
+          y="1"
+          width={Math.max(0, frameWidth - 2)}
+          height={Math.max(0, frameHeight - 2)}
+          rx="8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeDasharray="16 8"
+        />
+      </svg>
+      <span className="slot-selection-border__time">
+        {formatTimeRange(slotData.startTime, selectedEndTime)}
+      </span>
+      <div
+        className="slot-selection-border__handle"
+        role="button"
+        tabIndex={0}
+        aria-label="Arrastra para extender la duración de la tutoría"
+        aria-pressed={isDragging}
+        onPointerDown={handleHandlePointerDown}
+      />
+    </div>,
+    document.body,
+  );
+
+  // ── Mobile: bottom sheet real con vaul (swipe-to-close, handle, spring).
+  // Vaul maneja su propia animación de entrada/salida.
+  if (isMobile) {
+    return (
+      <>
+        {selectionFrame}
+        <Drawer.Root
+          open={open}
+          onOpenChange={(o) => {
+            if (!o) onCloseRequest();
+          }}
+        >
+          <Drawer.Portal>
+            <Drawer.Overlay className="slot-popover-drawer__overlay" />
+            <Drawer.Content className="slot-popover-drawer">
+              <div aria-hidden className="slot-popover-drawer__handle" />
+              <div className="slot-popover-drawer__body">
+                <SlotPopoverContent
+                  subjects={subjects}
+                  dateLabel={dateLabel}
+                  onSelect={onSelect}
+                />
+              </div>
+            </Drawer.Content>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </>
+    );
+  }
+
+  // ── Desktop: popover flotante anclado a la franja seleccionada ──
   return (
     <>
       <svg
@@ -295,18 +505,10 @@ export default function SlotPopover({ subjects, slotBlockId, slotData, open, onS
             />
           </mask>
         </defs>
-        <rect width="100%" height="100%" fill="rgba(0,0,0,0.15)" mask="url(#slot-hole-mask)" clipPath="url(#backdrop-shape)" />
+        <rect width="100%" height="100%" fill="rgba(0,0,0,0.08)" mask="url(#slot-hole-mask)" clipPath="url(#backdrop-shape)" />
       </svg>
 
-      <div
-        className={`slot-selection-border ${borderClass}`}
-        style={{
-          top: subRect.top - 2,
-          left: subRect.left - 2,
-          width: subRect.width + 4,
-          height: subRect.height + 4,
-        }}
-      />
+      {selectionFrame}
 
       <div
         className={`slot-popover ${stateClass}`}

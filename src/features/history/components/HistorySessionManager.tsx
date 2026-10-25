@@ -77,6 +77,7 @@ export default function HistorySessionManager() {
         <CancelSessionModal
           session={sessionToCancel}
           session_id={sessionToCancel.id}
+          role={role}
           onClose={() => setSessionToCancel(null)}
           onSuccess={() => setSessionToCancel(null)}
           cancelar={cancelar}

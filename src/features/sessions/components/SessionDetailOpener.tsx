@@ -87,6 +87,7 @@ export default function SessionDetailOpener({ sessionId }: Props) {
         <CancelSessionModal
           session={sessionToCancel}
           session_id={sessionToCancel.id}
+          role={role}
           onClose={() => setSessionToCancel(null)}
           onSuccess={goToDashboard}
           cancelar={cancelar}

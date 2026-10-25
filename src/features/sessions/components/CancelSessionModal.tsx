@@ -5,6 +5,7 @@ import './styles/CancelSessionModal.css';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { sileo, Toaster } from 'sileo';
+import type { UserRole } from '@/constants/roles';
 import type { CancelResult, Session } from '../types/session.types';
 import { canCancelSession } from '../utils/sessionStatus';
 
@@ -13,6 +14,7 @@ const REASON_MAX = 500;
 interface Props {
   session: Session;
   session_id: string;
+  role: UserRole;
   onClose: () => void;
   onSuccess: () => void;
   cancelar: (sessionId: string, reason: string) => Promise<CancelResult>;
@@ -22,6 +24,7 @@ interface Props {
 
 export const CancelSessionModal = ({
   session,
+  role,
   onClose,
   onSuccess,
   cancelar,
@@ -40,7 +43,8 @@ export const CancelSessionModal = ({
     }
 
     // Fuente única de la regla de 24h: sessionStatus.canCancelSession.
-    const availability = canCancelSession(session);
+    // El admin queda exento; el backend sigue validando los permisos.
+    const availability = canCancelSession(session, role);
     if (!availability.visible || availability.disabled) {
       setWindowWarning(
         availability.reason ?? 'Esta tutoría ya no se puede cancelar.'

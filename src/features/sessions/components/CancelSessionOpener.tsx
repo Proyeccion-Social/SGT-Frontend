@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { UserRole } from '@/constants/roles';
 import { CancelSessionModal } from './CancelSessionModal';
 import { cancelSessionRequest } from '../utils/cancelSessionRequest';
 import type { CancelResult, Session } from '../types/session.types';
@@ -8,6 +10,9 @@ interface Props {
 }
 
 export default function CancelSessionOpener({ sessionId }: Props) {
+  const user = useAuthStore((s) => s.user);
+  const hasHydrated = useAuthStore((s) => s._hasHydrated);
+  const role = (user?.role?.toLowerCase() ?? UserRole.STUDENT) as UserRole;
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +36,8 @@ export default function CancelSessionOpener({ sessionId }: Props) {
   const cancelar = (id: string, reason: string): Promise<CancelResult> =>
     cancelSessionRequest(id, reason);
 
-  if (loading) {
+  // Sin el store rehidratado el rol caería a student y bloquearía al admin.
+  if (loading || !hasHydrated) {
     return (
       <div className="modal-card__loading">
         <p>Cargando sesión…</p>
@@ -56,6 +62,7 @@ export default function CancelSessionOpener({ sessionId }: Props) {
     <CancelSessionModal
       session={session}
       session_id={session.id}
+      role={role}
       onClose={goToDashboard}
       onSuccess={goToDashboard}
       cancelar={cancelar}

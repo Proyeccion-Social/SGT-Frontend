@@ -116,7 +116,7 @@ Derivaciones de estado y reglas de negocio de la card de información:
 - `getSessionTimePhase()`: fase temporal de la sesión (`upcoming` / `in_progress` / `ended`) según fecha y horas programadas.
 - `getSessionDisplayStatus()`: label visible del estado. Una sesión `SCHEDULED` muestra **"En curso"** mientras está en su franja horaria y **"Esperando a que el tutor marque asistencia"** una vez terminada.
 - `canProposeModification()`: visibilidad/habilitación del botón "Proponer modificación" — solo visible en `SCHEDULED` futura (SCHEDULING-40); deshabilitado con tooltip si quedan 3 días o menos (SCHEDULING-41).
-- `canCancelSession()`: visibilidad/habilitación del botón "Cancelar tutoría" — visible en `PENDING_TUTOR_CONFIRMATION` y `SCHEDULED` futura; deshabilitado con tooltip si quedan menos de 24 horas; oculto si la sesión está en curso o terminada.
+- `canCancelSession()`: visibilidad/habilitación del botón "Cancelar tutoría" — visible en `PENDING_TUTOR_CONFIRMATION` y `SCHEDULED` futura; deshabilitado con tooltip si quedan menos de 24 horas; oculto si la sesión está en curso o terminada. Recibe el rol: el administrador está exento de las 24 horas (igual que el backend), así que puede cancelar desde el detalle y desde `/sessions/:id/cancel`.
 - `isTerminalStatus()`, `SESSION_STATUS_LABELS`: estados terminales (incl. `EXPIRED_UNCONFIRMED`) y mapa de etiquetas.
 
 ## Store global

@@ -5,6 +5,7 @@
 //  - Label visible del estado (incluye derivaciones temporales).
 //  - Reglas SCHEDULING-40/41 (proponer modificación) y regla de 24h (cancelar).
 
+import { UserRole } from '@/constants/roles';
 import type { Session } from '../types/session.types';
 
 /** SCHEDULING-41 — una modificación solo puede proponerse con MÁS de 3 días de antelación. */
@@ -137,9 +138,11 @@ export const canProposeModification = (
  * Regla de cancelación — permitida con 24 horas o más de antelación.
  * Aplica a solicitudes PENDING_TUTOR_CONFIRMATION y sesiones SCHEDULED futuras.
  * Si la sesión está en curso o terminada (esperando asistencia), no se muestra.
+ * El administrador está exento de las 24 horas, igual que en el backend.
  */
 export const canCancelSession = (
   session: Session,
+  role?: UserRole,
   now: Date = new Date()
 ): ActionAvailability => {
   const status = String(session.status);
@@ -160,6 +163,10 @@ export const canCancelSession = (
     if (phase !== 'upcoming') {
       return { visible: false, disabled: false };
     }
+  }
+
+  if (role === UserRole.ADMIN) {
+    return { visible: true, disabled: false };
   }
 
   const msUntilStart = getSessionStart(session).getTime() - now.getTime();

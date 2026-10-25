@@ -189,7 +189,7 @@ export const SessionDetailView = ({
   const isPendingModification = String(session.status) === 'PENDING_MODIFICATION';
   const displayStatus = getSessionDisplayStatus(session);
   const proposeAvailability = canProposeModification(session);
-  const cancelAvailability  = canCancelSession(session);
+  const cancelAvailability  = canCancelSession(session, role);
   const showConfirmRejectButtons = isPendingConfirmation && role === UserRole.TUTOR && !isAltView;
   const showModificationView    = isPendingModification && !isAltView;
   // SCHEDULING-49: el solicitante no puede responder su propia propuesta.

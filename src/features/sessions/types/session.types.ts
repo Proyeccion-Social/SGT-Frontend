@@ -9,6 +9,7 @@ export type SessionStatus =
   | 'CANCELLED_BY_TUTOR'
   | 'CANCELLED_BY_ADMIN'
   | 'EXPIRED_UNCONFIRMED'
+  | 'WITHDRAWN_BY_STUDENT'
   | 'CONFIRMED'
   | 'COMPLETED'
   | 'CANCELLED';

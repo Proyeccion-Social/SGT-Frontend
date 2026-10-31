@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
-import { cancelSessionRequest } from '@/features/sessions/utils/cancelSessionRequest';
+import { cancelSessionRequest, withdrawSessionRequest } from '@/features/sessions/utils/cancelSessionRequest';
 import type { CancelResult, Session, ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { UserRole } from '@/constants/roles';
 
@@ -28,6 +28,12 @@ export default function GlobalSessionDetail() {
 
   const cancelar = async (id: string, reason: string): Promise<CancelResult> => {
     const result = await cancelSessionRequest(id, reason);
+    if (result.ok) dispatchRefetch();
+    return result;
+  };
+
+  const retirar = async (id: string, reason?: string): Promise<CancelResult> => {
+    const result = await withdrawSessionRequest(id, reason);
     if (result.ok) dispatchRefetch();
     return result;
   };
@@ -151,6 +157,7 @@ export default function GlobalSessionDetail() {
           onClose={() => setSessionToCancel(null)}
           onSuccess={() => setSessionToCancel(null)}
           cancelar={cancelar}
+          retirar={retirar}
           isLoading={false}
           error={null}
         />

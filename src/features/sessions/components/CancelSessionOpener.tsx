@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { UserRole } from '@/constants/roles';
 import { CancelSessionModal } from './CancelSessionModal';
-import { cancelSessionRequest } from '../utils/cancelSessionRequest';
+import { cancelSessionRequest, withdrawSessionRequest } from '../utils/cancelSessionRequest';
 import type { CancelResult, Session } from '../types/session.types';
 
 interface Props {
@@ -36,6 +36,9 @@ export default function CancelSessionOpener({ sessionId }: Props) {
   const cancelar = (id: string, reason: string): Promise<CancelResult> =>
     cancelSessionRequest(id, reason);
 
+  const retirar = (id: string, reason?: string): Promise<CancelResult> =>
+    withdrawSessionRequest(id, reason);
+
   // Sin el store rehidratado el rol caería a student y bloquearía al admin.
   if (loading || !hasHydrated) {
     return (
@@ -66,6 +69,7 @@ export default function CancelSessionOpener({ sessionId }: Props) {
       onClose={goToDashboard}
       onSuccess={goToDashboard}
       cancelar={cancelar}
+      retirar={retirar}
       isLoading={false}
       error={null}
     />

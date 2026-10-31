@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { SessionDetailModal } from './SessionDetailModal';
 import { CancelSessionModal } from './CancelSessionModal';
-import { cancelSessionRequest } from '../utils/cancelSessionRequest';
+import { cancelSessionRequest, withdrawSessionRequest } from '../utils/cancelSessionRequest';
 import type { CancelResult, Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { UserRole } from '@/constants/roles';
 
@@ -19,6 +19,9 @@ export default function SessionDetailOpener({ sessionId }: Props) {
 
   const cancelar = (id: string, reason: string): Promise<CancelResult> =>
     cancelSessionRequest(id, reason);
+
+  const retirar = (id: string, reason?: string): Promise<CancelResult> =>
+    withdrawSessionRequest(id, reason);
 
   const modificar = async (id: string, data: ModifySessionBody): Promise<boolean> => {
     try {
@@ -91,6 +94,7 @@ export default function SessionDetailOpener({ sessionId }: Props) {
           onClose={() => setSessionToCancel(null)}
           onSuccess={goToDashboard}
           cancelar={cancelar}
+          retirar={retirar}
           isLoading={false}
           error={null}
         />

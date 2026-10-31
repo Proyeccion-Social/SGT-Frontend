@@ -25,7 +25,7 @@ export default function SessionCardView({ session, userId, onClose, onEvaluate }
   function getStatusClass() {
     const s = session.status;
     if (participantStatus === "ABSENT") return "status-no_show";
-    if (s === "CANCELLED_BY_STUDENT" || s === "CANCELLED_BY_TUTOR" || s === "CANCELLED_BY_ADMIN") return "status-cancelled";
+    if (s === "CANCELLED_BY_STUDENT" || s === "CANCELLED_BY_TUTOR" || s === "CANCELLED_BY_ADMIN" || s === "WITHDRAWN_BY_STUDENT") return "status-cancelled";
     if (s === "COMPLETED") return "status-completed";
     if (s === "SCHEDULED") return "status-scheduled";
     return "";

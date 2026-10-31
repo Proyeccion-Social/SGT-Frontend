@@ -23,6 +23,7 @@ const STATUS_LABEL: Record<SessionStatus, string> = {
   CANCELLED_BY_ADMIN:         'Cancelada por administración',
   COMPLETED:                  'Completada',
   EXPIRED_UNCONFIRMED:        'Expirada sin confirmar',
+  WITHDRAWN_BY_STUDENT:       'Retirada por el estudiante',
   CONFIRMED:                  'Confirmada',
   CANCELLED:                  'Cancelada',
 };

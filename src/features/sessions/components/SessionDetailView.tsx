@@ -20,6 +20,7 @@ import { PendingModificationView } from './PendingModificationView';
 import {
   canProposeModification,
   canCancelSession,
+  canWithdrawRequest,
   getSessionDisplayStatus,
   getSessionTimePhase,
 } from '../utils/sessionStatus';
@@ -190,6 +191,7 @@ export const SessionDetailView = ({
   const displayStatus = getSessionDisplayStatus(session);
   const proposeAvailability = canProposeModification(session);
   const cancelAvailability  = canCancelSession(session, role);
+  const withdrawAvailability = canWithdrawRequest(session, role);
   const showConfirmRejectButtons = isPendingConfirmation && role === UserRole.TUTOR && !isAltView;
   const showModificationView    = isPendingModification && !isAltView;
   // SCHEDULING-49: el solicitante no puede responder su propia propuesta.
@@ -229,6 +231,7 @@ export const SessionDetailView = ({
   const showActionButtons =
     proposeAvailability.visible ||
     cancelAvailability.visible ||
+    withdrawAvailability.visible ||
     showEditButton ||
     showAttendanceButton;
   const showFooter =
@@ -494,6 +497,11 @@ export const SessionDetailView = ({
                       Cancelar tutoría
                     </button>
                   </span>
+                )}
+                {withdrawAvailability.visible && (
+                  <button className="sdv-btn sdv-btn--cancel" onClick={onCancel}>
+                    Retirar solicitud
+                  </button>
                 )}
               </>
             ) : onEvaluate ? (

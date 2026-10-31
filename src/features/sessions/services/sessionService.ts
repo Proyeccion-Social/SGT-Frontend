@@ -124,6 +124,19 @@ export function cancelSession(
     );
 }
 
+/** DELETE /scheduling/sessions/{sessionId}/withdraw-request — solo estudiante, PENDING_TUTOR_CONFIRMATION */
+export function withdrawSession(
+    sessionId: string,
+    token: string,
+    reason?: string
+): Promise<CancelSessionResponse> {
+    return request<CancelSessionResponse>(
+        `/scheduling/sessions/${sessionId}/withdraw-request`,
+        token,
+        { method: 'DELETE', body: JSON.stringify(reason ? { reason } : {}) }
+    );
+}
+
 /** POST /scheduling/sessions/{sessionId}/propose-modification */
 export function modifySession(
     sessionId: string,

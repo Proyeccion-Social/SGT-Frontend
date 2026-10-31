@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { SessionDetailModal } from '@/features/sessions/components/SessionDetailModal';
 import { CancelSessionModal } from '@/features/sessions/components/CancelSessionModal';
-import type { Session, ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
+import { cancelSessionRequest, withdrawSessionRequest } from '@/features/sessions/utils/cancelSessionRequest';
+import type { CancelResult, Session, ModifySessionBody, EditSessionBody } from '@/features/sessions/types/session.types';
 import { UserRole } from '@/constants/roles';
 
 function dispatchRefetch() {
@@ -25,19 +26,16 @@ export default function GlobalSessionDetail() {
     return () => document.removeEventListener('open-detail', handler);
   }, []);
 
-  const cancelar = async (id: string, reason: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: id, reason }),
-      });
-      if (!res.ok) throw new Error();
-      dispatchRefetch();
-      return true;
-    } catch {
-      return false;
-    }
+  const cancelar = async (id: string, reason: string): Promise<CancelResult> => {
+    const result = await cancelSessionRequest(id, reason);
+    if (result.ok) dispatchRefetch();
+    return result;
+  };
+
+  const retirar = async (id: string, reason?: string): Promise<CancelResult> => {
+    const result = await withdrawSessionRequest(id, reason);
+    if (result.ok) dispatchRefetch();
+    return result;
   };
 
   const modificar = async (sessionId: string, data: ModifySessionBody): Promise<boolean> => {
@@ -155,10 +153,11 @@ export default function GlobalSessionDetail() {
         <CancelSessionModal
           session={sessionToCancel}
           session_id={sessionToCancel.id}
+          role={role}
           onClose={() => setSessionToCancel(null)}
           onSuccess={() => setSessionToCancel(null)}
           cancelar={cancelar}
-          canCancel={() => true}
+          retirar={retirar}
           isLoading={false}
           error={null}
         />

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { SessionDetailModal } from './SessionDetailModal';
 import { CancelSessionModal } from './CancelSessionModal';
-import type { Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
+import { cancelSessionRequest, withdrawSessionRequest } from '../utils/cancelSessionRequest';
+import type { CancelResult, Session, ModifySessionBody, EditSessionBody } from '../types/session.types';
 import { UserRole } from '@/constants/roles';
 
 interface Props {
@@ -16,16 +17,11 @@ export default function SessionDetailOpener({ sessionId }: Props) {
 
   const goToDashboard = () => { window.location.href = '/dashboard'; };
 
-  const cancelar = async (id: string, reason: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: id, reason }),
-      });
-      return res.ok;
-    } catch { return false; }
-  };
+  const cancelar = (id: string, reason: string): Promise<CancelResult> =>
+    cancelSessionRequest(id, reason);
+
+  const retirar = (id: string, reason?: string): Promise<CancelResult> =>
+    withdrawSessionRequest(id, reason);
 
   const modificar = async (id: string, data: ModifySessionBody): Promise<boolean> => {
     try {
@@ -94,10 +90,11 @@ export default function SessionDetailOpener({ sessionId }: Props) {
         <CancelSessionModal
           session={sessionToCancel}
           session_id={sessionToCancel.id}
+          role={role}
           onClose={() => setSessionToCancel(null)}
           onSuccess={goToDashboard}
           cancelar={cancelar}
-          canCancel={() => true}
+          retirar={retirar}
           isLoading={false}
           error={null}
         />

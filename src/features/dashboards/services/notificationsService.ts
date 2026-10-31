@@ -16,7 +16,8 @@ export type AppNotificationType =
   | 'EVALUATION_REMINDER'
   | 'AVAILABILITY_CHANGED'
   | 'HOUR_LIMIT_ALERT'
-  | 'SESSION_ABSENT';
+  | 'SESSION_ABSENT'
+  | 'SESSION_REQUEST_WITHDRAWN';
 
 export interface AppNotification {
   id: string;

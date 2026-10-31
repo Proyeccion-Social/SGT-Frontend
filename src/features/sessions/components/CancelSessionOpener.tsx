@@ -1,12 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useAuthStore } from '@/store/authStore';
+import { UserRole } from '@/constants/roles';
 import { CancelSessionModal } from './CancelSessionModal';
-import type { Session } from '../types/session.types';
+import { cancelSessionRequest, withdrawSessionRequest } from '../utils/cancelSessionRequest';
+import type { CancelResult, Session } from '../types/session.types';
 
 interface Props {
   sessionId: string;
 }
 
 export default function CancelSessionOpener({ sessionId }: Props) {
+  const user = useAuthStore((s) => s.user);
+  const hasHydrated = useAuthStore((s) => s._hasHydrated);
+  const role = (user?.role?.toLowerCase() ?? UserRole.STUDENT) as UserRole;
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,21 +33,14 @@ export default function CancelSessionOpener({ sessionId }: Props) {
 
   const goToDashboard = () => { window.location.href = '/dashboard'; };
 
-  const cancelar = async (id: string, reason: string): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/sessions/cancel-session', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: id, reason }),
-      });
-      if (!res.ok) throw new Error();
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  const cancelar = (id: string, reason: string): Promise<CancelResult> =>
+    cancelSessionRequest(id, reason);
 
-  if (loading) {
+  const retirar = (id: string, reason?: string): Promise<CancelResult> =>
+    withdrawSessionRequest(id, reason);
+
+  // Sin el store rehidratado el rol caería a student y bloquearía al admin.
+  if (loading || !hasHydrated) {
     return (
       <div className="modal-card__loading">
         <p>Cargando sesión…</p>
@@ -66,10 +65,11 @@ export default function CancelSessionOpener({ sessionId }: Props) {
     <CancelSessionModal
       session={session}
       session_id={session.id}
+      role={role}
       onClose={goToDashboard}
       onSuccess={goToDashboard}
-      canCancel={() => true}
       cancelar={cancelar}
+      retirar={retirar}
       isLoading={false}
       error={null}
     />

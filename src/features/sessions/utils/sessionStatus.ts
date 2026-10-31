@@ -5,6 +5,7 @@
 //  - Label visible del estado (incluye derivaciones temporales).
 //  - Reglas SCHEDULING-40/41 (proponer modificación) y regla de 24h (cancelar).
 
+import { UserRole } from '@/constants/roles';
 import type { Session } from '../types/session.types';
 
 /** SCHEDULING-41 — una modificación solo puede proponerse con MÁS de 3 días de antelación. */
@@ -24,6 +25,7 @@ const TERMINAL_STATUSES = [
   'CANCELLED_BY_TUTOR',
   'CANCELLED_BY_ADMIN',
   'EXPIRED_UNCONFIRMED',
+  'WITHDRAWN_BY_STUDENT',
 ];
 
 export const isTerminalStatus = (status: string): boolean =>
@@ -59,6 +61,7 @@ export const SESSION_STATUS_LABELS: Record<string, string> = {
   CANCELLED_BY_TUTOR: 'Cancelada por tutor',
   CANCELLED_BY_ADMIN: 'Cancelada por administrador',
   EXPIRED_UNCONFIRMED: 'Expirada sin confirmar',
+  WITHDRAWN_BY_STUDENT: 'Retirada por el estudiante',
   COMPLETED: 'Completada',
   CANCELLED: 'Cancelada',
   CONFIRMED: 'Confirmada',
@@ -134,32 +137,48 @@ export const canProposeModification = (
 };
 
 /**
+ * Retiro de solicitud — solo el estudiante, solo en PENDING_TUTOR_CONFIRMATION
+ * y sin regla de 24 horas (`DELETE /scheduling/sessions/:id/withdraw-request`).
+ * Tutor y admin no lo ven: el backend lo restringe a `@Roles(STUDENT)`.
+ */
+export const canWithdrawRequest = (
+  session: Session,
+  role?: UserRole
+): ActionAvailability => {
+  const visible =
+    String(session.status) === 'PENDING_TUTOR_CONFIRMATION' &&
+    role === UserRole.STUDENT;
+  return { visible, disabled: false };
+};
+
+/**
  * Regla de cancelación — permitida con 24 horas o más de antelación.
- * Aplica a solicitudes PENDING_TUTOR_CONFIRMATION y sesiones SCHEDULED futuras.
+ * Aplica solo a sesiones SCHEDULED futuras: el backend (`cancelSession`) no
+ * acepta otro estado; las solicitudes pendientes se retiran con `canWithdrawRequest`.
  * Si la sesión está en curso o terminada (esperando asistencia), no se muestra.
+ * El administrador está exento de las 24 horas, igual que en el backend.
  */
 export const canCancelSession = (
   session: Session,
+  role?: UserRole,
   now: Date = new Date()
 ): ActionAvailability => {
-  const status = String(session.status);
-  const isPendingConfirmation = status === 'PENDING_TUTOR_CONFIRMATION';
-  const isScheduled = status === 'SCHEDULED';
-
-  if (!isPendingConfirmation && !isScheduled) {
+  if (String(session.status) !== 'SCHEDULED') {
     return { visible: false, disabled: false };
   }
 
-  if (isScheduled) {
-    const phase = getSessionTimePhase(
-      session.scheduledDate,
-      session.startTime,
-      session.endTime,
-      now
-    );
-    if (phase !== 'upcoming') {
-      return { visible: false, disabled: false };
-    }
+  const phase = getSessionTimePhase(
+    session.scheduledDate,
+    session.startTime,
+    session.endTime,
+    now
+  );
+  if (phase !== 'upcoming') {
+    return { visible: false, disabled: false };
+  }
+
+  if (role === UserRole.ADMIN) {
+    return { visible: true, disabled: false };
   }
 
   const msUntilStart = getSessionStart(session).getTime() - now.getTime();
@@ -167,7 +186,7 @@ export const canCancelSession = (
     return {
       visible: true,
       disabled: true,
-      reason: `Solo puedes cancelar hasta ${MIN_CANCEL_LEAD_HOURS} horas antes de la sesión.`,
+      reason: `No es posible cancelar, faltan menos de ${MIN_CANCEL_LEAD_HOURS} horas para la sesión.`,
     };
   }
 

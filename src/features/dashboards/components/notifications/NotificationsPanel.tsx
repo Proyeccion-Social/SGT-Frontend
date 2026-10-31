@@ -36,6 +36,7 @@ const NOTIFICATION_TITLES: Record<AppNotificationType, string> = {
   AVAILABILITY_CHANGED: 'Disponibilidad cambiada',
   HOUR_LIMIT_ALERT: 'Alerta de límite de horas',
   SESSION_ABSENT: 'Sesión sin asistencia',
+  SESSION_REQUEST_WITHDRAWN: 'Solicitud retirada',
 };
 
 interface NotificationStyle {
@@ -110,7 +111,7 @@ const NOTIFICATION_STYLES: Record<string, NotificationStyle> = {
 
 function getNotificationStyle(type: AppNotificationType): NotificationStyle {
   if (type === 'SESSION_CONFIRMED' || type === 'SESSION_REQUEST_ACK') return NOTIFICATION_STYLES.confirmed;
-  if (type === 'SESSION_CANCELLED') return NOTIFICATION_STYLES.cancelled;
+  if (type === 'SESSION_CANCELLED' || type === 'SESSION_REQUEST_WITHDRAWN') return NOTIFICATION_STYLES.cancelled;
   if (type === 'SESSION_REJECTED' || type === 'MODIFICATION_REJECTED') return NOTIFICATION_STYLES.error;
   if (type === 'SESSION_ABSENT') return NOTIFICATION_STYLES.absent;
   if (type === 'HOUR_LIMIT_ALERT') return NOTIFICATION_STYLES.warning;

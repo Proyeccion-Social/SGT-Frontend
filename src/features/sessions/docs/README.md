@@ -46,7 +46,7 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - [components/EditSessionView.tsx](../components/EditSessionView.tsx): edición de detalles básicos (título, descripción, enlace, ubicación) con validación y renderizado condicional de enlace o ubicación según la modalidad de la sesión.
 - [components/ProposeModificationView.tsx](../components/ProposeModificationView.tsx): proponer cambios de modalidad, duración o fecha. Valida contra la disponibilidad real del tutor: la modalidad solo es editable si el slot soporta ambas (`BOTH`/ambigua), la duración solo ofrece valores que caben en la disponibilidad contigua, y el selector de horario solo lista franjas libres. Exige al menos un cambio para poder confirmar (SCHEDULING-42).
 - [components/PendingModificationView.tsx](../components/PendingModificationView.tsx): visualizar modificaciones pendientes.
-- [components/CancelSessionModal.tsx](../components/CancelSessionModal.tsx): cancelar sesión.
+- [components/CancelSessionModal.tsx](../components/CancelSessionModal.tsx): cancelar sesión. Muestra **siempre el `message` del backend**, tanto en éxito como en error (ver "Contrato de cancelación" abajo); la regla de 24h la resuelve `canCancelSession()` de `utils/sessionStatus.ts`, no una validación propia. Si la sesión está en `PENDING_TUTOR_CONFIRMATION` el modal pasa a modo **retirar solicitud** (motivo opcional, 10-500 caracteres si se escribe) y llama a `retirar` en vez de `cancelar`.
 - [components/FinishSession.tsx](../components/FinishSession.tsx): marcar sesión como completada.
 - [components/AttendancePostSession.tsx](../components/AttendancePostSession.tsx): registrar asistencia de participantes.
 - [components/SubjectSelector.tsx](../components/SubjectSelector.tsx): selector de materia.
@@ -85,7 +85,6 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 - [hooks/useSession.ts](../hooks/useSession.ts): lógica para crear una sesión desde el cliente.
 - [hooks/useSessionDetail.ts](../hooks/useSessionDetail.ts): obtención de detalle de sesión.
 - [hooks/useSchedulingWizard.ts](../hooks/useSchedulingWizard.ts): estado del wizard de agendamiento.
-- [hooks/useCancelSession.ts](../hooks/useCancelSession.ts): lógica de cancelación.
 - [hooks/useAvailability.ts](../hooks/useAvailability.ts): carga de disponibilidad.
 
 ## Tipos
@@ -94,7 +93,7 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 
 - `Session`: entidad principal de sesión.
 - `Modality = 'VIRT' | 'PRES'`: modalidad.
-- `SessionStatus`: todos los estados del ciclo de vida (`PENDING_TUTOR_CONFIRMATION`, `SCHEDULED`, `PENDING_MODIFICATION`, `REJECTED_BY_TUTOR`, `CANCELLED_BY_STUDENT/TUTOR/ADMIN`, `EXPIRED_UNCONFIRMED`, `COMPLETED`, etc.).
+- `SessionStatus`: todos los estados del ciclo de vida (`PENDING_TUTOR_CONFIRMATION`, `SCHEDULED`, `PENDING_MODIFICATION`, `REJECTED_BY_TUTOR`, `CANCELLED_BY_STUDENT/TUTOR/ADMIN`, `EXPIRED_UNCONFIRMED`, `WITHDRAWN_BY_STUDENT`, `COMPLETED`, etc.).
 - `ParticipantStatus`: estados de participantes (`CONFIRMED`, `PENDING`, `CANCELLED`, `ATTENDED`, `ABSENT`, `LATE`, `NO_SHOW`).
 - `AvailabilitySlot`: slot de disponibilidad del tutor; su `modality` puede ser `'VIRT' | 'PRES' | 'BOTH' | null` (`BOTH`/`null` = soporta ambas).
 - `SessionTutor`, `SessionSubject`, `SessionParticipant`: entidades relacionadas.
@@ -106,6 +105,10 @@ La coordinación de una tutoría requiere múltiples estados y acciones:
 
 ## Utilidades
 
+### [utils/cancelSessionRequest.ts](../utils/cancelSessionRequest.ts)
+
+Puntos de entrada de cliente para cancelar (`cancelSessionRequest` → `DELETE /api/sessions/cancel-session`) y para retirar una solicitud pendiente (`withdrawSessionRequest` → `DELETE /api/sessions/withdraw-request`). Ambos devuelven `CancelResult` con el `message` del backend. Ver "Contrato de cancelación".
+
 ### [utils/sessionStatus.ts](../utils/sessionStatus.ts)
 
 Derivaciones de estado y reglas de negocio de la card de información:
@@ -113,7 +116,8 @@ Derivaciones de estado y reglas de negocio de la card de información:
 - `getSessionTimePhase()`: fase temporal de la sesión (`upcoming` / `in_progress` / `ended`) según fecha y horas programadas.
 - `getSessionDisplayStatus()`: label visible del estado. Una sesión `SCHEDULED` muestra **"En curso"** mientras está en su franja horaria y **"Esperando a que el tutor marque asistencia"** una vez terminada.
 - `canProposeModification()`: visibilidad/habilitación del botón "Proponer modificación" — solo visible en `SCHEDULED` futura (SCHEDULING-40); deshabilitado con tooltip si quedan 3 días o menos (SCHEDULING-41).
-- `canCancelSession()`: visibilidad/habilitación del botón "Cancelar tutoría" — visible en `PENDING_TUTOR_CONFIRMATION` y `SCHEDULED` futura; deshabilitado con tooltip si quedan menos de 24 horas; oculto si la sesión está en curso o terminada.
+- `canWithdrawRequest()`: botón "Retirar solicitud" — visible solo para el estudiante en `PENDING_TUTOR_CONFIRMATION`, sin regla de 24 horas (el backend lo limita a `@Roles(STUDENT)`).
+- `canCancelSession()`: visibilidad/habilitación del botón "Cancelar tutoría" — visible solo en `SCHEDULED` futura (el backend no cancela otro estado); deshabilitado con tooltip si quedan menos de 24 horas; oculto si la sesión está en curso o terminada. Recibe el rol: el administrador está exento de las 24 horas (igual que el backend), así que puede cancelar desde el detalle y desde `/sessions/:id/cancel`.
 - `isTerminalStatus()`, `SESSION_STATUS_LABELS`: estados terminales (incl. `EXPIRED_UNCONFIRMED`) y mapa de etiquetas.
 
 ## Store global
@@ -160,8 +164,15 @@ Usa [src/store/sessionStore.ts](../../../store/sessionStore.ts):
 
 1. Participante abre `CancelSessionModal`.
 2. Indica motivo.
-3. `cancelSession()` DELETE.
+3. `cancelSessionRequest()` → `DELETE /api/sessions/cancel-session` (BFF) → `cancelSession()` DELETE.
 4. Sesión pasa a `CANCELLED`.
+
+### Retirar solicitud pendiente
+
+1. Estudiante abre el detalle de una solicitud en `PENDING_TUTOR_CONFIRMATION` y pulsa "Retirar solicitud".
+2. `CancelSessionModal` en modo retirar; el motivo es opcional.
+3. `withdrawSessionRequest()` → `DELETE /api/sessions/withdraw-request` (BFF) → `withdrawSession()` → `DELETE /scheduling/sessions/:id/withdraw-request`.
+4. Sesión pasa a `WITHDRAWN_BY_STUDENT`; el tutor recibe la notificación `SESSION_REQUEST_WITHDRAWN`.
 
 ### Completar sesión y registrar asistencia
 

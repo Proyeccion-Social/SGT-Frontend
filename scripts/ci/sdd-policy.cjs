@@ -44,22 +44,30 @@ function reviewDecisions(reviews) {
   return [...latest.values()];
 }
 
+function isReleaseBranch(branch) {
+  return typeof branch === 'string' && branch.startsWith('release/');
+}
+
 async function evaluate({ github, repo, pr }) {
   if (pr.draft) throw new Error('La PR está en draft.');
-  const metadata = parseFeatureDescription(pr.body);
-  const { data: file } = await github.rest.repos.getContent({
-    owner: pr.head.repo.owner.login,
-    repo: pr.head.repo.name,
-    path: `sdd/features/${metadata.feature_id}/state.json`,
-    ref: pr.head.sha,
-  });
-  if (Array.isArray(file) || file.type !== 'file' || file.encoding !== 'base64' || !file.content) {
-    throw new Error('No se pudo leer un state.json válido del commit de la PR.');
+  const release = isReleaseBranch(pr.head.ref);
+  let metadata;
+  if (!release) {
+    metadata = parseFeatureDescription(pr.body);
+    const { data: file } = await github.rest.repos.getContent({
+      owner: pr.head.repo.owner.login,
+      repo: pr.head.repo.name,
+      path: `sdd/features/${metadata.feature_id}/state.json`,
+      ref: pr.head.sha,
+    });
+    if (Array.isArray(file) || file.type !== 'file' || file.encoding !== 'base64' || !file.content) {
+      throw new Error('No se pudo leer un state.json válido del commit de la PR.');
+    }
+    let state;
+    try { state = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')); }
+    catch { throw new Error('El state.json no contiene JSON válido.'); }
+    assertArchivedFeature(metadata, state);
   }
-  let state;
-  try { state = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8')); }
-  catch { throw new Error('El state.json no contiene JSON válido.'); }
-  assertArchivedFeature(metadata, state);
 
   const reviews = await github.paginate(github.rest.pulls.listReviews, {
     ...repo, pull_number: pr.number, per_page: 100,
@@ -75,7 +83,7 @@ async function evaluate({ github, repo, pr }) {
     if (review.state === 'APPROVED' && review.commit_id === pr.head.sha) approved = true;
   }
   if (!approved) throw new Error('Falta un Approve de un colaborador sobre el commit actual.');
-  return metadata.feature_id;
+  return release ? 'release' : metadata.feature_id;
 }
 
 async function run({ github, context, core }) {
@@ -122,4 +130,4 @@ async function run({ github, context, core }) {
   }
 }
 
-module.exports = { parseFeatureDescription, assertArchivedFeature, reviewDecisions, evaluate, run };
+module.exports = { parseFeatureDescription, assertArchivedFeature, reviewDecisions, isReleaseBranch, evaluate, run };

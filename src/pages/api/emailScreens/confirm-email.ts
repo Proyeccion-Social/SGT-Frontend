@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { fetchMe } from '@features/auth/services/authService';
+import { getFrontendUrl } from '@/lib/frontendUrl';
 
 export const prerender = false;
 
@@ -18,7 +19,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     const res = await fetch(apiUrl.toString(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-frontend-url': getFrontendUrl(request.headers.get('x-frontend-url')),
+      },
       body: JSON.stringify({ token }),
     });
 

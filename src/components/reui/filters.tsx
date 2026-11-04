@@ -1778,7 +1778,6 @@ export function Filters<T = unknown>({
                               </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent
                                 className="w-[200px] max-[499px]:w-[160px]"
-                                side="right"
                               >
                                 <FilterSubmenuContent
                                   field={field}

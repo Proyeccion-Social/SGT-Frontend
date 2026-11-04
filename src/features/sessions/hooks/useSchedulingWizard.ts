@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { CreateSessionDTO, Modality } from '../types/session.types';
 import { useSession } from './useSession';
+import { useAuthStore } from '@/store/authStore';
+import { UserRole } from '@/constants/roles';
 
 export type WizardStep = 1 | 2 | 3 | 4;
 
@@ -22,8 +24,8 @@ export interface UseSchedulingWizardReturn {
 // Campos requeridos para poder enviar el DTO al backend
 const REQUIRED_FIELDS: (keyof CreateSessionDTO)[] = [
   'tutorId',
-  'date',
-  'duration',
+  'scheduledDate',
+  'durationHours',
   'title',
   'description',
   'modality',
@@ -38,7 +40,8 @@ export function useSchedulingWizard(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { agendar } = useSession();
+  const userRole = useAuthStore((state) => state.user?.role ?? UserRole.STUDENT);
+  const { agendar } = useSession(userRole);
 
   const updateField = <K extends keyof CreateSessionDTO>(
     key: K,
@@ -58,8 +61,8 @@ export function useSchedulingWizard(
     // Para ir al paso 3 ya debe existir fecha, hora de inicio, duración y modalidad
     if (target >= 3) {
       if (
-        !data.date ||
-        !data.duration ||
+        !data.scheduledDate ||
+        !data.durationHours ||
         !data.modality
       ) {
         return false;
@@ -102,7 +105,6 @@ export function useSchedulingWizard(
     try {
       const success = await agendar(
         data as CreateSessionDTO,
-        modalidadesPermitidas,
       );
 
       if (!success) {

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAuthStore } from '@/store/authStore';
+import { UserRole } from '@/constants/roles';
 import { startDashboardStudentTutorial } from "./tutorials/Student/dashboardTutorial";
 import { startAgendamientoStudentTutorial } from "./tutorials/Student/agendamientoTutorial";
 import { startSearchStudentTutorial } from "./tutorials/Student/searchTutorial";
@@ -31,7 +32,7 @@ const PATH_TOUR_MAP = {
 
 /** Inicia un tour solo si ya tiene estado ACTIVE en localStorage.
  *  Esto asegura que los tours no se auto-inicien en dispositivos nuevos. */
-function maybeStartTour(tourId, startFn) {
+function maybeStartTour(tourId: string, startFn: () => void) {
   const status = getTourStatus(tourId);
   if (!status || status.status !== TUTORIAL_STATUS.ACTIVE) {
     return false;
@@ -81,10 +82,12 @@ export default function TutorialInitializer() {
     // No iniciar tours si el usuario aun esta completando su perfil.
     if (requiresProfileCompletion) return;
     const path = window.location.pathname;
-    const role = user?.role === "TUTOR" ? "TUTOR" : user?.role === "STUDENT" ? "STUDENT" : null;
+    const role = user?.role === UserRole.TUTOR ? "TUTOR" : user?.role === UserRole.STUDENT ? "STUDENT" : null;
     if (!role) return;
 
-    const mapping = PATH_TOUR_MAP[role]?.[path];
+    const mapping = (
+      PATH_TOUR_MAP as Record<string, Record<string, { tourId: string; start: () => void }>>
+    )[role]?.[path];
     if (!mapping) return;
 
     const { tourId, start } = mapping;
@@ -112,7 +115,7 @@ export default function TutorialInitializer() {
     const handler = () => {
       // Leer el state actual del store (no de la closure) para evitar stale values.
       const currentState = useAuthStore.getState();
-      const role = currentState.user?.role === "TUTOR" ? "TUTOR" : currentState.user?.role === "STUDENT" ? "STUDENT" : null;
+      const role = currentState.user?.role === UserRole.TUTOR ? "TUTOR" : currentState.user?.role === UserRole.STUDENT ? "STUDENT" : null;
       if (!role) return;
       if (window.location.pathname !== "/dashboard") return;
       // Solo iniciar el tour de dashboard si no esta descartado/completado.

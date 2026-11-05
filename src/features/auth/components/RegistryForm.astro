@@ -89,6 +89,7 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+                "x-frontend-url": window.location.origin,
             },
             body: JSON.stringify({
               name: nameInput.value,
@@ -118,7 +119,7 @@
           },
           fill: "#58d68d",
           styles: {
-            badge: { fill: "#ffffff" },
+                    badge: "#ffffff",
           },
         });
       })

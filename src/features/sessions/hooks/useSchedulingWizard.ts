@@ -22,8 +22,8 @@ export interface UseSchedulingWizardReturn {
 // Campos requeridos para poder enviar el DTO al backend
 const REQUIRED_FIELDS: (keyof CreateSessionDTO)[] = [
   'tutorId',
-  'date',
-  'duration',
+  'scheduledDate',
+  'durationHours',
   'title',
   'description',
   'modality',
@@ -31,14 +31,14 @@ const REQUIRED_FIELDS: (keyof CreateSessionDTO)[] = [
 
 export function useSchedulingWizard(
   initialData: Partial<CreateSessionDTO> = {},
-  modalidadesPermitidas: Modality[],
+  modalidadesPermitidas: Modality[] = [],
 ): UseSchedulingWizardReturn {
   const [step, setStep] = useState<WizardStep>(1);
   const [data, setData] = useState<Partial<CreateSessionDTO>>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { agendar } = useSession();
+  const { agendar } = useSession('student');
 
   const updateField = <K extends keyof CreateSessionDTO>(
     key: K,
@@ -58,8 +58,8 @@ export function useSchedulingWizard(
     // Para ir al paso 3 ya debe existir fecha, hora de inicio, duración y modalidad
     if (target >= 3) {
       if (
-        !data.date ||
-        !data.duration ||
+        !data.scheduledDate ||
+        !data.durationHours ||
         !data.modality
       ) {
         return false;
@@ -100,10 +100,7 @@ export function useSchedulingWizard(
 
     setIsSubmitting(true);
     try {
-      const success = await agendar(
-        data as CreateSessionDTO,
-        modalidadesPermitidas,
-      );
+      const success = await agendar(data as CreateSessionDTO, modalidadesPermitidas);
 
       if (!success) {
         setError('No se pudo agendar la sesión. Intenta de nuevo más tarde.');

@@ -42,7 +42,7 @@ export default function VaulDrawer() {
     const [isOpen, setIsOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const isStudent = user?.role === 'STUDENT';
+    const isStudent = user?.role === 'student';
     const activeSteps = isStudent ? STUDENT_STEPS : TUTOR_STEPS;
     const finishStepId = 3;
 

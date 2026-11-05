@@ -14,7 +14,7 @@ export const PATCH: APIRoute = async ({ request, cookies }) => {
     }
 
     const body = await request.json();
-    const result = await patchSlotsByRange(accessToken, body);
+    const result = await patchSlotsByRange(body, accessToken);
 
     return new Response(JSON.stringify(result), {
       status: 200,

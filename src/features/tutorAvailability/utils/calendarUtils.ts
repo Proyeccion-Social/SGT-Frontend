@@ -8,7 +8,7 @@ export type ModalityValue = 'PRES' | 'VIRT';
  * El backend ahora envía modality como un array de strings.
  * Se mantiene soporte legacy para string único por retrocompatibilidad.
  */
-export type Modality = ModalityValue[] | ModalityValue | null;
+export type Modality = ModalityValue[] | ModalityValue | 'BOTH' | null;
 
 export type DayOfWeek = 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO';
 

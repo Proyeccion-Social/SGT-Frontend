@@ -1,0 +1,15 @@
+name: PR review signal
+
+on:
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+permissions: {}
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      # No checkout, credentials or artifacts from the PR are needed.
+      - run: echo 'Review changed; the trusted SDD gate will reevaluate open PRs.'

@@ -14,7 +14,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
     }
 
     const body = await request.json();
-    const result = await deleteSlotsByRange(accessToken, body);
+    const result = await deleteSlotsByRange(body, accessToken);
 
     return new Response(JSON.stringify(result), {
       status: 200,

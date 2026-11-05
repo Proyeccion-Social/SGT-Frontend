@@ -5,8 +5,15 @@ import { HistoryFilters } from "./HistoryFilters.tsx";
 import CalendarAdd from "../assets/calendar-add.svg";
 import { Image } from "astro:assets";
 import { statusLabel } from "@/features/sessions/utils/statusLabel";
+import type { Session } from "@/features/sessions/types/session.types";
 
-const { data, currentStatus, userId } = Astro.props;
+interface Props {
+  data: { data: Session[]; statistics: Record<string, number>; meta: { page: number; totalPages: number } };
+  currentStatus: string;
+  userId: string;
+}
+
+const { data, currentStatus, userId } = Astro.props as Props;
 
 const sessions = data.data;
 const statistics = data.statistics;
@@ -80,10 +87,9 @@ const pagination = data.meta;
                   <td>
                     <span class='title-column'>
                       <span
-                        class={`modality-tag ${session.modality === "PRES" || session.modality === "PRESENCIAL" ? "modality-pres" : "modality-virt"}`}
+                        class={`modality-tag ${session.modality === "PRES" ? "modality-pres" : "modality-virt"}`}
                       >
-                        {session.modality === "PRES" ||
-                        session.modality === "PRESENCIAL"
+                        {session.modality === "PRES"
                           ? "Presencial"
                           : "Virtual"}
                       </span>
@@ -121,7 +127,7 @@ const pagination = data.meta;
                 return statusLabel(session.status, "short");
               })();
 
-              const isPresencial = session.modality === "PRES" || session.modality === "PRESENCIAL";
+              const isPresencial = session.modality === "PRES";
 
               return (
                 <div

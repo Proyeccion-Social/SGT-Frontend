@@ -1,7 +1,16 @@
 const API_URL = import.meta.env.API_URL;
 
+type PostSlotsByRangeBody = {
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  modality: Array<'PRES' | 'VIRT'>;
+};
 
-export async function postSlotsByRange(token?: string, body) {
+export async function postSlotsByRange(
+  body: PostSlotsByRangeBody,
+  token?: string,
+) {
 
     const response = await fetch(
     `${API_URL}/availability/tutor/slots/range`,

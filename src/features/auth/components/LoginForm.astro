@@ -64,6 +64,7 @@
 
     form?.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (!emailInput) return;
 
       if (!passwordVisible) {
         await sileo
@@ -123,7 +124,7 @@
               },
               body: JSON.stringify({
                 email: emailInput.value,
-                password: passwordInput.value,
+                  password: passwordInput?.value ?? "",
               }),
             });
 

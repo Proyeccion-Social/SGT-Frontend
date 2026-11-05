@@ -646,8 +646,7 @@ function FilterOperatorDropdown<T = unknown>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
+      <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size={context.size}
@@ -655,8 +654,7 @@ function FilterOperatorDropdown<T = unknown>({
           >
             {operatorLabel}
           </Button>
-        }
-      />
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-fit min-w-fit">
         {operators.map((op) => (
           <DropdownMenuItem
@@ -966,8 +964,7 @@ function SelectOptionsPopover<T = unknown>({
         }
       }}
     >
-      <DropdownMenuTrigger
-        render={
+      <DropdownMenuTrigger asChild>
           <Button variant="outline" size={context.size}>
             <div className="flex items-center gap-1.5">
               {field.customValueRenderer ? (
@@ -990,8 +987,7 @@ function SelectOptionsPopover<T = unknown>({
               )}
             </div>
           </Button>
-        }
-      />
+      </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
         className={cn("w-[200px] max-[499px]:w-[160px] px-0", field.className)}
@@ -1609,7 +1605,7 @@ export function Filters<T = unknown>({
               }
             }}
           >
-            <DropdownMenuTrigger render={triggerButton} />
+            <DropdownMenuTrigger asChild>{triggerButton}</DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn("w-[220px] max-[499px]:w-[180px]", menuPopupClassName)}
               align="start"
@@ -1778,7 +1774,7 @@ export function Filters<T = unknown>({
                               </DropdownMenuSubTrigger>
                               <DropdownMenuSubContent
                                 className="w-[200px] max-[499px]:w-[160px]"
-                                side="right"
+                                align="start"
                               >
                                 <FilterSubmenuContent
                                   field={field}

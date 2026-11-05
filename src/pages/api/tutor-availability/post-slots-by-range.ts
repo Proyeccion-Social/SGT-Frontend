@@ -14,7 +14,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     const body = await request.json();
-    const result = await postSlotsByRange(accessToken, body);
+    const result = await postSlotsByRange(body, accessToken);
 
     return new Response(JSON.stringify(result), {
       status: 201,

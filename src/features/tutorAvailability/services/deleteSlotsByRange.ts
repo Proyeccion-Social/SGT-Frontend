@@ -1,7 +1,9 @@
 const API_URL = import.meta.env.API_URL;
 
 
-export async function deleteSlotsByRange(token?: string, body) {
+type SlotsByRangeBody = { dayOfWeek: string; startTime: string; endTime: string; modality?: Array<'PRES' | 'VIRT'> };
+
+export async function deleteSlotsByRange(body: SlotsByRangeBody, token?: string) {
 
     const response = await fetch(
     `${API_URL}/availability/tutor/slots/range`,

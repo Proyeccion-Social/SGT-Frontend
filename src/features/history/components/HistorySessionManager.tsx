@@ -64,6 +64,36 @@ export default function HistorySessionManager() {
     }
   };
 
+  const confirmar = async (id: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/confirm-session', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: id }),
+      });
+      return res.ok;
+    } catch { return false; }
+  };
+
+  const rechazar = async (id: string, reason: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/sessions/reject-session', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: id, reason }),
+      });
+      return res.ok;
+    } catch { return false; }
+  };
+
+  const resolveModification = async (endpoint: string, id: string, requestId?: string) => {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: id, requestId }),
+      });
+      return res.ok;
+    } catch { return false; }
+  };
+
   const handleRequestCancel = (session: Session) => {
     setSessionToCancel(session);
     setActiveSessionId(null);
@@ -79,6 +109,10 @@ export default function HistorySessionManager() {
           onRequestCancel={handleRequestCancel}
           modificar={modificar}
           editar={editar}
+          confirmar={confirmar}
+          rechazar={rechazar}
+          aceptarModificacion={(id, requestId) => resolveModification('/api/sessions/accept-modification', id, requestId)}
+          rechazarModificacion={(id, requestId) => resolveModification('/api/sessions/reject-modification', id, requestId)}
         />
       )}
 

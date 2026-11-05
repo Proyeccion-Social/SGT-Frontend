@@ -172,7 +172,7 @@ export function getSlotsByDay(slots: Slot[], dayKey: string): any[] {
             startTime: s.startTime?.substring(0, 5) || s.startTime,
             endTime: s.endTime?.substring(0, 5) || s.endTime,
             modality: s.modality
-                ? (String(s.modality).toUpperCase() as Slot["modality"])
+                ? (String(s.modality).toUpperCase() as unknown as Slot["modality"])
                 : s.modality,
             isBooked: Boolean(s.isBooked),
         }));

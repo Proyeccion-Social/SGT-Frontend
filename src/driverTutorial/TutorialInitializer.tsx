@@ -14,7 +14,7 @@ import {
 /** Tabla path → { tourId, startFn } para retomar tours al cambiar de pagina.
  *  Todos requieren un estado ACTIVE previo: solo se reanudan si fueron
  *  explicitamente iniciados por el flujo del tutorial (no auto-inician en dispositivos nuevos). */
-const PATH_TOUR_MAP = {
+const PATH_TOUR_MAP: Record<string, Record<string, { tourId: string; start: () => void }>> = {
   STUDENT: {
     "/dashboard": { tourId: "final", start: startFinalTutorial },
     "/sessions": { tourId: "agendamiento-student", start: startAgendamientoStudentTutorial },
@@ -31,7 +31,7 @@ const PATH_TOUR_MAP = {
 
 /** Inicia un tour solo si ya tiene estado ACTIVE en localStorage.
  *  Esto asegura que los tours no se auto-inicien en dispositivos nuevos. */
-function maybeStartTour(tourId, startFn) {
+function maybeStartTour(tourId: string, startFn: () => void) {
   const status = getTourStatus(tourId);
   if (!status || status.status !== TUTORIAL_STATUS.ACTIVE) {
     return false;
@@ -81,7 +81,7 @@ export default function TutorialInitializer() {
     // No iniciar tours si el usuario aun esta completando su perfil.
     if (requiresProfileCompletion) return;
     const path = window.location.pathname;
-    const role = user?.role === "TUTOR" ? "TUTOR" : user?.role === "STUDENT" ? "STUDENT" : null;
+    const role = user?.role === "tutor" ? "TUTOR" : user?.role === "student" ? "STUDENT" : null;
     if (!role) return;
 
     const mapping = PATH_TOUR_MAP[role]?.[path];
@@ -112,7 +112,7 @@ export default function TutorialInitializer() {
     const handler = () => {
       // Leer el state actual del store (no de la closure) para evitar stale values.
       const currentState = useAuthStore.getState();
-      const role = currentState.user?.role === "TUTOR" ? "TUTOR" : currentState.user?.role === "STUDENT" ? "STUDENT" : null;
+      const role = currentState.user?.role === "tutor" ? "TUTOR" : currentState.user?.role === "student" ? "STUDENT" : null;
       if (!role) return;
       if (window.location.pathname !== "/dashboard") return;
       // Solo iniciar el tour de dashboard si no esta descartado/completado.

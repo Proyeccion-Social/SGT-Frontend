@@ -82,6 +82,7 @@ export const ReviewModificationDialog = ({ requestId, onClose }: Props) => {
         ? '/api/emailScreens/modification-requests/accept'
         : '/api/emailScreens/modification-requests/reject';
 
+      if (!request) throw new Error('No hay una solicitud de modificación para revisar.');
       const payload = { requestId, sessionId: request.sessionId };
 
       const res = await fetch(endpoint, {

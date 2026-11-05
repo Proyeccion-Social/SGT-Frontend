@@ -105,7 +105,13 @@ async function run({ github, context, core }) {
       const feature = await evaluate({ github, repo, pr });
       const { data: current } = await github.rest.pulls.get({ ...repo, pull_number: pr.number });
       if (current.head.sha !== sha || current.state !== 'open') throw new Error('La PR cambió durante la comprobación; requiere reevaluación.');
-      result = { number: pr.number, ok: true, message: `${feature}: archivada y aprobada.` };
+      result = {
+        number: pr.number,
+        ok: true,
+        message: feature === 'release'
+          ? 'Release: estado SDD archivado omitido; aprobación requerida confirmada.'
+          : `${feature}: archivada y aprobada.`,
+      };
     } catch (error) {
       result = { number: pr.number, ok: false, message: error.status === 404 ? 'No se encontró la feature archivada en el commit de la PR.' : error.message };
     }
